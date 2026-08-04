@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 376" width="800" height="376" role="img" aria-label="compile의 세 인자와 역할">
+  <title>compile의 세 인자와 역할 — model.compile()에서 optimizer, loss, metrics 세 갈래가 갈라지며, 가운데 loss 갈래만 강조되어 있다. optimizer는 가중치 갱신 방법, loss는 줄일 대상, metrics는 사람이 보는 지표다.</title>
+  <defs>
+    <marker id="ct-arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="ct-arrow-primary" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="376" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">compile이 정하는 세 가지</text>
+
+    <!-- 중앙 compile 박스 -->
+    <rect x="292" y="64" width="216" height="52" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="97" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">model.compile()</text>
+
+    <!-- 분기 연결선 -->
+    <line x1="400" y1="116" x2="400" y2="146" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="144" y1="146" x2="400" y2="146" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="400" y1="146" x2="656" y2="146" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="144" y1="146" x2="144" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ct-arrow-muted)"/>
+    <line x1="656" y1="146" x2="656" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ct-arrow-muted)"/>
+    <line x1="400" y1="146" x2="400" y2="172" stroke="#2563eb" stroke-width="2.5" marker-end="url(#ct-arrow-primary)"/>
+
+    <!-- optimizer -->
+    <rect x="32" y="176" width="224" height="140" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="144" y="208" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">optimizer</text>
+    <text x="144" y="232" font-size="12" fill="#94a3b8" text-anchor="middle">가중치를 어떻게 갱신할까</text>
+    <rect x="56" y="244" width="176" height="40" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="144" y="269" font-size="14" fill="#1a2332" text-anchor="middle">'adam'</text>
+    <text x="144" y="304" font-size="11" fill="#94a3b8" text-anchor="middle">시험에서는 거의 고정</text>
+
+    <!-- loss (핵심) -->
+    <rect x="288" y="176" width="224" height="140" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="208" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">loss</text>
+    <text x="400" y="232" font-size="12" fill="#1a2332" text-anchor="middle">오차를 어떻게 잴까</text>
+    <rect x="312" y="244" width="176" height="40" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="400" y="269" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">문제 유형마다 교체</text>
+    <text x="400" y="304" font-size="11" fill="#2563eb" text-anchor="middle">모델이 실제로 줄이는 값</text>
+
+    <!-- metrics -->
+    <rect x="544" y="176" width="224" height="140" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="656" y="208" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">metrics</text>
+    <text x="656" y="232" font-size="12" fill="#94a3b8" text-anchor="middle">사람이 볼 지표</text>
+    <rect x="568" y="244" width="176" height="40" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="656" y="269" font-size="14" fill="#1a2332" text-anchor="middle">['accuracy']</text>
+    <text x="656" y="304" font-size="11" fill="#94a3b8" text-anchor="middle">학습에 영향 없음</text>
+
+    <text x="32" y="352" font-size="12" fill="#94a3b8">모델이 줄이는 값은 loss 하나뿐입니다. metrics를 바꿔도 학습 방향은 달라지지 않습니다.</text>
+  </g>
+</svg>

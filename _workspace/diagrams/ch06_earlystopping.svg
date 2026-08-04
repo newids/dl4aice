@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" role="img" aria-label="EarlyStopping이 학습을 멈추는 지점">
+  <title>EarlyStopping이 학습을 멈추는 지점 — 검증 손실 곡선의 최저점이 16 epoch이고, 개선 없이 5 epoch을 더 기다린 21 epoch에서 학습을 멈춘 뒤 최저점의 가중치로 되돌리는 과정을 나타낸 개념 도해.</title>
+  <defs>
+    <marker id="ch06es-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="400" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">EarlyStopping이 학습을 멈추는 지점</text>
+
+    <!-- 축 -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <line x1="88" y1="96" x2="88" y2="330"/>
+      <line x1="88" y1="330" x2="694" y2="330"/>
+    </g>
+    <text x="32" y="78" font-size="12" fill="#94a3b8">검증 손실 (val_loss)</text>
+    <text x="694" y="350" font-size="12" fill="#94a3b8" text-anchor="end">epoch</text>
+
+    <!-- 검증 손실 곡선 -->
+    <path d="M100,112 C150,205 200,248 260,262 C330,278 410,290 475,292 C520,290 560,274 600,258" fill="none" stroke="#1a2332" stroke-width="2.5"/>
+    <path d="M600,258 C625,252 650,244 675,238" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+
+    <!-- best epoch 안내선과 마커 -->
+    <line x1="475" y1="124" x2="475" y2="284" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <circle cx="475" cy="292" r="6" fill="#059669"/>
+    <text x="475" y="318" font-size="12" font-weight="700" fill="#059669" text-anchor="middle">best epoch = 16</text>
+    <text x="475" y="350" font-size="12" fill="#94a3b8" text-anchor="middle">16</text>
+
+    <!-- patience 브래킷 -->
+    <path d="M475,238 L475,228 L600,228 L600,238" fill="none" stroke="#f59e0b" stroke-width="2"/>
+    <text x="537" y="220" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="middle">patience = 5</text>
+
+    <!-- 중단 지점 -->
+    <line x1="600" y1="124" x2="600" y2="336" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="600" y="350" font-size="12" fill="#94a3b8" text-anchor="middle">21</text>
+    <text x="612" y="152" font-size="13" font-weight="700" fill="#dc2626">학습 중단</text>
+    <text x="612" y="172" font-size="12" fill="#1a2332">epoch 21 = 16 + 5</text>
+    <text x="612" y="232" font-size="12" fill="#94a3b8">실행되지 않은 구간</text>
+
+    <!-- 최적 가중치로 복귀 -->
+    <path d="M594,134 C555,110 505,110 482,128" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ch06es-arrow)"/>
+    <text x="538" y="98" font-size="13" font-weight="700" fill="#059669" text-anchor="middle">restore_best_weights=True</text>
+
+    <text x="32" y="378" font-size="12" fill="#94a3b8">개념 도해입니다 — 실제 학습 곡선이 아닙니다. 숫자는 이해를 돕기 위한 예시입니다.</text>
+  </g>
+</svg>

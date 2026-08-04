@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" width="800" height="380" role="img" aria-label="문제 유형별 출력층 설계" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>문제 유형별 출력층 설계 분기도. 이진분류, 다중분류, 회귀에 따라 출력층의 units와 activation이 하나로 정해집니다.</title>
+  <defs>
+    <marker id="olc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="380" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">문제 유형이 출력층을 정한다</text>
+
+  <!-- 분기 질문 -->
+  <path d="M300,96 L400,68 L500,96 L400,124 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="102" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">문제 유형?</text>
+
+  <line x1="400" y1="124" x2="400" y2="152" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="148" y1="152" x2="652" y2="152" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="148" y1="152" x2="148" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+  <line x1="400" y1="152" x2="400" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+  <line x1="652" y1="152" x2="652" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+
+  <!-- 이진분류 -->
+  <rect x="32" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="148" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이진분류 (0 / 1)</text>
+  <rect x="48" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="132" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="144" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="132" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="144" y="262" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'sigmoid'</text>
+  <text x="148" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">1일 확률 하나 (0~1)</text>
+  <text x="148" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1, activation='sigmoid')</text>
+  <text x="148" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+
+  <!-- 다중분류 -->
+  <rect x="284" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="400" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">다중분류 (K개 클래스)</text>
+  <rect x="300" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="384" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="396" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">K</text>
+  <text x="384" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="396" y="262" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'softmax'</text>
+  <text x="400" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">클래스별 확률 K개 (합 = 1)</text>
+  <text x="400" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(K, activation='softmax')</text>
+  <text x="400" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+
+  <!-- 회귀 -->
+  <rect x="536" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="652" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">회귀 (연속값)</text>
+  <rect x="552" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="636" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="648" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="636" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="648" y="262" font-size="13" font-weight="700" fill="#f59e0b">쓰지 않음</text>
+  <text x="652" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">예측한 숫자 그 자체</text>
+  <text x="652" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1)</text>
+  <text x="652" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+</svg>

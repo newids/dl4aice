@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="800" height="350" role="img" aria-label="입력 shape를 정하는 규칙" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>입력 shape를 정하는 규칙. 표 데이터의 열 수(특성 수)만 Input의 shape에 넣고, 행 수(샘플 수)는 넣지 않습니다.</title>
+  <defs>
+    <marker id="ish-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ish-p-s" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ish-a-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="ish-a-s" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="350" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">입력 shape는 열 수만 쓴다</text>
+
+  <!-- 열 치수 -->
+  <text x="236" y="66" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">8열 = 특성 수</text>
+  <line x1="124" y1="78" x2="348" y2="78" stroke="#2563eb" stroke-width="2" marker-start="url(#ish-p-s)" marker-end="url(#ish-p-e)"/>
+
+  <!-- 행 치수 -->
+  <text x="96" y="146" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="end">1,000행</text>
+  <text x="96" y="164" font-size="12" fill="#f59e0b" text-anchor="end">(샘플 수)</text>
+  <line x1="110" y1="92" x2="110" y2="230" stroke="#f59e0b" stroke-width="2" marker-start="url(#ish-a-s)" marker-end="url(#ish-a-e)"/>
+
+  <!-- 데이터 표 -->
+  <rect x="124" y="92" width="224" height="104" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <line x1="152" y1="92" x2="152" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="180" y1="92" x2="180" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="208" y1="92" x2="208" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="236" y1="92" x2="236" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="264" y1="92" x2="264" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="292" y1="92" x2="292" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="320" y1="92" x2="320" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="118" x2="348" y2="118" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="144" x2="348" y2="144" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="170" x2="348" y2="170" stroke="#94a3b8" stroke-width="1"/>
+  <circle cx="236" cy="208" r="2.5" fill="#94a3b8"/>
+  <circle cx="236" cy="216" r="2.5" fill="#94a3b8"/>
+  <circle cx="236" cy="224" r="2.5" fill="#94a3b8"/>
+
+  <!-- 코드로 -->
+  <line x1="366" y1="163" x2="452" y2="163" stroke="#2563eb" stroke-width="2" marker-end="url(#ish-p-e)"/>
+
+  <rect x="460" y="126" width="290" height="74" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="605" y="162" font-size="16" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(<tspan fill="#2563eb" font-weight="700">8</tspan>,))</text>
+  <text x="605" y="187" font-size="12" fill="#94a3b8" text-anchor="middle">8 = X_train_scaled.shape[1]</text>
+
+  <!-- 주의 -->
+  <rect x="120" y="258" width="560" height="66" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="286" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">행 수(샘플 수)는 shape에 넣지 않는다</text>
+  <text x="400" y="308" font-size="12" fill="#94a3b8" text-anchor="middle">Input(shape=(1000, 8)) 처럼 쓰면 틀린 표기</text>
+</svg>

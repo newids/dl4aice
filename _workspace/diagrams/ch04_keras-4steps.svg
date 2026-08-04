@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 260" width="800" height="260" role="img" aria-label="Keras 모델 제작 4단계" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Keras 모델 제작 4단계 파이프라인. 구성, 컴파일, 학습, 평가 네 단계 중 이 챕터는 첫 단계인 구성을 다룹니다.</title>
+  <defs>
+    <marker id="k4s-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="260" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">Keras 모델 제작 4단계</text>
+  <text x="768" y="38" font-size="12" fill="#94a3b8" text-anchor="end">파란 칸이 이 챕터의 범위</text>
+
+  <!-- 1. 구성 (현재 챕터) -->
+  <rect x="34" y="96" width="150" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="109" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">구성</text>
+  <text x="109" y="152" font-size="12" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Sequential</text>
+  <text x="109" y="170" font-size="12" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense</text>
+  <text x="109" y="204" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">Ch04 (이 챕터)</text>
+
+  <line x1="192" y1="138" x2="220" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  <!-- 2. 컴파일 -->
+  <rect x="228" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="303" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">컴파일</text>
+  <text x="303" y="152" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">optimizer</text>
+  <text x="303" y="170" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss</text>
+  <text x="303" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch05</text>
+
+  <line x1="386" y1="138" x2="414" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  <!-- 3. 학습 -->
+  <rect x="422" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="497" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습</text>
+  <text x="497" y="156" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fit()</text>
+  <text x="497" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch05</text>
+
+  <line x1="580" y1="138" x2="608" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  <!-- 4. 평가 -->
+  <rect x="616" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="691" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">평가</text>
+  <text x="691" y="152" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate()</text>
+  <text x="691" y="170" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">predict()</text>
+  <text x="691" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch07</text>
+
+  <text x="34" y="236" font-size="12" fill="#94a3b8">순서를 건너뛸 수 없다. compile() 없이 fit()을 부르면 오류가 난다.</text>
+</svg>

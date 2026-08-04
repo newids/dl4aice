@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 268" width="800" height="268" role="img" aria-label="AICE Associate 실기 시험의 문항 흐름">
+  <title>AICE Associate 실기 시험의 문항 흐름 — 데이터 로딩·탐색부터 평가까지 여섯 단계가 좌에서 우로 이어지며, 딥러닝과 평가 두 단계가 이 교재의 집중 구간이다.</title>
+  <defs>
+    <marker id="ch01ef-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="268" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">AICE Associate 실기 시험의 문항 흐름</text>
+
+    <!-- 집중 구간 브래킷 -->
+    <path d="M544 102 L544 94 L768 94 L768 102" fill="none" stroke="#2563eb" stroke-width="2"/>
+    <text x="656" y="86" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">이 교재의 집중 구간</text>
+
+    <!-- 연결 화살표 -->
+    <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch01ef-arrow)">
+      <line x1="132" y1="153" x2="154" y2="153"/>
+      <line x1="260" y1="153" x2="282" y2="153"/>
+      <line x1="388" y1="153" x2="410" y2="153"/>
+      <line x1="516" y1="153" x2="538" y2="153"/>
+      <line x1="644" y1="153" x2="666" y2="153"/>
+    </g>
+
+    <!-- 1. 데이터 로딩·탐색 -->
+    <rect x="32" y="118" width="96" height="70" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="80" y="147" font-size="15" fill="#1a2332" text-anchor="middle">데이터</text>
+    <text x="80" y="169" font-size="15" fill="#1a2332" text-anchor="middle">로딩·탐색</text>
+    <text x="80" y="208" font-size="12" fill="#94a3b8" text-anchor="middle">2~3문항</text>
+
+    <!-- 2. 전처리 -->
+    <rect x="160" y="118" width="96" height="70" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="208" y="159" font-size="15" fill="#1a2332" text-anchor="middle">전처리</text>
+    <text x="208" y="208" font-size="12" fill="#94a3b8" text-anchor="middle">4~5문항</text>
+
+    <!-- 3. 데이터 분리 -->
+    <rect x="288" y="118" width="96" height="70" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="336" y="147" font-size="15" fill="#1a2332" text-anchor="middle">데이터</text>
+    <text x="336" y="169" font-size="15" fill="#1a2332" text-anchor="middle">분리</text>
+    <text x="336" y="208" font-size="12" fill="#94a3b8" text-anchor="middle">1문항</text>
+
+    <!-- 4. 머신러닝 -->
+    <rect x="416" y="118" width="96" height="70" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="464" y="159" font-size="15" fill="#1a2332" text-anchor="middle">머신러닝</text>
+    <text x="464" y="208" font-size="12" fill="#94a3b8" text-anchor="middle">1~2문항</text>
+
+    <!-- 5. 딥러닝 -->
+    <rect x="544" y="118" width="96" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="592" y="159" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">딥러닝</text>
+    <text x="592" y="208" font-size="12" fill="#94a3b8" text-anchor="middle">2~3문항</text>
+
+    <!-- 6. 평가 -->
+    <rect x="672" y="118" width="96" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="720" y="159" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">평가</text>
+    <text x="720" y="208" font-size="12" fill="#94a3b8" text-anchor="middle">1~2문항</text>
+
+    <text x="32" y="242" font-size="12" fill="#94a3b8">문항 수는 회차별로 달라집니다 — 시험 공지 기준으로 확인하십시오.</text>
+  </g>
+</svg>

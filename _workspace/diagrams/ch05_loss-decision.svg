@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 584" width="800" height="584" role="img" aria-label="손실 함수와 출력층 짝 선택 분기">
+  <title>손실 함수와 출력층 짝 선택 분기 — 타깃이 연속된 숫자인지, 클래스가 2개인지, 라벨이 정수인지 원-핫인지를 위에서부터 물어 회귀, 이진분류, 다중분류(정수 라벨), 다중분류(원-핫) 네 갈래로 나뉘며 각 갈래마다 출력층과 loss, metrics가 한 짝으로 정해진다.</title>
+  <defs>
+    <marker id="ld-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="584" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">손실 함수와 출력층 짝 선택</text>
+
+    <!-- ===== 연결선 ===== -->
+    <g stroke="#2563eb" stroke-width="2" fill="none">
+      <!-- 예 갈래 (오른쪽) -->
+      <line x1="332" y1="122" x2="360" y2="122" marker-end="url(#ld-arrow)"/>
+      <line x1="332" y1="238" x2="360" y2="238" marker-end="url(#ld-arrow)"/>
+      <line x1="332" y1="354" x2="360" y2="354" marker-end="url(#ld-arrow)"/>
+      <!-- 아니오 갈래 (아래) -->
+      <line x1="180" y1="160" x2="180" y2="196" marker-end="url(#ld-arrow)"/>
+      <line x1="180" y1="276" x2="180" y2="312" marker-end="url(#ld-arrow)"/>
+      <path d="M180 392 L180 470 L360 470" marker-end="url(#ld-arrow)"/>
+    </g>
+
+    <g font-size="11" fill="#94a3b8">
+      <text x="346" y="114" text-anchor="middle">예</text>
+      <text x="346" y="230" text-anchor="middle">예</text>
+      <text x="346" y="346" text-anchor="middle">예</text>
+      <text x="190" y="184">아니오 (범주)</text>
+      <text x="190" y="300">아니오 (3개 이상)</text>
+      <text x="190" y="416">아니오 (원-핫)</text>
+    </g>
+
+    <!-- ===== 질문 마름모 ===== -->
+    <path d="M28 122 L180 84 L332 122 L180 160 Z" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="180" y="127" font-size="13" font-weight="700" fill="#1a2332" text-anchor="middle">타깃 y가 연속된 숫자인가?</text>
+
+    <path d="M28 238 L180 200 L332 238 L180 276 Z" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="180" y="243" font-size="13" font-weight="700" fill="#1a2332" text-anchor="middle">클래스가 2개인가?</text>
+
+    <path d="M28 354 L180 316 L332 354 L180 392 Z" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="180" y="359" font-size="13" font-weight="700" fill="#1a2332" text-anchor="middle">라벨이 정수인가?</text>
+
+    <!-- ===== 잎 1: 회귀 ===== -->
+    <rect x="364" y="72" width="412" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="380" y="98" font-size="13" font-weight="700" fill="#1a2332">회귀 (타깃이 연속된 숫자)</text>
+    <g font-size="11" fill="#94a3b8">
+      <text x="380" y="124">출력층</text>
+      <text x="380" y="146">loss</text>
+      <text x="380" y="166">metrics</text>
+    </g>
+    <text x="436" y="124" font-size="12" fill="#1a2332">Dense(1)</text>
+    <text x="502" y="124" font-size="11" fill="#94a3b8">활성화 없음</text>
+    <text x="436" y="146" font-size="12" fill="#1a2332">'mse'</text>
+    <text x="482" y="146" font-size="11" fill="#94a3b8">(또는 'mae')</text>
+    <text x="436" y="166" font-size="12" fill="#1a2332">['mae']</text>
+
+    <!-- ===== 잎 2: 이진분류 ===== -->
+    <rect x="364" y="188" width="412" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="380" y="214" font-size="13" font-weight="700" fill="#1a2332">이진분류 (타깃이 0, 1 정수)</text>
+    <g font-size="11" fill="#94a3b8">
+      <text x="380" y="240">출력층</text>
+      <text x="380" y="262">loss</text>
+      <text x="380" y="282">metrics</text>
+    </g>
+    <text x="436" y="240" font-size="12" fill="#1a2332">Dense(1, activation='sigmoid')</text>
+    <text x="436" y="262" font-size="12" fill="#1a2332">'binary_crossentropy'</text>
+    <text x="436" y="282" font-size="12" fill="#1a2332">['accuracy']</text>
+
+    <!-- ===== 잎 3: 다중분류 (정수 라벨) ===== -->
+    <rect x="364" y="304" width="412" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="380" y="330" font-size="13" font-weight="700" fill="#1a2332">다중분류 (타깃이 0, 1, 2 정수 라벨)</text>
+    <g font-size="11" fill="#94a3b8">
+      <text x="380" y="356">출력층</text>
+      <text x="380" y="378">loss</text>
+      <text x="380" y="398">metrics</text>
+    </g>
+    <text x="436" y="356" font-size="12" fill="#1a2332">Dense(K, activation='softmax')</text>
+    <text x="436" y="378" font-size="12" fill="#1a2332">'sparse_categorical_crossentropy'</text>
+    <text x="436" y="398" font-size="12" fill="#1a2332">['accuracy']</text>
+
+    <!-- ===== 잎 4: 다중분류 (원-핫) ===== -->
+    <rect x="364" y="420" width="412" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="380" y="446" font-size="13" font-weight="700" fill="#1a2332">다중분류 (타깃이 [0,1,0] 원-핫)</text>
+    <g font-size="11" fill="#94a3b8">
+      <text x="380" y="472">출력층</text>
+      <text x="380" y="494">loss</text>
+      <text x="380" y="514">metrics</text>
+    </g>
+    <text x="436" y="472" font-size="12" fill="#1a2332">Dense(K, activation='softmax')</text>
+    <text x="436" y="494" font-size="12" fill="#1a2332">'categorical_crossentropy'</text>
+    <text x="436" y="514" font-size="12" fill="#1a2332">['accuracy']</text>
+
+    <text x="32" y="548" font-size="12" fill="#94a3b8">판단 순서: print(y_train[:5])로 타깃 형태를 먼저 확인한 뒤 위에서부터 질문에 답하십시오.</text>
+    <text x="32" y="568" font-size="12" fill="#94a3b8">출력층과 loss는 항상 짝으로 움직입니다. 한쪽만 바꾸면 shape 오류가 나거나 학습이 조용히 망가집니다.</text>
+  </g>
+</svg>

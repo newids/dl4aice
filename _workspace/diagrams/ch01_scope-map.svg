@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 364" width="800" height="364" role="img" aria-label="이 교재가 다루는 범위와 다루지 않는 범위">
+  <title>이 교재가 다루는 범위와 다루지 않는 범위 — 가운데 시험 범위 상자 안에 Dense, 활성화 함수, loss 선택, 콜백, 평가지표가 들어 있고, 바깥 점선 영역에 CNN, RNN·LSTM, Transformer, PyTorch가 범위 밖으로 배치되어 있다.</title>
+
+  <rect x="0" y="0" width="800" height="364" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">이 교재가 다루는 범위와 다루지 않는 범위</text>
+
+    <!-- 범위 밖 영역 -->
+    <rect x="28" y="64" width="744" height="252" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="46" y="90" font-size="14" font-weight="700" fill="#dc2626">범위 밖 — 이 교재에서 다루지 않습니다</text>
+
+    <!-- 범위 밖 항목: 왼쪽 -->
+    <rect x="46" y="126" width="126" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="109" y="159" font-size="15" fill="#94a3b8" text-anchor="middle">CNN</text>
+
+    <rect x="46" y="200" width="126" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="109" y="233" font-size="15" fill="#94a3b8" text-anchor="middle">RNN · LSTM</text>
+
+    <!-- 범위 밖 항목: 오른쪽 -->
+    <rect x="628" y="126" width="126" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="691" y="159" font-size="15" fill="#94a3b8" text-anchor="middle">Transformer</text>
+
+    <rect x="628" y="200" width="126" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="691" y="233" font-size="15" fill="#94a3b8" text-anchor="middle">PyTorch</text>
+
+    <!-- 범위 안 영역 -->
+    <rect x="190" y="112" width="420" height="180" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+    <text x="400" y="140" font-size="16" font-weight="700" fill="#2563eb" text-anchor="middle">시험 범위</text>
+    <text x="400" y="160" font-size="12" fill="#94a3b8" text-anchor="middle">정형 데이터 + 완전연결 신경망</text>
+
+    <!-- 범위 안 태그 -->
+    <rect x="206" y="174" width="120" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="266" y="202" font-size="15" fill="#1a2332" text-anchor="middle">Dense</text>
+
+    <rect x="340" y="174" width="120" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="400" y="202" font-size="15" fill="#1a2332" text-anchor="middle">활성화 함수</text>
+
+    <rect x="474" y="174" width="120" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="534" y="202" font-size="15" fill="#1a2332" text-anchor="middle">loss 선택</text>
+
+    <rect x="273" y="232" width="120" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="333" y="260" font-size="15" fill="#1a2332" text-anchor="middle">콜백</text>
+
+    <rect x="407" y="232" width="120" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="467" y="260" font-size="15" fill="#1a2332" text-anchor="middle">평가지표</text>
+
+    <text x="32" y="342" font-size="12" fill="#94a3b8">범위 밖 주제는 시험이 끝난 뒤에 시작하십시오.</text>
+  </g>
+</svg>

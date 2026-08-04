@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 484" width="800" height="484" role="img" aria-labelledby="ch03-layer-stack-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-layer-stack-title">입력층, 은닉층 2개, 출력층으로 이어지는 신경망의 계층 구조도. 입력 4노드, 은닉 5노드, 은닉 5노드, 출력 1노드가 좌에서 우로 완전 연결되어 있다</title>
+
+  <rect x="0" y="0" width="800" height="484" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">입력층·은닉층·출력층의 계층 구조</text>
+  <text x="768" y="100" font-size="12" fill="#94a3b8" text-anchor="end">각 노드는 앞 층의 모든 노드와 연결됩니다</text>
+
+  <!-- 연결선 -->
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.55" fill="none">
+    <path d="M130,157L320,126M130,157L320,188M130,157L320,250M130,157L320,312M130,157L320,374"/>
+    <path d="M130,219L320,126M130,219L320,188M130,219L320,250M130,219L320,312M130,219L320,374"/>
+    <path d="M130,281L320,126M130,281L320,188M130,281L320,250M130,281L320,312M130,281L320,374"/>
+    <path d="M130,343L320,126M130,343L320,188M130,343L320,250M130,343L320,312M130,343L320,374"/>
+
+    <path d="M320,126L510,126M320,126L510,188M320,126L510,250M320,126L510,312M320,126L510,374"/>
+    <path d="M320,188L510,126M320,188L510,188M320,188L510,250M320,188L510,312M320,188L510,374"/>
+    <path d="M320,250L510,126M320,250L510,188M320,250L510,250M320,250L510,312M320,250L510,374"/>
+    <path d="M320,312L510,126M320,312L510,188M320,312L510,250M320,312L510,312M320,312L510,374"/>
+    <path d="M320,374L510,126M320,374L510,188M320,374L510,250M320,374L510,312M320,374L510,374"/>
+
+    <path d="M510,126L680,250M510,188L680,250M510,250L680,250M510,312L680,250M510,374L680,250"/>
+  </g>
+
+  <!-- 입력층 노드 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="130" cy="157" r="18"/>
+    <circle cx="130" cy="219" r="18"/>
+    <circle cx="130" cy="281" r="18"/>
+    <circle cx="130" cy="343" r="18"/>
+  </g>
+
+  <!-- 은닉층 1 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="320" cy="126" r="18"/>
+    <circle cx="320" cy="188" r="18"/>
+    <circle cx="320" cy="250" r="18"/>
+    <circle cx="320" cy="312" r="18"/>
+    <circle cx="320" cy="374" r="18"/>
+  </g>
+
+  <!-- 은닉층 2 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="510" cy="126" r="18"/>
+    <circle cx="510" cy="188" r="18"/>
+    <circle cx="510" cy="250" r="18"/>
+    <circle cx="510" cy="312" r="18"/>
+    <circle cx="510" cy="374" r="18"/>
+  </g>
+
+  <!-- 출력층 -->
+  <circle cx="680" cy="250" r="18" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+
+  <!-- 층 이름 -->
+  <g font-size="15" fill="#1a2332" text-anchor="middle" font-weight="600">
+    <text x="130" y="430">입력층</text>
+    <text x="320" y="430">은닉층 1</text>
+    <text x="510" y="430">은닉층 2</text>
+    <text x="680" y="430">출력층</text>
+  </g>
+  <text x="130" y="454" font-size="13" fill="#94a3b8" text-anchor="middle">특성 4개</text>
+  <g font-size="13" text-anchor="middle" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">
+    <text x="320" y="454" fill="#2563eb">Dense(5)</text>
+    <text x="510" y="454" fill="#2563eb">Dense(5)</text>
+    <text x="680" y="454" fill="#2563eb">Dense(1)</text>
+  </g>
+</svg>

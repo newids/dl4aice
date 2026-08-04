@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="800" height="460" role="img" aria-labelledby="ch03-fb-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-fb-title">같은 신경망 위에 순전파와 역전파의 방향을 표시한 구조도. 위쪽은 왼쪽에서 오른쪽으로 예측값을 계산하는 순전파, 아래쪽은 오른쪽 손실에서 왼쪽으로 되돌아오며 가중치 수정 방향을 구하는 역전파</title>
+  <defs>
+    <marker id="fb-arw-primary" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="fb-arw-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="460" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">순전파와 역전파의 방향</text>
+
+  <!-- 순전파 -->
+  <text x="415" y="100" font-size="15" font-weight="600" fill="#2563eb" text-anchor="middle">순전파: 예측값 계산</text>
+  <line x1="130" y1="118" x2="700" y2="118" stroke="#2563eb" stroke-width="2.5" marker-end="url(#fb-arw-primary)"/>
+
+  <!-- 연결선 -->
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.55" fill="none">
+    <path d="M140,192L300,166M140,192L300,222M140,192L300,278M140,192L300,334"/>
+    <path d="M140,250L300,166M140,250L300,222M140,250L300,278M140,250L300,334"/>
+    <path d="M140,308L300,166M140,308L300,222M140,308L300,278M140,308L300,334"/>
+
+    <path d="M300,166L460,166M300,166L460,222M300,166L460,278M300,166L460,334"/>
+    <path d="M300,222L460,166M300,222L460,222M300,222L460,278M300,222L460,334"/>
+    <path d="M300,278L460,166M300,278L460,222M300,278L460,278M300,278L460,334"/>
+    <path d="M300,334L460,166M300,334L460,222M300,334L460,278M300,334L460,334"/>
+
+    <path d="M460,166L600,250M460,222L600,250M460,278L600,250M460,334L600,250"/>
+  </g>
+
+  <!-- 출력 -> 손실 -->
+  <line x1="622" y1="250" x2="654" y2="250" stroke="#2563eb" stroke-width="2" marker-end="url(#fb-arw-primary)"/>
+
+  <!-- 입력층 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="140" cy="192" r="18"/>
+    <circle cx="140" cy="250" r="18"/>
+    <circle cx="140" cy="308" r="18"/>
+  </g>
+
+  <!-- 은닉층 1 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="300" cy="166" r="18"/>
+    <circle cx="300" cy="222" r="18"/>
+    <circle cx="300" cy="278" r="18"/>
+    <circle cx="300" cy="334" r="18"/>
+  </g>
+
+  <!-- 은닉층 2 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="460" cy="166" r="18"/>
+    <circle cx="460" cy="222" r="18"/>
+    <circle cx="460" cy="278" r="18"/>
+    <circle cx="460" cy="334" r="18"/>
+  </g>
+
+  <!-- 출력층 -->
+  <circle cx="600" cy="250" r="18" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+
+  <!-- 손실 노드 -->
+  <rect x="660" y="222" width="110" height="56" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="715" y="255" font-size="15" fill="#1a2332" text-anchor="middle">손실 계산</text>
+  <text x="715" y="300" font-size="12" fill="#94a3b8" text-anchor="middle">정답과 비교</text>
+
+  <!-- 층 이름 -->
+  <g font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="140" y="376">입력층</text>
+    <text x="300" y="376">은닉층</text>
+    <text x="460" y="376">은닉층</text>
+    <text x="600" y="376">출력층</text>
+  </g>
+
+  <!-- 역전파 -->
+  <line x1="700" y1="404" x2="130" y2="404" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#fb-arw-accent)"/>
+  <text x="415" y="430" font-size="15" font-weight="600" fill="#f59e0b" text-anchor="middle">역전파: 오차로 가중치 수정 방향 계산</text>
+</svg>

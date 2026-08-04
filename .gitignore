@@ -1,0 +1,5 @@
+.tokensave/
+.claude/settings.local.json
+.claude/.headroom_wrap_marker.json
+.DS_Store
+__pycache__/

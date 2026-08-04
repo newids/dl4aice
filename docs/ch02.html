@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ch02. 전제 지식 압축 정리 — 데이터 준비와 머신러닝 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-chapter">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">Part I. 시험의 지도 · Chapter 2</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</a></li><li><a href="#2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</a></li><li><a href="#2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</a></li><li><a href="#2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</a></li><li><a href="#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</a></li><li><a href="#2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</a></li><li><a href="#2-7-분리와-데이터-누수-순서가-곧-점수다">2.7 분리와 데이터 누수 — 순서가 곧 점수다</a></li><li><a href="#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</a></li><li><a href="#2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</a></li></ol></nav>
+<article class="page-body">
+<h1>전제 지식 압축 정리 — 데이터 준비와 머신러닝</h1>
+<aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>결측치·이상치·인코딩·스케일링을 상황에 맞는 함수로 처리할 수 있다</li><li>데이터 누수 없이 학습/평가(테스트) 데이터를 분리하는 순서를 지킬 수 있다</li><li>머신러닝의 3줄 패턴과 딥러닝의 4단계 패턴의 차이를 설명할 수 있다</li></ul></aside>
+<blockquote class="callout callout--note">
+<p><strong>이 챕터에서 배우는 것</strong><br />
+1. 결측치·이상치·인코딩·스케일링을 상황에 맞는 함수로 처리할 수 있다.<br />
+2. 데이터 누수 없이 학습/평가(테스트) 데이터를 분리하는 순서를 지킬 수 있다.<br />
+3. 머신러닝의 3줄 패턴과 딥러닝의 4단계 패턴의 차이를 설명할 수 있다.</p>
+<p>시험 연관성: 실기 시험에서 딥러닝 문항이 등장하기 전까지의 앞 단계 전부가 이 챕터의 내용입니다. 앞 단계의 결과물이 그대로 딥러닝 문항의 입력이 되므로, 여기서 어긋나면 뒤 문항이 연쇄적으로 무너집니다.</p>
+</blockquote>
+<p>이 챕터는 딥러닝 본론에 들어가기 위한 <strong>전제 지식의 압축 요약</strong>입니다. 전처리와 머신러닝을 깊이 파고들지 않고, 시험장에서 손이 먼저 움직여야 하는 패턴만 추려 담았습니다.</p>
+<hr />
+<h2 id="2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</h2>
+<figure class="diagram" id="fig-ch02_data-pipeline"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 262" width="800" height="262" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>데이터 준비 5단계 파이프라인 — 로딩, 탐색, 결측 및 이상치 처리, 인코딩과 스케일링, 분리 순서와 각 단계의 대표 함수</title>
+  <defs>
+    <marker id="ch02dp-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="262" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">데이터 준비 5단계 파이프라인</text>
+
+  <!-- 1. 로딩 -->
+  <rect x="25" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="90" y="128" font-size="15" text-anchor="middle" fill="#1a2332">로딩</text>
+  <text x="90" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">read_csv</text>
+
+  <line x1="157" y1="122" x2="176" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 2. 탐색 -->
+  <rect x="180" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="245" y="128" font-size="15" text-anchor="middle" fill="#1a2332">탐색</text>
+  <text x="245" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">info</text>
+
+  <line x1="312" y1="122" x2="331" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 3. 결측 이상치 처리 -->
+  <rect x="335" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="114" font-size="15" text-anchor="middle" fill="#1a2332">결측 · 이상치</text>
+  <text x="400" y="138" font-size="15" text-anchor="middle" fill="#1a2332">처리</text>
+  <text x="400" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna</text>
+
+  <line x1="467" y1="122" x2="486" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 4. 인코딩 스케일링 -->
+  <rect x="490" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="555" y="114" font-size="15" text-anchor="middle" fill="#1a2332">인코딩</text>
+  <text x="555" y="138" font-size="15" text-anchor="middle" fill="#1a2332">스케일링</text>
+  <text x="555" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">get_dummies</text>
+
+  <line x1="622" y1="122" x2="641" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 5. 분리 -->
+  <rect x="645" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="710" y="128" font-size="15" text-anchor="middle" fill="#1a2332">분리</text>
+  <text x="710" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split</text>
+
+  <!-- 순서 규칙 -->
+  <rect x="216" y="206" width="368" height="32" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="227" font-size="13" text-anchor="middle" fill="#1a2332">순서 규칙 — 인코딩은 분리 전, 스케일링은 분리 후</text>
+</svg></div><figcaption><span class="diagram__num">그림 2-1</span><span class="diagram__caption">데이터 준비 5단계 파이프라인</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 데이터 준비는 "읽고 → 보고 → 고치고 → 숫자로 바꾸고 → 나눈다"의 다섯 단계이고, 각 단계마다 대표 함수가 하나씩 정해져 있습니다.</p>
+<p>시험 문항은 대체로 이 다섯 단계를 따라 순서대로 출제됩니다. 문항이 흩어져 있어 보여도 실제로는 하나의 파이프라인이며, 앞 문항에서 만든 <code>df</code>를 뒤 문항이 그대로 이어받습니다. 그래서 단계별로 변수를 덮어쓸지 새 이름을 줄지 미리 정해두는 습관이 중요합니다.</p>
+<p>아래 코드는 이 챕터 전체에서 사용할 예제 데이터를 만듭니다. 시험에서는 <code>read_csv</code>로 파일을 읽지만, 여기서는 재현성을 위해 코드로 생성합니다.</p>
+<pre><code class="language-python"># 이 챕터 예제용 합성 데이터 생성 (시험에서는 이 자리에 read_csv가 들어갑니다)
+import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)
+n = 1000
+
+tenure_months = rng.integers(1, 72, n)
+monthly_fee = rng.normal(60, 15, n).round(2)
+support_calls = rng.poisson(1.5, n)
+contract_type = rng.choice(['month', 'one_year', 'two_year'], n)
+
+# 타깃(churn)이 특성과 관계를 갖도록 확률을 설계
+bonus = np.where(contract_type == 'month', 0.8, np.where(contract_type == 'one_year', 0.0, -0.8))
+score = -0.04 * tenure_months + 0.02 * monthly_fee + 0.45 * support_calls + bonus
+prob = 1 / (1 + np.exp(-(score - score.mean())))
+churn = rng.binomial(1, prob)
+
+df = pd.DataFrame({
+    'tenure_months': tenure_months,
+    'monthly_fee': monthly_fee,
+    'support_calls': support_calls,
+    'contract_type': contract_type,
+    'churn': churn,
+})
+
+# 결측치 5%를 인위적으로 주입
+miss_idx = rng.choice(n, size=int(n * 0.05), replace=False)
+df.loc[miss_idx, 'monthly_fee'] = np.nan
+
+print(df.shape)
+print(df.head())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(1000, 5)</code>와 상위 5행. <code>monthly_fee</code>에는 <code>NaN</code>이 섞여 있습니다.</p>
+</blockquote>
+<hr />
+<h2 id="2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</h2>
+<p><strong>한 줄 요약</strong> — 전처리를 시작하기 전에 <code>info</code>로 자료형과 결측을, <code>describe</code>로 분포를, <code>value_counts</code>로 범주와 클래스 균형을 확인합니다.</p>
+<p>탐색 단계에서 확인해야 할 것은 네 가지로 압축됩니다. ① 행·열의 개수, ② 컬럼별 자료형(숫자인가 문자인가), ③ 결측치가 있는 컬럼과 그 개수, ④ 타깃 클래스의 분포입니다. 특히 ④는 뒤에서 <code>stratify</code> 인자를 쓸지, 평가지표로 정확도만 볼지 말지를 결정하는 근거가 됩니다.</p>
+<pre><code class="language-python"># 탐색 4종 세트 — 앞 절에서 만든 df를 이어서 사용합니다
+print(df.info())                    # 자료형과 결측 여부
+print(df.describe())                # 수치형 분포 요약
+print(df.isnull().sum())            # 컬럼별 결측 개수
+print(df['churn'].value_counts())   # 타깃 클래스 분포
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>monthly_fee</code>의 non-null 개수가 950으로 다른 컬럼보다 적고, <code>isnull().sum()</code>에서 <code>monthly_fee 50</code>이 확인됩니다. <code>churn</code>은 0과 1이 대략 5:5 근처로 나옵니다.</p>
+</blockquote>
+<p>시각화는 네 가지만 손에 익혀두면 대응됩니다. 범주형 분포는 <code>countplot</code>, 수치형 분포는 <code>histplot</code>, 수치형 간 상관관계는 <code>heatmap</code>, 그룹별 분포 비교는 <code>boxplot</code>입니다. 앞의 세 가지를 먼저 보겠습니다.</p>
+<pre><code class="language-python"># 시험에 나오는 시각화 기본 3종
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.countplot(data=df, x='contract_type', hue='churn')
+plt.show()
+
+sns.histplot(data=df, x='monthly_fee', bins=30)
+plt.show()
+
+num_cols = ['tenure_months', 'monthly_fee', 'support_calls', 'churn']
+sns.heatmap(df[num_cols].corr(), annot=True, cmap='Blues')
+plt.show()
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: 그래프 3개. <code>heatmap</code>의 <code>annot=True</code>는 각 칸에 상관계수 숫자를 찍어주는 인자로, 문항에서 자주 지정됩니다.</p>
+<p>⚠️ <strong>시험 포인트</strong> — <code>heatmap</code>은 문자열 컬럼이 섞여 있으면 오류가 납니다. <code>df.corr()</code>를 부르기 전에 수치형 컬럼만 골라내거나 <code>df.select_dtypes(include='number').corr()</code>를 사용하십시오.</p>
+</blockquote>
+<p>네 번째는 <code>boxplot</code>입니다. 상자 하나가 한 그룹의 분포를 요약해 보여줍니다. 상자의 아래·위 변은 1사분위수와 3사분위수, 상자 안의 선은 중앙값이고, 상자 밖으로 뻗은 수염 끝은 대략적인 분포의 범위입니다. <code>x</code>에 범주형(또는 클래스) 컬럼을, <code>y</code>에 수치형 컬럼을 넣으면 <strong>그룹별로 분포가 어떻게 다른지를 한 화면에서 비교</strong>할 수 있습니다. "클래스별 센서 값 분포를 비교하시오" 같은 지시에 바로 대응되는 그래프입니다.</p>
+<pre><code class="language-python"># 클래스(churn)별 수치형 분포 비교 — 앞 블록의 df와 sns를 이어서 사용합니다
+sns.boxplot(data=df, x='churn', y='monthly_fee')
+plt.show()
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>churn</code>이 0인 그룹과 1인 그룹의 상자가 나란히 그려집니다. 두 상자의 높이 차이가 크면 그 컬럼이 타깃을 구분하는 데 도움이 되는 특성이라는 신호입니다. 이 예제 데이터에서는 두 상자가 거의 겹치는데, 그것 역시 <code>monthly_fee</code> 하나만으로는 이탈 여부를 가려내기 어렵다는 정보이므로 그래프를 잘못 그린 것이 아닙니다.</p>
+</blockquote>
+<p>수염 밖으로 벗어난 값은 개별 점으로 찍히는데, 이것이 바로 다음 절에서 IQR 기준으로 걸러낼 <strong>이상치</strong>입니다. 즉 <code>boxplot</code>은 그룹 비교와 이상치 확인을 동시에 해주는 그래프입니다.</p>
+<p>시각화 문항의 출제 비중은 회차에 따라 달라질 수 있으므로, 응시 전 <strong>시험 공지 기준을 반드시 확인하십시오.</strong></p>
+<hr />
+<h2 id="2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</h2>
+<figure class="diagram" id="fig-ch02_missing-strategy"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="800" height="460" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>결측치 처리 방법 선택 분기 — 결측 비율이 크면 컬럼 삭제, 그렇지 않으면 수치형은 평균이나 중앙값, 범주형은 최빈값으로 대체</title>
+  <defs>
+    <marker id="ch02ms-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="460" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">결측치 처리 방법 선택 분기</text>
+
+  <!-- Q1 -->
+  <polygon points="300,68 470,112 300,156 130,112" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="300" y="118" font-size="15" text-anchor="middle" fill="#1a2332">결측 비율이 매우 큰가?</text>
+
+  <!-- Q1 예 -> 컬럼 삭제 -->
+  <line x1="470" y1="112" x2="558" y2="112" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="514" y="103" font-size="12" text-anchor="middle" fill="#94a3b8">예</text>
+
+  <rect x="560" y="80" width="216" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="668" y="108" font-size="15" text-anchor="middle" fill="#1a2332">컬럼 삭제</text>
+  <text x="668" y="130" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">drop(columns=[...])</text>
+
+  <!-- Q1 아니오 -> Q2 -->
+  <line x1="300" y1="156" x2="300" y2="212" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="312" y="190" font-size="12" fill="#94a3b8">아니오</text>
+
+  <!-- Q2 -->
+  <polygon points="300,214 440,256 300,298 160,256" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="300" y="262" font-size="15" text-anchor="middle" fill="#1a2332">수치형인가?</text>
+
+  <!-- Q2 예 -> 평균 중앙값 -->
+  <line x1="440" y1="256" x2="538" y2="256" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="489" y="247" font-size="12" text-anchor="middle" fill="#94a3b8">예</text>
+
+  <rect x="540" y="224" width="236" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="658" y="252" font-size="15" text-anchor="middle" fill="#1a2332">평균 · 중앙값 대체</text>
+  <text x="658" y="274" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna(median)</text>
+
+  <!-- Q2 아니오 -> 최빈값 -->
+  <line x1="300" y1="298" x2="300" y2="342" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="312" y="326" font-size="12" fill="#94a3b8">아니오</text>
+
+  <rect x="182" y="344" width="236" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="300" y="372" font-size="15" text-anchor="middle" fill="#1a2332">최빈값 대체</text>
+  <text x="300" y="394" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna(mode()[0])</text>
+
+  <text x="24" y="436" font-size="12" fill="#94a3b8">실기 시험에서는 문항이 처리 방법을 직접 지정하는 경우가 대부분입니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 2-2</span><span class="diagram__caption">결측치 처리 방법 선택 분기</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 결측이 압도적으로 많으면 컬럼을 버리고, 그렇지 않으면 수치형은 평균·중앙값으로, 범주형은 최빈값으로 채웁니다.</p>
+<p>실기 시험에서는 대부분 <strong>문항이 방법을 직접 지정</strong>합니다. "<code>monthly_fee</code>의 결측치를 중앙값으로 대체하시오"처럼 지시가 명확하므로, 스스로 판단하기보다 지시된 함수를 정확히 쓰는 것이 점수에 직결됩니다. 위 분기도는 지시가 없을 때의 기본 판단 기준으로 기억해 두십시오.</p>
+<p>평균과 중앙값 중에서는, 분포가 한쪽으로 치우쳤거나 이상치가 있을 때 <strong>중앙값(median)</strong> 이 안전합니다. 이상치가 평균을 끌어당기기 때문입니다.</p>
+<pre><code class="language-python"># 결측 처리 3종 — 상황에 맞는 것 하나만 쓰면 됩니다
+df_drop = df.dropna()                                              # 행 삭제
+df_mean = df.copy()
+df_mean['monthly_fee'] = df_mean['monthly_fee'].fillna(df_mean['monthly_fee'].mean())    # 평균 대체
+df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())                 # 중앙값 대체(이 챕터 기준)
+
+print(df.isnull().sum().sum())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>0</code>. 남은 결측치가 없다는 뜻입니다.</p>
+</blockquote>
+<p>범주형 컬럼은 최빈값으로 채웁니다. <code>mode()</code>는 최빈값이 여러 개일 수 있어 <strong>Series를 반환</strong>하므로 <code>[0]</code>으로 첫 값을 꺼내야 합니다.</p>
+<pre><code class="language-python"># 범주형 결측치는 최빈값으로 (mode()는 Series를 반환하므로 [0] 필요)
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+</code></pre>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong> — <code>df['col'].fillna(...)</code>는 원본을 바꾸지 않고 새 Series를 반환합니다. <code>df['col'] = df['col'].fillna(...)</code>처럼 <strong>반드시 다시 대입</strong>하십시오. 결측 처리 코드를 썼는데 다음 문항에서 여전히 <code>NaN</code>이 나오는 사고는 거의 이 대입 누락 때문입니다.</p>
+</blockquote>
+<hr />
+<h2 id="2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</h2>
+<p><strong>한 줄 요약</strong> — 사분위수 범위(IQR)를 기준으로 <code>Q1 - 1.5*IQR</code> 미만, <code>Q3 + 1.5*IQR</code> 초과를 이상치로 보고, 삭제하거나 경계값으로 잘라냅니다.</p>
+<pre><code class="language-python"># IQR 기준으로 이상치를 찾고 경계값으로 자르기(clip)
+q1 = df['monthly_fee'].quantile(0.25)
+q3 = df['monthly_fee'].quantile(0.75)
+iqr = q3 - q1
+lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+
+outliers = df[(df['monthly_fee'] &lt; lower) | (df['monthly_fee'] &gt; upper)]
+print('이상치 개수:', len(outliers))
+
+df['monthly_fee'] = df['monthly_fee'].clip(lower, upper)   # 경계값으로 대체
+# df = df[(df['monthly_fee'] &gt;= lower) &amp; (df['monthly_fee'] &lt;= upper)]   # 행 삭제 방식
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: 이상치 개수가 정수로 출력됩니다(이 예제 데이터에서는 17개). <code>clip</code> 이후에는 최댓값·최솟값이 경계 안으로 들어옵니다.</p>
+</blockquote>
+<p>이상치 처리 방식도 문항이 지정하는 경우가 대부분입니다. "삭제하시오"인지 "경계값으로 대체하시오"인지를 먼저 읽고 그대로 따르십시오.</p>
+<hr />
+<h2 id="2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</h2>
+<figure class="diagram" id="fig-ch02_encoding-compare"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>라벨 인코딩과 원-핫 인코딩의 결과 차이 — 라벨 인코딩은 없던 크기 관계를 만들고, 원-핫 인코딩은 0과 1 컬럼으로 나누어 크기 오해가 없다</title>
+  <defs>
+    <marker id="ch02ec-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="520" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">라벨 인코딩과 원-핫 인코딩의 결과 차이</text>
+
+  <!-- ===== 원본 ===== -->
+  <text x="36" y="92" font-size="15" font-weight="bold" fill="#1a2332">원본 (문자열)</text>
+
+  <rect x="36" y="108" width="200" height="120" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <line x1="36" y1="138" x2="236" y2="138" stroke="#1a2332" stroke-width="2"/>
+  <line x1="36" y1="168" x2="236" y2="168" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="36" y1="198" x2="236" y2="198" stroke="#94a3b8" stroke-width="1"/>
+  <text x="136" y="128" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">contract_type</text>
+  <text x="136" y="159" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">month</text>
+  <text x="136" y="189" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">one_year</text>
+  <text x="136" y="219" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">two_year</text>
+
+  <!-- 화살표 -->
+  <line x1="244" y1="168" x2="384" y2="168" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ec-arrow)"/>
+  <path d="M244,210 H300 V390 H384" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ec-arrow)"/>
+
+  <!-- ===== 라벨 인코딩 ===== -->
+  <text x="390" y="92" font-size="15" font-weight="bold" fill="#dc2626">라벨 인코딩</text>
+
+  <rect x="390" y="108" width="170" height="120" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <line x1="390" y1="138" x2="560" y2="138" stroke="#1a2332" stroke-width="2"/>
+  <line x1="390" y1="168" x2="560" y2="168" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="390" y1="198" x2="560" y2="198" stroke="#94a3b8" stroke-width="1"/>
+  <text x="475" y="128" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">contract_type</text>
+  <text x="475" y="159" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="475" y="189" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="475" y="219" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">2</text>
+
+  <text x="390" y="254" font-size="12.5" fill="#dc2626">없던 크기 관계가 생김 — 0 &lt; 1 &lt; 2</text>
+
+  <!-- 구분선 -->
+  <line x1="310" y1="282" x2="776" y2="282" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  <!-- ===== 원-핫 인코딩 ===== -->
+  <text x="390" y="314" font-size="15" font-weight="bold" fill="#059669">원-핫 인코딩 — get_dummies</text>
+
+  <rect x="390" y="330" width="386" height="120" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <line x1="390" y1="360" x2="776" y2="360" stroke="#1a2332" stroke-width="2"/>
+  <line x1="390" y1="390" x2="776" y2="390" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="390" y1="420" x2="776" y2="420" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="519" y1="330" x2="519" y2="450" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="647" y1="330" x2="647" y2="450" stroke="#94a3b8" stroke-width="1"/>
+
+  <text x="454" y="350" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">_month</text>
+  <text x="583" y="350" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">_one_year</text>
+  <text x="712" y="350" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">_two_year</text>
+
+  <text x="454" y="381" font-size="13" text-anchor="middle" fill="#059669" font-weight="bold" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="583" y="381" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="712" y="381" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+
+  <text x="454" y="411" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="583" y="411" font-size="13" text-anchor="middle" fill="#059669" font-weight="bold" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="712" y="411" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+
+  <text x="454" y="441" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="583" y="441" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="712" y="441" font-size="13" text-anchor="middle" fill="#059669" font-weight="bold" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+
+  <text x="390" y="476" font-size="12.5" fill="#059669">크기 오해 없음 — 시험 기본 선택</text>
+  <text x="390" y="496" font-size="12" fill="#94a3b8">(열 이름의 contract_type 접두사는 생략해 표기)</text>
+</svg></div><figcaption><span class="diagram__num">그림 2-3</span><span class="diagram__caption">라벨 인코딩과 원-핫 인코딩의 결과 차이</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 순서가 없는 범주에 라벨 인코딩을 쓰면 모델이 "2가 1보다 크다"고 오해하므로, 원-핫 인코딩(<code>pd.get_dummies</code>)이 기본입니다.</p>
+<p>모델은 문자열을 입력받지 못합니다. <code>contract_type</code> 같은 문자 컬럼은 반드시 숫자로 바꿔야 합니다. 방법은 두 가지입니다.</p>
+<ul>
+<li><strong>라벨 인코딩</strong>: <code>month → 0</code>, <code>one_year → 1</code>, <code>two_year → 2</code>처럼 번호를 붙입니다. 컬럼 수가 늘지 않지만 <strong>없던 크기 관계가 생깁니다.</strong></li>
+<li><strong>원-핫 인코딩</strong>: 범주 개수만큼 0/1 컬럼을 만듭니다. 컬럼 수는 늘지만 크기 오해가 없습니다.</li>
+</ul>
+<p>순서 개념이 있는 범주(예: 저/중/고)라면 라벨 인코딩이 자연스럽고, 순서가 없는 범주라면 원-핫 인코딩이 맞습니다. AICE 실기에서는 원-핫 인코딩, 즉 <code>pd.get_dummies</code>가 압도적으로 자주 요구됩니다.</p>
+<pre><code class="language-python"># 원-핫 인코딩 — columns로 대상 컬럼을 명시하고, dtype=int로 0/1 정수를 만든다
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+print(df_enc.columns.tolist())
+print(df_enc.head(3))
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>contract_type</code> 컬럼이 사라지고 <code>contract_type_month</code>, <code>contract_type_one_year</code>, <code>contract_type_two_year</code> 세 컬럼이 0/1 값으로 생깁니다.</p>
+<p>⚠️ <strong>시험 포인트</strong> — pandas 2.x의 <code>get_dummies</code>는 기본적으로 <strong>불리언(True/False)</strong> 을 만듭니다. <code>dtype=int</code>를 지정하면 0/1 정수가 되어 이후 스케일링·딥러닝 입력에서 헷갈릴 일이 없습니다. 또한 <code>columns=[...]</code>를 생략하면 문자 컬럼 전체가 한꺼번에 변환되므로, 대상 컬럼을 명시하는 습관을 들이십시오.</p>
+</blockquote>
+<p>인코딩은 <strong>학습/평가 데이터를 분리하기 전에</strong> 전체 데이터프레임에 적용하는 것이 시험장 기준입니다. 분리 후 각각 <code>get_dummies</code>를 하면 한쪽에만 있는 범주 때문에 컬럼 구성이 달라져 모델 입력 shape이 어긋납니다. 뒤에서 볼 스케일링과는 순서 규칙이 반대이므로 구분해서 기억하십시오.</p>
+<hr />
+<h2 id="2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</h2>
+<figure class="diagram" id="fig-ch02_scaling-effect"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>스케일링 전후 특성 분포의 변화 — 범위가 다른 두 특성은 한쪽으로 눌려 보이지만, 표준화 후에는 평균 0 표준편차 1로 균형이 맞는다</title>
+  <defs>
+    <marker id="ch02se-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="420" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">스케일링 전후 특성 분포의 변화</text>
+
+  <!-- ===== 왼쪽: 스케일링 전 ===== -->
+  <text x="60" y="76" font-size="15" font-weight="bold" fill="#94a3b8">스케일링 전</text>
+
+  <line x1="70" y1="96" x2="70" y2="300" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="70" y1="300" x2="356" y2="300" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <rect x="86" y="256" width="270" height="40" rx="10" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  <circle cx="100" cy="282" r="4.5" fill="#94a3b8"/>
+  <circle cx="122" cy="274" r="4.5" fill="#94a3b8"/>
+  <circle cx="140" cy="286" r="4.5" fill="#94a3b8"/>
+  <circle cx="162" cy="276" r="4.5" fill="#94a3b8"/>
+  <circle cx="184" cy="283" r="4.5" fill="#94a3b8"/>
+  <circle cx="206" cy="272" r="4.5" fill="#94a3b8"/>
+  <circle cx="228" cy="285" r="4.5" fill="#94a3b8"/>
+  <circle cx="250" cy="277" r="4.5" fill="#94a3b8"/>
+  <circle cx="272" cy="281" r="4.5" fill="#94a3b8"/>
+  <circle cx="294" cy="273" r="4.5" fill="#94a3b8"/>
+  <circle cx="316" cy="284" r="4.5" fill="#94a3b8"/>
+  <circle cx="338" cy="278" r="4.5" fill="#94a3b8"/>
+
+  <text x="44" y="200" font-size="12.5" text-anchor="middle" fill="#94a3b8" transform="rotate(-90 44 200)">특성 B (0 ~ 1)</text>
+  <text x="213" y="322" font-size="12.5" text-anchor="middle" fill="#94a3b8">특성 A (0 ~ 1000)</text>
+  <text x="213" y="348" font-size="12" text-anchor="middle" fill="#94a3b8">값이 큰 특성 A가 학습을 지배</text>
+
+  <!-- 변환 화살표 -->
+  <line x1="376" y1="200" x2="436" y2="200" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02se-arrow)"/>
+  <text x="406" y="188" font-size="12.5" text-anchor="middle" fill="#1a2332">표준화</text>
+
+  <!-- ===== 오른쪽: 스케일링 후 ===== -->
+  <text x="452" y="76" font-size="15" font-weight="bold" fill="#059669">스케일링 후 (StandardScaler)</text>
+
+  <line x1="620" y1="96" x2="620" y2="304" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="462" y1="200" x2="778" y2="200" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <circle cx="620" cy="200" r="70" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  <circle cx="590" cy="175" r="4.5" fill="#059669"/>
+  <circle cx="612" cy="160" r="4.5" fill="#059669"/>
+  <circle cx="645" cy="180" r="4.5" fill="#059669"/>
+  <circle cx="660" cy="205" r="4.5" fill="#059669"/>
+  <circle cx="636" cy="225" r="4.5" fill="#059669"/>
+  <circle cx="600" cy="215" r="4.5" fill="#059669"/>
+  <circle cx="575" cy="198" r="4.5" fill="#059669"/>
+  <circle cx="624" cy="192" r="4.5" fill="#059669"/>
+  <circle cx="650" cy="155" r="4.5" fill="#059669"/>
+  <circle cx="585" cy="232" r="4.5" fill="#059669"/>
+  <circle cx="614" cy="240" r="4.5" fill="#059669"/>
+  <circle cx="662" cy="228" r="4.5" fill="#059669"/>
+
+  <text x="776" y="192" font-size="12" text-anchor="end" fill="#94a3b8">특성 A</text>
+  <text x="630" y="106" font-size="12" fill="#94a3b8">특성 B</text>
+  <text x="620" y="322" font-size="12.5" text-anchor="middle" fill="#94a3b8">평균 0, 표준편차 1</text>
+  <text x="620" y="348" font-size="12" text-anchor="middle" fill="#059669">두 특성의 영향력이 대등해짐</text>
+
+  <text x="24" y="392" font-size="12" fill="#94a3b8">개념 개략도입니다 — 실제 데이터 분포가 아닙니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 2-4</span><span class="diagram__caption">스케일링 전후 특성 분포의 변화</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 값의 범위가 제각각인 특성을 그대로 넣으면 큰 값을 가진 특성이 학습을 지배하므로, 범위를 통일해 줍니다.</p>
+<p><code>tenure_months</code>는 1~72, <code>monthly_fee</code>는 20~100 같은 식으로 특성마다 눈금이 다릅니다. 거리나 가중합을 계산하는 모델은 숫자가 큰 특성에 더 크게 반응하게 됩니다. <strong>딥러닝에서는 스케일링이 사실상 필수</strong>입니다. 스케일이 맞지 않으면 학습이 느려지거나 손실 함수가 발산하기도 합니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>스케일러</th>
+<th>변환 결과</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StandardScaler</code></td>
+<td>평균 0, 표준편차 1</td>
+<td>기본 선택. 분포가 대체로 정규형일 때</td>
+</tr>
+<tr>
+<td><code>MinMaxScaler</code></td>
+<td>최소 0, 최대 1</td>
+<td>값의 범위를 0~1로 고정하고 싶을 때</td>
+</tr>
+</tbody>
+</table></div>
+<p>문항이 특정 스케일러를 지정하면 그것을 씁니다. 지정이 없으면 <code>StandardScaler</code>가 무난합니다.</p>
+<p>참고로 트리 계열 머신러닝 모델(예: <code>RandomForestClassifier</code>)은 분기 기준으로 값의 순서만 보기 때문에 스케일링이 성능에 거의 영향을 주지 않습니다. 그래도 파이프라인을 하나로 통일해 두면 딥러닝 문항으로 넘어갈 때 다시 손댈 일이 없습니다.</p>
+<hr />
+<h2 id="2-7-분리와-데이터-누수-순서가-곧-점수다">2.7 분리와 데이터 누수 — 순서가 곧 점수다</h2>
+<figure class="diagram" id="fig-ch02_split-leakage"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 430" width="800" height="430" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>스케일러 fit 시점과 데이터 누수 — 전체 데이터에 fit하면 누수가 생기고, 먼저 분리한 뒤 학습 데이터에만 fit_transform, 평가 데이터에는 transform만 해야 한다</title>
+  <defs>
+    <marker id="ch02sl-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="430" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">스케일러 fit 시점과 데이터 누수</text>
+
+  <!-- ===== 위: 누수가 생기는 순서 ===== -->
+  <circle cx="34" cy="72" r="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="29.5" y1="67.5" x2="38.5" y2="76.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="38.5" y1="67.5" x2="29.5" y2="76.5" stroke="#dc2626" stroke-width="2"/>
+  <text x="52" y="78" font-size="15" font-weight="bold" fill="#dc2626">누수가 생기는 순서</text>
+
+  <rect x="60" y="96" width="170" height="64" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="145" y="133" font-size="15" text-anchor="middle" fill="#1a2332">전체 데이터</text>
+
+  <line x1="230" y1="128" x2="266" y2="128" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="268" y="96" width="252" height="64" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="394" y="122" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#dc2626">전체 데이터로 fit</text>
+  <text x="394" y="146" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">scaler.fit_transform(X)</text>
+
+  <line x1="520" y1="128" x2="556" y2="128" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="558" y="96" width="218" height="64" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="667" y="122" font-size="14.5" text-anchor="middle" fill="#1a2332">그다음 분리</text>
+  <text x="667" y="146" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split(...)</text>
+
+  <text x="60" y="190" font-size="12.5" fill="#dc2626">평가 데이터의 평균 · 표준편차가 변환 규칙에 섞여 들어감 = 데이터 누수</text>
+
+  <line x1="24" y1="214" x2="776" y2="214" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  <!-- ===== 아래: 올바른 순서 ===== -->
+  <circle cx="34" cy="246" r="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M29,246 L33,251 L40,241" fill="none" stroke="#059669" stroke-width="2"/>
+  <text x="52" y="252" font-size="15" font-weight="bold" fill="#059669">올바른 순서</text>
+
+  <rect x="60" y="268" width="170" height="64" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="145" y="305" font-size="15" text-anchor="middle" fill="#1a2332">전체 데이터</text>
+
+  <line x1="230" y1="300" x2="266" y2="300" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="268" y="268" width="218" height="64" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="377" y="294" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#059669">먼저 분리</text>
+  <text x="377" y="318" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split(...)</text>
+
+  <path d="M486,300 H514 V264 H554" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+  <path d="M486,300 H514 V336 H554" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="556" y="234" width="220" height="60" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="666" y="260" font-size="14" text-anchor="middle" fill="#1a2332">학습 데이터 — 계산 + 변환</text>
+  <text x="666" y="282" font-size="12.5" text-anchor="middle" fill="#059669" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fit_transform(X_train)</text>
+
+  <rect x="556" y="306" width="220" height="60" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="666" y="332" font-size="14" text-anchor="middle" fill="#1a2332">평가 데이터 — 변환만</text>
+  <text x="666" y="354" font-size="12.5" text-anchor="middle" fill="#059669" font-family="'SFMono-Regular', Menlo, Consolas, monospace">transform(X_test)</text>
+
+  <text x="60" y="398" font-size="12.5" fill="#059669">학습 데이터에서 계산한 평균 · 표준편차만 사용 = 누수 없음</text>
+</svg></div><figcaption><span class="diagram__num">그림 2-5</span><span class="diagram__caption">스케일러 fit 시점과 데이터 누수</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 먼저 나누고, 학습 데이터에만 <code>fit_transform</code>, 평가 데이터에는 <code>transform</code>만 합니다.</p>
+<p><code>StandardScaler</code>가 하는 <code>fit</code>은 "평균과 표준편차를 계산해 기억하는" 동작입니다. 전체 데이터로 <code>fit</code>을 하면 평가 데이터의 평균·표준편차 정보가 변환 규칙에 섞여 들어갑니다. 이것을 <strong>데이터 누수(data leakage)</strong> 라고 합니다. 평가 점수가 실제보다 좋게 나오고, 모델이 처음 보는 데이터에서는 그 성능이 재현되지 않습니다.</p>
+<p>순서는 다음 세 줄로 고정하십시오.</p>
+<ol>
+<li><code>train_test_split</code>으로 먼저 나눈다</li>
+<li>학습 데이터에 <code>fit_transform</code></li>
+<li>평가 데이터에 <code>transform</code></li>
+</ol>
+<pre><code class="language-python"># 분리 → 학습 데이터에만 fit → 평가 데이터는 transform만
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # 학습 데이터: 계산 + 변환
+X_test_scaled = scaler.transform(X_test)         # 평가 데이터: 변환만
+
+print(X_train.shape, X_test.shape)
+print(y_train.value_counts(normalize=True).round(3))
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(700, 6) (300, 6)</code>. 그리고 <code>stratify</code> 덕분에 학습 데이터의 클래스 비율이 원본 비율과 거의 같게 유지됩니다.</p>
+</blockquote>
+<p><code>train_test_split</code>의 인자 중 시험에서 반복해서 등장하는 것은 세 가지입니다.</p>
+<ul>
+<li><code>test_size=0.3</code> — 문항이 "7:3으로 나누시오"라고 하면 0.3입니다. 8:2면 0.2입니다.</li>
+<li><code>random_state=42</code> — 지정된 숫자를 그대로 씁니다. 채점자가 결과를 재현할 수 있게 하는 장치입니다.</li>
+<li><code>stratify=y</code> — 타깃 클래스 비율을 학습/평가 양쪽에 동일하게 유지합니다. 클래스가 불균형할 때 특히 중요합니다.</li>
+</ul>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong> — 전체 데이터에 <code>fit_transform</code>을 한 뒤 나누는 것은 대표적인 감점 포인트입니다. <code>scaler.fit_transform(X)</code> 한 줄로 끝내고 나서 <code>train_test_split</code>을 부르는 코드를 썼다면 순서를 다시 점검하십시오.</p>
+<p>⚠️ <strong>시험 포인트</strong> — 분류 문제인데 <code>stratify=y</code>를 빠뜨리면, 클래스가 불균형한 데이터에서 평가 데이터에 특정 클래스가 거의 안 들어가는 일이 생깁니다. "층화 추출", "클래스 비율을 유지하여"라는 표현이 문항에 있으면 <code>stratify=y</code>를 의미합니다.</p>
+</blockquote>
+<hr />
+<h2 id="2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</h2>
+<figure class="diagram" id="fig-ch02_ml-vs-dl"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 510" width="800" height="510" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>머신러닝 3줄 패턴과 딥러닝 4단계 패턴 — 같은 입력 데이터에서 sklearn은 생성, 학습, 예측 세 단계, Keras는 구성, 컴파일, 학습, 평가 네 단계로 갈린다</title>
+  <defs>
+    <marker id="ch02md-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="510" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">머신러닝 3줄 패턴과 딥러닝 4단계 패턴</text>
+
+  <!-- 공통 입력 -->
+  <rect x="250" y="66" width="300" height="56" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="400" y="90" font-size="14" text-anchor="middle" fill="#1a2332">공통 입력 데이터</text>
+  <text x="400" y="112" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">X_train_scaled, y_train</text>
+
+  <path d="M400,122 V146 H60 V202" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02md-arrow)"/>
+  <path d="M400,122 V146 H740 V202" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02md-arrow)"/>
+
+  <text x="78" y="190" font-size="15" font-weight="bold" fill="#1a2332">머신러닝 (sklearn) — 3줄</text>
+  <text x="722" y="190" font-size="15" font-weight="bold" text-anchor="end" fill="#2563eb">딥러닝 (Keras) — 4단계</text>
+
+  <!-- ===== 1행 ===== -->
+  <rect x="48" y="204" width="284" height="54" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="190" y="228" font-size="14.5" text-anchor="middle" fill="#1a2332">모델 생성</text>
+  <text x="190" y="248" font-size="12" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">RandomForestClassifier(...)</text>
+
+  <rect x="468" y="204" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="228" font-size="14.5" text-anchor="middle" fill="#1a2332">구성</text>
+  <text x="610" y="248" font-size="12" text-anchor="middle" fill="#1a2332">층을 쌓는다</text>
+  <text x="742" y="220" font-size="11.5" text-anchor="end" fill="#2563eb">Ch04</text>
+
+  <circle cx="400" cy="231" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="236" font-size="13" text-anchor="middle" fill="#94a3b8">1</text>
+
+  <!-- ===== 2행 ===== -->
+  <rect x="48" y="268" width="284" height="54" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="190" y="300" font-size="14" text-anchor="middle" fill="#94a3b8">해당 없음</text>
+
+  <rect x="468" y="268" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="292" font-size="14.5" text-anchor="middle" fill="#1a2332">컴파일</text>
+  <text x="610" y="312" font-size="12" text-anchor="middle" fill="#1a2332">optimizer · 손실 함수 · metrics</text>
+  <text x="742" y="284" font-size="11.5" text-anchor="end" fill="#2563eb">Ch05</text>
+
+  <circle cx="400" cy="295" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="300" font-size="13" text-anchor="middle" fill="#94a3b8">2</text>
+
+  <!-- ===== 3행 ===== -->
+  <rect x="48" y="332" width="284" height="54" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="190" y="356" font-size="14.5" text-anchor="middle" fill="#1a2332">학습</text>
+  <text x="190" y="376" font-size="12" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.fit(X_train_scaled, y_train)</text>
+
+  <rect x="468" y="332" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="356" font-size="14.5" text-anchor="middle" fill="#1a2332">학습</text>
+  <text x="610" y="376" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fit(epochs, batch_size)</text>
+  <text x="742" y="348" font-size="11.5" text-anchor="end" fill="#2563eb">Ch05</text>
+
+  <circle cx="400" cy="359" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="364" font-size="13" text-anchor="middle" fill="#94a3b8">3</text>
+
+  <!-- ===== 4행 ===== -->
+  <rect x="48" y="396" width="284" height="54" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="190" y="420" font-size="14.5" text-anchor="middle" fill="#1a2332">예측</text>
+  <text x="190" y="440" font-size="12" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.predict(X_test_scaled)</text>
+
+  <rect x="468" y="396" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="420" font-size="14.5" text-anchor="middle" fill="#1a2332">평가 · 예측</text>
+  <text x="610" y="440" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate, predict</text>
+  <text x="742" y="412" font-size="11.5" text-anchor="end" fill="#2563eb">Ch07</text>
+
+  <circle cx="400" cy="423" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="428" font-size="13" text-anchor="middle" fill="#94a3b8">4</text>
+
+  <text x="24" y="484" font-size="12.5" fill="#94a3b8">딥러닝은 머신러닝에 구성과 컴파일 두 단계가 더 붙습니다 — 실제 코드는 Ch04부터 작성합니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 2-6</span><span class="diagram__caption">머신러닝 3줄 패턴과 딥러닝 4단계 패턴</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — sklearn 모델은 "생성 → <code>fit</code> → <code>predict</code>"의 세 줄이면 끝나고, 딥러닝은 그 사이에 "층을 쌓는 구성"과 "손실 함수를 정하는 컴파일"이 추가되어 네 단계가 됩니다.</p>
+<p>sklearn 모델은 어떤 알고리즘이든 사용법이 같습니다. 클래스 이름만 바꾸면 되므로, 베이스라인 문항은 다음 세 줄로 대응할 수 있습니다.</p>
+<pre><code class="language-python"># 머신러닝 3줄 패턴 — 베이스라인 성능 확인용
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+model = RandomForestClassifier(n_estimators=100, random_state=42)   # 1) 생성
+model.fit(X_train_scaled, y_train)                                  # 2) 학습
+y_pred = model.predict(X_test_scaled)                               # 3) 예측
+
+print(classification_report(y_test, y_pred))
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: 클래스 0/1 각각의 precision·recall·f1-score와 전체 accuracy가 담긴 표가 출력됩니다.</p>
+</blockquote>
+<p>분류에는 <code>RandomForestClassifier</code>·<code>LogisticRegression</code>, 회귀에는 <code>RandomForestRegressor</code>·<code>LinearRegression</code>을 기억해 두면 베이스라인 문항은 충분히 대응됩니다. <strong>베이스라인의 목적은 최고 성능이 아니라 기준선</strong>입니다. 뒤에 만들 딥러닝 모델이 이 점수보다 터무니없이 낮다면 전처리나 모델 설정에 문제가 있다는 신호로 읽으면 됩니다.</p>
+<p>딥러닝은 여기에 두 가지가 더 붙습니다. 모델이 "무엇으로 이루어져 있는지"를 직접 쌓아야 하고(구성), "오차를 어떻게 재고 어떻게 줄일지"를 지정해야 합니다(컴파일).</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>머신러닝(sklearn)</th>
+<th>딥러닝(Keras)</th>
+<th>담당 챕터</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>모델 클래스 생성 (한 줄)</td>
+<td>구성 — 층을 쌓는다</td>
+<td>Ch04</td>
+</tr>
+<tr>
+<td>2</td>
+<td>—</td>
+<td>컴파일 — optimizer·손실 함수·metrics 지정</td>
+<td>Ch05</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>fit</code></td>
+<td>학습 — <code>fit</code>(epochs, batch_size, 검증 데이터)</td>
+<td>Ch05</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>predict</code></td>
+<td>평가·예측 — <code>evaluate</code>, <code>predict</code></td>
+<td>Ch07</td>
+</tr>
+</tbody>
+</table></div>
+<p>단계가 늘어난 만큼 조절할 수 있는 것도 많아집니다. 층 수와 노드 수, 활성화 함수(activation function), 손실 함수, epoch 수는 모두 사람이 정하는 값이고, 이 선택 규칙을 익히는 것이 Ch03부터 이어질 본론입니다.</p>
+<blockquote class="callout callout--note">
+<p>딥러닝 코드는 Ch04부터 실제로 작성합니다. 이 챕터에서는 "sklearn보다 단계가 두 개 많다"는 구조 차이만 잡고 넘어가면 충분합니다.</p>
+</blockquote>
+<p>머신러닝 문항의 포함 여부와 비중은 회차에 따라 달라질 수 있으므로, <strong>시험 공지 기준을 반드시 확인하십시오.</strong> 이 교재는 베이스라인 1문항 수준으로 대비합니다.</p>
+<hr />
+<h2 id="2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</h2>
+<figure class="diagram" id="fig-ch02_metric-map"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" width="800" height="440" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>문제 유형별 평가지표 지도 — 타깃이 범주면 분류 지표와 혼동 행렬을, 숫자면 회귀 지표를 고르고 대응하는 sklearn 함수를 함께 표기</title>
+  <defs>
+    <marker id="ch02mm-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="440" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">문제 유형별 평가지표 지도</text>
+
+  <!-- 루트 질문 -->
+  <polygon points="400,66 600,112 400,158 200,112" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="400" y="118" font-size="15" text-anchor="middle" fill="#1a2332">타깃이 범주인가, 숫자인가?</text>
+
+  <path d="M400,158 V176 H225 V188" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02mm-arrow)"/>
+  <path d="M400,158 V176 H600 V188" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02mm-arrow)"/>
+  <text x="300" y="170" font-size="12.5" text-anchor="middle" fill="#94a3b8">범주</text>
+  <text x="500" y="170" font-size="12.5" text-anchor="middle" fill="#94a3b8">숫자</text>
+
+  <!-- 분류 -->
+  <rect x="125" y="190" width="200" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="225" y="214" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a2332">분류</text>
+  <text x="225" y="232" font-size="11.5" text-anchor="middle" fill="#94a3b8">이진 · 다중</text>
+
+  <!-- 회귀 -->
+  <rect x="500" y="190" width="200" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="600" y="214" font-size="15" font-weight="bold" text-anchor="middle" fill="#1a2332">회귀</text>
+  <text x="600" y="232" font-size="11.5" text-anchor="middle" fill="#94a3b8">연속된 숫자</text>
+
+  <path d="M225,242 V258 H125 V274" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02mm-arrow)"/>
+  <path d="M225,242 V258 H331 V274" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02mm-arrow)"/>
+  <path d="M600,242 V274" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02mm-arrow)"/>
+
+  <!-- 분류 지표 -->
+  <rect x="30" y="276" width="190" height="104" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="125" y="302" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">accuracy · precision</text>
+  <text x="125" y="324" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">recall · f1</text>
+  <text x="125" y="352" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">classification_report</text>
+  <text x="125" y="371" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">accuracy_score</text>
+
+  <!-- 혼동 행렬 -->
+  <rect x="236" y="276" width="190" height="104" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="331" y="308" font-size="15" text-anchor="middle" fill="#1a2332">혼동 행렬</text>
+  <text x="331" y="332" font-size="12" text-anchor="middle" fill="#1a2332">예측 분포 확인</text>
+  <text x="331" y="362" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">confusion_matrix</text>
+
+  <!-- 회귀 지표 -->
+  <rect x="470" y="276" width="290" height="104" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="615" y="303" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">mse · mae · r2</text>
+  <text x="615" y="330" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">mean_squared_error</text>
+  <text x="615" y="350" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">mean_absolute_error</text>
+  <text x="615" y="370" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">r2_score</text>
+
+  <text x="24" y="414" font-size="12" fill="#94a3b8">지표를 실제로 계산하고 해석하는 방법은 Ch07에서 다룹니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 2-7</span><span class="diagram__caption">문제 유형별 평가지표 지도</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 타깃이 범주면 분류 지표(accuracy·precision·recall·f1·혼동 행렬), 숫자면 회귀 지표(mse·mae·r2)를 봅니다.</p>
+<p>지표를 고르는 기준은 단순합니다. <strong>타깃 컬럼의 성질</strong>이 전부입니다. <code>churn</code>처럼 0/1이면 분류, 집값·잔여 수명처럼 연속된 숫자면 회귀입니다. 문제 유형이 정해지면 출력층 설계와 손실 함수, 평가지표가 한 묶음으로 따라옵니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>문제 유형</th>
+<th>대표 지표</th>
+<th>sklearn 함수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>분류(이진·다중)</td>
+<td>accuracy, precision, recall, f1</td>
+<td><code>classification_report</code>, <code>accuracy_score</code></td>
+</tr>
+<tr>
+<td>분류 — 예측 분포 확인</td>
+<td>혼동 행렬</td>
+<td><code>confusion_matrix</code></td>
+</tr>
+<tr>
+<td>회귀</td>
+<td>mse, mae, r2</td>
+<td><code>mean_squared_error</code>, <code>mean_absolute_error</code>, <code>r2_score</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>한 가지만 미리 짚어둡니다. 클래스가 불균형한 데이터(예: 이탈 고객이 10%)에서는 전부 "이탈 아님"이라고만 찍어도 정확도가 90%가 나옵니다. <strong>정확도만으로 판단하지 않는 습관</strong>이 필요하며, 그래서 <code>classification_report</code>로 클래스별 precision과 recall을 함께 보는 것입니다.</p>
+<p>각 지표를 실제로 계산하고 해석하는 방법은 Ch07에서 다룹니다. 이 챕터에서는 "어떤 상황에 어떤 지표를 고르는가"라는 지도만 머리에 넣어 두십시오.</p>
+<hr />
+<h2 id="시험장-표준-코드">시험장 표준 코드</h2>
+<p>데이터 생성부터 베이스라인 성능 출력까지, 이 챕터 전체를 하나로 이은 코드입니다. 시험장에서는 첫 블록의 데이터 생성 부분만 <code>pd.read_csv('data.csv')</code>로 바꾸면 그대로 쓸 수 있습니다.</p>
+<pre><code class="language-python"># ===== 0) import =====
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
+# ===== 1) 로딩 (시험에서는 df = pd.read_csv('data.csv')) =====
+rng = np.random.default_rng(42)
+n = 1000
+tenure_months = rng.integers(1, 72, n)
+monthly_fee = rng.normal(60, 15, n).round(2)
+support_calls = rng.poisson(1.5, n)
+contract_type = rng.choice(['month', 'one_year', 'two_year'], n)
+bonus = np.where(contract_type == 'month', 0.8,
+                 np.where(contract_type == 'one_year', 0.0, -0.8))
+score = -0.04 * tenure_months + 0.02 * monthly_fee + 0.45 * support_calls + bonus
+prob = 1 / (1 + np.exp(-(score - score.mean())))
+df = pd.DataFrame({
+    'tenure_months': tenure_months,
+    'monthly_fee': monthly_fee,
+    'support_calls': support_calls,
+    'contract_type': contract_type,
+    'churn': rng.binomial(1, prob),
+})
+df.loc[rng.choice(n, size=50, replace=False), 'monthly_fee'] = np.nan
+
+# ===== 2) 탐색 =====
+print(df.shape)
+print(df.isnull().sum())
+print(df['churn'].value_counts())
+
+# ===== 3) 결측·이상치 처리 =====
+df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+q1, q3 = df['monthly_fee'].quantile(0.25), df['monthly_fee'].quantile(0.75)
+iqr = q3 - q1
+df['monthly_fee'] = df['monthly_fee'].clip(q1 - 1.5 * iqr, q3 + 1.5 * iqr)
+
+# ===== 4) 인코딩 (분리 전에 수행) =====
+df = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+
+# ===== 5) 분리 =====
+X = df.drop(columns=['churn'])
+y = df['churn']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+# ===== 6) 스케일링 (분리 후, train에만 fit) =====
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# ===== 7) 머신러닝 베이스라인 =====
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(1000, 5)</code> → 결측 50건 확인 → 클래스 분포 출력 → 마지막에 <code>classification_report</code> 표와 2×2 혼동 행렬이 출력됩니다. 이 <code>X_train_scaled</code>, <code>X_test_scaled</code>, <code>y_train</code>, <code>y_test</code>가 Ch04 이후 딥러닝 모델의 입력으로 그대로 이어집니다.</p>
+<p>⚠️ <strong>시험 포인트</strong> — 문항이 지정한 <strong>변수명을 그대로</strong> 쓰십시오. 뒤 문항이 앞 문항의 변수를 이어받는 구조이므로, <code>X_train</code>을 <code>x_tr</code>처럼 임의로 바꾸면 이어지는 문항의 예시 코드와 어긋납니다. <code>random_state</code> 값도 지정된 숫자를 그대로 사용해야 채점 결과가 재현됩니다.</p>
+</blockquote>
+<hr />
+<h2 id="핵심-요약">핵심 요약</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>핵심 규칙</th>
+<th>대표 코드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>탐색</td>
+<td>형태·결측·클래스 분포를 먼저 확인</td>
+<td><code>info()</code>, <code>isnull().sum()</code>, <code>value_counts()</code></td>
+</tr>
+<tr>
+<td>결측치</td>
+<td>수치형은 평균·중앙값, 범주형은 최빈값. 결과를 <strong>다시 대입</strong></td>
+<td><code>df['c'] = df['c'].fillna(df['c'].median())</code></td>
+</tr>
+<tr>
+<td>이상치</td>
+<td>IQR 1.5배 밖을 삭제 또는 경계값으로 대체</td>
+<td><code>df['c'].clip(lower, upper)</code></td>
+</tr>
+<tr>
+<td>인코딩</td>
+<td>순서 없는 범주는 원-핫. <strong>분리 전에</strong> 수행</td>
+<td><code>pd.get_dummies(df, columns=['c'], dtype=int)</code></td>
+</tr>
+<tr>
+<td>분리</td>
+<td><code>test_size</code>·<code>random_state</code>·<code>stratify</code> 3종 세트</td>
+<td><code>train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)</code></td>
+</tr>
+<tr>
+<td>스케일링</td>
+<td><strong>분리 후</strong>, train만 <code>fit_transform</code>, test는 <code>transform</code></td>
+<td><code>scaler.fit_transform(X_train)</code> / <code>scaler.transform(X_test)</code></td>
+</tr>
+<tr>
+<td>모델링</td>
+<td>머신러닝 3줄(생성·<code>fit</code>·<code>predict</code>), 딥러닝 4단계(구성·컴파일·학습·평가)</td>
+<td><code>model.fit(...)</code> → <code>model.predict(...)</code></td>
+</tr>
+<tr>
+<td>지표</td>
+<td>타깃이 범주면 분류 지표, 숫자면 회귀 지표</td>
+<td><code>classification_report</code>, <code>r2_score</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>순서 규칙 한 줄 정리:</strong> 인코딩은 분리 <strong>전</strong>, 스케일링은 분리 <strong>후</strong>.</p>
+<section class="exam" id="exam-ch02">
+<h2 id="ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</h2>
+<blockquote class="callout callout--note">
+<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닌 <strong>기출 변형</strong> 문항입니다.</p>
+</blockquote>
+<p><strong>구성:</strong> 객관식 2문항 / 코드 빈칸 2문항 / 오류 찾기 2문항<br />
+<strong>권장 소요 시간:</strong> 20분</p>
+<h3 id="공통-데이터">공통 데이터</h3>
+<p>Q3~Q6은 아래 데이터를 사용합니다. 본문 2.1의 예제 데이터에 <strong>범주형 결측치 20건</strong>을 추가로 넣은 것입니다. 실제 시험에서는 이 자리에 <code>df = pd.read_csv('data.csv')</code>가 들어갑니다.</p>
+<pre><code class="language-python">import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)
+n = 1000
+
+tenure_months = rng.integers(1, 72, n)
+monthly_fee = rng.normal(60, 15, n).round(2)
+support_calls = rng.poisson(1.5, n)
+contract_type = rng.choice(['month', 'one_year', 'two_year'], n)
+
+bonus = np.where(contract_type == 'month', 0.8,
+                 np.where(contract_type == 'one_year', 0.0, -0.8))
+score = -0.04 * tenure_months + 0.02 * monthly_fee + 0.45 * support_calls + bonus
+prob = 1 / (1 + np.exp(-(score - score.mean())))
+
+df = pd.DataFrame({
+    'tenure_months': tenure_months,
+    'monthly_fee': monthly_fee,
+    'support_calls': support_calls,
+    'contract_type': contract_type,
+    'churn': rng.binomial(1, prob),
+})
+
+df.loc[rng.choice(n, size=50, replace=False), 'monthly_fee'] = np.nan     # 수치형 결측 50건
+df.loc[rng.choice(n, size=20, replace=False), 'contract_type'] = np.nan   # 범주형 결측 20건
+
+print(df.shape)
+print(df.isnull().sum())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(1000, 5)</code>, <code>monthly_fee 50</code>, <code>contract_type 20</code>.</p>
+<p>각 문항은 <strong>위 코드로 <code>df</code>를 새로 만든 직후 상태</strong>에서 시작한다고 보십시오. 앞 문항에서 처리한 결과를 이어받지 않습니다(실기 시험의 의존 구조 연습은 모의고사에서 다룹니다).</p>
+</blockquote>
+<hr />
+<h3 id="문제">문제</h3>
+<h4 id="q1-객관식-기본-데이터-준비-순서">Q1. (객관식 · 기본) 데이터 준비 순서</h4>
+<p>범주형 컬럼이 포함된 분류용 데이터를 딥러닝 모델에 넣기 위해 준비하려고 합니다. 데이터 누수를 만들지 않는 <strong>올바른 순서</strong>는?</p>
+<p>① 스케일링 → 원-핫 인코딩 → 학습/평가 데이터 분리<br />
+② 원-핫 인코딩 → 학습/평가 데이터 분리 → 학습 데이터에 <code>fit_transform</code>, 평가 데이터에 <code>transform</code><br />
+③ 학습/평가 데이터 분리 → 각각 따로 원-핫 인코딩 → 각각 따로 <code>fit_transform</code><br />
+④ 원-핫 인코딩 → 전체 데이터에 <code>fit_transform</code> → 학습/평가 데이터 분리<br />
+⑤ 학습/평가 데이터 분리 → 전체 데이터에 <code>fit_transform</code> → 원-핫 인코딩</p>
+<hr />
+<h4 id="q2-객관식-기본-인코딩-방식-판별">Q2. (객관식 · 기본) 인코딩 방식 판별</h4>
+<p><code>contract_type</code> 컬럼은 <code>'month'</code>, <code>'one_year'</code>, <code>'two_year'</code> 세 값을 갖는 범주형 컬럼입니다. 이 컬럼의 인코딩에 대한 설명으로 <strong>옳은 것</strong>은?</p>
+<p>① 라벨 인코딩을 적용하면 컬럼이 3개로 늘어난다<br />
+② 원-핫 인코딩은 범주에 없던 크기 관계를 만들어 낸다<br />
+③ 계약 기간의 순서를 모델이 알 필요가 없는 상황이라면 <code>pd.get_dummies</code>가 기본 선택이다<br />
+④ pandas 2.x 이상에서 <code>pd.get_dummies</code>는 별도 지정 없이도 0/1 정수 컬럼을 만든다<br />
+⑤ <code>pd.get_dummies(df)</code>처럼 <code>columns</code> 인자를 생략해도 지정한 컬럼 하나만 변환된다</p>
+<hr />
+<h4 id="q3-코드-빈칸-기본-결측치-처리">Q3. (코드 빈칸 · 기본) 결측치 처리</h4>
+<p><code>monthly_fee</code>의 결측치는 <strong>중앙값</strong>으로, <code>contract_type</code>의 결측치는 <strong>최빈값</strong>으로 대체하려고 합니다. 빈칸 (가)~(다)를 채우십시오.</p>
+<pre><code class="language-python">df['monthly_fee'] = df['monthly_fee'].____(가)____(df['monthly_fee'].____(나)____())
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].____(다)____[0])
+
+print(df.isnull().sum().sum())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>기대 출력: <code>0</code></p>
+</blockquote>
+<hr />
+<h4 id="q4-코드-빈칸-응용-분리와-스케일링">Q4. (코드 빈칸 · 응용) 분리와 스케일링</h4>
+<p>공통 데이터의 <code>df</code>를 다음 지시대로 처리하십시오. <strong>결측 처리와 원-핫 인코딩 코드는 이미 채워져 있습니다.</strong></p>
+<ul>
+<li>학습 데이터와 평가 데이터를 <strong>8:2</strong>로 분리한다</li>
+<li><code>random_state=42</code>를 사용한다</li>
+<li>타깃 <code>churn</code>의 <strong>클래스 비율을 학습/평가 양쪽에 동일하게 유지</strong>한다</li>
+<li>모든 특성을 <strong>0~1 범위</strong>로 변환한다 (데이터 누수 없이)</li>
+</ul>
+<p>빈칸 (가)~(마)를 채우십시오.</p>
+<pre><code class="language-python">import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+# --- 앞 단계(제시 코드): 결측 처리 → 원-핫 인코딩 ---
+df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+# --- 여기부터 빈칸 ---
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=____(가)____, random_state=____(나)____, ____(다)____=y)
+
+scaler = MinMaxScaler()
+X_train_scaled = scaler.____(라)____(X_train)
+X_test_scaled = scaler.____(마)____(X_test)
+
+print(X_train.shape, X_test.shape)
+print('NaN:', np.isnan(X_train_scaled).sum(), np.isnan(X_test_scaled).sum())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>기대 출력: <code>(800, 6) (200, 6)</code> / <code>NaN: 0 0</code></p>
+</blockquote>
+<hr />
+<h4 id="q5-오류-찾기-기본-잘못된-곳-1곳">Q5. (오류 찾기 · 기본) 잘못된 곳 1곳</h4>
+<p>다음 코드는 오류 메시지 없이 <code>(700, 6) (300, 6)</code>을 출력하며 끝까지 실행됩니다. 그러나 채점에서 감점되는 잘못된 처리가 <strong>한 곳</strong> 있습니다. 어디이며 왜 문제인지 밝히고, 올바른 코드로 고치십시오.</p>
+<pre><code class="language-python">from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# --- 앞 단계(제시 코드): 결측 처리 → 원-핫 인코딩 ---
+df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.3, random_state=42, stratify=y)
+
+print(X_train.shape, X_test.shape)
+</code></pre>
+<hr />
+<h4 id="q6-오류-찾기-응용-잘못된-곳-2곳">Q6. (오류 찾기 · 응용) 잘못된 곳 2곳</h4>
+<p>다음 코드도 오류 없이 끝까지 실행됩니다. 그러나 (1) 결측치가 그대로 남고, (2) 클래스가 불균형한 데이터에서 평가 데이터의 클래스 비율이 원본과 어긋납니다. <strong>두 곳</strong>을 찾아 고치십시오.</p>
+<pre><code class="language-python">df['monthly_fee'].fillna(df['monthly_fee'].median())
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)
+
+print(df['monthly_fee'].isnull().sum())
+</code></pre>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><h4 id="q1-해답">Q1 해답</h4>
+<p><strong>정답: ②</strong></p>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># 인코딩은 분리 '전', 스케일링은 분리 '후'
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # 학습 데이터: 계산 + 변환
+X_test_scaled = scaler.transform(X_test)         # 평가 데이터: 변환만
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>인코딩과 스케일링은 분리 기준으로 <strong>순서 규칙이 반대</strong>입니다.</p>
+<ul>
+<li><strong>인코딩은 분리 전</strong> — <code>get_dummies</code>는 그 데이터에 실제로 존재하는 범주만큼 컬럼을 만듭니다. 분리한 뒤 각각 인코딩하면(③) 한쪽에만 있는 범주 때문에 컬럼 구성이 달라져, 모델 입력 shape이 어긋납니다.</li>
+<li><strong>스케일링은 분리 후</strong> — <code>fit</code>은 "평균과 표준편차(또는 최솟값·최댓값)를 계산해 기억하는" 동작입니다. 전체 데이터로 <code>fit</code>하면(①·④·⑤) 평가 데이터의 통계가 변환 규칙에 섞여 들어갑니다. 이것이 <strong>데이터 누수(data leakage)</strong> 이고, 평가 점수가 실제보다 좋게 나옵니다.</li>
+</ul>
+<p>기억할 한 줄은 이것입니다. <strong>인코딩은 분리 전, 스케일링은 분리 후.</strong></p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>scaler.fit_transform(X)</code> 한 줄로 끝낸 뒤 <code>train_test_split</code>을 부르는 코드(④)가 가장 흔한 감점 패턴입니다. 스케일러 관련 코드를 썼다면 <code>fit_transform</code>이 <strong><code>X_train</code>에만</strong> 걸려 있는지 항상 확인하십시오.</li>
+<li>평가 데이터에도 <code>fit_transform</code>을 쓰는 실수도 잦습니다. 평가 데이터에는 <code>transform</code>만 씁니다.</li>
+</ul>
+<hr />
+<h4 id="q2-해답">Q2 해답</h4>
+<p><strong>정답: ③</strong></p>
+<p><strong>실증 코드</strong></p>
+<pre><code class="language-python">demo = pd.DataFrame({'contract_type': ['month', 'one_year', 'two_year']})
+
+# 아래 cat.codes는 본문에서 다루지 않는 보조 코드입니다.
+# 라벨 인코딩의 '결과 모양'을 눈으로 보이기 위한 용도이며, 시험에서 외울 필요는 없습니다.
+label = demo['contract_type'].astype('category').cat.codes
+print('라벨 인코딩:', label.tolist(), '/ 컬럼 수 1')
+
+onehot = pd.get_dummies(demo, columns=['contract_type'], dtype=int)
+print('원-핫 컬럼:', onehot.columns.tolist(), '/ 컬럼 수', onehot.shape[1])
+
+print('dtype 미지정 시:', pd.get_dummies(demo, columns=['contract_type']).dtypes.iloc[0])
+</code></pre>
+<blockquote class="callout callout--note">
+<p>실행 결과: 라벨 인코딩 <code>[0, 1, 2]</code> / 컬럼 수 1, 원-핫 컬럼 <code>['contract_type_month', 'contract_type_one_year', 'contract_type_two_year']</code> / 컬럼 수 3, <code>dtype</code> 미지정 시 <code>bool</code>.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>라벨 인코딩은 범주에 번호를 붙이므로 컬럼 수가 늘지 않는 대신, <code>two_year(2)</code>가 <code>one_year(1)</code>보다 "크다"는 <strong>없던 크기 관계</strong>를 만듭니다. 원-핫 인코딩은 범주 개수만큼 0/1 컬럼을 만들어 이 오해를 없앱니다. 계약 유형처럼 순서를 모델이 알 필요가 없는 범주에는 원-핫 인코딩, 즉 <code>pd.get_dummies</code>가 기본 선택이며 AICE 실기에서 자주 요구됩니다.</p>
+<p>오답 선지를 짚으면 이렇습니다. ①은 라벨과 원-핫의 설명이 뒤바뀌었고, ②는 크기 관계를 만드는 쪽이 라벨 인코딩이므로 반대입니다. ④는 위 실증대로 pandas 2.x 이상에서 <code>get_dummies</code>의 기본 결과가 <strong>불리언(True/False)</strong> 이라 틀렸습니다. ⑤는 <code>columns</code>를 생략하면 문자 컬럼 <strong>전체</strong>가 한꺼번에 변환되므로 틀렸습니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>dtype=int</code>를 빠뜨리면 True/False 컬럼이 만들어집니다. 그대로도 학습은 되지만 스케일링·딥러닝 입력 단계에서 자료형을 확인할 때 혼란이 생기므로, <code>dtype=int</code>를 붙이는 습관이 안전합니다.</li>
+<li><code>columns=[...]</code> 생략은 의도치 않은 컬럼까지 원-핫으로 부풀립니다. 대상 컬럼은 항상 명시하십시오.</li>
+</ul>
+<hr />
+<h4 id="q3-해답">Q3 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())   # (가) fillna, (나) median
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])  # (다) mode()
+
+print(df.isnull().sum().sum())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>실행 결과: <code>0</code> — 남은 결측치가 없습니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>fillna</code></strong> — 결측치를 지정한 값으로 채우는 함수입니다. <code>dropna</code>는 행을 통째로 버리므로, 문항이 "대체하시오"라고 지시했다면 <code>fillna</code>입니다.</li>
+<li><strong>(나) <code>median</code></strong> — 평균(<code>mean</code>)과 중앙값(<code>median</code>) 중 무엇을 쓸지는 분포가 결정합니다. 이상치가 섞여 있거나 분포가 한쪽으로 치우친 경우 평균은 이상치에 끌려가므로 중앙값이 안전합니다. 다만 실기에서는 대체로 문항이 방법을 직접 지정하므로, <strong>지시된 통계량을 그대로</strong> 쓰는 것이 점수에 직결됩니다.</li>
+<li><strong>(다) <code>mode()</code></strong> — 범주형은 최빈값으로 채웁니다. <code>mode()</code>는 최빈값이 여러 개일 수 있어 <strong>Series를 반환</strong>하므로, <code>[0]</code>으로 첫 값을 꺼내야 스칼라가 됩니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>mode()[0]</code>의 <code>[0]</code>을 빠뜨리면 Series를 채움값으로 넘기게 되어 의도한 대로 채워지지 않습니다. 수치형의 <code>median()</code>·<code>mean()</code>은 스칼라를 반환하므로 <code>[0]</code>이 필요 없다는 점과 짝으로 기억하십시오.</li>
+<li><code>df['monthly_fee'].fillna(...)</code>는 <strong>원본을 바꾸지 않고 새 Series를 반환</strong>합니다. 반드시 <code>df['col'] = ...</code>로 다시 대입해야 합니다(Q6 참조).</li>
+</ul>
+<hr />
+<h4 id="q4-해답">Q4 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># --- 앞 단계(제시 코드): 결측 처리 → 원-핫 인코딩 ---
+df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,        # (가) 8:2 분리
+    random_state=42,      # (나) 지시된 값 그대로
+    stratify=y)           # (다) 클래스 비율 유지
+
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # (라) 학습 데이터: 계산 + 변환
+X_test_scaled = scaler.transform(X_test)         # (마) 평가 데이터: 변환만
+
+print(X_train.shape, X_test.shape)
+print('NaN:', np.isnan(X_train_scaled).sum(), np.isnan(X_test_scaled).sum())
+print('train 클래스 비율:', y_train.value_counts(normalize=True).round(3).to_dict())
+print('test  클래스 비율:', y_test.value_counts(normalize=True).round(3).to_dict())
+print('test 스케일 범위:', round(float(X_test_scaled.min()), 4), '~', round(float(X_test_scaled.max()), 4))
+</code></pre>
+<blockquote class="callout callout--note">
+<p>실행 결과: <code>(800, 6) (200, 6)</code> / <code>NaN: 0 0</code> / train 클래스 비율 <code>{1: 0.519, 0: 0.481}</code> / test 클래스 비율 <code>{1: 0.52, 0: 0.48}</code> / test 스케일 범위 <code>-0.1113 ~ 1.0</code></p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>test_size=0.2</code></strong> — <code>test_size</code>는 <strong>평가 데이터의 비율</strong>입니다. "8:2로 나누시오"에서 뒤의 숫자가 평가 몫이므로 0.2이고, "7:3"이면 0.3입니다. 0.8을 넣으면 학습 데이터가 200행이 되어 정반대 결과가 나옵니다.</li>
+<li><strong>(나) <code>random_state=42</code></strong> — 분리 결과를 고정해 채점자가 같은 결과를 재현할 수 있게 하는 장치입니다. 지정된 숫자를 그대로 씁니다.</li>
+<li><strong>(다) <code>stratify=y</code></strong> — 타깃 클래스 비율을 학습/평가 양쪽에 동일하게 유지합니다. 문항에 "층화 추출", "클래스 비율을 유지하여"라는 표현이 있으면 이 인자를 뜻합니다.</li>
+<li><strong>(라)·(마) <code>fit_transform</code> / <code>transform</code></strong> — 0~1 범위 변환이라는 지시가 있으므로 <code>MinMaxScaler</code>를 쓰고, 최솟값·최댓값 계산(<code>fit</code>)은 <strong>학습 데이터에서만</strong> 합니다. 평가 데이터는 그 규칙을 적용받기만 하므로 <code>transform</code>입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li>평가 데이터에 <code>fit_transform</code>을 쓰면, <code>X_test_scaled</code>의 값이 정확히 0~1에 맞춰지면서 오히려 누수가 생깁니다. 올바른 코드에서는 평가 데이터의 값이 0보다 작거나 1보다 큰 구간으로 나올 수 있으며(검증 실행에서 최솟값 <code>-0.1113</code> 관측), 이는 <strong>오류가 아니라 정상</strong>입니다. 이 음수 값을 보고 코드를 "고치려다" 누수를 만드는 사례가 많습니다.</li>
+<li><strong>결측 처리를 건너뛰고 스케일링으로 직행하면 조용히 망가집니다.</strong> sklearn 스케일러는 <code>NaN</code>을 오류 없이 통과시키므로, <code>X_train_scaled</code> 안에 <code>NaN</code>이 그대로 남은 채 shape과 클래스 비율만 정상으로 보입니다. 그 배열을 딥러닝 모델에 넣으면 손실이 <code>nan</code>이 되어 학습이 전혀 진행되지 않습니다. 스케일링 직후 <code>np.isnan(...).sum()</code>으로 0을 확인하는 한 줄이 값싼 보험입니다.</li>
+<li><code>stratify=y</code>에 <code>y_train</code>이나 <code>X</code>를 넣는 실수가 있습니다. 인자에는 분리 대상 타깃 전체(<code>y</code>)를 넣습니다.</li>
+<li>회귀 문제(연속형 타깃)에는 <code>stratify</code>를 쓰지 않습니다. 클래스가 없기 때문에 오류가 납니다.</li>
+</ul>
+<hr />
+<h4 id="q5-해답">Q5 해답</h4>
+<p><strong>잘못된 곳:</strong> 학습/평가 데이터를 분리하기 <strong>전에</strong> 전체 데이터 <code>X</code>에 <code>scaler.fit_transform(X)</code>을 적용한 부분 — <strong>데이터 누수(data leakage)</strong></p>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># --- 앞 단계(제시 코드 그대로): 결측 처리 → 원-핫 인코딩 ---
+df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+# 1) 먼저 나눈다  ← 스케일링보다 앞으로 옮긴 것이 수정의 핵심
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+# 2) 학습 데이터에만 fit_transform
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+
+# 3) 평가 데이터는 transform만
+X_test_scaled = scaler.transform(X_test)
+
+print(X_train_scaled.shape, X_test_scaled.shape)
+print(pd.Series(scaler.mean_, index=X_train.columns).round(4).to_string())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>실행 결과: <code>(700, 6) (300, 6)</code></p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p><code>StandardScaler</code>의 <code>fit</code>은 각 컬럼의 평균과 표준편차를 계산해 기억하는 동작입니다. 전체 데이터로 <code>fit</code>하면 <strong>평가 데이터의 평균·표준편차가 변환 규칙 안으로 들어옵니다.</strong> 모델이 학습 시점에 알아서는 안 될 정보를 간접적으로 받은 셈이고, 그 결과 평가 점수가 실제보다 좋게 나오며 새 데이터에서는 그 성능이 재현되지 않습니다.</p>
+<p>검증 실행에서 두 방식이 기억한 평균값(<code>scaler.mean_</code>)이 실제로 달랐습니다. 문항 코드 그대로 실행한 6개 컬럼 전체 결과입니다.</p>
+<pre><code>컬럼                      전체 데이터로 fit(오답)   학습 데이터로만 fit(정답)
+tenure_months                     36.2120                  35.8129
+monthly_fee                       59.6398                  59.9597
+support_calls                      1.4820                   1.4614
+contract_type_month                0.3230                   0.3329
+contract_type_one_year             0.3520                   0.3557
+contract_type_two_year             0.3250                   0.3114
+</code></pre>
+<p><strong>6개 컬럼 전부에서 기준이 어긋납니다.</strong> 오답 코드의 기준값에는 평가 데이터 300행의 정보가 섞여 있고, 정답 코드의 기준값은 학습 데이터 700행만으로 계산된 값입니다.</p>
+<p>또 하나의 증거는 변환 결과입니다. 정답 코드에서 평가 데이터의 변환 후 평균은 정확히 0이 아니라 아래처럼 0 근처의 값으로 흩어집니다.</p>
+<pre><code>tenure_months  0.0641 / monthly_fee -0.0713 / support_calls          0.0547
+month         -0.0697 / one_year    -0.0259 / two_year               0.0977
+</code></pre>
+<p>평가 데이터가 자기 자신의 통계가 아니라 <strong>학습 데이터의 기준을 빌려 쓰고 있다</strong>는 뜻이며, 이것이 정상 상태입니다. 반대로 평가 데이터의 평균이 정확히 0이 나온다면 누수를 의심해야 합니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li>이 코드는 오류 없이 실행되고 shape도 정상이므로 스스로 발견하기 어렵습니다. <strong>스케일러 코드를 쓴 직후 <code>fit_transform</code>의 인자가 <code>X_train</code>인지 확인</strong>하는 것을 고정 절차로 만드십시오.</li>
+<li><code>train_test_split</code>에 <code>X_scaled</code>(이미 변환된 배열)를 넘기고 있다는 점도 신호입니다. 분리 함수에는 아직 변환하지 않은 <code>X</code>가 들어가는 것이 정상 흐름입니다.</li>
+<li>누수가 있어도 평가 점수는 오히려 <strong>좋아 보입니다.</strong> 점수가 잘 나왔다는 이유로 순서를 검토하지 않고 넘어가는 것이 가장 위험합니다.</li>
+</ul>
+<hr />
+<h4 id="q6-해답">Q6 해답</h4>
+<p><strong>잘못된 곳 2군데</strong></p>
+<ol>
+<li><code>df['monthly_fee'].fillna(...)</code> — 결과를 <strong>다시 대입하지 않아</strong> 원본 <code>df</code>가 그대로입니다.</li>
+<li><code>train_test_split(...)</code> — 분류 문제인데 <strong><code>stratify=y</code>가 누락</strong>되어 클래스 비율이 유지되지 않습니다.</li>
+</ol>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())   # 수정 1: 재대입
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+
+df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)                      # 수정 2: stratify
+
+print(df['monthly_fee'].isnull().sum())
+print(y_test.value_counts(normalize=True).round(3).to_dict())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>실행 결과: 재대입 누락 코드에서는 결측이 <code>50</code>건 그대로 남았고, 재대입 후에는 <code>0</code>이 되었습니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p><strong>수정 1</strong> — pandas의 <code>fillna</code>는 원본을 바꾸지 않고 <strong>채워진 새 Series를 반환</strong>합니다. 반환값을 받지 않으면 계산만 하고 버리는 셈입니다. 결측 처리 코드를 분명히 썼는데 다음 문항에서 여전히 <code>NaN</code>이 나오는 사고는 거의 전부 이 대입 누락입니다. 실행 로그로 확인한 대로, 재대입이 없으면 결측 50건이 그대로 남습니다.</p>
+<p><strong>수정 2</strong> — <code>stratify=y</code>가 없으면 분리가 무작위로 이루어져 클래스 비율이 흔들립니다. 클래스가 균형에 가까울 때는 티가 잘 안 나지만, 불균형 데이터에서는 확연합니다. 검증에서 소수 클래스 비율 5%인 데이터로 비교한 결과입니다.</p>
+<pre><code>원본 소수 클래스 비율        : 0.05
+stratify 없이 나눈 test 비율 : 0.04
+stratify=y로 나눈 test 비율  : 0.05
+</code></pre>
+<p>평가 데이터에 소수 클래스가 덜 들어가면, 그 데이터로 잰 recall·f1이 실제 성능을 반영하지 못합니다. 뒤에 이어지는 딥러닝 문항의 평가까지 함께 흔들리므로 분리 단계에서 잡아야 합니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li>두 오류 모두 <strong>오류 메시지가 나지 않습니다.</strong> 그래서 "코드를 썼으니 됐다"고 넘어가기 쉽습니다. 결측 처리 직후에는 <code>print(df.isnull().sum())</code>로, 분리 직후에는 <code>print(y_train.value_counts(normalize=True))</code>로 결과를 눈으로 확인하는 습관이 방어책입니다.</li>
+<li><code>df['col'].fillna(..., inplace=True)</code> 형태를 떠올릴 수 있으나, 최신 pandas에서는 권장되지 않는 방향입니다. 이 교재는 <strong>재대입 방식</strong>으로 통일합니다.</li>
+<li><code>stratify</code>는 분류에서만 씁니다. 타깃이 연속형인 회귀 문제에 넣으면 오류가 납니다.</li>
+</ul>
+<hr />
+<h3 id="수정-이력">수정 이력</h3>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>일자</th>
+<th>대상</th>
+<th>사유 (QA 리포트 ID)</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-07-28</td>
+<td>Q5 문제·해답</td>
+<td>QA-CH02-C1 (CRITICAL) — 공통 데이터 실행 규약상 <code>df_enc</code> 미정의로 <code>NameError</code> 발생, 지문의 "오류 없이 실행된다"가 사실과 반대</td>
+<td>문제·해답 블록 서두에 결측 처리 2줄 + <code>get_dummies</code> 1줄을 제시 코드로 추가해 <strong>자기완결화</strong>. 지문에 실제 출력 <code>(700, 6) (300, 6)</code> 명시</td>
+</tr>
+<tr>
+<td>2026-07-28</td>
+<td>Q5 해설</td>
+<td>QA-CH02-H2 (HIGH) — 게재 증적이 3컬럼 조건에서 뽑힌 값이라 문항 코드로 재현 불가</td>
+<td>수정된 문항 코드로 재실행해 <strong>6컬럼 전체 <code>scaler.mean_</code> 대조표</strong>로 교체, 평가 데이터 변환 후 평균 6개 값도 교체</td>
+</tr>
+<tr>
+<td>2026-07-28</td>
+<td>Q4 문제·해답</td>
+<td>QA-CH02-H3 (HIGH) — 지문 "전처리를 마친 <code>df_enc</code>"와 달리 결측이 남아 스케일링 결과에 NaN 50개 잔존</td>
+<td>코드에 결측 처리 2줄 추가, 지문을 "결측 처리와 인코딩 코드는 이미 채워져 있습니다"로 수정. <code>NaN: 0 0</code> 검증 출력 및 "스케일러는 NaN을 조용히 통과시킨다" 감점 포인트 추가</td>
+</tr>
+<tr>
+<td>2026-07-28</td>
+<td>Q2 해설</td>
+<td>QA-CH02-M3 (MEDIUM) — 본문 미출제 API <code>cat.codes</code> 무설명 사용</td>
+<td>"본문에서 다루지 않는 보조 코드" 주석 2줄 추가</td>
+</tr>
+<tr>
+<td>2026-07-28</td>
+<td>Q2 해설</td>
+<td>QA-CH02-L3 (LOW) — 비공개 기출에 대한 빈도 단정</td>
+<td>"압도적으로 자주 요구됩니다" → "자주 요구됩니다"</td>
+</tr>
+</tbody>
+</table></div></div></details>
+</section>
+
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch01.html"><span class="pager__dir">이전</span><span class="pager__label">Ch01</span><span class="pager__title">AICE Associate 시험 구조와 학습 지도</span></a><a class="pager__slot pager__slot--next" href="ch03.html"><span class="pager__dir">다음</span><span class="pager__label">Ch03</span><span class="pager__title">딥러닝은 어떻게 배우는가</span></a></nav>
+</main>
+</body>
+</html>

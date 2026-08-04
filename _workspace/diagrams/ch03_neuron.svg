@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-neuron-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-neuron-title">뉴런 하나가 값을 계산하는 과정 — 입력 x1, x2, x3에 가중치 w1, w2, w3을 곱해 더하고 편향 b를 더한 뒤 활성화 함수를 통과시켜 출력 a를 만드는 구조도</title>
+  <defs>
+    <marker id="ch03n-arw-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="ch03n-arw-primary" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ch03n-arw-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="470" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">뉴런 하나가 값을 계산하는 과정</text>
+
+  <!-- 입력 -> 합산 연결선 -->
+  <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#ch03n-arw-muted)">
+    <line x1="117" y1="126" x2="301" y2="186"/>
+    <line x1="118" y1="195" x2="300" y2="195"/>
+    <line x1="117" y1="264" x2="301" y2="204"/>
+  </g>
+
+  <!-- 편향 입력 -->
+  <line x1="258" y1="330" x2="316" y2="222" stroke="#f59e0b" stroke-width="2" marker-end="url(#ch03n-arw-accent)"/>
+
+  <!-- 합산 -> 활성화 -->
+  <line x1="363" y1="195" x2="424" y2="195" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch03n-arw-muted)"/>
+  <text x="393" y="182" font-size="13" fill="#1a2332" text-anchor="middle">z</text>
+
+  <!-- 활성화 -> 출력 -->
+  <line x1="584" y1="195" x2="638" y2="195" stroke="#2563eb" stroke-width="2" marker-end="url(#ch03n-arw-primary)"/>
+
+  <!-- 입력 노드 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="100" cy="120" r="18"/>
+    <circle cx="100" cy="195" r="18"/>
+    <circle cx="100" cy="270" r="18"/>
+  </g>
+  <g font-size="14" fill="#1a2332" text-anchor="middle">
+    <text x="100" y="125">x1</text>
+    <text x="100" y="200">x2</text>
+    <text x="100" y="275">x3</text>
+  </g>
+  <text x="100" y="312" font-size="12" fill="#94a3b8" text-anchor="middle">입력</text>
+
+  <!-- 가중치 라벨 -->
+  <g>
+    <rect x="190" y="145" width="36" height="20" rx="6" fill="#ffffff"/>
+    <rect x="190" y="185" width="36" height="20" rx="6" fill="#ffffff"/>
+    <rect x="190" y="225" width="36" height="20" rx="6" fill="#ffffff"/>
+  </g>
+  <g font-size="13" fill="#2563eb" text-anchor="middle" font-weight="600">
+    <text x="208" y="159">w1</text>
+    <text x="208" y="199">w2</text>
+    <text x="208" y="239">w3</text>
+  </g>
+
+  <!-- 편향 노드 -->
+  <circle cx="250" cy="345" r="17" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="250" y="350" font-size="14" fill="#1a2332" text-anchor="middle">b</text>
+  <text x="250" y="382" font-size="12" fill="#f59e0b" text-anchor="middle">편향</text>
+
+  <!-- 합산 노드 -->
+  <circle cx="330" cy="195" r="30" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="330" y="200" font-size="15" fill="#1a2332" text-anchor="middle">sum</text>
+
+  <!-- 활성화 함수 -->
+  <rect x="430" y="163" width="150" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="505" y="201" font-size="15" fill="#1a2332" text-anchor="middle">활성화 함수 f</text>
+  <text x="505" y="250" font-size="12" fill="#94a3b8" text-anchor="middle">(은닉층은 relu)</text>
+
+  <!-- 출력 노드 -->
+  <circle cx="660" cy="195" r="18" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="660" y="200" font-size="15" fill="#1a2332" text-anchor="middle">a</text>
+  <text x="660" y="237" font-size="12" fill="#94a3b8" text-anchor="middle">출력</text>
+
+  <!-- 수식 -->
+  <rect x="150" y="398" width="500" height="48" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="428" font-size="16" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">a = f(w1*x1 + w2*x2 + w3*x3 + b)</text>
+</svg>

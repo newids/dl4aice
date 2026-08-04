@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-loop-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-loop-title">학습 한 번의 반복 루프를 시계 방향 순환 흐름도로 표현. 배치 입력, 예측, 손실 계산, 기울기 계산, 가중치 갱신의 다섯 단계가 한 바퀴 돌면 1 step이고 전체 데이터를 한 번 통과하면 1 epoch이다</title>
+  <defs>
+    <marker id="loop-arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="470" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">학습 한 번의 반복 루프</text>
+
+  <!-- 순환 화살표 -->
+  <g stroke="#2563eb" stroke-width="2.5" fill="none" marker-end="url(#loop-arw)">
+    <line x1="254" y1="151" x2="326" y2="151"/>
+    <path d="M514,151 H650 V226"/>
+    <path d="M650,296 V371 H514"/>
+    <line x1="326" y1="371" x2="254" y2="371"/>
+    <line x1="160" y1="336" x2="160" y2="186"/>
+  </g>
+
+  <!-- 단계 박스 -->
+  <g fill="#ffffff" stroke="#1a2332" stroke-width="1.5">
+    <rect x="70" y="120" width="180" height="62" rx="10"/>
+    <rect x="330" y="120" width="180" height="62" rx="10"/>
+    <rect x="560" y="230" width="180" height="62" rx="10"/>
+    <rect x="330" y="340" width="180" height="62" rx="10"/>
+    <rect x="70" y="340" width="180" height="62" rx="10"/>
+  </g>
+
+  <!-- 단계 번호 -->
+  <g fill="#2563eb">
+    <circle cx="94" cy="151" r="13"/>
+    <circle cx="354" cy="151" r="13"/>
+    <circle cx="584" cy="261" r="13"/>
+    <circle cx="354" cy="371" r="13"/>
+    <circle cx="94" cy="371" r="13"/>
+  </g>
+  <g font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">
+    <text x="94" y="156">1</text>
+    <text x="354" y="156">2</text>
+    <text x="584" y="266">3</text>
+    <text x="354" y="376">4</text>
+    <text x="94" y="376">5</text>
+  </g>
+
+  <!-- 단계 라벨 -->
+  <g font-size="15" fill="#1a2332">
+    <text x="116" y="147">배치 입력</text>
+    <text x="376" y="147">예측</text>
+    <text x="606" y="257">손실 계산</text>
+    <text x="376" y="367">기울기 계산</text>
+    <text x="116" y="367">가중치 갱신</text>
+  </g>
+  <g font-size="12" fill="#94a3b8">
+    <text x="116" y="166">batch_size 만큼</text>
+    <text x="376" y="166">순전파</text>
+    <text x="606" y="276">정답과 비교</text>
+    <text x="376" y="386">역전파</text>
+    <text x="116" y="386">학습률만큼 이동</text>
+  </g>
+
+  <!-- 중앙 정의 -->
+  <rect x="270" y="206" width="280" height="92" rx="10" fill="#dbeafe"/>
+  <text x="410" y="244" font-size="17" font-weight="700" fill="#2563eb" text-anchor="middle">한 바퀴 = 1 step</text>
+  <text x="410" y="275" font-size="14" fill="#1a2332" text-anchor="middle">전체 데이터 1회 통과 = 1 epoch</text>
+
+  <!-- 주석 -->
+  <text x="400" y="442" font-size="12" fill="#94a3b8" text-anchor="middle">예: 데이터 1,000행에 batch_size=32이면 1 epoch은 32 step으로 이루어집니다</text>
+</svg>

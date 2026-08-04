@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 640" width="800" height="640" role="img" aria-label="콜백이 학습 루프에 끼어드는 위치">
+  <title>콜백이 학습 루프에 끼어드는 위치 — 매 epoch이 끝나면 검증 지표를 계산하고, 이전 최고보다 개선됐으면 가중치를 저장하며 카운터를 0으로 되돌리고, 개선이 없으면 카운터를 1 올린 뒤 카운터가 patience에 도달하면 학습을 멈추는 흐름.</title>
+  <defs>
+    <marker id="ch06cb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="640" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">콜백이 학습 루프에 끼어드는 위치</text>
+
+    <!-- 연결선 -->
+    <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#ch06cb-arrow)">
+      <path d="M400,108 L400,130"/>
+      <path d="M400,178 L400,190"/>
+      <path d="M250,236 L190,236 L190,288"/>
+      <path d="M550,236 L610,236 L610,288"/>
+      <path d="M400,376 L400,394"/>
+      <path d="M400,482 L400,516"/>
+      <path d="M550,440 L740,440 L740,86 L494,86"/>
+    </g>
+    <g stroke="#94a3b8" stroke-width="2" fill="none">
+      <path d="M190,352 L190,376 L610,376 L610,352"/>
+    </g>
+
+    <!-- epoch 종료 -->
+    <rect x="310" y="64" width="180" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="400" y="92" font-size="15" fill="#1a2332" text-anchor="middle">epoch 종료</text>
+
+    <!-- 검증 지표 계산 -->
+    <rect x="280" y="134" width="240" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="400" y="162" font-size="15" fill="#1a2332" text-anchor="middle">검증 지표 계산 (val_loss)</text>
+
+    <!-- 판단 1 -->
+    <path d="M400,194 L550,236 L400,278 L250,236 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="241" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이전 최고보다 개선?</text>
+    <text x="220" y="228" font-size="13" font-weight="700" fill="#1a2332" text-anchor="middle">예</text>
+    <text x="580" y="228" font-size="13" font-weight="700" fill="#1a2332" text-anchor="middle">아니오</text>
+
+    <!-- 개선됨 -->
+    <rect x="100" y="288" width="180" height="64" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="190" y="314" font-size="15" fill="#1a2332" text-anchor="middle">가중치 저장</text>
+    <text x="190" y="338" font-size="15" fill="#1a2332" text-anchor="middle">카운터 = 0</text>
+
+    <!-- 개선 없음 -->
+    <rect x="520" y="288" width="180" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="610" y="314" font-size="15" fill="#1a2332" text-anchor="middle">개선 없음</text>
+    <text x="610" y="338" font-size="15" fill="#1a2332" text-anchor="middle">카운터 + 1</text>
+
+    <!-- 판단 2 -->
+    <path d="M400,398 L550,440 L400,482 L250,440 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="445" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">카운터가 patience에 도달? (&gt;=)</text>
+    <text x="414" y="506" font-size="13" font-weight="700" fill="#1a2332">예</text>
+    <text x="564" y="432" font-size="13" font-weight="700" fill="#1a2332">아니오</text>
+    <text x="616" y="76" font-size="12" fill="#94a3b8" text-anchor="middle">다음 epoch으로</text>
+
+    <!-- 중단 -->
+    <rect x="310" y="516" width="180" height="44" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="400" y="544" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">학습 중단</text>
+
+    <!-- 주석 -->
+    <rect x="32" y="580" width="12" height="12" rx="2" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="52" y="591" font-size="12" fill="#1a2332">저장 = ModelCheckpoint(monitor='val_loss', save_best_only=True)</text>
+    <rect x="32" y="602" width="12" height="12" rx="2" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="52" y="613" font-size="12" fill="#1a2332">중단 = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)</text>
+  </g>
+</svg>

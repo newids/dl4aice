@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 384" width="800" height="384" role="img" aria-label="코드 한 줄과 층 하나의 대응" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Sequential 모델에서 model.add 코드 한 줄이 층 하나에 대응하는 모습. 작성한 순서가 데이터가 지나가는 순서가 됩니다.</title>
+  <defs>
+    <marker id="sqb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="384" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">코드 한 줄 = 층 하나</text>
+
+  <text x="32" y="66" font-size="12" fill="#94a3b8">작성 순서</text>
+  <text x="460" y="66" font-size="12" fill="#94a3b8">데이터가 지나가는 순서</text>
+
+  <!-- 코드 패널 -->
+  <rect x="32" y="80" width="352" height="252" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="48" y="110" font-size="12" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Input(shape=(8,)))</text>
+  <text x="48" y="174" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(64, activation='relu'))</text>
+  <text x="48" y="238" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(32, activation='relu'))</text>
+  <text x="48" y="302" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(1, activation='sigmoid'))</text>
+
+  <!-- 대응 점선 -->
+  <line x1="392" y1="106" x2="452" y2="106" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="170" x2="452" y2="170" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="234" x2="452" y2="234" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="298" x2="452" y2="298" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+
+  <!-- 층 스택 -->
+  <rect x="460" y="84" width="290" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="478" y="112" font-size="14" fill="#94a3b8">입력 — 특성 8개</text>
+
+  <line x1="605" y1="130" x2="605" y2="146" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="148" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="176" font-size="14" fill="#1a2332">은닉층 1 — 노드 64, relu</text>
+
+  <line x1="605" y1="194" x2="605" y2="210" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="212" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="240" font-size="14" fill="#1a2332">은닉층 2 — 노드 32, relu</text>
+
+  <line x1="605" y1="258" x2="605" y2="274" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="276" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="304" font-size="14" fill="#1a2332">출력층 — 노드 1, sigmoid</text>
+
+  <text x="460" y="356" font-size="12" fill="#94a3b8">Input은 층으로 세지 않는다: len(model.layers) = 3</text>
+</svg>

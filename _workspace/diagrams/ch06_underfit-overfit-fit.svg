@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 360" width="800" height="360" role="img" aria-label="과소적합·적정·과적합의 결정 경계">
+  <title>과소적합·적정·과적합의 결정 경계 — 같은 두 클래스 데이터에 대해 왼쪽은 너무 단순한 직선, 가운데는 완만한 곡선, 오른쪽은 점 하나하나를 감싸는 구불구불한 경계를 그린 개념 도해.</title>
+  <defs>
+    <g id="ch06uof-pts">
+      <!-- 클래스 A: 채운 점 -->
+      <g fill="#1a2332">
+        <circle cx="28" cy="30" r="4"/>
+        <circle cx="52" cy="22" r="4"/>
+        <circle cx="78" cy="24" r="4"/>
+        <circle cx="100" cy="38" r="4"/>
+        <circle cx="124" cy="48" r="4"/>
+        <circle cx="152" cy="32" r="4"/>
+        <circle cx="176" cy="66" r="4"/>
+        <circle cx="200" cy="74" r="4"/>
+        <circle cx="36" cy="46" r="4"/>
+        <circle cx="128" cy="86" r="4"/>
+        <circle cx="152" cy="122" r="4"/>
+        <circle cx="176" cy="134" r="4"/>
+        <circle cx="200" cy="116" r="4"/>
+        <circle cx="108" cy="152" r="4"/>
+      </g>
+      <!-- 클래스 B: 빈 점 -->
+      <g fill="#ffffff" stroke="#1a2332" stroke-width="1.5">
+        <circle cx="28" cy="96" r="4"/>
+        <circle cx="30" cy="148" r="4"/>
+        <circle cx="52" cy="116" r="4"/>
+        <circle cx="56" cy="168" r="4"/>
+        <circle cx="88" cy="92" r="4"/>
+        <circle cx="80" cy="134" r="4"/>
+        <circle cx="96" cy="180" r="4"/>
+        <circle cx="86" cy="108" r="4"/>
+        <circle cx="132" cy="156" r="4"/>
+        <circle cx="130" cy="178" r="4"/>
+        <circle cx="152" cy="164" r="4"/>
+        <circle cx="176" cy="172" r="4"/>
+        <circle cx="200" cy="170" r="4"/>
+        <circle cx="60" cy="80" r="4"/>
+        <circle cx="150" cy="62" r="4"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="360" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">과소적합·적정·과적합의 결정 경계</text>
+
+    <!-- 범례 -->
+    <circle cx="566" cy="33" r="4" fill="#1a2332"/>
+    <text x="578" y="38" font-size="12" fill="#94a3b8">클래스 A</text>
+    <circle cx="664" cy="33" r="4" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="676" y="38" font-size="12" fill="#94a3b8">클래스 B</text>
+
+    <!-- 패널 라벨 -->
+    <text x="148" y="62" font-size="16" font-weight="700" fill="#94a3b8" text-anchor="middle">과소적합</text>
+    <text x="400" y="62" font-size="16" font-weight="700" fill="#059669" text-anchor="middle">적정</text>
+    <text x="652" y="62" font-size="16" font-weight="700" fill="#dc2626" text-anchor="middle">과적합</text>
+
+    <!-- 패널 테두리 -->
+    <rect x="32" y="76" width="232" height="190" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="284" y="76" width="232" height="190" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="536" y="76" width="232" height="190" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <!-- 패널 1: 직선 경계 -->
+    <g transform="translate(32,76)">
+      <line x1="18" y1="80" x2="214" y2="132" stroke="#94a3b8" stroke-width="2.5"/>
+      <use href="#ch06uof-pts" xlink:href="#ch06uof-pts"/>
+    </g>
+
+    <!-- 패널 2: 완만한 곡선 경계 -->
+    <g transform="translate(284,76)">
+      <path d="M18,56 C60,64 94,80 124,112 C150,142 180,152 214,158" fill="none" stroke="#059669" stroke-width="2.5"/>
+      <use href="#ch06uof-pts" xlink:href="#ch06uof-pts"/>
+    </g>
+
+    <!-- 패널 3: 구불구불한 경계 + 점 하나를 감싼 섬 -->
+    <g transform="translate(536,76)">
+      <path d="M18,50 C30,64 40,72 52,62 C64,52 70,84 84,78 C96,73 100,102 112,98 C124,94 122,126 134,122 C146,118 146,148 158,144 C170,140 172,158 186,154 C198,150 202,166 214,160" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+      <path d="M94,152 C94,138 108,132 118,140 C128,148 122,168 108,168 C98,168 94,162 94,152 Z" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+      <path d="M136,62 C136,48 150,42 160,50 C170,58 164,78 150,78 C140,78 136,72 136,62 Z" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+      <use href="#ch06uof-pts" xlink:href="#ch06uof-pts"/>
+    </g>
+
+    <!-- 패널 설명 -->
+    <text x="148" y="290" font-size="13" fill="#1a2332" text-anchor="middle">경계가 너무 단순</text>
+    <text x="148" y="310" font-size="12" fill="#94a3b8" text-anchor="middle">학습·새 데이터 모두 낮음</text>
+
+    <text x="400" y="290" font-size="13" fill="#1a2332" text-anchor="middle">잡음은 넘기고 추세만</text>
+    <text x="400" y="310" font-size="12" fill="#94a3b8" text-anchor="middle">학습·새 데이터 모두 높음</text>
+
+    <text x="652" y="290" font-size="13" fill="#1a2332" text-anchor="middle">점 하나까지 감싼 경계</text>
+    <text x="652" y="310" font-size="12" fill="#94a3b8" text-anchor="middle">학습 높음, 새 데이터 낮음</text>
+
+    <text x="32" y="340" font-size="12" fill="#94a3b8">개념 도해입니다 — 실제 데이터가 아닙니다. 세 패널의 점 배치는 모두 같습니다.</text>
+  </g>
+</svg>

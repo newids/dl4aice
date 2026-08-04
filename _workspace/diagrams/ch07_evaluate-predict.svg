@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 464" width="800" height="464" role="img" aria-label="evaluate와 predict의 반환값 차이">
+  <title>evaluate와 predict의 반환값 차이 — 같은 학습된 모델에 X_test_scaled를 넣어도 evaluate는 loss와 metrics 점수 몇 개를 돌려주고, predict는 샘플 수만큼의 확률 배열을 돌려준다.</title>
+  <defs>
+    <marker id="ch07ep-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="464" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">evaluate 와 predict 의 반환값 차이</text>
+
+    <!-- 입력 -->
+    <rect x="164" y="72" width="120" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="224" y="96" font-size="14" fill="#1a2332" text-anchor="middle">X_test_scaled</text>
+    <line x1="284" y1="91" x2="310" y2="91" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+
+    <!-- 학습된 모델 -->
+    <rect x="316" y="64" width="168" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="97" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습된 모델</text>
+
+    <!-- 분기 -->
+    <path d="M400 118 L400 142 M200 142 L600 142" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="200" y1="142" x2="200" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+    <line x1="600" y1="142" x2="600" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+
+    <!-- ===== 왼쪽: evaluate ===== -->
+    <rect x="48" y="176" width="304" height="234" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <rect x="64" y="192" width="272" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="200" y="213" font-size="13" fill="#1a2332" text-anchor="middle">model.evaluate(X_test_scaled, y_test)</text>
+    <text x="200" y="243" font-size="12" fill="#94a3b8" text-anchor="middle">입력 + 정답 필요</text>
+
+    <rect x="96" y="256" width="208" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="200" y="285" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">[0.075, 0.9708]</text>
+
+    <g stroke="#2563eb" stroke-width="1.5">
+      <line x1="152" y1="300" x2="152" y2="310"/>
+      <line x1="252" y1="300" x2="252" y2="310"/>
+    </g>
+    <text x="152" y="326" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">loss</text>
+    <text x="252" y="326" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">accuracy</text>
+
+    <text x="200" y="372" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">점수 몇 개</text>
+    <text x="200" y="392" font-size="12" fill="#94a3b8" text-anchor="middle">metrics 개수가 길이를 정함</text>
+
+    <!-- ===== 오른쪽: predict ===== -->
+    <rect x="448" y="176" width="304" height="234" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <rect x="464" y="192" width="272" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="600" y="213" font-size="13" fill="#1a2332" text-anchor="middle">model.predict(X_test_scaled)</text>
+    <text x="600" y="243" font-size="12" fill="#94a3b8" text-anchor="middle">입력만 필요 — 정답 없이 동작</text>
+
+    <rect x="528" y="256" width="144" height="90" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="600" y="278" font-size="14" fill="#1a2332" text-anchor="middle">0.005</text>
+    <text x="600" y="300" font-size="14" fill="#1a2332" text-anchor="middle">0.871</text>
+    <text x="600" y="322" font-size="14" fill="#1a2332" text-anchor="middle">0.952</text>
+    <text x="600" y="338" font-size="13" fill="#94a3b8" text-anchor="middle">...</text>
+
+    <text x="600" y="372" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">shape (171, 1)</text>
+    <text x="600" y="392" font-size="12" fill="#94a3b8" text-anchor="middle">(샘플 수, 출력 노드 수)</text>
+
+    <text x="32" y="436" font-size="12" fill="#94a3b8">숫자는 7.1 예제의 출력입니다 — 환경과 난수에 따라 조금 달라집니다.</text>
+  </g>
+</svg>

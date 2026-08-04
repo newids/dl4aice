@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 506" width="800" height="506" role="img" aria-label="제출 전 최종 점검 순서" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>제출 전 최종 점검 순서 — 셀을 위에서부터 다시 실행하기, 지시된 변수명 사용, random_state 확인, 결과를 print로 출력, 저장 파일명 확인, 남은 시간 배분까지 여섯 항목을 위에서부터 확인한다.</title>
+
+  <rect x="0" y="0" width="800" height="506" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">제출 전 최종 점검 순서</text>
+
+  <!-- 배너 -->
+  <rect x="24" y="58" width="752" height="36" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="82" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">마지막 10분 — 새 코드를 쓰는 시간이 아니라 확인하는 시간입니다</text>
+
+  <!-- ===== 1 ===== -->
+  <rect x="24" y="110" width="752" height="52" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="38" y="141" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">1</text>
+  <rect x="52" y="126" width="20" height="20" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="88" y="141" font-size="15" font-weight="bold" fill="#1a2332">셀을 위에서부터 다시 실행</text>
+  <text x="396" y="141" font-size="12" fill="#2563eb">커널 재시작 후 순서대로 전체 실행 — 가장 중요합니다</text>
+
+  <!-- ===== 2 ===== -->
+  <rect x="24" y="170" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="201" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">2</text>
+  <rect x="52" y="186" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="201" font-size="15" fill="#1a2332">지시된 변수명을 그대로 사용</text>
+  <text x="396" y="201" font-size="12" fill="#94a3b8">문제지의 이름과 코드의 이름을 눈으로 대조</text>
+
+  <!-- ===== 3 ===== -->
+  <rect x="24" y="230" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="261" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">3</text>
+  <rect x="52" y="246" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="261" font-size="15" fill="#1a2332"><tspan font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="14">random_state</tspan> 값이 지시대로인가</text>
+  <text x="396" y="261" font-size="12" fill="#94a3b8">train_test_split 인자와 머신러닝 모델 인자 확인</text>
+
+  <!-- ===== 4 ===== -->
+  <rect x="24" y="290" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="321" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">4</text>
+  <rect x="52" y="306" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="321" font-size="15" fill="#1a2332">결과를 <tspan font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="14">print()</tspan>로 출력</text>
+  <text x="396" y="321" font-size="12" fill="#94a3b8">출력하시오 지시가 붙은 항목마다 화면에 결과가 남았는지 확인</text>
+
+  <!-- ===== 5 ===== -->
+  <rect x="24" y="350" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="381" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">5</text>
+  <rect x="52" y="366" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="381" font-size="15" fill="#1a2332">저장 파일명과 확장자 확인</text>
+  <text x="396" y="381" font-size="12" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">ModelCheckpoint('best_model.keras')</text>
+
+  <!-- ===== 6 ===== -->
+  <rect x="24" y="410" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="441" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">6</text>
+  <rect x="52" y="426" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="441" font-size="15" fill="#1a2332">남은 시간에 손댈 곳 결정</text>
+  <text x="396" y="441" font-size="12" fill="#94a3b8">미완성 문항 중 배점이 큰 것부터</text>
+
+  <text x="24" y="486" font-size="12" fill="#94a3b8">성능을 더 올리려 모델 구조를 바꾸는 것보다, 실행 가능한 상태를 유지하는 편이 안전합니다.</text>
+</svg>

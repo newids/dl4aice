@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 392" width="800" height="392" role="img" aria-label="과적합 곡선과 정상 학습 곡선 비교">
+  <title>과적합 곡선과 정상 학습 곡선 비교 — 왼쪽은 학습 손실만 계속 내려가고 검증 손실이 도중부터 올라가 두 선이 벌어지는 과적합, 오른쪽은 두 선이 함께 내려가 나란히 수렴하는 정상 학습을 나타낸 개념 도해.</title>
+  <defs>
+    <marker id="ch06ovg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="392" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">과적합 곡선과 정상 학습 곡선</text>
+
+    <!-- 패널 -->
+    <rect x="32" y="56" width="352" height="264" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="416" y="56" width="352" height="264" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="400" y1="56" x2="400" y2="320" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+    <text x="48" y="84" font-size="16" font-weight="700" fill="#dc2626">과적합</text>
+    <text x="432" y="84" font-size="16" font-weight="700" fill="#059669">정상 학습</text>
+
+    <!-- 왼쪽 축 -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <line x1="88" y1="100" x2="88" y2="278"/>
+      <line x1="88" y1="278" x2="372" y2="278"/>
+    </g>
+    <text x="88" y="92" font-size="12" fill="#94a3b8" text-anchor="middle">loss</text>
+    <text x="368" y="296" font-size="12" fill="#94a3b8" text-anchor="end">epoch</text>
+
+    <!-- 왼쪽 곡선 -->
+    <path d="M88,116 C124,200 160,240 210,252 C270,264 320,266 368,268" fill="none" stroke="#1a2332" stroke-width="2"/>
+    <path d="M88,104 C118,176 142,206 170,212 C200,218 230,190 280,158 C322,132 346,118 368,108" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="7 4"/>
+
+    <!-- 분기점 -->
+    <line x1="170" y1="98" x2="170" y2="278" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="170" y="92" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">과적합 시작</text>
+
+    <!-- 격차 표시 -->
+    <line x1="306" y1="152" x2="306" y2="256" stroke="#dc2626" stroke-width="1.5" marker-start="url(#ch06ovg-arrow)" marker-end="url(#ch06ovg-arrow)"/>
+    <text x="314" y="208" font-size="12" fill="#dc2626">격차 확대</text>
+
+    <!-- 오른쪽 축 -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <line x1="472" y1="100" x2="472" y2="278"/>
+      <line x1="472" y1="278" x2="756" y2="278"/>
+    </g>
+    <text x="472" y="92" font-size="12" fill="#94a3b8" text-anchor="middle">loss</text>
+    <text x="752" y="296" font-size="12" fill="#94a3b8" text-anchor="end">epoch</text>
+
+    <!-- 오른쪽 곡선 -->
+    <path d="M472,116 C508,196 545,230 600,242 C655,250 710,254 752,256" fill="none" stroke="#1a2332" stroke-width="2"/>
+    <path d="M472,102 C508,186 545,222 600,234 C655,242 710,244 752,244" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="7 4"/>
+    <text x="636" y="214" font-size="12" font-weight="700" fill="#059669">나란히 수렴</text>
+
+    <!-- 범례 -->
+    <line x1="210" y1="340" x2="242" y2="340" stroke="#1a2332" stroke-width="2"/>
+    <text x="250" y="345" font-size="12" fill="#1a2332">실선 = 학습 손실 (loss)</text>
+    <line x1="430" y1="340" x2="462" y2="340" stroke="#1a2332" stroke-width="2" stroke-dasharray="7 4"/>
+    <text x="470" y="345" font-size="12" fill="#1a2332">점선 = 검증 손실 (val_loss)</text>
+
+    <text x="32" y="372" font-size="12" fill="#94a3b8">개념 도해입니다 — 실제 학습 결과가 아닙니다. 판단 기준은 두 선의 관계입니다.</text>
+  </g>
+</svg>

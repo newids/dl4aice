@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 484" width="800" height="484" role="img" aria-label="확률 예측값을 클래스로 바꾸는 방법">
+  <title>확률 예측값을 클래스로 바꾸는 방법 — 이진분류는 임계값 0.5로, 다중분류는 argmax로 확률을 클래스 라벨로 변환한다.</title>
+  <defs>
+    <marker id="ch07pc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="484" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">확률 예측값을 클래스로 바꾸는 방법</text>
+
+    <!-- ===== 1행: 이진분류 ===== -->
+    <rect x="32" y="108" width="112" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="88" y="134" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이진분류</text>
+    <text x="88" y="156" font-size="12" fill="#94a3b8" text-anchor="middle">출력 1개</text>
+
+    <text x="250" y="104" font-size="12" fill="#94a3b8" text-anchor="middle">확률</text>
+    <rect x="206" y="114" width="88" height="52" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="250" y="148" font-size="18" font-weight="700" fill="#2563eb" text-anchor="middle">0.83</text>
+
+    <line x1="332" y1="140" x2="370" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="378" y="106" width="208" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="482" y="136" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">0.5 보다 큰가</text>
+    <text x="482" y="158" font-size="12" fill="#94a3b8" text-anchor="middle">임계값 판정</text>
+
+    <line x1="586" y1="140" x2="624" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <text x="678" y="104" font-size="12" fill="#94a3b8" text-anchor="middle">라벨</text>
+    <rect x="632" y="114" width="92" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+    <text x="678" y="149" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">1</text>
+
+    <rect x="168" y="190" width="418" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="188" y="211" font-size="13" fill="#1a2332">(pred &gt; 0.5).astype(int).flatten()</text>
+
+    <!-- 구분선 -->
+    <line x1="32" y1="250" x2="768" y2="250" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    <!-- ===== 2행: 다중분류 ===== -->
+    <rect x="32" y="312" width="112" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="88" y="338" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">다중분류</text>
+    <text x="88" y="360" font-size="12" fill="#94a3b8" text-anchor="middle">출력 3개</text>
+
+    <text x="250" y="298" font-size="12" fill="#94a3b8" text-anchor="middle">클래스별 확률</text>
+
+    <text x="178" y="322" font-size="13" fill="#94a3b8" text-anchor="end">0</text>
+    <rect x="186" y="309" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="309" width="11" height="18" rx="4" fill="#94a3b8"/>
+    <text x="328" y="322" font-size="13" fill="#1a2332" text-anchor="end">0.1</text>
+
+    <text x="178" y="348" font-size="13" font-weight="700" fill="#2563eb" text-anchor="end">1</text>
+    <rect x="186" y="335" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="335" width="77" height="18" rx="4" fill="#2563eb"/>
+    <text x="328" y="348" font-size="13" font-weight="700" fill="#2563eb" text-anchor="end">0.7</text>
+
+    <text x="178" y="374" font-size="13" fill="#94a3b8" text-anchor="end">2</text>
+    <rect x="186" y="361" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="361" width="22" height="18" rx="4" fill="#94a3b8"/>
+    <text x="328" y="374" font-size="13" fill="#1a2332" text-anchor="end">0.2</text>
+
+    <line x1="332" y1="344" x2="370" y2="344" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="378" y="310" width="208" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="482" y="340" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">가장 큰 값의 위치</text>
+    <text x="482" y="362" font-size="12" fill="#94a3b8" text-anchor="middle">argmax</text>
+
+    <line x1="586" y1="344" x2="624" y2="344" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="632" y="318" width="92" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+    <text x="678" y="353" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">1</text>
+
+    <rect x="168" y="396" width="418" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="188" y="417" font-size="13" fill="#1a2332">np.argmax(pred, axis=1)</text>
+
+    <text x="32" y="458" font-size="12" fill="#f59e0b">axis=1 은 한 샘플 안의 클래스들 중 최댓값 위치입니다 — axis=0 을 주면 결과 길이가 클래스 수로 바뀝니다.</text>
+  </g>
+</svg>

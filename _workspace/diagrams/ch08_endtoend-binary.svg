@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420" role="img" aria-label="이진분류 문제의 전체 코드 지도" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>이진분류 문제의 전체 코드 지도 — 로딩, 탐색, 전처리, 분리에 이어 구성, 컴파일, 학습, 평가까지 여덟 단계가 순서대로 이어지며 각 단계마다 대표 코드 한 줄이 붙어 있고, 구성과 컴파일과 학습 세 단계가 딥러닝 구간이다.</title>
+  <defs>
+    <marker id="ch08eb-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="420" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">이진분류 문제의 전체 코드 지도</text>
+  <text x="24" y="62" font-size="12" fill="#94a3b8">8단계를 순서대로 밟으면 답안 한 벌이 완성됩니다.</text>
+
+  <!-- ===== 연결 화살표 (1행) ===== -->
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)">
+    <line x1="196" y1="142" x2="214" y2="142"/>
+    <line x1="390" y1="142" x2="408" y2="142"/>
+    <line x1="584" y1="142" x2="602" y2="142"/>
+  </g>
+
+  <!-- ===== 1행: 준비 단계 ===== -->
+  <!-- 1 로딩 -->
+  <rect x="26" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="50" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="50" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">1</text>
+  <text x="109" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">로딩</text>
+  <text x="109" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">pd.read_csv(...)</text>
+  <text x="109" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">원본 데이터프레임</text>
+
+  <!-- 2 탐색 -->
+  <rect x="220" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="244" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="244" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">2</text>
+  <text x="303" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">탐색</text>
+  <text x="303" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">df.isnull().sum()</text>
+  <text x="303" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">shape · 결측 · 분포</text>
+
+  <!-- 3 전처리 -->
+  <rect x="414" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="438" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="438" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">3</text>
+  <text x="497" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">전처리</text>
+  <text x="497" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna / get_dummies</text>
+  <text x="497" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">인코딩은 분리 전</text>
+
+  <!-- 4 분리 -->
+  <rect x="608" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="632" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="632" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">4</text>
+  <text x="691" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">분리</text>
+  <text x="691" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split(...)</text>
+  <text x="691" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">스케일링은 분리 후</text>
+
+  <!-- ===== 줄바꿈 연결선 ===== -->
+  <path d="M691,192 V222 H109 V252" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)"/>
+
+  <!-- ===== 연결 화살표 (2행) ===== -->
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)">
+    <line x1="196" y1="306" x2="214" y2="306"/>
+    <line x1="390" y1="306" x2="408" y2="306"/>
+    <line x1="584" y1="306" x2="602" y2="306"/>
+  </g>
+
+  <!-- ===== 2행: 모델 단계 ===== -->
+  <!-- 5 구성 -->
+  <rect x="26" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="50" cy="280" r="13" fill="#2563eb"/>
+  <text x="50" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">5</text>
+  <text x="109" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">구성</text>
+  <text x="109" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Sequential / Dense</text>
+  <text x="109" y="348" font-size="11" text-anchor="middle" fill="#2563eb">교체 지점 (1) 출력층</text>
+
+  <!-- 6 컴파일 -->
+  <rect x="220" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="244" cy="280" r="13" fill="#2563eb"/>
+  <text x="244" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">6</text>
+  <text x="303" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">컴파일</text>
+  <text x="303" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.compile(...)</text>
+  <text x="303" y="348" font-size="11" text-anchor="middle" fill="#2563eb">교체 지점 (2)(3)</text>
+
+  <!-- 7 학습 -->
+  <rect x="414" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="438" cy="280" r="13" fill="#2563eb"/>
+  <text x="438" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">7</text>
+  <text x="497" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">학습</text>
+  <text x="497" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.fit(...)</text>
+  <text x="497" y="348" font-size="11" text-anchor="middle" fill="#2563eb">EarlyStopping 포함</text>
+
+  <!-- 8 평가 -->
+  <rect x="608" y="256" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="632" cy="280" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="632" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">8</text>
+  <text x="691" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">평가</text>
+  <text x="691" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate / predict</text>
+  <text x="691" y="348" font-size="11" text-anchor="middle" fill="#94a3b8">교체 지점 (4) 예측 변환</text>
+
+  <!-- ===== 딥러닝 구간 브래킷 ===== -->
+  <path d="M26,368 L26,376 L580,376 L580,368" fill="none" stroke="#2563eb" stroke-width="2"/>
+  <text x="303" y="398" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">딥러닝 3단계 — 구성(Ch04) · 컴파일 · 학습(Ch05)</text>
+</svg>

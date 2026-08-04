@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ch07. 평가와 예측 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-chapter">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">Part IV. 평가와 실전 · Chapter 7</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#7-1-evaluate와-predict-돌려주는-것이-다릅니다">7.1 evaluate와 predict — 돌려주는 것이 다릅니다</a></li><li><a href="#7-2-확률을-클래스로-임계값과-argmax">7.2 확률을 클래스로 — 임계값과 argmax</a></li><li><a href="#7-3-혼동-행렬-어디에서-틀렸는지를-봅니다">7.3 혼동 행렬 — 어디에서 틀렸는지를 봅니다</a></li><li><a href="#7-4-정밀도와-재현율-무엇을-더-두려워하는가">7.4 정밀도와 재현율 — 무엇을 더 두려워하는가</a></li><li><a href="#7-5-classification-report-읽는-순서가-있습니다">7.5 classification_report — 읽는 순서가 있습니다</a></li><li><a href="#7-6-회귀-지표-mse-mae-r2">7.6 회귀 지표 — mse, mae, r2</a></li><li><a href="#7-7-학습-곡선으로-평가-결과를-뒷받침합니다">7.7 학습 곡선으로 평가 결과를 뒷받침합니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch07-확인-문제-평가와-예측">Ch07 확인 문제 — 평가와 예측</a></li></ol></nav>
+<article class="page-body">
+<h1>평가와 예측</h1>
+<aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>evaluate와 predict의 반환값 차이를 알고 목적에 맞게 쓸 수 있다</li><li>확률 예측값을 임계값·argmax로 클래스 라벨로 변환할 수 있다</li><li>혼동 행렬과 classification_report, 회귀 지표를 해석할 수 있다</li></ul></aside>
+<blockquote class="callout callout--note">
+<p><strong>이 챕터에서 배우는 것</strong><br />
+학습이 끝난 모델의 성적표를 뽑는 단계입니다. <code>evaluate</code>로 점수를 확인하고, <code>predict</code>로 얻은 확률을 클래스로 바꾼 뒤, 혼동 행렬과 <code>classification_report</code>로 "어디에서 틀렸는지"까지 읽어냅니다.<br />
+시험 연관성: 실기의 마지막 문항은 거의 언제나 "test 데이터로 성능을 출력하시오"입니다. Ch02에서 <strong>어떤 지표를 고를지</strong>의 지도를 봤다면, 이 챕터는 그 지표를 <strong>실제로 계산하고 해석하는 정본</strong>입니다.</p>
+</blockquote>
+<hr />
+<h2 id="7-1-evaluate와-predict-돌려주는-것이-다릅니다">7.1 evaluate와 predict — 돌려주는 것이 다릅니다</h2>
+<figure class="diagram" id="fig-ch07_evaluate-predict"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 464" width="800" height="464" role="img" aria-label="evaluate와 predict의 반환값 차이">
+  <title>evaluate와 predict의 반환값 차이 — 같은 학습된 모델에 X_test_scaled를 넣어도 evaluate는 loss와 metrics 점수 몇 개를 돌려주고, predict는 샘플 수만큼의 확률 배열을 돌려준다.</title>
+  <defs>
+    <marker id="ch07ep-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="464" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">evaluate 와 predict 의 반환값 차이</text>
+
+    <!-- 입력 -->
+    <rect x="164" y="72" width="120" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="224" y="96" font-size="14" fill="#1a2332" text-anchor="middle">X_test_scaled</text>
+    <line x1="284" y1="91" x2="310" y2="91" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+
+    <!-- 학습된 모델 -->
+    <rect x="316" y="64" width="168" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="97" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습된 모델</text>
+
+    <!-- 분기 -->
+    <path d="M400 118 L400 142 M200 142 L600 142" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="200" y1="142" x2="200" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+    <line x1="600" y1="142" x2="600" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+
+    <!-- ===== 왼쪽: evaluate ===== -->
+    <rect x="48" y="176" width="304" height="234" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <rect x="64" y="192" width="272" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="200" y="213" font-size="13" fill="#1a2332" text-anchor="middle">model.evaluate(X_test_scaled, y_test)</text>
+    <text x="200" y="243" font-size="12" fill="#94a3b8" text-anchor="middle">입력 + 정답 필요</text>
+
+    <rect x="96" y="256" width="208" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="200" y="285" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">[0.075, 0.9708]</text>
+
+    <g stroke="#2563eb" stroke-width="1.5">
+      <line x1="152" y1="300" x2="152" y2="310"/>
+      <line x1="252" y1="300" x2="252" y2="310"/>
+    </g>
+    <text x="152" y="326" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">loss</text>
+    <text x="252" y="326" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">accuracy</text>
+
+    <text x="200" y="372" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">점수 몇 개</text>
+    <text x="200" y="392" font-size="12" fill="#94a3b8" text-anchor="middle">metrics 개수가 길이를 정함</text>
+
+    <!-- ===== 오른쪽: predict ===== -->
+    <rect x="448" y="176" width="304" height="234" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <rect x="464" y="192" width="272" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="600" y="213" font-size="13" fill="#1a2332" text-anchor="middle">model.predict(X_test_scaled)</text>
+    <text x="600" y="243" font-size="12" fill="#94a3b8" text-anchor="middle">입력만 필요 — 정답 없이 동작</text>
+
+    <rect x="528" y="256" width="144" height="90" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="600" y="278" font-size="14" fill="#1a2332" text-anchor="middle">0.005</text>
+    <text x="600" y="300" font-size="14" fill="#1a2332" text-anchor="middle">0.871</text>
+    <text x="600" y="322" font-size="14" fill="#1a2332" text-anchor="middle">0.952</text>
+    <text x="600" y="338" font-size="13" fill="#94a3b8" text-anchor="middle">...</text>
+
+    <text x="600" y="372" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">shape (171, 1)</text>
+    <text x="600" y="392" font-size="12" fill="#94a3b8" text-anchor="middle">(샘플 수, 출력 노드 수)</text>
+
+    <text x="32" y="436" font-size="12" fill="#94a3b8">숫자는 7.1 예제의 출력입니다 — 환경과 난수에 따라 조금 달라집니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 7-1</span><span class="diagram__caption">evaluate와 predict의 반환값 차이</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — <code>evaluate</code>는 <strong>점수 몇 개</strong>를 돌려주고, <code>predict</code>는 <strong>샘플 개수만큼의 예측값 배열</strong>을 돌려줍니다.</p>
+<p>두 함수 모두 학습에 쓰지 않은 평가(테스트) 데이터를 넣어 호출합니다. 다른 점은 결과의 모양입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>함수</th>
+<th>필요한 인자</th>
+<th>반환값</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model.evaluate(X_test_scaled, y_test)</code></td>
+<td>입력 <strong>과 정답</strong></td>
+<td><code>[loss, metric1, ...]</code> 숫자 리스트</td>
+<td>전체 성능 점수 한 줄 확인</td>
+</tr>
+<tr>
+<td><code>model.predict(X_test_scaled)</code></td>
+<td>입력만</td>
+<td>shape <code>(샘플 수, 출력 노드 수)</code> 배열</td>
+<td>샘플별 예측값이 필요할 때</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>evaluate</code>에는 정답 <code>y_test</code>가 반드시 들어갑니다. 오차를 재려면 정답이 있어야 하기 때문입니다. 반대로 <code>predict</code>는 정답 없이 입력만으로 동작합니다. 실제 서비스에서 정답을 모르는 새 데이터를 예측하는 상황과 같습니다.</p>
+<p>반환값의 개수는 <code>compile</code>에 넣은 <code>metrics</code>가 결정합니다. <code>metrics=['accuracy']</code>로 컴파일했다면 <code>[loss, accuracy]</code> 두 개가 나오므로 <code>loss, acc = model.evaluate(...)</code>로 받습니다.</p>
+<p><strong>학습된 모델에서 두 함수를 나란히 호출해 보는 코드입니다.</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train_scaled, y_train, epochs=30, batch_size=32,
+          validation_split=0.2, verbose=0)
+
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('loss:', round(loss, 4), '/ accuracy:', round(acc, 4))
+
+pred = model.predict(X_test_scaled, verbose=0)
+print('predict 결과 shape:', pred.shape)
+print('앞 5개 확률:', pred[:5].flatten().round(3))
+</code></pre>
+<p>출력 요지입니다. <strong>학습 난수에 따라 값이 달라집니다</strong> — accuracy는 대략 0.96~0.99 범위에서 나옵니다.</p>
+<pre><code>loss: 0.075 / accuracy: 0.9708
+predict 결과 shape: (171, 1)
+앞 5개 확률: [0.005 0.871 0.952 0.002 0.258]
+</code></pre>
+<p><code>predict</code>의 결과가 <code>(171, 1)</code>인 점을 눈여겨보십시오. 평가 데이터가 171개이고 출력층이 <code>Dense(1, activation='sigmoid')</code>이므로 <strong>샘플 하나당 확률 하나</strong>가 세로로 쌓인 2차원 배열입니다.</p>
+<p>여기서 <code>0.005</code>는 "이 샘플이 클래스 1일 확률이 0.5%"라는 뜻입니다. 예측된 <strong>라벨이 아니라 확률</strong>이라는 점이 핵심입니다. 실제로 이 데이터의 정답 앞 5개는 <code>y_test[:5]</code> → <code>[0 1 1 0 0]</code>인데, 위 확률을 0.5 기준으로 판정하면 <code>[0 1 1 0 0]</code>이 되어 다섯 개가 모두 맞습니다. 이 "확률 → 라벨" 변환이 다음 절의 주제입니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+<code>evaluate</code>의 반환값 순서는 <strong>언제나 loss가 먼저</strong>입니다. <code>acc, loss = model.evaluate(...)</code>처럼 순서를 바꿔 받으면 오류 없이 값만 뒤바뀌어, 정확도 0.08 같은 이상한 숫자를 출력하게 됩니다. 또 <code>metrics</code>를 지정하지 않고 컴파일했다면 반환값은 loss 숫자 하나뿐이라 <code>loss, acc = ...</code>가 오류를 냅니다.</p>
+</blockquote>
+<hr />
+<h2 id="7-2-확률을-클래스로-임계값과-argmax">7.2 확률을 클래스로 — 임계값과 argmax</h2>
+<figure class="diagram" id="fig-ch07_prob-to-class"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 484" width="800" height="484" role="img" aria-label="확률 예측값을 클래스로 바꾸는 방법">
+  <title>확률 예측값을 클래스로 바꾸는 방법 — 이진분류는 임계값 0.5로, 다중분류는 argmax로 확률을 클래스 라벨로 변환한다.</title>
+  <defs>
+    <marker id="ch07pc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="484" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">확률 예측값을 클래스로 바꾸는 방법</text>
+
+    <!-- ===== 1행: 이진분류 ===== -->
+    <rect x="32" y="108" width="112" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="88" y="134" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이진분류</text>
+    <text x="88" y="156" font-size="12" fill="#94a3b8" text-anchor="middle">출력 1개</text>
+
+    <text x="250" y="104" font-size="12" fill="#94a3b8" text-anchor="middle">확률</text>
+    <rect x="206" y="114" width="88" height="52" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="250" y="148" font-size="18" font-weight="700" fill="#2563eb" text-anchor="middle">0.83</text>
+
+    <line x1="332" y1="140" x2="370" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="378" y="106" width="208" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="482" y="136" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">0.5 보다 큰가</text>
+    <text x="482" y="158" font-size="12" fill="#94a3b8" text-anchor="middle">임계값 판정</text>
+
+    <line x1="586" y1="140" x2="624" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <text x="678" y="104" font-size="12" fill="#94a3b8" text-anchor="middle">라벨</text>
+    <rect x="632" y="114" width="92" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+    <text x="678" y="149" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">1</text>
+
+    <rect x="168" y="190" width="418" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="188" y="211" font-size="13" fill="#1a2332">(pred &gt; 0.5).astype(int).flatten()</text>
+
+    <!-- 구분선 -->
+    <line x1="32" y1="250" x2="768" y2="250" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    <!-- ===== 2행: 다중분류 ===== -->
+    <rect x="32" y="312" width="112" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="88" y="338" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">다중분류</text>
+    <text x="88" y="360" font-size="12" fill="#94a3b8" text-anchor="middle">출력 3개</text>
+
+    <text x="250" y="298" font-size="12" fill="#94a3b8" text-anchor="middle">클래스별 확률</text>
+
+    <text x="178" y="322" font-size="13" fill="#94a3b8" text-anchor="end">0</text>
+    <rect x="186" y="309" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="309" width="11" height="18" rx="4" fill="#94a3b8"/>
+    <text x="328" y="322" font-size="13" fill="#1a2332" text-anchor="end">0.1</text>
+
+    <text x="178" y="348" font-size="13" font-weight="700" fill="#2563eb" text-anchor="end">1</text>
+    <rect x="186" y="335" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="335" width="77" height="18" rx="4" fill="#2563eb"/>
+    <text x="328" y="348" font-size="13" font-weight="700" fill="#2563eb" text-anchor="end">0.7</text>
+
+    <text x="178" y="374" font-size="13" fill="#94a3b8" text-anchor="end">2</text>
+    <rect x="186" y="361" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="361" width="22" height="18" rx="4" fill="#94a3b8"/>
+    <text x="328" y="374" font-size="13" fill="#1a2332" text-anchor="end">0.2</text>
+
+    <line x1="332" y1="344" x2="370" y2="344" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="378" y="310" width="208" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="482" y="340" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">가장 큰 값의 위치</text>
+    <text x="482" y="362" font-size="12" fill="#94a3b8" text-anchor="middle">argmax</text>
+
+    <line x1="586" y1="344" x2="624" y2="344" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="632" y="318" width="92" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+    <text x="678" y="353" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">1</text>
+
+    <rect x="168" y="396" width="418" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="188" y="417" font-size="13" fill="#1a2332">np.argmax(pred, axis=1)</text>
+
+    <text x="32" y="458" font-size="12" fill="#f59e0b">axis=1 은 한 샘플 안의 클래스들 중 최댓값 위치입니다 — axis=0 을 주면 결과 길이가 클래스 수로 바뀝니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 7-2</span><span class="diagram__caption">확률 예측값을 클래스로 바꾸는 방법</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 이진분류는 <strong>0.5를 넘는가</strong>로, 다중분류는 <strong>가장 큰 확률의 위치(argmax)</strong>로 라벨을 정합니다.</p>
+<p><code>classification_report</code>와 <code>confusion_matrix</code>는 확률이 아니라 <strong>라벨</strong>을 받습니다. <code>predict</code> 결과를 그대로 넣으면 계산할 수 없으므로, 그 사이에 변환 한 줄이 반드시 들어갑니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>문제 유형</th>
+<th><code>predict</code> 결과 shape</th>
+<th>변환 코드</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이진분류</td>
+<td><code>(N, 1)</code> 확률</td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+<td><code>(N,)</code> 0/1</td>
+</tr>
+<tr>
+<td>다중분류</td>
+<td><code>(N, K)</code> 확률</td>
+<td><code>np.argmax(pred, axis=1)</code></td>
+<td><code>(N,)</code> 0~K-1</td>
+</tr>
+<tr>
+<td>회귀</td>
+<td><code>(N, 1)</code> 예측값</td>
+<td><code>pred.flatten()</code> (변환 아님, 모양만 정리)</td>
+<td><code>(N,)</code> 실수</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>(pred &gt; 0.5)</code>는 <code>True</code>/<code>False</code> 배열을 만들고, <code>.astype(int)</code>가 이를 1/0으로 바꿉니다. <code>.flatten()</code>은 <code>(N, 1)</code> 2차원 배열을 <code>(N,)</code> 1차원으로 펴는 작업입니다.</p>
+<p><code>classification_report</code>나 <code>confusion_matrix</code> 같은 sklearn 지표 함수는 <code>(N, 1)</code> 모양을 넣어도 알아서 처리해 줍니다. 문제는 <strong>그다음 단계</strong>입니다. 예측과 정답을 직접 빼서 잔차를 구하거나 <code>pd.DataFrame({'실제': y_test, '예측': y_pred})</code>로 비교표를 만들려고 하면, <code>(N, 1)</code>과 <code>(N,)</code>이 섞이면서 브로드캐스팅으로 <code>(N, N)</code> 행렬이 생기거나 <code>ValueError</code>가 납니다. 그래서 <strong>변환 직후에 한 번 펴 두는 것</strong>을 습관으로 삼습니다.</p>
+<p><code>np.argmax(pred, axis=1)</code>의 <code>axis=1</code>은 <strong>가로 방향(한 샘플 안의 클래스들) 중 최댓값 위치</strong>를 찾으라는 뜻입니다. 이 축 지정이 이 챕터에서 가장 자주 틀리는 지점입니다.</p>
+<p><strong>두 변환을 작은 배열로 직접 확인하는 코드입니다.</strong></p>
+<pre><code class="language-python">import numpy as np
+
+# (1) 이진분류 — 출력층 Dense(1, 'sigmoid')의 결과 형태
+binary_pred = np.array([[0.83], [0.12], [0.50], [0.91]])
+y_pred_bin = (binary_pred &gt; 0.5).astype(int).flatten()
+print(y_pred_bin)            # [1 0 0 1]
+
+# (2) 다중분류 — 출력층 Dense(3, 'softmax')의 결과 형태 (샘플 4개)
+multi_pred = np.array([[0.1, 0.7, 0.2],
+                       [0.6, 0.3, 0.1],
+                       [0.2, 0.2, 0.6],
+                       [0.3, 0.5, 0.2]])
+print(multi_pred.sum(axis=1))            # [1. 1. 1. 1.]  softmax는 행 합이 1
+y_pred_multi = np.argmax(multi_pred, axis=1)
+print(y_pred_multi, y_pred_multi.shape)  # [1 0 2 1] (4,)
+
+# axis를 잘못 주면 결과 길이부터 달라집니다
+wrong = np.argmax(multi_pred, axis=0)
+print(wrong, wrong.shape)                # [1 0 2] (3,)  ← 샘플 수가 아니라 클래스 수
+</code></pre>
+<p>이 예제는 학습이 개입하지 않고 고정된 배열만 다루므로, <strong>환경과 무관하게 언제나 같은 값이 출력됩니다.</strong></p>
+<p>세 번째 샘플 <code>[0.2, 0.2, 0.6]</code>에서 가장 큰 값은 세 번째 자리이므로 라벨은 <code>2</code>입니다. 클래스 번호는 0부터 시작한다는 점을 기억하십시오.</p>
+<p><code>axis=0</code>은 세로 방향, 즉 "샘플들 중 몇 번째 샘플이 이 클래스의 확률이 가장 높은가"를 찾습니다. 샘플이 4개인데 결과 길이가 3(클래스 수)이 되어 버렸습니다. 이 상태로 <code>classification_report</code>에 넣으면 정답과 길이가 맞지 않아 오류가 납니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+확률을 그대로 <code>classification_report(y_test, pred)</code>에 넣으면 <code>continuous is not supported</code> 계열의 오류가 납니다. <strong><code>predict</code> 다음 줄에는 반드시 변환 한 줄</strong>이 온다고 외워 두십시오. 다중분류의 <code>axis=1</code>도 함께 묶어 기억하면 좋습니다.</p>
+</blockquote>
+<hr />
+<h2 id="7-3-혼동-행렬-어디에서-틀렸는지를-봅니다">7.3 혼동 행렬 — 어디에서 틀렸는지를 봅니다</h2>
+<figure class="diagram" id="fig-ch07_confusion-matrix"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 456" width="800" height="456" role="img" aria-label="혼동 행렬의 네 칸 읽는 법">
+  <title>혼동 행렬의 네 칸 읽는 법 — 행은 실제, 열은 예측이며 배치는 왼쪽 위부터 TN, FP, FN, TP 순이다. 정밀도는 예측 1 열, 재현율은 실제 1 행 방향으로 계산한다.</title>
+  <defs>
+    <marker id="ch07cm-arrow-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ch07cm-arrow-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="456" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">혼동 행렬의 네 칸 읽는 법</text>
+    <text x="32" y="62" font-size="13" fill="#94a3b8">confusion_matrix(y_test, y_pred) — 행은 실제, 열은 예측. 배치는 [[TN, FP], [FN, TP]]</text>
+
+    <!-- 축 라벨 -->
+    <text x="350" y="96" font-size="13" fill="#94a3b8" text-anchor="middle">예측 (predicted)</text>
+    <text x="265" y="124" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">예측 0</text>
+    <text x="435" y="124" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">예측 1</text>
+    <text x="112" y="238" font-size="13" fill="#94a3b8" text-anchor="middle" transform="rotate(-90 112 238)">실제 (actual)</text>
+    <text x="170" y="194" font-size="14" font-weight="700" fill="#1a2332" text-anchor="end">실제 0</text>
+    <text x="170" y="292" font-size="14" font-weight="700" fill="#1a2332" text-anchor="end">실제 1</text>
+
+    <!-- TN -->
+    <rect x="182" y="142" width="166" height="94" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="265" y="170" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">TN</text>
+    <text x="265" y="194" font-size="12" fill="#94a3b8" text-anchor="middle">실제 0 을 0 으로 맞힘</text>
+    <text x="265" y="224" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">63</text>
+
+    <!-- FP -->
+    <rect x="352" y="142" width="166" height="94" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="435" y="170" font-size="17" font-weight="700" fill="#dc2626" text-anchor="middle">FP</text>
+    <text x="435" y="194" font-size="12" fill="#dc2626" text-anchor="middle">실제 0 인데 1 로 잘못 봄</text>
+    <text x="435" y="224" font-size="20" font-weight="700" fill="#dc2626" text-anchor="middle">1</text>
+
+    <!-- FN -->
+    <rect x="182" y="240" width="166" height="94" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="265" y="268" font-size="17" font-weight="700" fill="#dc2626" text-anchor="middle">FN</text>
+    <text x="265" y="292" font-size="12" fill="#dc2626" text-anchor="middle">실제 1 인데 0 으로 놓침</text>
+    <text x="265" y="322" font-size="20" font-weight="700" fill="#dc2626" text-anchor="middle">4</text>
+
+    <!-- TP -->
+    <rect x="352" y="240" width="166" height="94" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="435" y="268" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">TP</text>
+    <text x="435" y="292" font-size="12" fill="#94a3b8" text-anchor="middle">실제 1 을 1 로 맞힘</text>
+    <text x="435" y="322" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">103</text>
+
+    <!-- 정밀도: 예측 1 열 방향 (세로) -->
+    <line x1="546" y1="152" x2="546" y2="324" stroke="#2563eb" stroke-width="2"
+          marker-start="url(#ch07cm-arrow-p)" marker-end="url(#ch07cm-arrow-p)"/>
+    <text x="572" y="214" font-size="15" font-weight="700" fill="#2563eb">정밀도</text>
+    <text x="572" y="238" font-size="14" fill="#1a2332">TP / (TP + FP)</text>
+    <text x="572" y="260" font-size="12" fill="#94a3b8">예측 1 열 기준</text>
+
+    <!-- 재현율: 실제 1 행 방향 (가로) -->
+    <line x1="194" y1="352" x2="506" y2="352" stroke="#f59e0b" stroke-width="2"
+          marker-start="url(#ch07cm-arrow-a)" marker-end="url(#ch07cm-arrow-a)"/>
+    <text x="350" y="380" font-size="14" text-anchor="middle"><tspan fill="#f59e0b" font-weight="700">재현율</tspan><tspan fill="#1a2332"> = TP / (TP + FN)</tspan></text>
+    <text x="350" y="400" font-size="12" fill="#94a3b8" text-anchor="middle">실제 1 행 기준</text>
+
+    <text x="32" y="430" font-size="12" fill="#94a3b8">숫자는 7.3 예제의 결과입니다. 인자 순서를 바꾸면 행렬이 전치되어 FP 와 FN 이 뒤바뀝니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 7-3</span><span class="diagram__caption">혼동 행렬의 네 칸 읽는 법</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 혼동 행렬(confusion matrix)은 <strong>실제 라벨 × 예측 라벨</strong>의 개수를 세어 놓은 표입니다.</p>
+<p>정확도는 "몇 개를 맞혔는가" 하나만 알려 줍니다. 혼동 행렬은 <strong>틀린 것이 어느 방향으로 틀렸는지</strong>까지 보여 줍니다. 이진분류의 네 칸은 다음과 같습니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>약칭</th>
+<th>이름</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TN</td>
+<td>True Negative</td>
+<td>실제 0을 0으로 맞힘</td>
+</tr>
+<tr>
+<td>FP</td>
+<td>False Positive</td>
+<td>실제 0인데 1이라고 잘못 예측</td>
+</tr>
+<tr>
+<td>FN</td>
+<td>False Negative</td>
+<td>실제 1인데 0이라고 놓침</td>
+</tr>
+<tr>
+<td>TP</td>
+<td>True Positive</td>
+<td>실제 1을 1로 맞힘</td>
+</tr>
+</tbody>
+</table></div>
+<p>sklearn의 <code>confusion_matrix(y_true, y_pred)</code>는 <strong>행이 실제, 열이 예측</strong>이고 라벨을 오름차순으로 배치합니다. 따라서 0/1 이진분류의 결과는 항상 이 배치입니다.</p>
+<pre><code>             예측 0    예측 1
+실제 0   [    TN   ,    FP    ]
+실제 1   [    FN   ,    TP    ]
+</code></pre>
+<p><strong>7.1에서 만든 모델의 혼동 행렬을 뽑고 네 칸을 각각 꺼내는 코드입니다.</strong></p>
+<pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
+pred = model.predict(X_test_scaled, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()
+
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+tn, fp, fn, tp = cm.ravel()
+print('TN:', tn, '/ FP:', fp, '/ FN:', fn, '/ TP:', tp)
+
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+</code></pre>
+<p>출력 요지입니다. 7.1과 <strong>같은 실행에서 이어진 결과</strong>입니다.</p>
+<pre><code>[[ 63   1]
+ [  4 103]]
+TN: 63 / FP: 1 / FN: 4 / TP: 103
+</code></pre>
+<p>실제 음성 64건 중 1건을 양성으로 잘못 봤고(FP), 실제 양성 107건 중 4건을 놓쳤습니다(FN). 맞힌 것은 63 + 103 = 166건이므로 정확도는 166 / 171 = 0.9708이 되어, 7.1의 <code>evaluate</code> 결과와 정확히 맞아떨어집니다. <strong>정확도 하나로 끝났을 정보가 이렇게 잘못 짚은 1건과 놓친 4건으로 분해됩니다.</strong></p>
+<blockquote class="callout callout--note">
+<p>이 행렬도 <strong>학습 난수에 따라 달라집니다.</strong> 다만 이 데이터에서는 TN·FP(윗줄)가 거의 고정되고 FN·TP(아랫줄)만 흔들리는 경향이 있으므로, 여러분의 실행에서는 아랫줄 숫자가 조금 다를 수 있습니다.</p>
+</blockquote>
+<p><code>cm.ravel()</code>은 2×2 행렬을 왼쪽 위부터 순서대로 편 것이므로 <code>tn, fp, fn, tp</code> 순으로 받습니다. 이 순서는 이진분류(2×2)에서만 성립하며, 다중분류에서는 행렬이 K×K가 되므로 그냥 표 전체를 출력해 클래스별로 읽습니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+<code>confusion_matrix(y_pred, y_test)</code>처럼 <strong>인자 순서를 바꾸면</strong> 행렬이 전치되어 FP와 FN이 뒤바뀝니다. 오류 메시지가 나지 않아 알아채기 어렵습니다. sklearn 평가 함수는 예외 없이 <strong>정답이 먼저, 예측이 나중</strong>입니다.</p>
+</blockquote>
+<hr />
+<h2 id="7-4-정밀도와-재현율-무엇을-더-두려워하는가">7.4 정밀도와 재현율 — 무엇을 더 두려워하는가</h2>
+<figure class="diagram" id="fig-ch07_precision-recall"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" role="img" aria-label="정밀도와 재현율이 중요해지는 상황">
+  <title>정밀도와 재현율이 중요해지는 상황 — 스팸 필터는 정상 메일을 스팸으로 보내는 FP가 치명적이라 정밀도를, 질병 검진은 환자를 정상으로 놓치는 FN이 치명적이라 재현율을 중시한다.</title>
+  <defs>
+    <marker id="ch07pr-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="400" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">정밀도와 재현율이 중요해지는 상황</text>
+
+    <line x1="400" y1="66" x2="400" y2="344" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    <!-- ===== 왼쪽: 스팸 필터 ===== -->
+    <text x="208" y="88" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">스팸 필터</text>
+
+    <rect x="76" y="112" width="76" height="50" rx="6" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <path d="M76 118 L114 144 L152 118" fill="none" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="114" y="182" font-size="12" fill="#94a3b8" text-anchor="middle">정상 메일</text>
+
+    <text x="202" y="126" font-size="12" fill="#dc2626" text-anchor="middle">오분류</text>
+    <line x1="160" y1="137" x2="242" y2="137" stroke="#dc2626" stroke-width="2" marker-end="url(#ch07pr-arrow)"/>
+
+    <rect x="250" y="112" width="96" height="50" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="298" y="143" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">스팸함</text>
+
+    <text x="208" y="210" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">FP — 실제 0 을 1 로 잘못 예측</text>
+    <text x="208" y="238" font-size="14" fill="#1a2332" text-anchor="middle">중요한 메일을 잃습니다</text>
+
+    <rect x="56" y="266" width="304" height="64" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+    <text x="208" y="295" font-size="16" font-weight="700" fill="#2563eb" text-anchor="middle">정밀도 (precision) 중시</text>
+    <text x="208" y="317" font-size="13" fill="#1a2332" text-anchor="middle">TP / (TP + FP)</text>
+
+    <!-- ===== 오른쪽: 질병 검진 ===== -->
+    <text x="592" y="88" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">질병 검진</text>
+
+    <circle cx="478" cy="124" r="12" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <path d="M460 162 c0 -24 36 -24 36 0 z" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="478" y="182" font-size="12" fill="#94a3b8" text-anchor="middle">환자</text>
+
+    <text x="548" y="126" font-size="12" fill="#dc2626" text-anchor="middle">놓침</text>
+    <line x1="508" y1="137" x2="588" y2="137" stroke="#dc2626" stroke-width="2" marker-end="url(#ch07pr-arrow)"/>
+
+    <rect x="596" y="112" width="110" height="50" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="651" y="143" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">정상 판정</text>
+
+    <text x="592" y="210" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">FN — 실제 1 을 0 으로 놓침</text>
+    <text x="592" y="238" font-size="14" fill="#1a2332" text-anchor="middle">치료 시기를 놓칩니다</text>
+
+    <rect x="440" y="266" width="304" height="64" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2.5"/>
+    <text x="592" y="295" font-size="16" font-weight="700" fill="#f59e0b" text-anchor="middle">재현율 (recall) 중시</text>
+    <text x="592" y="317" font-size="13" fill="#1a2332" text-anchor="middle">TP / (TP + FN)</text>
+
+    <text x="32" y="372" font-size="12" fill="#94a3b8">두 지표는 대체로 상충합니다 — 임계값을 낮추면 재현율은 오르고 정밀도는 내려갑니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 7-4</span><span class="diagram__caption">정밀도와 재현율이 중요해지는 상황</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 정밀도는 <strong>1이라고 말한 것 중 진짜</strong>, 재현율은 <strong>진짜 1 중 찾아낸 것</strong>의 비율입니다.</p>
+<p>혼동 행렬의 네 칸에서 두 지표가 바로 나옵니다. 분모가 어디인지만 구분하면 됩니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>지표</th>
+<th>계산식</th>
+<th>분모의 방향</th>
+<th>한 줄 의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>정밀도(precision)</td>
+<td>TP / (TP + FP)</td>
+<td>혼동 행렬의 <strong>예측 1 열</strong></td>
+<td>1이라고 예측한 것이 얼마나 믿을 만한가</td>
+</tr>
+<tr>
+<td>재현율(recall)</td>
+<td>TP / (TP + FN)</td>
+<td>혼동 행렬의 <strong>실제 1 행</strong></td>
+<td>실제 1을 얼마나 빠짐없이 찾아냈는가</td>
+</tr>
+<tr>
+<td>f1-score</td>
+<td>두 값의 조화평균</td>
+<td>—</td>
+<td>정밀도와 재현율의 균형 점수</td>
+</tr>
+</tbody>
+</table></div>
+<p>앞 절의 숫자(TN 63 / FP 1 / FN 4 / TP 103)를 넣으면 정밀도는 103 / (103 + 1) = 0.990, 재현율은 103 / (103 + 4) = 0.963입니다. 1이라고 예측한 104건은 거의 다 맞혔지만(정밀도 높음), 실제 1인 107건 중 4건을 놓쳤습니다(재현율이 상대적으로 낮음).</p>
+<p>두 지표는 대체로 <strong>한쪽을 올리면 다른 쪽이 내려갑니다.</strong> 의심스러운 것까지 모두 1이라고 예측하면 놓치는 것은 줄지만(재현율↑) 잘못 짚는 것이 늘고(정밀도↓), 확실한 것만 1이라고 예측하면 반대가 됩니다. 그래서 어느 쪽을 중시할지는 <strong>문제의 성격</strong>이 정합니다.</p>
+<ul>
+<li><strong>스팸 필터</strong> — 정상 메일이 스팸함으로 가면 사용자가 중요한 메일을 잃습니다. FP가 더 치명적이므로 <strong>정밀도</strong>를 중시합니다.</li>
+<li><strong>질병 검진</strong> — 환자를 정상으로 판정하면 치료 시기를 놓칩니다. FN이 더 치명적이므로 <strong>재현율</strong>을 중시합니다.</li>
+</ul>
+<p>f1-score는 둘 중 어느 쪽도 특별히 중요하지 않거나, 한 숫자로 비교해야 할 때 씁니다. 조화평균이라 한쪽이 크게 낮으면 f1도 함께 떨어지는 성질이 있어, 두 지표의 균형을 판단하기 좋습니다.</p>
+<blockquote class="callout callout--more">
+<p>📎 <strong>임계값을 0.5에서 옮기면</strong><br />
+재현율을 더 올리고 싶다면 임계값을 0.3처럼 낮춰 <code>(pred &gt; 0.3)</code>으로 판정하면 됩니다. 1이라고 판정하는 범위가 넓어지므로 놓치는 것이 줄고 잘못 짚는 것이 늘어납니다. 다만 실기 문항에서 별도 지시가 없으면 <strong>기본값 0.5</strong>를 쓰십시오. 임의로 바꾸면 채점 기준과 어긋날 수 있습니다.</p>
+</blockquote>
+<hr />
+<h2 id="7-5-classification-report-읽는-순서가-있습니다">7.5 classification_report — 읽는 순서가 있습니다</h2>
+<figure class="diagram" id="fig-ch07_report-read"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 456" width="800" height="456" role="img" aria-label="classification_report 읽는 순서">
+  <title>classification_report 읽는 순서 — 클래스별 행을 먼저 보고, support로 불균형을 확인한 뒤, macro avg와 weighted avg의 차이를 본다.</title>
+
+  <rect x="0" y="0" width="800" height="456" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">classification_report 읽는 순서</text>
+    <text x="32" y="62" font-size="12" fill="#94a3b8">예시 — 90 대 10 불균형 데이터에서 모델이 전부 0 으로만 예측한 경우</text>
+
+    <!-- 리포트 표 -->
+    <rect x="88" y="80" width="584" height="232" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <g font-size="13" fill="#94a3b8" text-anchor="end">
+      <text x="370" y="108">precision</text>
+      <text x="466" y="108">recall</text>
+      <text x="562" y="108">f1-score</text>
+      <text x="650" y="108">support</text>
+    </g>
+    <line x1="104" y1="120" x2="656" y2="120" stroke="#94a3b8" stroke-width="1"/>
+
+    <!-- 클래스 0 -->
+    <g font-size="14" fill="#1a2332" text-anchor="end">
+      <text x="290" y="150" font-weight="700">0</text>
+      <text x="370" y="150">0.90</text>
+      <text x="466" y="150">1.00</text>
+      <text x="562" y="150">0.95</text>
+      <text x="650" y="150">90</text>
+    </g>
+
+    <!-- 클래스 1 -->
+    <g font-size="14" fill="#dc2626" font-weight="700" text-anchor="end">
+      <text x="290" y="180">1</text>
+      <text x="370" y="180">0.00</text>
+      <text x="466" y="180">0.00</text>
+      <text x="562" y="180">0.00</text>
+      <text x="650" y="180">10</text>
+    </g>
+
+    <line x1="104" y1="198" x2="656" y2="198" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    <g font-size="14" fill="#1a2332" text-anchor="end">
+      <text x="290" y="226">accuracy</text>
+      <text x="562" y="226">0.90</text>
+      <text x="650" y="226">100</text>
+
+      <text x="290" y="254">macro avg</text>
+      <text x="370" y="254">0.45</text>
+      <text x="466" y="254">0.50</text>
+      <text x="562" y="254">0.47</text>
+      <text x="650" y="254">100</text>
+
+      <text x="290" y="282">weighted avg</text>
+      <text x="370" y="282">0.81</text>
+      <text x="466" y="282">0.90</text>
+      <text x="562" y="282">0.85</text>
+      <text x="650" y="282">100</text>
+    </g>
+
+    <!-- 뱃지 1: 클래스별 행 -->
+    <rect x="78" y="136" width="3" height="58" fill="#2563eb"/>
+    <circle cx="58" cy="165" r="13" fill="#2563eb"/>
+    <text x="58" y="170" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+
+    <!-- 뱃지 2: support 열 -->
+    <rect x="596" y="92" width="66" height="104" rx="10" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <line x1="666" y1="144" x2="694" y2="144" stroke="#2563eb" stroke-width="1.5"/>
+    <circle cx="712" cy="144" r="13" fill="#2563eb"/>
+    <text x="712" y="149" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+
+    <!-- 뱃지 3: 평균 행 -->
+    <rect x="78" y="240" width="3" height="56" fill="#2563eb"/>
+    <circle cx="58" cy="268" r="13" fill="#2563eb"/>
+    <text x="58" y="273" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+
+    <!-- 읽는 순서 설명 -->
+    <circle cx="44" cy="336" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="341" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">1</text>
+    <text x="66" y="341" font-size="13" fill="#1a2332">클래스별 precision / recall / f1 부터 봅니다</text>
+
+    <circle cx="44" cy="364" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="369" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">2</text>
+    <text x="66" y="369" font-size="13" fill="#1a2332">support 로 클래스 불균형을 확인합니다</text>
+
+    <circle cx="44" cy="392" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="397" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">3</text>
+    <text x="66" y="397" font-size="13" fill="#1a2332">macro avg 와 weighted avg 의 차이를 봅니다</text>
+
+    <rect x="32" y="414" width="3" height="18" fill="#f59e0b"/>
+    <text x="46" y="428" font-size="13" fill="#f59e0b">accuracy 는 0.90 이지만 클래스 1 의 recall 은 0.00 — 불균형에서 accuracy 만 보면 안 됩니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 7-5</span><span class="diagram__caption">classification_report 읽는 순서</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — <code>classification_report</code>는 <strong>클래스별 정밀도·재현율·f1과 표본 수(support)</strong>를 한 표로 보여 줍니다.</p>
+<pre><code class="language-python">from sklearn.metrics import classification_report
+
+print(classification_report(y_test, y_pred))
+</code></pre>
+<p>출력 요지입니다. 7.3의 혼동 행렬 <code>[[63, 1], [4, 103]]</code>과 <strong>같은 실행에서 이어진 결과</strong>이므로, 표의 모든 숫자를 그 네 칸에서 직접 계산해 낼 수 있습니다(학습 난수에 따라 달라집니다).</p>
+<pre><code>              precision    recall  f1-score   support
+
+           0       0.94      0.98      0.96        64
+           1       0.99      0.96      0.98       107
+
+    accuracy                           0.97       171
+   macro avg       0.97      0.97      0.97       171
+weighted avg       0.97      0.97      0.97       171
+</code></pre>
+<p>클래스 1의 precision 0.99는 7.4에서 손으로 계산한 103 / 104 = 0.990, recall 0.96은 103 / 107 = 0.963과 같은 값입니다. 클래스 0의 precision은 63 / (63 + 4) = 0.940, recall은 63 / 64 = 0.984입니다. <strong>리포트의 숫자는 전부 혼동 행렬에서 나옵니다.</strong></p>
+<p>읽는 순서는 세 단계입니다.</p>
+<p><strong>① 클래스별 행부터 봅니다.</strong> 맨 위의 <code>0</code>, <code>1</code>은 클래스 번호입니다. 전체 정확도가 높아도 특정 클래스의 recall만 0.4처럼 낮게 주저앉는 경우가 흔한데, 그 사실은 이 행에서만 드러납니다.</p>
+<p><strong>② support로 불균형을 확인합니다.</strong> support는 그 클래스의 실제 표본 개수입니다. 여기서는 64 대 107이라 큰 문제가 없지만, 90 대 10처럼 치우쳐 있다면 accuracy는 신뢰할 수 없는 숫자가 됩니다.</p>
+<p><strong>③ macro avg와 weighted avg의 차이를 봅니다.</strong> macro avg는 클래스별 점수를 <strong>표본 수와 무관하게 단순 평균</strong>한 값이고, weighted avg는 <strong>support로 가중 평균</strong>한 값입니다. 두 값이 크게 벌어져 있다면 "표본이 적은 클래스의 성능이 나쁘다"는 신호입니다. 위 표에서는 둘 다 0.97로 붙어 있는데, 두 클래스의 성능이 고르다는 뜻입니다. 벌어지는 경우를 바로 아래에서 봅니다.</p>
+<p><strong>정확도의 함정을 숫자로 확인하는 코드입니다.</strong> 90:10으로 불균형한 데이터에서 모델이 전부 0으로만 찍었다고 가정합니다.</p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import accuracy_score, classification_report
+
+y_true = np.array([0] * 90 + [1] * 10)
+y_all_zero = np.zeros(100, dtype=int)          # 무조건 0이라고 예측
+
+print('accuracy:', accuracy_score(y_true, y_all_zero))
+print(classification_report(y_true, y_all_zero, zero_division=0))
+</code></pre>
+<p>출력입니다. 이 예제는 학습이 개입하지 않으므로 <strong>환경과 무관하게 항상 아래와 똑같이 나옵니다.</strong></p>
+<pre><code>accuracy: 0.9
+              precision    recall  f1-score   support
+
+           0       0.90      1.00      0.95        90
+           1       0.00      0.00      0.00        10
+
+    accuracy                           0.90       100
+   macro avg       0.45      0.50      0.47       100
+weighted avg       0.81      0.90      0.85       100
+</code></pre>
+<p>정확도는 0.90이지만 클래스 1의 recall은 0.00입니다. <strong>찾아야 할 대상을 하나도 찾지 못한 모델</strong>인데도 정확도만 보면 훌륭해 보입니다. macro avg가 0.47로 주저앉은 것이 이 상태를 드러냅니다. 이탈 고객 예측이나 불량 검출처럼 소수 클래스가 중요한 문제에서는 반드시 이 표를 함께 출력하십시오.</p>
+<p><code>zero_division=0</code>은 분모가 0이 되는 클래스에서 경고 대신 0을 출력하도록 하는 인자입니다. 없어도 계산은 되지만 경고가 함께 출력됩니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+"성능을 출력하시오"라는 지시에 <code>evaluate</code> 결과만 한 줄 찍고 끝내지 마십시오. <strong><code>evaluate</code>(loss·accuracy) + <code>classification_report</code> + <code>confusion_matrix</code> 세 가지를 함께 출력</strong>하는 것이 안전한 답안입니다. 채점자는 출력된 결과로 판단하므로, <code>print()</code>로 화면에 남기지 않으면 계산했어도 인정받기 어렵습니다.</p>
+</blockquote>
+<hr />
+<h2 id="7-6-회귀-지표-mse-mae-r2">7.6 회귀 지표 — mse, mae, r2</h2>
+<figure class="diagram" id="fig-ch07_regression-metrics"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 424" width="800" height="424" role="img" aria-label="회귀 지표 mse, mae, r2 의 초점 차이">
+  <title>회귀 지표 mse, mae, r2의 초점 차이 — 실제값 대비 예측값 산점도에서 기준선까지의 세로 거리가 잔차이며, mse는 큰 오차에 크게 반응하고 mae는 평균 오차 크기를, r2는 설명력을 나타낸다.</title>
+
+  <rect x="0" y="0" width="800" height="424" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">회귀 지표 mse, mae, r2 의 초점 차이</text>
+
+    <!-- ===== 왼쪽: 산점도 개략도 ===== -->
+    <text x="312" y="88" font-size="12" fill="#94a3b8" text-anchor="end">예측 = 실제 기준선</text>
+
+    <line x1="80" y1="90" x2="80" y2="320" stroke="#1a2332" stroke-width="1.5"/>
+    <line x1="80" y1="320" x2="356" y2="320" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="218" y="346" font-size="13" fill="#1a2332" text-anchor="middle">실제값</text>
+    <text x="54" y="205" font-size="13" fill="#1a2332" text-anchor="middle" transform="rotate(-90 54 205)">예측값</text>
+
+    <line x1="95" y1="315" x2="315" y2="95" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+    <!-- 잔차 -->
+    <g stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3">
+      <line x1="125" y1="285" x2="125" y2="268"/>
+      <line x1="160" y1="250" x2="160" y2="262"/>
+      <line x1="195" y1="215" x2="195" y2="204"/>
+      <line x1="230" y1="180" x2="230" y2="196"/>
+      <line x1="265" y1="145" x2="265" y2="133"/>
+    </g>
+    <line x1="300" y1="110" x2="300" y2="156" stroke="#dc2626" stroke-width="2.5"/>
+
+    <!-- 예측 점 -->
+    <g fill="#2563eb">
+      <circle cx="125" cy="268" r="5"/>
+      <circle cx="160" cy="262" r="5"/>
+      <circle cx="195" cy="204" r="5"/>
+      <circle cx="230" cy="196" r="5"/>
+      <circle cx="265" cy="133" r="5"/>
+    </g>
+    <circle cx="300" cy="156" r="5" fill="#dc2626"/>
+    <text x="300" y="180" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">잔차가 큰 샘플</text>
+
+    <!-- ===== 오른쪽: 지표 표 ===== -->
+    <rect x="404" y="88" width="364" height="78" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="428" y="114" font-size="17" font-weight="700" fill="#2563eb">mse</text>
+    <text x="428" y="138" font-size="13" fill="#1a2332">잔차를 제곱해 평균 — 큰 오차에 크게 반응</text>
+    <text x="428" y="158" font-size="12" fill="#94a3b8">작을수록 좋음</text>
+
+    <rect x="404" y="174" width="364" height="78" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="428" y="200" font-size="17" font-weight="700" fill="#2563eb">mae</text>
+    <text x="428" y="224" font-size="13" fill="#1a2332">잔차의 절댓값 평균 — 평균적인 오차 크기</text>
+    <text x="428" y="244" font-size="12" fill="#94a3b8">작을수록 좋음</text>
+
+    <rect x="404" y="260" width="364" height="78" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="428" y="286" font-size="17" font-weight="700" fill="#2563eb">r2</text>
+    <text x="428" y="310" font-size="13" fill="#1a2332">타깃 분산 중 모델이 설명한 비율</text>
+    <text x="428" y="330" font-size="12" fill="#94a3b8">1 에 가까울수록 좋음, 음수도 가능</text>
+
+    <text x="32" y="376" font-size="13" fill="#1a2332">잔차가 큰 샘플 하나에 mse 는 크게 반응하고, mae 는 완만하게 반응합니다.</text>
+    <text x="32" y="398" font-size="12" fill="#94a3b8">왼쪽 그림은 개략도입니다 — 실제 데이터가 아닙니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 7-6</span><span class="diagram__caption">회귀 지표 mse·mae·r2의 초점 차이</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — mse는 <strong>큰 오차에 민감한 점수</strong>, mae는 <strong>평균적인 오차 크기</strong>, r2는 <strong>0~1 사이의 설명력</strong>입니다.</p>
+<p>회귀에는 "맞혔다/틀렸다"가 없습니다. 예측값과 실제값의 <strong>차이(잔차)를 어떻게 요약하는가</strong>가 지표의 차이를 만듭니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>지표</th>
+<th>sklearn 함수</th>
+<th>초점</th>
+<th>좋은 방향</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mse</td>
+<td><code>mean_squared_error</code></td>
+<td>잔차를 제곱해 평균 — 큰 오차에 크게 반응</td>
+<td>작을수록 좋음</td>
+</tr>
+<tr>
+<td>mae</td>
+<td><code>mean_absolute_error</code></td>
+<td>잔차의 절댓값 평균 — 평균 오차 크기</td>
+<td>작을수록 좋음</td>
+</tr>
+<tr>
+<td>r2</td>
+<td><code>r2_score</code></td>
+<td>타깃 분산 중 모델이 설명한 비율</td>
+<td>1에 가까울수록 좋음</td>
+</tr>
+</tbody>
+</table></div>
+<p>mse는 제곱을 하므로 <strong>단위가 타깃의 제곱</strong>입니다. 집값을 만원 단위로 예측했다면 mse의 단위는 "만원 제곱"이라 크기를 직관적으로 읽기 어렵습니다. 그래서 해석할 때는 mae를 함께 봅니다. mae가 4.2라면 "평균적으로 4.2만큼 빗나간다"로 바로 읽힙니다. mse에 제곱근을 씌운 rmse를 쓰면 단위가 원래대로 돌아옵니다.</p>
+<p>r2는 크기 단위가 없어 서로 다른 문제끼리도 비교할 수 있습니다. 0이면 "평균값으로 찍는 것과 다를 바 없음", 1이면 완벽, <strong>음수도 나올 수 있으며 평균보다 못하다는 뜻</strong>입니다.</p>
+<p><strong>회귀 모델을 만들고 세 지표를 계산하는 코드입니다.</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+Xr, yr = load_diabetes(return_X_y=True)
+Xr_train, Xr_test, yr_train, yr_test = train_test_split(
+    Xr, yr, test_size=0.3, random_state=42
+)
+sc = StandardScaler()
+Xr_train_scaled = sc.fit_transform(Xr_train)
+Xr_test_scaled = sc.transform(Xr_test)
+
+reg = Sequential()
+reg.add(Input(shape=(Xr_train_scaled.shape[1],)))
+reg.add(Dense(64, activation='relu'))
+reg.add(Dense(32, activation='relu'))
+reg.add(Dense(1))                                  # 활성화 없음
+reg.compile(optimizer='adam', loss='mse', metrics=['mae'])
+reg.fit(Xr_train_scaled, yr_train, epochs=100, batch_size=32,
+        validation_split=0.2, verbose=0)
+
+loss, mae_from_keras = reg.evaluate(Xr_test_scaled, yr_test, verbose=0)
+print('keras mse:', round(loss, 2), '/ keras mae:', round(mae_from_keras, 2))
+
+y_pred_reg = reg.predict(Xr_test_scaled, verbose=0).flatten()     # (N,1) → (N,)
+print('예측 shape:', y_pred_reg.shape, '/ 정답 shape:', yr_test.shape)
+
+mse = mean_squared_error(yr_test, y_pred_reg)
+mae = mean_absolute_error(yr_test, y_pred_reg)
+rmse = np.sqrt(mse)
+r2 = r2_score(yr_test, y_pred_reg)
+print('mse:', round(mse, 2))
+print('rmse:', round(rmse, 2))
+print('mae:', round(mae, 2))
+print('r2:', round(r2, 4))
+</code></pre>
+<p>출력 요지입니다. <strong>학습 난수에 따라 값이 달라집니다</strong> — 반복 실행하면 mse는 3,300~3,450, r2는 0.36~0.39 부근에서 움직입니다.</p>
+<pre><code>keras mse: 3348.74 / keras mae: 45.34
+예측 shape: (133,) / 정답 shape: (133,)
+mse: 3348.74
+rmse: 57.87
+mae: 45.34
+r2: 0.3797
+</code></pre>
+<p>두 가지를 확인하십시오. 첫째, <strong><code>evaluate</code>의 loss와 sklearn의 <code>mean_squared_error</code> 값이 같습니다.</strong> 회귀에서 <code>loss='mse'</code>로 컴파일하면 손실 함수 자체가 평가지표이기 때문입니다. 둘째, 회귀 문제에서는 <code>metrics=['mae']</code>를 함께 지정해 두면 학습 중에도 해석하기 쉬운 오차 크기를 볼 수 있습니다.</p>
+<p>r2가 0.38이라는 것은 타깃의 변동 중 38% 정도만 설명했다는 뜻입니다. 낮아 보이지만 이 데이터는 원래 예측이 어려운 편이므로, <strong>절대 기준보다 베이스라인 대비 개선 여부</strong>로 판단합니다. mae 45.34는 "평균적으로 45 정도 빗나간다"로 읽고, mse 3348.74는 단위가 제곱이라 크기를 직관적으로 읽기 어려우므로 rmse 57.87로 바꿔 보면 타깃과 같은 단위로 비교할 수 있습니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+<code>predict</code> 결과는 <code>(N, 1)</code>인데 <code>y_test</code>는 <code>(N,)</code>입니다. <code>mean_squared_error</code> 같은 sklearn 지표 함수는 이 상태로도 값을 맞게 내주지만, 그다음이 문제입니다. 잔차를 <code>y_test - y_pred</code>로 직접 계산하면 브로드캐스팅이 일어나 <code>(N, N)</code> 행렬이 되고, <code>pd.DataFrame({'실제': y_test, '예측': y_pred})</code>로 비교표를 만들면 <code>ValueError</code>가 납니다. <strong>회귀에서는 <code>predict(...).flatten()</code>을 습관으로</strong> 붙이십시오. <code>.ravel()</code>, <code>.reshape(-1)</code>도 같은 결과를 냅니다.</p>
+</blockquote>
+<hr />
+<h2 id="7-7-학습-곡선으로-평가-결과를-뒷받침합니다">7.7 학습 곡선으로 평가 결과를 뒷받침합니다</h2>
+<p>평가 점수 한 줄만으로는 "왜 이 점수가 나왔는가"를 설명할 수 없습니다. <code>fit</code>이 돌려준 <code>history</code>로 학습 곡선(learning curve)을 함께 그리면, 점수가 낮은 원인이 학습 부족인지 과적합인지 한눈에 드러납니다. 곡선의 구성 요소는 Ch05의 <code>ch05_history-curve</code>, 과적합 판별 기준은 Ch06의 <code>ch06_overfit-vs-good</code>에서 다뤘습니다. 여기서는 <strong>평가 문항에서 그대로 재사용할 플롯 함수</strong>만 정리합니다.</p>
+<p><strong>loss와 accuracy를 2패널로 그리는 재사용 함수입니다.</strong></p>
+<pre><code class="language-python">import matplotlib.pyplot as plt
+
+
+def plot_history(history, metric='accuracy'):
+    h = history.history
+    plt.figure(figsize=(10, 4))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(h['loss'], label='train loss')
+    plt.plot(h['val_loss'], label='val loss')
+    plt.xlabel('epoch'); plt.ylabel('loss'); plt.legend(); plt.title('Loss')
+
+    if metric in h:
+        plt.subplot(1, 2, 2)
+        plt.plot(h[metric], label='train ' + metric)
+        plt.plot(h['val_' + metric], label='val ' + metric)
+        plt.xlabel('epoch'); plt.ylabel(metric); plt.legend(); plt.title(metric)
+
+    plt.tight_layout()
+    plt.show()
+</code></pre>
+<p>그리고 곡선을 그릴 모델은 <strong>반드시 새로 구성한 뒤 학습시킵니다.</strong></p>
+<pre><code class="language-python">from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+
+# 7.1의 model을 그대로 다시 fit 하면 &quot;이어 학습&quot;이 되어
+# 곡선이 처음부터 평탄하게 나옵니다. 새 모델을 만들어야 합니다.
+curve_model = Sequential()
+curve_model.add(Input(shape=(X_train_scaled.shape[1],)))
+curve_model.add(Dense(64, activation='relu'))
+curve_model.add(Dropout(0.3))
+curve_model.add(Dense(32, activation='relu'))
+curve_model.add(Dense(1, activation='sigmoid'))
+curve_model.compile(optimizer='adam', loss='binary_crossentropy',
+                    metrics=['accuracy'])
+
+history = curve_model.fit(X_train_scaled, y_train, epochs=30, batch_size=32,
+                          validation_split=0.2, verbose=0)
+print(history.history.keys())
+plot_history(history, metric='accuracy')
+</code></pre>
+<p>출력 요지: <code>dict_keys(['accuracy', 'loss', 'val_accuracy', 'val_loss'])</code>와 2패널 그래프가 나옵니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+Keras의 <code>fit</code>은 <strong>가중치를 초기화하지 않습니다.</strong> 이미 학습을 마친 모델에 <code>fit</code>을 한 번 더 부르면 처음부터 다시 배우는 것이 아니라 <strong>이어서</strong> 학습합니다. 그래서 앞의 <code>model</code>로 곡선을 다시 뽑으면 이미 수렴한 구간만 그려져 아무것도 읽어낼 수 없습니다. 학습을 다시 하고 싶다면 <strong>모델을 새로 구성</strong>하십시오. 시험장에서 셀을 여러 번 실행하다 성능이 슬금슬금 달라지는 원인도 대개 이것입니다.</p>
+</blockquote>
+<p><code>print(history.history.keys())</code>로 먼저 키 이름을 확인하는 습관이 중요합니다. 회귀 모델을 <code>metrics=['mae']</code>로 컴파일했다면 키는 <code>accuracy</code>가 아니라 <code>mae</code>, <code>val_mae</code>이므로 <code>plot_history(history, metric='mae')</code>로 호출해야 합니다. 키 이름을 확인하지 않고 <code>h['accuracy']</code>를 직접 쓰면 <code>KeyError</code>가 납니다.</p>
+<hr />
+<h2 id="시험장-표준-코드">시험장 표준 코드</h2>
+<p>전처리를 마친 데이터에서 <strong>평가·예측 전 과정</strong>을 출력까지 마무리하는 완결 코드입니다. 이진분류 기준이며, 유형이 바뀌는 지점을 주석으로 표시했습니다.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import seaborn as sns
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, confusion_matrix
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+# ===== 1) 데이터 준비 (Ch02) =====
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# ===== 2) 구성·컴파일·학습 (Ch04~Ch06) =====
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))          # 다중: Dense(K,'softmax') / 회귀: Dense(1)
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',          # 다중: sparse_categorical_crossentropy / 회귀: mse
+              metrics=['accuracy'])                # 회귀: ['mae']
+
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=32,
+                    validation_split=0.2, callbacks=[es], verbose=0)
+
+# ===== 3) 평가 (이 챕터) =====
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4))
+print('test accuracy:', round(acc, 4))
+
+# ===== 4) 예측 → 클래스 변환 =====
+pred = model.predict(X_test_scaled, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()        # 다중: np.argmax(pred, axis=1)
+
+# ===== 5) 지표 출력 =====
+print(classification_report(y_test, y_pred))
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted'); plt.ylabel('Actual'); plt.show()
+
+# ===== 6) 학습 곡선 =====
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='val loss')
+plt.xlabel('epoch'); plt.ylabel('loss'); plt.legend(); plt.show()
+</code></pre>
+<p>회귀 문제라면 <strong>4)와 5) 블록을 통째로 아래로 교체</strong>하고, 여기에 더해 <strong>3) 블록의 <code>acc</code>를 <code>mae</code>로</strong> 바꿉니다. 회귀는 <code>metrics=['mae']</code>로 컴파일하므로 <code>evaluate</code>의 두 번째 반환값이 정확도가 아니라 mae이기 때문입니다.</p>
+<pre><code class="language-python">from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+# ===== 3) 평가 — 이 두 줄로 교체 =====
+loss, mae = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test mse:', round(loss, 4))
+print('test mae:', round(mae, 4))
+
+# ===== 4)~5) 예측과 지표 — 이 블록으로 교체 =====
+y_pred = model.predict(X_test_scaled, verbose=0).flatten()   # 클래스 변환 없음, 모양만 정리
+print('mse:', mean_squared_error(y_test, y_pred))
+print('mae:', mean_absolute_error(y_test, y_pred))
+print('r2 :', r2_score(y_test, y_pred))
+</code></pre>
+<p>6) 학습 곡선 블록은 그대로 두어도 되지만, <code>plot_history</code>를 쓴다면 <code>metric='mae'</code>로 호출하십시오.</p>
+<hr />
+<h2 id="핵심-요약">핵심 요약</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>기억할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>evaluate</code></td>
+<td><code>loss, acc = model.evaluate(X_test_scaled, y_test)</code> — <strong>loss가 먼저</strong>, 정답 필요</td>
+</tr>
+<tr>
+<td><code>predict</code></td>
+<td>확률 배열 <code>(N, 출력 노드 수)</code> 반환, 정답 불필요</td>
+</tr>
+<tr>
+<td>이진 변환</td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+</tr>
+<tr>
+<td>다중 변환</td>
+<td><code>np.argmax(pred, axis=1)</code> — 축은 <strong>1</strong></td>
+</tr>
+<tr>
+<td>회귀 정리</td>
+<td><code>predict(...).flatten()</code>으로 <code>(N,)</code> 맞추기</td>
+</tr>
+<tr>
+<td>혼동 행렬</td>
+<td><code>confusion_matrix(y_test, y_pred)</code> — <strong>정답이 먼저</strong>, 배치는 <code>[[TN, FP], [FN, TP]]</code></td>
+</tr>
+<tr>
+<td>정밀도/재현율</td>
+<td>TP/(TP+FP) / TP/(TP+FN) — 스팸은 정밀도, 검진은 재현율</td>
+</tr>
+<tr>
+<td>리포트</td>
+<td>클래스별 행 → support로 불균형 확인 → macro avg와 weighted avg 비교</td>
+</tr>
+<tr>
+<td>회귀 지표</td>
+<td>mse(큰 오차 민감) / mae(평균 오차 크기) / r2(1에 가까울수록 좋음, 음수 가능)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>평가 문항 3종 세트:</strong> <code>evaluate</code> 점수 + <code>classification_report</code> + <code>confusion_matrix</code>를 모두 <code>print()</code>로 남깁니다.</p>
+<section class="exam" id="exam-ch07">
+<h2 id="ch07-확인-문제-평가와-예측">Ch07 확인 문제 — 평가와 예측</h2>
+<blockquote class="callout callout--note">
+<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
+<p>이 챕터의 범위는 <strong>학습이 끝난 뒤의 평가·예측</strong>입니다. <code>evaluate</code>·<code>predict</code>, 확률→클래스 변환,<br />
+<code>classification_report</code>·<code>confusion_matrix</code>, 회귀 지표(mse·mae·r2)만으로 모든 문항이 풀립니다.</p>
+<p>총 5문항 (객관식 2 / 코드 빈칸 2 / 오류 찾기 1), 권장 소요 시간 20분.<br />
+공통 import는 다음과 같다고 가정합니다.</p>
+<p><code>python
+import numpy as np
+import pandas as pd
+from sklearn.metrics import (classification_report, confusion_matrix,
+                             mean_squared_error, mean_absolute_error, r2_score)</code></p>
+</blockquote>
+<hr />
+<h3 id="문제">문제</h3>
+<h4 id="q1-객관식-기본-evaluate와-predict가-돌려주는-것">Q1. (객관식 · 기본) evaluate와 predict가 돌려주는 것</h4>
+<p>클래스가 3개인 다중분류 모델을 <code>metrics=['accuracy']</code>로 컴파일해 학습까지 마쳤습니다.<br />
+평가(테스트) 데이터 <code>X_test</code>의 샘플 수는 <strong>200개</strong>입니다.</p>
+<p>다음 설명 중 <strong>옳은 것</strong>은?</p>
+<ol>
+<li><code>model.evaluate(X_test)</code>처럼 정답 없이 호출해도 loss와 accuracy가 계산된다.</li>
+<li><code>model.evaluate(X_test, y_test)</code>의 반환값은 shape <code>(200, 3)</code>인 확률 배열이다.</li>
+<li><code>loss, acc = model.evaluate(X_test, y_test)</code>로 받을 수 있고, <code>model.predict(X_test)</code>의 결과는 shape <code>(200, 3)</code>이다.</li>
+<li><code>model.predict(X_test)</code>는 예측 라벨 <code>(200,)</code>을 돌려주므로 그대로 <code>classification_report</code>에 넣을 수 있다.</li>
+<li><code>evaluate</code>는 지표를 알파벳 순으로 돌려주므로 <code>acc, loss = model.evaluate(X_test, y_test)</code>로 받아야 한다.</li>
+</ol>
+<hr />
+<h4 id="q2-객관식-응용-인자-순서를-바꿔-쓴-혼동-행렬">Q2. (객관식 · 응용) 인자 순서를 바꿔 쓴 혼동 행렬</h4>
+<p>이진분류 평가에서 <code>confusion_matrix(y_test, y_pred)</code>의 정상 출력이 다음과 같습니다.</p>
+<pre><code>[[80 20]
+ [10 90]]
+</code></pre>
+<p>그런데 수험생 A는 실수로 아래처럼 <strong>인자 순서를 바꿔</strong> 쓴 뒤, 그 행렬로 클래스 1의 <strong>재현율(recall)</strong> 을 계산했습니다.</p>
+<pre><code class="language-python">cm = confusion_matrix(y_pred, y_test)      # 순서가 뒤바뀜
+tn, fp, fn, tp = cm.ravel()
+recall = tp / (tp + fn)
+print(round(recall, 4))
+</code></pre>
+<p>클래스 1의 <strong>올바른 재현율</strong>과 <strong>A가 출력한 값</strong>은 각각 얼마입니까?</p>
+<ol>
+<li>올바른 값 0.9000 / A의 값 0.9000</li>
+<li>올바른 값 0.9000 / A의 값 0.8182</li>
+<li>올바른 값 0.8182 / A의 값 0.9000</li>
+<li>올바른 값 0.8182 / A의 값 0.8182</li>
+<li>인자 순서가 잘못되었으므로 <code>ValueError</code>가 발생해 값이 출력되지 않는다</li>
+</ol>
+<hr />
+<h4 id="q3-코드-빈칸-기본-이진분류-평가-3종-세트">Q3. (코드 빈칸 · 기본) 이진분류 평가 3종 세트</h4>
+<p>유방암 데이터로 학습을 마친 이진분류 모델 <code>model</code>이 있습니다.<br />
+출력층은 <code>Dense(1, activation='sigmoid')</code>, 컴파일은 <code>loss='binary_crossentropy', metrics=['accuracy']</code>입니다.<br />
+<code>X_test</code>는 171개 샘플, <code>y_test</code>는 0/1 정수 라벨입니다.</p>
+<p><strong>"test 데이터의 성능을 출력하시오"</strong> 라는 지시에 맞게 <code>(가)</code>~<code>(라)</code>를 채우십시오.</p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix
+
+# (가) evaluate 결과를 두 변수로 받아 출력합니다
+______(가)______ = model.evaluate(X_test, y_test, verbose=0)
+print('test loss    :', round(loss, 4))
+print('test accuracy:', round(acc, 4))
+
+# 확률 예측
+pred = model.predict(X_test, verbose=0)
+print('pred shape:', pred.shape)
+
+# (나) 확률을 0/1 라벨로 바꿉니다 (임계값 0.5, 1차원으로 정리)
+y_pred = ______(나)______
+print('y_pred shape:', y_pred.shape)
+
+# (다) 클래스별 정밀도·재현율·f1 표 출력
+print(______(다)______)
+
+# (라) 혼동 행렬 출력 후 네 칸을 각각 꺼냅니다
+cm = ______(라)______
+print(cm)
+tn, fp, fn, tp = cm.ravel()
+print('TN:', tn, '/ FP:', fp, '/ FN:', fn, '/ TP:', tp)
+</code></pre>
+<p>추가로, <code>pred.shape</code>와 <code>y_pred.shape</code>가 각각 무엇으로 출력되는지 쓰십시오.</p>
+<hr />
+<h4 id="q4-코드-빈칸-기본-세-유형의-예측값-변환">Q4. (코드 빈칸 · 기본) 세 유형의 예측값 변환</h4>
+<p>세 개의 서로 다른 모델이 각각 <code>predict</code>를 마쳤고, 그 결과가 아래 배열로 주어졌습니다.<br />
+문제 유형에 맞는 <strong>변환 한 줄</strong>씩을 <code>(가)</code>~<code>(다)</code>에, 회귀 지표 계산을 <code>(라)</code>에 채우십시오.</p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+# ① 이진분류 모델의 predict 결과 — 출력층 Dense(1, 'sigmoid')
+bin_pred = np.array([[0.83], [0.12], [0.50], [0.91], [0.46]])
+
+# ② 다중분류 모델의 predict 결과 — 출력층 Dense(3, 'softmax')
+multi_pred = np.array([[0.1, 0.7, 0.2],
+                       [0.6, 0.3, 0.1],
+                       [0.2, 0.2, 0.6],
+                       [0.3, 0.5, 0.2],
+                       [0.8, 0.1, 0.1]])
+
+# ③ 회귀 모델의 predict 결과 — 출력층 Dense(1), 활성화 없음
+reg_pred = np.array([[151.2], [74.8], [140.5], [205.9], [134.7]])
+y_reg_true = np.array([155.0, 70.0, 145.0, 200.0, 130.0])
+
+y_bin = ______(가)______
+y_mul = ______(나)______
+y_reg = ______(다)______
+
+print('(가) 이진:', y_bin, y_bin.shape)
+print('(나) 다중:', y_mul, y_mul.shape)
+print('(다) 회귀:', y_reg, y_reg.shape)
+
+# (라) 회귀 지표 세 가지를 계산합니다
+print('mse:', round(______(라-1)______, 3))
+print('mae:', round(______(라-2)______, 3))
+print('r2 :', round(______(라-3)______, 4))
+</code></pre>
+<p>추가로, <code>(나)</code>에서 축을 <code>axis=0</code>으로 잘못 지정하면 결과 shape가 무엇이 되고 그다음 어떤 문제가 생기는지 쓰십시오.</p>
+<hr />
+<h4 id="q5-오류-찾기-응용-평가-코드의-두-가지-실수">Q5. (오류 찾기 · 응용) 평가 코드의 두 가지 실수</h4>
+<p>아래는 학습을 마친 이진분류 모델의 평가 코드입니다.<br />
+<strong>잘못된 곳이 두 군데</strong> 있습니다. 각각을 지적하고 수정한 전체 코드를 쓰십시오.<br />
+두 오류 중 하나는 실행이 중단되고, 다른 하나는 <strong>오류 메시지 없이 결과만 틀어진다</strong>는 점에 유의하십시오.</p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix
+
+loss, acc = model.evaluate(X_test, y_test, verbose=0)
+print('test accuracy:', round(acc, 4))
+
+pred = model.predict(X_test, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()
+
+print(classification_report(y_test, pred))
+cm = confusion_matrix(y_pred, y_test)
+print(cm)
+</code></pre>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><h4 id="q1-해답">Q1 해답</h4>
+<p><strong>정답: 3번</strong></p>
+<p><strong>정답 코드 (실증 예제 — 이진분류 모델로 반환 형태를 확인)</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train_scaled, y_train, epochs=30, batch_size=32,
+          validation_split=0.2, verbose=0)
+
+res = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('evaluate 반환 타입:', type(res).__name__, '/ 길이:', len(res))
+loss, acc = res
+print('loss:', round(loss, 4), '/ accuracy:', round(acc, 4))
+
+pred = model.predict(X_test_scaled, verbose=0)
+print('predict shape:', pred.shape, '/ dtype:', pred.dtype)
+print('앞 3개:', pred[:3].flatten().round(3))
+</code></pre>
+<pre><code>evaluate 반환 타입: list / 길이: 2
+loss: 0.068 / accuracy: 0.9766
+predict shape: (171, 1) / dtype: float32
+앞 3개: [0.001 0.957 0.891]
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력의 loss·accuracy 값은 실행할 때마다 조금씩 달라집니다(검증 시 accuracy 0.97~0.98 범위).<br />
+<strong>반환 타입(길이 2인 리스트)과 <code>predict</code> 결과의 shape</strong> 가 이 문항에서 확인할 대상입니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>두 함수는 목적이 다르므로 <strong>필요한 인자</strong>와 <strong>결과의 모양</strong>이 모두 다릅니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th></th>
+<th><code>evaluate</code></th>
+<th><code>predict</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>인자</td>
+<td>입력 <strong>+ 정답</strong></td>
+<td>입력만</td>
+</tr>
+<tr>
+<td>반환</td>
+<td><code>[loss, metric1, ...]</code> 숫자 리스트</td>
+<td><code>(샘플 수, 출력 노드 수)</code> 배열</td>
+</tr>
+<tr>
+<td>이 문항</td>
+<td>길이 2 → <code>loss, acc = ...</code></td>
+<td><code>(200, 3)</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><code>evaluate</code>는 오차를 재는 함수이므로 정답이 없으면 계산 자체가 성립하지 않습니다. 반대로 <code>predict</code>는 정답 없이 동작합니다(실제 서비스에서 정답을 모르는 새 데이터를 예측하는 상황과 같습니다).</p>
+<p><code>predict</code>의 shape <code>(200, 3)</code>은 <strong>"샘플 200개 × 클래스 3개의 확률"</strong> 이라는 뜻입니다. 출력층이 <code>Dense(3, 'softmax')</code>이므로 열이 3개가 되고, 각 행의 합은 1입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>5번 — 반환 순서를 헷갈리는 것.</strong> <code>evaluate</code>의 반환은 <strong>언제나 loss가 먼저</strong>이고, 그 뒤로 <code>compile</code>의 <code>metrics</code>에 적은 순서대로 붙습니다. <code>acc, loss = ...</code>로 받으면 오류 없이 값만 뒤바뀌어 "정확도 0.06" 같은 이상한 숫자를 출력하게 됩니다.</li>
+<li><strong>4번 — <code>predict</code>가 라벨을 준다고 오해하는 것.</strong> <code>predict</code>가 주는 것은 <strong>확률</strong>입니다. <code>classification_report</code>에 그대로 넣으면 <code>ValueError</code>가 납니다(Q5 참조).</li>
+<li><code>metrics</code>를 지정하지 않고 컴파일했다면 반환값은 loss 숫자 하나뿐이라 <code>loss, acc = ...</code>가 언패킹 오류를 냅니다. 받기 전에 <code>print(model.evaluate(...))</code>로 길이를 한 번 확인하면 안전합니다.</li>
+</ul>
+<hr />
+<h4 id="q2-해답">Q2 해답</h4>
+<p><strong>정답: 2번 (올바른 값 0.9000 / A의 값 0.8182)</strong></p>
+<p><strong>정답 코드 (실증 예제)</strong></p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import confusion_matrix
+
+y_test = np.array([0] * 100 + [1] * 100)
+y_pred = np.array([0] * 80 + [1] * 20 + [0] * 10 + [1] * 90)
+
+cm_ok = confusion_matrix(y_test, y_pred)      # 정답이 먼저 (올바름)
+cm_sw = confusion_matrix(y_pred, y_test)      # 순서가 뒤바뀜
+print('정상 :\n', cm_ok)
+print('뒤바뀜:\n', cm_sw)
+
+tn, fp, fn, tp = cm_ok.ravel()
+print('정상 ravel -&gt; TN,FP,FN,TP =', tn, fp, fn, tp)
+print('정상 recall(1)    =', round(tp / (tp + fn), 4))
+print('정상 precision(1) =', round(tp / (tp + fp), 4))
+
+tn2, fp2, fn2, tp2 = cm_sw.ravel()
+print('뒤바뀜 ravel -&gt; TN,FP,FN,TP =', tn2, fp2, fn2, tp2)
+print('뒤바뀜으로 계산한 recall    =', round(tp2 / (tp2 + fn2), 4))
+print('두 행렬이 전치 관계인가:', np.array_equal(cm_ok, cm_sw.T))
+</code></pre>
+<pre><code>정상 :
+ [[80 20]
+ [10 90]]
+뒤바뀜:
+ [[80 10]
+ [20 90]]
+정상 ravel -&gt; TN,FP,FN,TP = 80 20 10 90
+정상 recall(1)    = 0.9
+정상 precision(1) = 0.8182
+뒤바뀜 ravel -&gt; TN,FP,FN,TP = 80 10 20 90
+뒤바뀜으로 계산한 recall    = 0.8182
+두 행렬이 전치 관계인가: True
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p><code>confusion_matrix(y_true, y_pred)</code>는 <strong>행이 실제, 열이 예측</strong>입니다. 따라서 정상 행렬은 이렇게 읽힙니다.</p>
+<pre><code>             예측 0    예측 1
+실제 0   [    80   ,    20    ]   TN=80, FP=20
+실제 1   [    10   ,    90    ]   FN=10, TP=90
+</code></pre>
+<ul>
+<li>올바른 재현율 = TP / (TP + FN) = 90 / (90 + 10) = <strong>0.9000</strong></li>
+<li>올바른 정밀도 = TP / (TP + FP) = 90 / (90 + 20) = <strong>0.8182</strong></li>
+</ul>
+<p>인자 순서를 바꾸면 행과 열의 의미가 맞바뀌므로 행렬이 <strong>정확히 전치(transpose)</strong> 됩니다. 그 결과 대각선 값(TN·TP)은 그대로인데 <strong>FP와 FN만 서로 자리를 바꿉니다.</strong> 그래서 A가 계산한 "재현율"은 사실 <strong>정밀도 0.8182</strong>입니다.</p>
+<p>이 실수가 위험한 이유는 두 가지입니다. 첫째, <strong>오류 메시지가 전혀 나지 않습니다.</strong> 둘째, 두 값이 대체로 비슷한 범위(0.8~0.9)라 숫자만 보고는 이상함을 알아채기 어렵습니다. 정밀도와 재현율이 뒤바뀐 채로 "재현율이 높으니 놓치는 환자가 적다" 같은 해석까지 쓰면 해석 문항까지 함께 틀립니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>sklearn 평가 함수의 인자 순서를 뒤집는 것.</strong> <code>confusion_matrix</code>, <code>classification_report</code>, <code>accuracy_score</code>, <code>r2_score</code> 모두 예외 없이 <strong>정답이 먼저, 예측이 나중</strong>입니다. <code>(y_test, y_pred)</code> 한 덩어리로 외우십시오.</li>
+<li><strong><code>cm.ravel()</code>의 순서를 <code>tp, fp, fn, tn</code>으로 잘못 받는 것.</strong> <code>ravel()</code>은 왼쪽 위부터 가로로 펴므로 언제나 <code>tn, fp, fn, tp</code> 순입니다. 그리고 이 언패킹은 <strong>2×2(이진분류)에서만</strong> 성립합니다. 3클래스면 행렬이 3×3이라 값이 9개여서 언패킹 자체가 실패합니다.</li>
+<li>5번을 고르는 것. 순서를 바꿔도 두 배열의 길이와 라벨 종류가 같으므로 <code>ValueError</code>는 나지 않습니다. <strong>조용히 틀리는 것</strong>이 이 실수의 핵심입니다.</li>
+</ul>
+<hr />
+<h4 id="q3-해답">Q3 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix
+
+loss, acc = model.evaluate(X_test, y_test, verbose=0)          # (가)
+print('test loss    :', round(loss, 4))
+print('test accuracy:', round(acc, 4))
+
+pred = model.predict(X_test, verbose=0)
+print('pred shape:', pred.shape)
+
+y_pred = (pred &gt; 0.5).astype(int).flatten()                     # (나)
+print('y_pred shape:', y_pred.shape)
+
+print(classification_report(y_test, y_pred))                    # (다)
+
+cm = confusion_matrix(y_test, y_pred)                           # (라)
+print(cm)
+tn, fp, fn, tp = cm.ravel()
+print('TN:', tn, '/ FP:', fp, '/ FN:', fn, '/ TP:', tp)
+</code></pre>
+<pre><code>test loss    : 0.068
+test accuracy: 0.9766
+pred shape: (171, 1)
+y_pred shape: (171,)
+              precision    recall  f1-score   support
+
+           0       0.95      0.98      0.97        64
+           1       0.99      0.97      0.98       107
+
+    accuracy                           0.98       171
+   macro avg       0.97      0.98      0.98       171
+weighted avg       0.98      0.98      0.98       171
+
+[[ 63   1]
+ [  3 104]]
+TN: 63 / FP: 1 / FN: 3 / TP: 104
+</code></pre>
+<blockquote class="callout callout--note">
+<p>loss·accuracy와 혼동 행렬의 칸 값은 실행할 때마다 조금씩 달라집니다(검증 시 accuracy 0.97~0.98).<br />
+<strong>shape 두 줄 — <code>pred.shape</code>는 <code>(171, 1)</code>, <code>y_pred.shape</code>는 <code>(171,)</code></strong> — 은 환경과 무관하게 항상 같습니다.</p>
+</blockquote>
+<p><strong>shape 답:</strong> <code>pred.shape</code>는 <code>(171, 1)</code>(샘플 171개 × 출력 노드 1개), <code>y_pred.shape</code>는 <code>(171,)</code>입니다.</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>loss, acc = ...</code></strong> — <code>metrics=['accuracy']</code>로 컴파일했으므로 반환 길이는 2이고 <strong>loss가 먼저</strong>입니다.</li>
+<li><strong>(나) <code>(pred &gt; 0.5).astype(int).flatten()</code></strong> — 세 조각이 각각 일을 합니다. <code>(pred &gt; 0.5)</code>가 <code>True</code>/<code>False</code> 배열을 만들고, <code>.astype(int)</code>가 이를 1/0으로 바꾸고, <code>.flatten()</code>이 <code>(171, 1)</code>을 <code>(171,)</code>로 폅니다. sklearn 지표 함수는 1차원 라벨 배열을 기대하므로 펴 두는 편이 안전합니다.</li>
+<li><strong>(다)(라) 인자 순서는 <code>(y_test, y_pred)</code></strong> — 정답이 먼저입니다(Q2).</li>
+</ul>
+<p><code>print(classification_report(...))</code>처럼 <strong><code>print</code>로 감싸는 것</strong>을 잊지 마십시오. <code>classification_report</code>는 문자열을 돌려주는 함수라 <code>print</code> 없이 호출하면 노트북 화면에 줄바꿈이 <code>\n</code> 그대로 찍힌 한 줄이 나오거나, 아예 아무것도 보이지 않습니다. 채점자는 화면에 출력된 결과를 봅니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>(나)를 통째로 빠뜨리고 <code>pred</code>를 그대로 <code>classification_report</code>에 넣는 것</strong> — 이 챕터에서 가장 흔한 사고입니다. <code>ValueError: Classification metrics can't handle a mix of binary and continuous targets</code>가 납니다. <strong><code>predict</code> 다음 줄에는 반드시 변환 한 줄</strong>이 온다고 외워 두십시오.</li>
+<li><strong><code>.astype(int)</code>를 빼먹는 것.</strong> <code>(pred &gt; 0.5)</code>만으로도 <code>True</code>/<code>False</code>가 0/1로 취급되어 결과는 나오지만, 리포트의 클래스 라벨이 <code>False</code>/<code>True</code>로 찍혀 지시된 출력 형태와 어긋납니다.</li>
+<li><strong>"성능을 출력하시오"에 <code>evaluate</code> 한 줄만 찍고 끝내는 것.</strong> <code>evaluate</code>(loss·accuracy) + <code>classification_report</code> + <code>confusion_matrix</code> <strong>3종 세트</strong>를 모두 <code>print</code>로 남기는 것이 안전한 답안입니다.</li>
+</ul>
+<hr />
+<h4 id="q4-해답">Q4 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+bin_pred = np.array([[0.83], [0.12], [0.50], [0.91], [0.46]])
+multi_pred = np.array([[0.1, 0.7, 0.2],
+                       [0.6, 0.3, 0.1],
+                       [0.2, 0.2, 0.6],
+                       [0.3, 0.5, 0.2],
+                       [0.8, 0.1, 0.1]])
+reg_pred = np.array([[151.2], [74.8], [140.5], [205.9], [134.7]])
+y_reg_true = np.array([155.0, 70.0, 145.0, 200.0, 130.0])
+
+y_bin = (bin_pred &gt; 0.5).astype(int).flatten()      # (가)
+y_mul = np.argmax(multi_pred, axis=1)               # (나)
+y_reg = reg_pred.flatten()                          # (다)
+
+print('(가) 이진:', y_bin, y_bin.shape)
+print('(나) 다중:', y_mul, y_mul.shape)
+print('(다) 회귀:', y_reg, y_reg.shape)
+print('multi_pred 행 합:', multi_pred.sum(axis=1))
+
+print('mse:', round(mean_squared_error(y_reg_true, y_reg), 3))   # (라-1)
+print('mae:', round(mean_absolute_error(y_reg_true, y_reg), 3))  # (라-2)
+print('r2 :', round(r2_score(y_reg_true, y_reg), 4))             # (라-3)
+
+# 축을 잘못 지정하면
+wrong = np.argmax(multi_pred, axis=0)
+print('axis=0 결과:', wrong, wrong.shape)
+try:
+    from sklearn.metrics import classification_report
+    classification_report(np.array([1, 0, 2, 1, 0]), wrong)
+except ValueError as e:
+    print('axis=0 -&gt;', type(e).__name__, ':', str(e)[:70])
+</code></pre>
+<pre><code>(가) 이진: [1 0 0 1 0] (5,)
+(나) 다중: [1 0 2 1 0] (5,)
+(다) 회귀: [151.2  74.8 140.5 205.9 134.7] (5,)
+multi_pred 행 합: [1. 1. 1. 1. 1.]
+mse: 22.926
+mae: 4.74
+r2 : 0.987
+axis=0 결과: [4 0 2] (3,)
+axis=0 -&gt; ValueError : Found input variables with inconsistent numbers of samples
+</code></pre>
+<p><strong>축 지정 답:</strong> <code>axis=0</code>으로 하면 결과 shape가 <code>(3,)</code> — 샘플 수 5가 아니라 <strong>클래스 수 3</strong> 이 됩니다. 그 상태로 <code>classification_report(y_test, y_pred)</code>를 호출하면 정답(5개)과 길이가 맞지 않아 <code>ValueError: Found input variables with inconsistent numbers of samples: [5, 3]</code>이 납니다.</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>세 유형의 변환은 <strong>출력층의 모양</strong>에서 그대로 따라 나옵니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>유형</th>
+<th>출력층</th>
+<th><code>predict</code> shape</th>
+<th>변환</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이진분류</td>
+<td><code>Dense(1, 'sigmoid')</code></td>
+<td><code>(N, 1)</code> 확률</td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+<td><code>(N,)</code> 0/1</td>
+</tr>
+<tr>
+<td>다중분류</td>
+<td><code>Dense(K, 'softmax')</code></td>
+<td><code>(N, K)</code> 확률</td>
+<td><code>np.argmax(pred, axis=1)</code></td>
+<td><code>(N,)</code> 0~K-1</td>
+</tr>
+<tr>
+<td>회귀</td>
+<td><code>Dense(1)</code> 활성화 없음</td>
+<td><code>(N, 1)</code> 예측값</td>
+<td><code>pred.flatten()</code></td>
+<td><code>(N,)</code> 실수</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>(가)</strong> 세 번째 값 <code>0.50</code>이 <code>0</code>이 된 것에 주목하십시오. <code>&gt;</code> 는 <strong>초과</strong>이므로 정확히 0.5인 값은 0으로 갑니다. 별도 지시가 없으면 이 기본 동작을 그대로 쓰면 됩니다.</li>
+<li><strong>(나) <code>axis=1</code>은 "한 행(= 한 샘플) 안에서 가장 큰 값의 위치"</strong> 를 찾으라는 뜻입니다. softmax 출력은 행 합이 1인 확률 분포이므로(<code>multi_pred 행 합: [1. 1. 1. 1. 1.]</code>), 그 안에서 가장 큰 자리가 예측 클래스입니다. 클래스 번호는 0부터 시작하므로 <code>[0.2, 0.2, 0.6]</code>의 답은 <code>2</code>입니다.</li>
+<li><strong>(다) <code>flatten()</code>은 값을 바꾸는 변환이 아니라 모양만 정리하는 작업</strong>입니다. 회귀에는 임계값도 argmax도 없습니다.</li>
+</ul>
+<p><code>(라)</code>의 sklearn 회귀 지표 함수들은 인자 순서가 <strong><code>(정답, 예측)</code></strong> 입니다. mse는 잔차를 제곱해 평균하므로 값이 크게 나오고(22.926), mae는 "평균적으로 4.74만큼 빗나간다"로 바로 읽힙니다. r2는 0.987이므로 타깃 변동의 98.7%를 설명한 셈입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>axis</code> 지정을 빠뜨리거나 <code>axis=0</code>으로 쓰는 것</strong> — 다중분류에서 가장 잦은 실수입니다. <code>np.argmax(pred)</code>처럼 축을 아예 안 주면 배열 전체에서 최댓값 하나의 평탄화된 인덱스(정수 한 개)가 나옵니다. <strong>다중분류 = <code>axis=1</code></strong> 을 한 덩어리로 외우십시오.</li>
+<li><strong>회귀에서 <code>flatten()</code>을 빠뜨리는 것</strong> — sklearn의 mse·mae·r2 함수 자체는 <code>(N, 1)</code>을 받아 주기 때문에 <strong>여기서는 값이 맞게 나옵니다.</strong> 문제는 그다음입니다. 잔차를 직접 계산하면 <code>y_test - pred</code>가 <code>(N,)</code> 대 <code>(N, 1)</code>로 브로드캐스팅되어 <code>(N, N)</code> 행렬이 되고, <code>pd.DataFrame({'actual': y_test, 'pred': pred})</code>로 비교표를 만들면 <code>ValueError: Per-column arrays must each be 1-dimensional</code>이 납니다. <strong><code>predict(...).flatten()</code>을 붙여 두는 습관</strong>이 이 사고들을 한 번에 막습니다.</li>
+<li>이진분류에 <code>argmax</code>를 쓰는 것. 출력이 <code>(N, 1)</code>이라 한 행에 값이 하나뿐이므로 <code>argmax</code>는 전부 <code>0</code>을 돌려줍니다. 오류는 나지 않고 정확도만 무너집니다.</li>
+</ul>
+<hr />
+<h4 id="q5-해답">Q5 해답</h4>
+<p><strong>잘못된 곳 2군데</strong></p>
+<ol>
+<li><code>print(classification_report(y_test, pred))</code> — 변환된 라벨 <code>y_pred</code> 대신 <strong>확률 배열 <code>pred</code></strong> 를 넣었습니다. <code>ValueError</code>로 실행이 중단됩니다.</li>
+<li><code>cm = confusion_matrix(y_pred, y_test)</code> — <strong>인자 순서가 뒤바뀌었습니다.</strong> 오류는 나지 않고 행렬만 전치되어 FP와 FN이 서로 자리를 바꿉니다.</li>
+</ol>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix
+
+pred = model.predict(X_test, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()
+
+# --- 오류 ① 재현: 확률을 그대로 투입 ---
+try:
+    classification_report(y_test, pred)
+except ValueError as e:
+    print('①', type(e).__name__, ':', str(e)[:75])
+
+# --- 오류 ② 재현: 효과가 항상 드러나는 고정 예제로 확인 ---
+demo_true = np.array([0] * 100 + [1] * 100)
+demo_pred = np.array([0] * 80 + [1] * 20 + [0] * 10 + [1] * 90)
+print('② 정상   confusion_matrix(y_test, y_pred):\n',
+      confusion_matrix(demo_true, demo_pred))
+print('② 뒤바뀜 confusion_matrix(y_pred, y_test):\n',
+      confusion_matrix(demo_pred, demo_true))
+
+# 실제 모델 결과에서도 두 행렬은 언제나 전치 관계입니다
+cm_ok = confusion_matrix(y_test, y_pred)
+cm_bad = confusion_matrix(y_pred, y_test)
+print('   모델 결과도 전치 관계인가:', np.array_equal(cm_ok, cm_bad.T))
+print('   FP와 FN이 우연히 같은가:', cm_ok[0, 1] == cm_ok[1, 0])
+
+# --- 수정본 ---
+loss, acc = model.evaluate(X_test, y_test, verbose=0)
+print('test accuracy:', round(acc, 4))
+
+pred = model.predict(X_test, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()          # 변환 한 줄
+
+print(classification_report(y_test, y_pred))         # 라벨을 넣습니다
+cm = confusion_matrix(y_test, y_pred)                # 정답이 먼저
+print(cm)
+</code></pre>
+<pre><code>① ValueError : Classification metrics can't handle a mix of binary and continuous
+② 정상   confusion_matrix(y_test, y_pred):
+ [[80 20]
+ [10 90]]
+② 뒤바뀜 confusion_matrix(y_pred, y_test):
+ [[80 10]
+ [20 90]]
+   모델 결과도 전치 관계인가: True
+   FP와 FN이 우연히 같은가: False
+
+test accuracy: 0.9766
+              precision    recall  f1-score   support
+
+           0       0.95      0.98      0.97        64
+           1       0.99      0.97      0.98       107
+
+    accuracy                           0.98       171
+   macro avg       0.97      0.98      0.98       171
+weighted avg       0.98      0.98      0.98       171
+
+[[ 63   1]
+ [  3 104]]
+</code></pre>
+<blockquote class="callout callout--note">
+<p>혼동 행렬의 칸 값과 accuracy는 실행할 때마다 달라집니다(검증 시 accuracy 0.97~0.98).<br />
+② 를 <strong>모델 결과가 아니라 고정 예제로 보여 주는 이유</strong>가 마지막 출력 줄에 있습니다. 학습 결과에 따라 FP와 FN이 <strong>우연히 같은 값</strong>이 되는 실행이 있고(검증 중 실제로 둘 다 2가 나온 실행이 있었습니다), 그때는 뒤바뀐 행렬이 정상과 겉보기에 똑같아 보여 오류가 완전히 숨어 버립니다. 전치 관계라는 성질 자체는 언제나 성립합니다.<br />
+확인할 것은 <strong>① 오류 메시지 문구</strong>와 <strong>② 두 행렬이 전치 관계라는 사실</strong>입니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>두 오류의 성격이 정반대라는 점이 이 문항의 핵심입니다.</p>
+<p><strong>① 확률을 그대로 투입 — 시끄럽게 실패합니다.</strong> <code>classification_report</code>와 <code>confusion_matrix</code>는 <strong>분류 지표</strong>이므로 이산적인 라벨만 받습니다. <code>pred</code>는 <code>0.83</code> 같은 연속값이라 "이진(binary) 정답과 연속(continuous) 예측이 섞였다"는 <code>ValueError</code>가 납니다. 바로 위 줄에서 <code>y_pred</code>를 이미 잘 만들어 두고 정작 <code>pred</code>를 넣은 것이므로, <strong>고칠 곳은 인자 이름 한 글자</strong>입니다. 시험장에서 이 메시지를 보면 "변환한 변수를 안 썼구나"로 바로 연결하십시오.</p>
+<p><strong>② 인자 순서 뒤바뀜 — 조용히 실패합니다.</strong> 오류가 없으므로 그대로 제출하게 됩니다. 고정 예제에서 뒤바뀐 <code>[[80, 10], [20, 90]]</code>은 정상 <code>[[80, 20], [10, 90]]</code>의 전치입니다. 대각선(TN=80, TP=90)은 그대로라 <strong>정확도는 변하지 않는데</strong>, <strong>FP와 FN만 서로 자리를 바꾸므로 정밀도와 재현율이 맞바뀝니다.</strong> 혼동 행렬을 해석하는 서술 문항이 이어지면 그 문항까지 함께 틀립니다.</p>
+<p>두 오류 모두 예방책은 하나입니다. <strong>평가 블록을 <code>evaluate → predict → 변환 → (y_test, y_pred) 순서로 지표 함수</code></strong> 라는 고정된 순서로 통째로 외워 두는 것입니다. 이 순서에서 벗어나는 줄이 보이면 그 줄이 범인입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>오류를 하나만 찾고 넘어가는 것.</strong> ①에서 실행이 멈추므로 ②는 실행조차 되지 않아 발견하기 어렵습니다. ①을 고친 뒤 반드시 아래 줄들을 다시 훑으십시오.</li>
+<li><strong>①을 고친다면서 <code>classification_report(y_test, pred.flatten())</code>으로 바꾸는 것.</strong> <code>flatten()</code>은 모양만 펼 뿐 여전히 확률이라 같은 <code>ValueError</code>가 납니다. 필요한 것은 <strong>임계값 판정</strong>입니다.</li>
+<li><strong>②를 발견하고도 "값이 비슷하니 괜찮다"고 넘기는 것.</strong> 정확도는 같지만 정밀도·재현율은 완전히 뒤바뀐 값입니다.</li>
+<li><strong>"행렬을 눈으로 보고 이상하면 알아채겠지"라고 믿는 것.</strong> FP와 FN이 우연히 같은 값이 되면 뒤바뀐 행렬이 정상과 <strong>완전히 동일하게</strong> 출력됩니다. 눈으로 검증할 수 없는 실수이므로, 애초에 <code>(y_test, y_pred)</code> 순서를 손이 기억하게 만드는 수밖에 없습니다.</li>
+</ul>
+<hr /></div></details>
+</section>
+
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch06.html"><span class="pager__dir">이전</span><span class="pager__label">Ch06</span><span class="pager__title">과적합 진단과 대응</span></a><a class="pager__slot pager__slot--next" href="ch08.html"><span class="pager__dir">다음</span><span class="pager__label">Ch08</span><span class="pager__title">문제 유형별 완성 코드와 시험장 전략</span></a></nav>
+</main>
+</body>
+</html>

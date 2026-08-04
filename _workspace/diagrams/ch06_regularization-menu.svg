@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 388" width="800" height="388" role="img" aria-label="과적합 대응 수단 비교">
+  <title>과적합 대응 수단 비교 — Dropout과 EarlyStopping은 시험에 자주 나오는 수단이고, 데이터 늘리기와 모델 크기 줄이기는 실기에서 손대기 어렵거나 지시가 있을 때만 쓰는 수단이다.</title>
+
+  <rect x="0" y="0" width="800" height="388" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">과적합 대응 수단 비교</text>
+
+    <!-- 표 머리 -->
+    <text x="48" y="88" font-size="13" font-weight="700" fill="#94a3b8">수단</text>
+    <text x="248" y="88" font-size="13" font-weight="700" fill="#94a3b8">효과</text>
+    <text x="584" y="88" font-size="13" font-weight="700" fill="#94a3b8">시험에서</text>
+    <line x1="32" y1="96" x2="768" y2="96" stroke="#94a3b8" stroke-width="1"/>
+
+    <!-- 1행 Dropout -->
+    <rect x="32" y="104" width="736" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="48" y="136" font-size="15" font-weight="700" fill="#1a2332">Dropout</text>
+    <text x="248" y="136" font-size="13" fill="#1a2332">특정 노드 의존을 막아 경계선을 부드럽게 함</text>
+    <text x="584" y="136" font-size="13" font-weight="700" fill="#2563eb">빈출 — 모델 구성 지시</text>
+
+    <!-- 2행 EarlyStopping -->
+    <rect x="32" y="164" width="736" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="48" y="196" font-size="15" font-weight="700" fill="#1a2332">EarlyStopping</text>
+    <text x="248" y="196" font-size="13" fill="#1a2332">최적 지점에서 멈추고 되돌림</text>
+    <text x="584" y="196" font-size="13" font-weight="700" fill="#2563eb">빈출 — 학습 지시</text>
+
+    <!-- 3행 데이터 늘리기 -->
+    <rect x="32" y="224" width="736" height="54" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="48" y="256" font-size="15" fill="#1a2332">데이터 늘리기</text>
+    <text x="248" y="256" font-size="13" fill="#1a2332">가장 근본적이지만 실기에서는 불가</text>
+    <text x="584" y="256" font-size="13" fill="#94a3b8">주어진 데이터가 고정</text>
+
+    <!-- 4행 모델 크기 줄이기 -->
+    <rect x="32" y="284" width="736" height="54" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="48" y="316" font-size="15" fill="#1a2332">모델 크기 줄이기</text>
+    <text x="248" y="316" font-size="13" fill="#1a2332">층·노드를 줄여 표현력을 낮춤</text>
+    <text x="584" y="316" font-size="13" fill="#94a3b8">지시가 있을 때만</text>
+
+    <text x="32" y="364" font-size="12" fill="#94a3b8">위 두 행이 실기에서 실제로 손대는 수단입니다.</text>
+  </g>
+</svg>

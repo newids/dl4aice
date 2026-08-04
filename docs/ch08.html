@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ch08. 문제 유형별 완성 코드와 시험장 전략 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-chapter">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">Part IV. 평가와 실전 · Chapter 8</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</a></li><li><a href="#8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</a></li><li><a href="#8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</a></li><li><a href="#8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</a></li><li><a href="#8-5-오류-응급처치-메시지로-원인을-좁힙니다">8.5 오류 응급처치 — 메시지로 원인을 좁힙니다</a></li><li><a href="#8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</a></li><li><a href="#8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</a></li></ol></nav>
+<article class="page-body">
+<h1>문제 유형별 완성 코드와 시험장 전략</h1>
+<aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>이진분류·다중분류·회귀 각각의 end-to-end 코드를 처음부터 끝까지 작성할 수 있다</li><li>세 유형에서 달라지는 지점(출력층·loss·평가지표)만 정확히 교체할 수 있다</li><li>시험장에서 만나는 대표 오류를 메시지만 보고 원인과 조치를 판단할 수 있다</li></ul></aside>
+<blockquote class="callout callout--note">
+<p><strong>이 챕터에서 배우는 것</strong><br />
+<strong>새로 배우는 딥러닝 개념은 없습니다.</strong> Ch02부터 Ch07까지 조각으로 익힌 코드를 <strong>한 벌로 이어 붙이고</strong>, 문제 유형이 바뀔 때 손대는 곳만 골라내는 것이 목표입니다. 예외는 8.5절 하나로, 오류를 진단하는 데 쓰는 보조 도구 몇 개(<code>np.isnan</code>, <code>np.bincount</code>, <code>model.layers[-1]</code>, <code>try</code>/<code>except</code>)를 그 자리에서 새로 씁니다. 모두 시험 범위를 넓히는 개념이 아니라, 막혔을 때 원인을 찾는 손전등입니다.<br />
+시험 연관성: 이 챕터의 세 템플릿이 실기 답안의 골격 그 자체입니다. 뒤이은 모의고사 2회분은 이 템플릿을 시간 압박 아래에서 재현하는 훈련입니다.</p>
+</blockquote>
+<hr />
+<h2 id="8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</h2>
+<figure class="diagram" id="fig-ch08_three-templates"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 432" width="800" height="432" role="img" aria-label="유형별로 바뀌는 세 곳" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>유형별로 바뀌는 세 곳 — 이진분류, 다중분류, 회귀 세 유형에서 출력층과 loss와 평가지표 세 줄만 달라지고, 전처리부터 은닉층 구성과 콜백까지 나머지 코드는 모두 동일하다.</title>
+
+  <rect x="0" y="0" width="800" height="432" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">유형별로 바뀌는 세 곳</text>
+
+  <!-- ===== 열 머리 ===== -->
+  <rect x="24" y="64" width="76" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="62" y="89" font-size="11" font-weight="bold" text-anchor="middle" fill="#2563eb">교체 지점</text>
+
+  <rect x="108" y="64" width="210" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="213" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a2332">이진분류</text>
+
+  <rect x="326" y="64" width="270" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="461" y="90" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">다중분류 (K클래스, 정수 라벨)</text>
+
+  <rect x="604" y="64" width="172" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="690" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a2332">회귀</text>
+
+  <!-- ===== 1행: 출력층 ===== -->
+  <text x="62" y="155" font-size="13" font-weight="bold" text-anchor="middle" fill="#2563eb">출력층</text>
+
+  <rect x="108" y="116" width="210" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1,</text>
+  <text x="213" y="160" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation='sigmoid')</text>
+
+  <rect x="326" y="116" width="270" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(n_classes,</text>
+  <text x="461" y="160" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation='softmax')</text>
+  <text x="461" y="178" font-size="11" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">n_classes = len(np.unique(y_train))</text>
+
+  <rect x="604" y="116" width="172" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1)</text>
+  <text x="690" y="162" font-size="11" text-anchor="middle" fill="#94a3b8">활성화 없음</text>
+
+  <!-- ===== 2행: loss ===== -->
+  <text x="62" y="225" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss</text>
+
+  <rect x="108" y="192" width="210" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'binary_crossentropy'</text>
+
+  <rect x="326" y="192" width="270" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'sparse_categorical_crossentropy'</text>
+
+  <rect x="604" y="192" width="172" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'mse'</text>
+
+  <!-- ===== 3행: 평가지표 ===== -->
+  <text x="62" y="291" font-size="13" font-weight="bold" text-anchor="middle" fill="#2563eb">평가지표</text>
+
+  <rect x="108" y="256" width="210" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['accuracy']</text>
+  <text x="213" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">classification_report</text>
+
+  <rect x="326" y="256" width="270" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['accuracy']</text>
+  <text x="461" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">혼동 행렬은 클래스 수만큼 커집니다</text>
+
+  <rect x="604" y="256" width="172" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['mae']</text>
+  <text x="690" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">mse · mae · r2</text>
+
+  <!-- ===== 주석 ===== -->
+  <text x="24" y="340" font-size="12" fill="#94a3b8">표에 없는 한 곳 — 예측 변환(0.5 임계값 / argmax / flatten)은 평가 단계에서 함께 바뀝니다.</text>
+
+  <!-- ===== 공통 박스 ===== -->
+  <rect x="24" y="356" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="400" y="379" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">나머지는 세 유형 모두 동일</text>
+  <text x="400" y="398" font-size="12" text-anchor="middle" fill="#94a3b8">결측치 처리 · 인코딩 · 데이터 분리 · 스케일링 · 은닉층 구성 · Dropout · EarlyStopping · 학습 곡선</text>
+</svg></div><figcaption><span class="diagram__num">그림 8-1</span><span class="diagram__caption">유형별로 바뀌는 세 곳</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 세 유형의 코드는 <strong>출력층 한 줄, loss 한 줄, 평가지표 블록</strong>만 다르고 나머지는 전부 같습니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>구분</th>
+<th>이진분류</th>
+<th>다중분류(K클래스, 정수 라벨)</th>
+<th>회귀</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>출력층</td>
+<td><code>Dense(1, activation='sigmoid')</code></td>
+<td><code>Dense(K, activation='softmax')</code></td>
+<td><code>Dense(1)</code> (활성화 없음)</td>
+</tr>
+<tr>
+<td>loss</td>
+<td><code>'binary_crossentropy'</code></td>
+<td><code>'sparse_categorical_crossentropy'</code></td>
+<td><code>'mse'</code></td>
+</tr>
+<tr>
+<td>metrics</td>
+<td><code>['accuracy']</code></td>
+<td><code>['accuracy']</code></td>
+<td><code>['mae']</code></td>
+</tr>
+<tr>
+<td>예측 변환</td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+<td><code>np.argmax(pred, axis=1)</code></td>
+<td><code>pred.flatten()</code></td>
+</tr>
+<tr>
+<td>평가 함수</td>
+<td><code>classification_report</code> / <code>confusion_matrix</code></td>
+<td>동일</td>
+<td><code>mean_squared_error</code> / <code>mean_absolute_error</code> / <code>r2_score</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>제목은 "세 줄"인데 표의 행은 다섯 개라 헷갈릴 수 있으니 숫자를 먼저 정리해 둡니다. <strong>코드에서 실제로 손대는 교체 슬롯은 네 곳</strong>(출력층 · loss · metrics · 예측 변환)이고, 그중 <code>metrics</code>는 <strong>회귀에서만</strong> 바뀌므로 <strong>분류끼리 비교하면 세 곳</strong>입니다. 이 챕터의 코드 주석에 붙은 <code>교체 지점 (1)~(4)</code>가 그 네 곳입니다. 표 마지막 행의 평가 함수는 예측 변환 다음에 오는 출력 블록을 통째로 갈아 끼우는 자리입니다.</p>
+<p>도해 하단의 회색 박스에 묶인 것들 — 결측치 처리, 인코딩, 데이터 분리, 스케일링, 은닉층 구성, <code>Dropout</code>, <code>EarlyStopping</code>, 학습 곡선 — 은 <strong>세 유형에서 완전히 동일합니다.</strong> 그래서 시험장에서 새 문제를 받았을 때 먼저 할 일은 유형 판정 하나입니다.</p>
+<p>유형 판정의 근거는 <strong>타깃 변수의 형태</strong>입니다. 판정 기준과 손실 함수 선택 논리는 Ch05의 <code>ch05_loss-decision</code> 분기도가 정본이므로, 여기서는 반복하지 않고 <strong>판정을 코드로 확인하는 한 줄</strong>만 짚습니다.</p>
+<pre><code class="language-python">print(y_train[:10])                 # 값의 생김새
+print(y_train.dtype)                # 정수인가 실수인가
+print(len(np.unique(y_train)))      # 서로 다른 값의 개수
+</code></pre>
+<ul>
+<li><code>[0 1 1 0 ...]</code>, 서로 다른 값 2개 → <strong>이진분류</strong></li>
+<li><code>[2 0 1 1 ...]</code>, 서로 다른 값 3개 이상, 정수 → <strong>다중분류(정수 라벨)</strong></li>
+<li><code>[151. 75. 141. ...]</code>, 실수이고 값이 계속 다름 → <strong>회귀</strong></li>
+</ul>
+<p>위 예시는 넘파이 배열(ndarray)을 출력한 모습입니다. <code>y = df['churn']</code>처럼 데이터프레임에서 뽑은 타깃은 <strong>pandas Series</strong>이므로 <code>print(y_train[:10])</code>을 하면 값 왼쪽에 인덱스가 함께 세로로 찍히고 마지막에 <code>Name: churn, dtype: int64</code> 한 줄이 붙습니다. 값만 나란히 보고 싶으면 <code>print(y_train.values[:10])</code>으로 확인하십시오. 시험장에서 실제로 만나는 형태는 Series 쪽이므로, 세로로 길게 찍혀도 당황하지 않으면 됩니다. 서로 다른 값의 개수를 세는 <code>np.unique</code>는 배열과 Series 어느 쪽에도 그대로 쓸 수 있습니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+유형을 바꿀 때 <strong>loss만 바꾸고 출력층을 그대로 두는 실수</strong>가 가장 흔합니다. 출력층과 loss는 언제나 <strong>짝</strong>으로 움직입니다. <code>Dense(1,'sigmoid')</code>를 남겨 둔 채 <code>sparse_categorical_crossentropy</code>로 컴파일하면 학습이 시작되자마자 오류가 납니다(8.5의 두 번째 증상).</p>
+</blockquote>
+<hr />
+<h2 id="8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</h2>
+<figure class="diagram" id="fig-ch08_endtoend-binary"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420" role="img" aria-label="이진분류 문제의 전체 코드 지도" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>이진분류 문제의 전체 코드 지도 — 로딩, 탐색, 전처리, 분리에 이어 구성, 컴파일, 학습, 평가까지 여덟 단계가 순서대로 이어지며 각 단계마다 대표 코드 한 줄이 붙어 있고, 구성과 컴파일과 학습 세 단계가 딥러닝 구간이다.</title>
+  <defs>
+    <marker id="ch08eb-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="420" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">이진분류 문제의 전체 코드 지도</text>
+  <text x="24" y="62" font-size="12" fill="#94a3b8">8단계를 순서대로 밟으면 답안 한 벌이 완성됩니다.</text>
+
+  <!-- ===== 연결 화살표 (1행) ===== -->
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)">
+    <line x1="196" y1="142" x2="214" y2="142"/>
+    <line x1="390" y1="142" x2="408" y2="142"/>
+    <line x1="584" y1="142" x2="602" y2="142"/>
+  </g>
+
+  <!-- ===== 1행: 준비 단계 ===== -->
+  <!-- 1 로딩 -->
+  <rect x="26" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="50" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="50" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">1</text>
+  <text x="109" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">로딩</text>
+  <text x="109" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">pd.read_csv(...)</text>
+  <text x="109" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">원본 데이터프레임</text>
+
+  <!-- 2 탐색 -->
+  <rect x="220" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="244" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="244" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">2</text>
+  <text x="303" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">탐색</text>
+  <text x="303" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">df.isnull().sum()</text>
+  <text x="303" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">shape · 결측 · 분포</text>
+
+  <!-- 3 전처리 -->
+  <rect x="414" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="438" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="438" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">3</text>
+  <text x="497" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">전처리</text>
+  <text x="497" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna / get_dummies</text>
+  <text x="497" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">인코딩은 분리 전</text>
+
+  <!-- 4 분리 -->
+  <rect x="608" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="632" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="632" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">4</text>
+  <text x="691" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">분리</text>
+  <text x="691" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split(...)</text>
+  <text x="691" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">스케일링은 분리 후</text>
+
+  <!-- ===== 줄바꿈 연결선 ===== -->
+  <path d="M691,192 V222 H109 V252" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)"/>
+
+  <!-- ===== 연결 화살표 (2행) ===== -->
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)">
+    <line x1="196" y1="306" x2="214" y2="306"/>
+    <line x1="390" y1="306" x2="408" y2="306"/>
+    <line x1="584" y1="306" x2="602" y2="306"/>
+  </g>
+
+  <!-- ===== 2행: 모델 단계 ===== -->
+  <!-- 5 구성 -->
+  <rect x="26" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="50" cy="280" r="13" fill="#2563eb"/>
+  <text x="50" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">5</text>
+  <text x="109" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">구성</text>
+  <text x="109" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Sequential / Dense</text>
+  <text x="109" y="348" font-size="11" text-anchor="middle" fill="#2563eb">교체 지점 (1) 출력층</text>
+
+  <!-- 6 컴파일 -->
+  <rect x="220" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="244" cy="280" r="13" fill="#2563eb"/>
+  <text x="244" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">6</text>
+  <text x="303" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">컴파일</text>
+  <text x="303" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.compile(...)</text>
+  <text x="303" y="348" font-size="11" text-anchor="middle" fill="#2563eb">교체 지점 (2)(3)</text>
+
+  <!-- 7 학습 -->
+  <rect x="414" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="438" cy="280" r="13" fill="#2563eb"/>
+  <text x="438" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">7</text>
+  <text x="497" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">학습</text>
+  <text x="497" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.fit(...)</text>
+  <text x="497" y="348" font-size="11" text-anchor="middle" fill="#2563eb">EarlyStopping 포함</text>
+
+  <!-- 8 평가 -->
+  <rect x="608" y="256" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="632" cy="280" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="632" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">8</text>
+  <text x="691" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">평가</text>
+  <text x="691" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate / predict</text>
+  <text x="691" y="348" font-size="11" text-anchor="middle" fill="#94a3b8">교체 지점 (4) 예측 변환</text>
+
+  <!-- ===== 딥러닝 구간 브래킷 ===== -->
+  <path d="M26,368 L26,376 L580,376 L580,368" fill="none" stroke="#2563eb" stroke-width="2"/>
+  <text x="303" y="398" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">딥러닝 3단계 — 구성(Ch04) · 컴파일 · 학습(Ch05)</text>
+</svg></div><figcaption><span class="diagram__num">그림 8-2</span><span class="diagram__caption">이진분류 문제의 전체 코드 지도</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 원본 데이터프레임에서 출발해 성능 출력까지 가는 <strong>8단계</strong>가 실기 답안의 전체 지도입니다.</p>
+<p>아래는 도해의 8단계를 코드로 옮긴 것입니다. 데이터는 Ch02에서 만든 것과 같은 방식의 합성 고객 이탈 데이터이며, 시험장에서는 1번 블록만 <code>df = pd.read_csv('data.csv')</code>로 바꾸면 됩니다.</p>
+<p>블록 번호와 도해 단계는 한 곳만 어긋납니다. 도해에서 <strong>인코딩(<code>get_dummies</code>)은 3단계(전처리)</strong>에 들어 있지만, 코드에서는 <strong>4번 블록의 첫 줄</strong>에 두었습니다. "인코딩은 분리 전, 스케일링은 분리 후"라는 순서 규칙을 한 블록 안에서 눈으로 확인할 수 있게 묶은 것입니다. 나머지 일곱 단계는 블록 번호와 그대로 대응합니다.</p>
+<pre><code class="language-python"># ===== 0) import =====
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, confusion_matrix
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+# ===== 1) 로딩 (시험에서는 df = pd.read_csv('data.csv')) =====
+rng = np.random.default_rng(42)
+n = 1000
+tenure_months = rng.integers(1, 72, n)
+monthly_fee = rng.normal(60, 15, n).round(2)
+support_calls = rng.poisson(1.5, n)
+contract_type = rng.choice(['month', 'one_year', 'two_year'], n)
+bonus = np.where(contract_type == 'month', 0.8,
+                 np.where(contract_type == 'one_year', 0.0, -0.8))
+score = -0.04 * tenure_months + 0.02 * monthly_fee + 0.45 * support_calls + bonus
+prob = 1 / (1 + np.exp(-(score - score.mean())))
+df = pd.DataFrame({
+    'tenure_months': tenure_months,
+    'monthly_fee': monthly_fee,
+    'support_calls': support_calls,
+    'contract_type': contract_type,
+    'churn': rng.binomial(1, prob),
+})
+df.loc[rng.choice(n, size=50, replace=False), 'monthly_fee'] = np.nan
+
+# ===== 2) 탐색 =====
+print(df.shape)
+print(df.isnull().sum())
+print(df['churn'].value_counts())
+
+# ===== 3) 결측치 처리 =====
+df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+
+# ===== 4) 인코딩(분리 전) → 분리 → 스케일링(분리 후) =====
+df = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+X = df.drop(columns=['churn'])
+y = df['churn']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+print('입력 특성 수:', X_train_scaled.shape[1])
+
+# ===== 5) 구성 =====
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))          # 교체 지점 (1)
+model.summary()
+
+# ===== 6) 컴파일 =====
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',          # 교체 지점 (2)
+              metrics=['accuracy'])                # 교체 지점 (3)
+
+# ===== 7) 학습 =====
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+mc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    callbacks=[es, mc], verbose=1)
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+
+# ===== 8) 평가 =====
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4), '/ test accuracy:', round(acc, 4))
+
+pred = model.predict(X_test_scaled, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()        # 교체 지점 (4)
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='val loss')
+plt.xlabel('epoch'); plt.ylabel('loss'); plt.legend(); plt.show()
+</code></pre>
+<p>예상 출력 요지입니다.</p>
+<pre><code>(1000, 5)
+... 결측 50건 ...
+churn 클래스 분포 2줄
+입력 특성 수: 6
+실제로 학습한 epoch 수: 1x~2x   ← EarlyStopping이 멈추는 시점이라 실행마다 달라집니다
+test loss: 0.5xxx / test accuracy: 0.7xxx
+classification_report 표 + 2x2 혼동 행렬
+</code></pre>
+<p><code>df.shape</code>는 <code>(1000, 5)</code>인데 <strong>입력 특성 수는 6</strong>입니다. 헷갈리기 쉬운 지점이므로 한 번 세어 보십시오. 5개 컬럼 중 타깃 <code>churn</code>이 빠지고, 범주 컬럼 <code>contract_type</code> 하나가 <code>get_dummies</code>로 3컬럼(<code>month</code>/<code>one_year</code>/<code>two_year</code>)으로 펼쳐집니다. 그래서 수치 3개(<code>tenure_months</code>, <code>monthly_fee</code>, <code>support_calls</code>) + 더미 3개 = <strong>6</strong>이 됩니다. <code>Input(shape=)</code>에 숫자를 직접 쓰지 않고 <code>X_train_scaled.shape[1]</code>로 받는 이유가 여기 있습니다. 원-핫 인코딩 뒤의 특성 수는 사람이 세다가 틀리기 쉽습니다.</p>
+<p>정확도가 0.7 근처인 것은 데이터 자체가 어려운 합성 데이터이기 때문이며, 코드가 잘못된 것이 아닙니다. 시험에서도 <strong>점수의 절대값보다 지시한 절차를 지켰는지</strong>가 채점 대상입니다.</p>
+<p>이 교재의 예상 출력에서 <code>1x~2x</code>, <code>0.5xxx</code>처럼 자리를 가려 둔 값은 <strong>실행할 때마다 달라지는 값</strong>입니다. <code>np.random.seed(42)</code>와 <code>tf.random.set_seed(42)</code>를 걸어 두어도 학습 연산에는 미세한 비결정성이 남아 소수점 아래가 고정되지 않습니다. 반대로 <code>입력 특성 수: 6</code>이나 <code>predict</code> 결과의 shape처럼 <strong>데이터 구조에서 결정되는 값은 몇 번을 실행해도 같습니다.</strong> 가려진 자리는 맞춰 볼 대상이 아니고, 고정된 숫자가 다르게 나오면 그때는 원인을 찾아야 하는 신호입니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+4번 블록의 순서를 외우십시오. <strong>인코딩은 분리 전, 스케일링은 분리 후</strong>입니다(Ch02 <code>ch02_split-leakage</code>). 그리고 딥러닝 모델에는 반드시 <strong>스케일링된 배열</strong>(<code>X_train_scaled</code>)을 넣습니다. 원본 <code>X_train</code>을 그대로 넣으면 학습이 잘 진행되지 않습니다.</p>
+<p>이 교재는 스케일링 결과를 <code>X_train_scaled</code>/<code>X_test_scaled</code>라는 <strong>별도 이름</strong>에 담는 표기를 씁니다. <code>X_train = scaler.fit_transform(X_train)</code>처럼 같은 이름에 덮어써도 동작은 같지만, 이름이 다르면 "모델에 넣어야 할 것은 스케일링된 쪽"이라는 사실이 코드에 드러나고, 스케일러를 실수로 두 번 <code>fit</code>하는 사고도 눈에 띕니다.</p>
+</blockquote>
+<hr />
+<h2 id="8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</h2>
+<p><strong>한 줄 요약</strong> — 이진분류 코드에서 <strong>출력층 units를 클래스 수로</strong>, loss를 <code>sparse_categorical_crossentropy</code>로, 예측 변환을 <code>argmax</code>로 바꾸면 끝입니다.</p>
+<p>클래스가 3개인 sklearn 내장 와인 데이터로 확인합니다. 라벨은 <code>0/1/2</code> 정수입니다.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, confusion_matrix
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_wine(return_X_y=True)
+print('타깃 앞 10개:', y[:10], '/ 클래스 수:', len(np.unique(y)))   # 유형 판정
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+n_classes = len(np.unique(y_train))
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(n_classes, activation='softmax'))        # 교체 (1) units = 클래스 수
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',    # 교체 (2) 정수 라벨
+              metrics=['accuracy'])                      # 교체 (3) 동일
+
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=16,
+                    validation_split=0.2, callbacks=[es], verbose=0)
+
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4), '/ test accuracy:', round(acc, 4))
+
+pred = model.predict(X_test_scaled, verbose=0)
+print('predict shape:', pred.shape, '/ 한 행의 합:', pred[0].sum().round(3))
+y_pred = np.argmax(pred, axis=1)                         # 교체 (4) argmax, 축은 1
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+</code></pre>
+<p>예상 출력 요지입니다.</p>
+<pre><code>타깃 앞 10개: [0 0 0 0 0 0 0 0 0 0] / 클래스 수: 3
+test loss: 0.0x~0.1x / test accuracy: 0.9xxx
+predict shape: (54, 3) / 한 행의 합: 1.0
+classification_report에 클래스 0/1/2 세 행 + 3x3 혼동 행렬
+</code></pre>
+<p>두 가지를 확인하십시오. 첫째, <code>predict</code> 결과가 <code>(54, 3)</code>입니다. <strong>샘플마다 클래스 개수만큼의 확률</strong>이 나오고 그 합이 1입니다(softmax). 둘째, 혼동 행렬이 2×2가 아니라 <strong>3×3</strong>입니다. 다중분류에서는 <code>cm.ravel()</code>로 TN/FP/FN/TP를 꺼내는 방식이 성립하지 않으므로 표 전체를 출력해 클래스별로 읽습니다.</p>
+<p><code>n_classes</code>를 숫자 <code>3</code>으로 직접 쓰지 않고 <code>len(np.unique(y_train))</code>으로 구한 이유는, 시험장에서 클래스 수를 눈으로 세다가 틀리는 일을 막기 위해서입니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+라벨이 정수(<code>0/1/2</code>)면 <code>sparse_categorical_crossentropy</code>, 원-핫(<code>[1,0,0]</code>)이면 <code>categorical_crossentropy</code>입니다. 출력층은 <strong>둘 다 <code>Dense(K,'softmax')</code>로 같습니다.</strong> 라벨 형태에 따라 바뀌는 것은 loss 이름뿐입니다(Ch05 <code>ch05_loss-decision</code>).</p>
+</blockquote>
+<hr />
+<h2 id="8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</h2>
+<p><strong>한 줄 요약</strong> — 회귀는 <strong>출력층에 활성화 함수를 넣지 않는 것</strong>이 핵심이고, 평가는 분류 지표가 아니라 mse·mae·r2로 합니다.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_diabetes(return_X_y=True)
+print('타깃 앞 5개:', y[:5], '/ dtype:', y.dtype)        # 실수 → 회귀
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)                # stratify 없음
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1))                                      # 교체 (1) 활성화 없음
+model.compile(optimizer='adam',
+              loss='mse',                                # 교체 (2)
+              metrics=['mae'])                           # 교체 (3) accuracy 아님
+
+es = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train, epochs=200, batch_size=32,
+                    validation_split=0.2, callbacks=[es], verbose=0)
+print('history 키:', list(history.history.keys()))
+
+loss, mae_keras = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('keras mse:', round(loss, 2), '/ keras mae:', round(mae_keras, 2))
+
+y_pred = model.predict(X_test_scaled, verbose=0).flatten()   # 교체 (4) 모양 정리
+print('mse:', round(mean_squared_error(y_test, y_pred), 2))
+print('mae:', round(mean_absolute_error(y_test, y_pred), 2))
+print('r2 :', round(r2_score(y_test, y_pred), 4))
+</code></pre>
+<p>예상 출력 요지입니다.</p>
+<pre><code>타깃 앞 5개: [151.  75. 141. 206. 135.] / dtype: float64
+history 키: ['loss', 'mae', 'val_loss', 'val_mae']
+keras mse: 3xxx.xx / keras mae: 4x.xx
+mse: 3xxx.xx
+mae: 4x.xx
+r2 : 0.4xxx
+</code></pre>
+<p>회귀에서 달라지는 부수적인 지점 세 가지를 함께 기억하십시오.</p>
+<ol>
+<li><strong><code>stratify</code>를 쓰지 않습니다.</strong> 타깃이 연속값이라 계층을 나눌 수 없어 오류가 납니다.</li>
+<li><strong><code>history</code> 키가 다릅니다.</strong> <code>accuracy</code>가 아니라 <code>mae</code>, <code>val_mae</code>이므로 학습 곡선을 그릴 때 <code>h['accuracy']</code>를 쓰면 <code>KeyError</code>가 납니다. <code>print(history.history.keys())</code>로 먼저 확인하는 습관이 여기서 값을 합니다.</li>
+<li><strong><code>classification_report</code>를 쓰지 않습니다.</strong> 연속값에는 정확도·정밀도 개념이 없습니다.</li>
+</ol>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+회귀 출력층에 <code>activation='sigmoid'</code>를 붙이는 실수가 자주 나옵니다. sigmoid는 출력을 0~1로 눌러 버리므로, 타깃이 151·206 같은 값이면 <strong>예측이 영원히 1을 넘지 못하고 r2가 크게 음수</strong>가 됩니다. 회귀 출력층은 <code>Dense(1)</code>, 활성화 인자 자체를 적지 않습니다.</p>
+</blockquote>
+<hr />
+<h2 id="8-5-오류-응급처치-메시지로-원인을-좁힙니다">8.5 오류 응급처치 — 메시지로 원인을 좁힙니다</h2>
+<figure class="diagram" id="fig-ch08_error-triage"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" aria-label="자주 만나는 오류와 원인 판별" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>자주 만나는 오류와 원인 판별 — shape 불일치, 라벨과 출력층 불일치, loss가 nan, accuracy가 0.5 부근 고정이라는 네 가지 증상 각각에 대해 원인과 조치가 짝지어져 있다.</title>
+  <defs>
+    <marker id="ch08et-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="520" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">자주 만나는 오류와 원인 판별</text>
+  <text x="24" y="62" font-size="12" fill="#94a3b8">메시지의 첫 줄만 읽어도 네 갈래 중 하나로 좁혀집니다.</text>
+
+  <!-- ===== 열 머리 ===== -->
+  <text x="143" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">증상</text>
+  <text x="372" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">원인</text>
+  <text x="629" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#059669">조치</text>
+
+  <!-- ===== 화살표 ===== -->
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08et-arrow)">
+    <line x1="266" y1="142" x2="282" y2="142"/>
+    <line x1="462" y1="142" x2="478" y2="142"/>
+    <line x1="266" y1="238" x2="282" y2="238"/>
+    <line x1="462" y1="238" x2="478" y2="238"/>
+    <line x1="266" y1="334" x2="282" y2="334"/>
+    <line x1="462" y1="334" x2="478" y2="334"/>
+    <line x1="266" y1="430" x2="282" y2="430"/>
+    <line x1="462" y1="430" x2="478" y2="430"/>
+  </g>
+
+  <!-- ===== 1행: shape 불일치 ===== -->
+  <rect x="24" y="100" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="124" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="129" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">1</text>
+  <text x="68" y="129" font-size="13" font-weight="bold" fill="#dc2626">shape 불일치</text>
+  <text x="40" y="152" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">expected axis -1 of input shape</text>
+  <text x="40" y="170" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">to have value 10 ... (None, 13)</text>
+
+  <rect x="286" y="100" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="136" font-size="12" text-anchor="middle" fill="#1a2332">Input(shape=)의 숫자가</text>
+  <text x="372" y="156" font-size="12" text-anchor="middle" fill="#1a2332">실제 특성 수와 다름</text>
+
+  <rect x="482" y="100" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="130" font-size="12.5" font-weight="bold" fill="#059669">특성 수를 직접 세지 말고 자동 계산</text>
+  <text x="498" y="156" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(X_train_scaled.shape[1],))</text>
+
+  <!-- ===== 2행: 라벨과 출력층 불일치 ===== -->
+  <rect x="24" y="196" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="220" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="225" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">2</text>
+  <text x="68" y="225" font-size="13" font-weight="bold" fill="#dc2626">라벨 · 출력층 불일치</text>
+  <text x="40" y="248" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Received a label value of 2</text>
+  <text x="40" y="266" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">outside the valid range of [0, 1)</text>
+
+  <rect x="286" y="196" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="232" font-size="12" text-anchor="middle" fill="#1a2332">클래스는 3개인데</text>
+  <text x="372" y="252" font-size="12" text-anchor="middle" fill="#1a2332">출력층이 Dense(1)</text>
+
+  <rect x="482" y="196" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="226" font-size="12.5" font-weight="bold" fill="#059669">출력층을 클래스 수에 맞춰 교체</text>
+  <text x="498" y="252" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(n_classes, activation='softmax')</text>
+
+  <!-- ===== 3행: loss가 nan ===== -->
+  <rect x="24" y="292" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="316" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="321" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">3</text>
+  <text x="68" y="321" font-size="13" font-weight="bold" fill="#dc2626">loss가 nan</text>
+  <text x="40" y="344" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss: nan</text>
+  <text x="40" y="364" font-size="11" fill="#94a3b8">오류 메시지 없이 학습만 진행됩니다</text>
+
+  <rect x="286" y="292" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="328" font-size="12" text-anchor="middle" fill="#1a2332">입력에 결측치(NaN)가</text>
+  <text x="372" y="348" font-size="12" text-anchor="middle" fill="#1a2332">남아 있음</text>
+
+  <rect x="482" y="292" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="322" font-size="12.5" font-weight="bold" fill="#059669">결측 개수를 확인한 뒤 다시 처리</text>
+  <text x="498" y="348" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">np.isnan(X_train_scaled).sum()</text>
+
+  <!-- ===== 4행: accuracy 정체 ===== -->
+  <rect x="24" y="388" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="412" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="417" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">4</text>
+  <text x="68" y="417" font-size="13" font-weight="bold" fill="#dc2626">accuracy 0.5 부근 고정</text>
+  <text x="40" y="444" font-size="11.5" fill="#1a2332">오류 메시지 없이 학습만 안 됩니다</text>
+  <text x="40" y="464" font-size="11" fill="#94a3b8">accuracy가 오르지 않고 멈춰 있습니다</text>
+
+  <rect x="286" y="388" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="416" font-size="12" text-anchor="middle" fill="#1a2332">스케일링 누락</text>
+  <text x="372" y="436" font-size="12" text-anchor="middle" fill="#1a2332">출력층 활성화 오지정</text>
+  <text x="372" y="456" font-size="12" text-anchor="middle" fill="#1a2332">라벨 형태 이상</text>
+
+  <rect x="482" y="388" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="418" font-size="12.5" font-weight="bold" fill="#059669">자가 진단 4줄 실행</text>
+  <text x="498" y="444" font-size="11" fill="#1a2332">입력 결측 · 입력 범위 · 라벨 분포 · 출력층</text>
+
+  <text x="24" y="500" font-size="12" fill="#94a3b8">모델을 만든 직후 model.summary()를 찍어 두면 1번과 2번은 학습을 돌리기 전에 잡힙니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 8-3</span><span class="diagram__caption">자주 만나는 오류와 원인 판별</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 시험장에서 만나는 오류는 사실상 <strong>네 종류</strong>이고, 긴 메시지를 다 읽지 않아도 <strong>키워드 한 개</strong>로 원인을 좁힐 수 있습니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>증상</th>
+<th>대표 메시지</th>
+<th>원인</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① shape 불일치</td>
+<td><code>expected axis -1 of input shape to have value 10, but received input with shape (None, 13)</code></td>
+<td><code>Input(shape=)</code>의 숫자와 실제 특성 수가 다름</td>
+<td><code>Input(shape=(X_train_scaled.shape[1],))</code>로 자동 계산</td>
+</tr>
+<tr>
+<td>② 라벨·출력층 불일치</td>
+<td><code>Received a label value of 2 which is outside the valid range of [0, 1)</code></td>
+<td>클래스는 3개인데 출력층이 <code>Dense(1)</code></td>
+<td>출력층을 <code>Dense(K,'softmax')</code>로 교체</td>
+</tr>
+<tr>
+<td>③ loss가 <code>nan</code></td>
+<td>오류 없이 <code>loss: nan</code> 출력</td>
+<td>입력에 결측치(NaN)가 남아 있음</td>
+<td><code>np.isnan(X_train_scaled).sum()</code>으로 확인 후 결측 처리</td>
+</tr>
+<tr>
+<td>④ accuracy가 0.5 부근 고정</td>
+<td>오류 없음, 학습만 안 됨</td>
+<td>스케일링 누락, 출력층 활성화 오지정, 라벨 형태 이상</td>
+<td>아래 자가 진단 4줄 실행</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>①과 ②를 실제로 재현해 메시지를 눈에 익히는 코드입니다.</strong> <code>try</code> 블록으로 감쌌기 때문에 노트북이 멈추지 않습니다.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+X, y = load_wine(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# ① 입력 shape를 10으로 잘못 적은 경우 (실제 특성은 13개)
+bad1 = Sequential()
+bad1.add(Input(shape=(10,)))
+bad1.add(Dense(16, activation='relu'))
+bad1.add(Dense(3, activation='softmax'))
+bad1.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
+try:
+    bad1.fit(X_train_scaled, y_train, epochs=1, verbose=0)
+except Exception as e:
+    print('① 오류 종류:', type(e).__name__)
+    key = [ln for ln in str(e).split('\n') if 'label value' in ln or 'incompatible' in ln]
+    print('  메시지 요지:', (key[0].strip() if key else str(e).split('\n')[0])[:180])
+
+# ② 클래스는 3개인데 출력층을 Dense(1)로 둔 경우
+bad2 = Sequential()
+bad2.add(Input(shape=(X_train_scaled.shape[1],)))
+bad2.add(Dense(16, activation='relu'))
+bad2.add(Dense(1, activation='sigmoid'))
+bad2.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
+try:
+    bad2.fit(X_train_scaled, y_train, epochs=1, verbose=0)
+except Exception as e:
+    print('② 오류 종류:', type(e).__name__)
+    key = [ln for ln in str(e).split('\n') if 'label value' in ln or 'incompatible' in ln]
+    print('  메시지 요지:', (key[0].strip() if key else str(e).split('\n')[0])[:180])
+</code></pre>
+<p><code>key = [...]</code> 한 줄이 이 코드의 핵심입니다. Keras의 오류 메시지는 여러 줄로 길고 <strong>진단에 필요한 문구가 첫 줄에 있지 않습니다.</strong> 그래서 <code>str(e)</code>를 줄 단위로 쪼갠 뒤 <code>incompatible</code>·<code>label value</code> 같은 <strong>키워드가 들어 있는 줄만 골라내</strong> 출력합니다. 시험장에서도 같은 방식으로 읽으십시오. 메시지 전체를 처음부터 읽는 것이 아니라, 이 두 단어를 먼저 찾는 것입니다.</p>
+<p>출력 요지입니다. <strong><code>incompatible</code>이 보이면 ①, <code>label value</code>가 보이면 ②</strong>로 판별하면 됩니다.</p>
+<pre><code>① 오류 종류: ValueError
+  메시지 요지: Input 0 with name 'None' of layer 'dense' is incompatible with the layer: expected axis -1 of input shape to have value 10, but received input with shape (None, 13)
+② 오류 종류: InvalidArgumentError
+  메시지 요지: Received a label value of 2 which is outside the valid range of [0, 1).  Label values: 1 2 1 1 0 0 0 1 1 1 2 0 …
+</code></pre>
+<p>①에서 확인할 것은 한 줄 안에 나란히 놓인 <strong>숫자 두 개</strong>입니다. <code>to have value 10</code>은 모델이 기대한 특성 수(<code>Input(shape=(10,))</code>에 적은 값)이고, <code>received input with shape (None, 13)</code>은 실제로 들어온 데이터의 특성 수입니다. 두 숫자가 다르다는 것이 원인 그 자체입니다. <code>None</code> 자리는 batch 크기라 비교 대상이 아닙니다.</p>
+<p>이 줄은 172자로 길어서 <code>[:110]</code> 정도로 자르면 <code>expected axis -1 of input shape</code> 근처에서 끊기고 정작 필요한 숫자가 보이지 않습니다. 위 코드에서 슬라이스를 <code>[:180]</code>으로 넉넉히 잡은 이유입니다. 그래도 잘린다면 <code>print(e)</code>로 메시지 전체를 찍으십시오. 참고로 이 문구는 Keras 3 기준이며, Keras 2 환경에서는 <code>expected shape=(None, 10), found shape=(None, 13)</code> 형태로 나옵니다. 표현은 달라도 <strong>숫자 두 개를 비교해 읽는 방법은 같습니다.</strong></p>
+<p>②의 뒤에 붙는 <code>Label values: ...</code>는 그 batch에 실제로 들어 있던 라벨을 나열한 것이라 <strong>실행할 때마다 값이 달라집니다.</strong> 거기에서 <code>0</code>과 <code>1</code> 말고 <code>2</code>가 섞여 있다는 사실만 확인하면 충분합니다.</p>
+<p><strong>③ loss가 <code>nan</code>이 되는 상황을 재현합니다.</strong> 결측치를 처리하지 않고 그대로 학습에 넣은 경우입니다.</p>
+<pre><code class="language-python">X_nan = X_train_scaled.copy()
+X_nan[0, 0] = np.nan                                  # 결측치 하나만 남겨도 전파됩니다
+
+bad3 = Sequential()
+bad3.add(Input(shape=(X_nan.shape[1],)))
+bad3.add(Dense(16, activation='relu'))
+bad3.add(Dense(3, activation='softmax'))
+bad3.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
+h = bad3.fit(X_nan, y_train, epochs=3, verbose=0)
+print('loss 기록:', h.history['loss'])
+print('입력에 남은 결측치 개수:', np.isnan(X_nan).sum())
+</code></pre>
+<p>출력 요지: <code>loss 기록: [nan, nan, nan]</code>, <code>입력에 남은 결측치 개수: 1</code>. <strong><code>nan</code>이 하나만 있어도 전체 손실이 <code>nan</code>이 되고, 그 뒤로는 어떤 epoch을 돌려도 회복되지 않습니다.</strong> 오류 메시지가 나지 않으므로 <code>loss: nan</code>을 직접 보고 알아채야 합니다.</p>
+<p><strong>④ 학습이 안 될 때 돌리는 자가 진단 4줄입니다.</strong> 이 네 줄이면 원인의 대부분이 걸러집니다. 여기서는 방금 ③에서 만든 <code>bad3</code> 모델을 그대로 진단해 봅니다. 실제 답안에서는 <code>bad3</code> 자리에 자신의 <code>model</code>을 넣으십시오.</p>
+<pre><code class="language-python">print('1. 입력 결측:', np.isnan(X_train_scaled).sum())
+print('2. 입력 범위:', X_train_scaled.min().round(2), '~', X_train_scaled.max().round(2))
+print('3. 라벨 분포:', np.bincount(y_train))
+print('4. 출력층:', bad3.layers[-1].units, bad3.layers[-1].activation.__name__)
+</code></pre>
+<p>출력 요지입니다.</p>
+<pre><code>1. 입력 결측: 0
+2. 입력 범위: -3.74 ~ 4.08
+3. 라벨 분포: [41 50 33]
+4. 출력층: 3 softmax
+</code></pre>
+<p>1번이 <code>0</code>인 것은 여기서 검사한 배열이 결측치가 없는 <code>X_train_scaled</code>이기 때문입니다. ③의 <code>X_nan</code>을 넣으면 <code>1</code>이 나옵니다. <code>np.bincount</code>는 정수 라벨의 개수를 클래스 번호 순서대로 세어 주는 함수이고, <code>bad3.layers[-1]</code>은 <strong>모델의 마지막 층</strong>, 즉 출력층을 가리킵니다.</p>
+<p>읽는 법입니다. 1번이 0이 아니면 결측 처리를 빠뜨린 것입니다. 2번의 범위가 <code>0 ~ 800</code>처럼 넓으면 <strong>스케일링을 하지 않은 원본 배열</strong>을 넣은 것입니다. 3번이 <code>[500, 3]</code>처럼 심하게 치우쳤다면 정확도 자체가 의미 없는 상황입니다. 4번이 이진분류인데 <code>1 relu</code>나 <code>1 linear</code>로 나오면 출력층 활성화를 잘못 지정한 것입니다(이진은 <code>1 sigmoid</code>, 다중은 <code>K softmax</code>, 회귀는 <code>1 linear</code>).</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+오류가 났을 때 코드를 처음부터 다시 쓰지 마십시오. <strong>오류 메시지의 마지막 줄과 첫 줄</strong>에 답이 있습니다. 그리고 위 네 증상 모두 <code>model.summary()</code> 한 번으로 절반은 잡힙니다. 모델을 만든 직후 <code>summary()</code>를 찍는 것을 습관으로 삼으십시오.</p>
+</blockquote>
+<hr />
+<h2 id="8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</h2>
+<figure class="diagram" id="fig-ch08_score-strategy"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 412" width="800" height="412" role="img" aria-label="부분 점수를 지키는 답안 구성" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>부분 점수를 지키는 답안 구성 — 전 과정을 한 셀에 몰아 쓰면 오류 하나로 셀 전체가 실패해 화면에 남는 출력이 없지만, 단계별로 셀을 나누고 셀 끝마다 print를 남기면 실패한 셀 앞 단계의 출력은 그대로 남는다.</title>
+
+  <rect x="0" y="0" width="800" height="412" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">부분 점수를 지키는 답안 구성</text>
+
+  <!-- 중앙 구분선 -->
+  <line x1="400" y1="58" x2="400" y2="360" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  <!-- ===== 왼쪽: 한 셀에 몰아 쓰기 ===== -->
+  <circle cx="34" cy="74" r="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="29.5" y1="69.5" x2="38.5" y2="78.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="38.5" y1="69.5" x2="29.5" y2="78.5" stroke="#dc2626" stroke-width="2"/>
+  <text x="52" y="80" font-size="15" font-weight="bold" fill="#dc2626">한 셀에 몰아 쓰기</text>
+
+  <rect x="24" y="96" width="360" height="172" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="42" y="122" font-size="11" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">In [1]</text>
+
+  <text x="44" y="150" font-size="13.5" fill="#1a2332">전처리</text>
+  <text x="44" y="178" font-size="13.5" fill="#1a2332">모델 구성</text>
+  <text x="44" y="206" font-size="13.5" fill="#1a2332">학습</text>
+  <text x="44" y="234" font-size="13.5" fill="#1a2332">평가 · print()</text>
+
+  <circle cx="150" cy="173" r="9" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="146.5" y1="169.5" x2="153.5" y2="176.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="153.5" y1="169.5" x2="146.5" y2="176.5" stroke="#dc2626" stroke-width="2"/>
+  <text x="166" y="178" font-size="12" font-weight="bold" fill="#dc2626">여기서 오류</text>
+
+  <text x="44" y="256" font-size="11" fill="#dc2626">오류 하나로 셀 전체가 실패합니다</text>
+
+  <text x="24" y="292" font-size="12" fill="#dc2626">앞 단계까지 잘 썼어도 화면에 결과가 남지 않습니다.</text>
+
+  <rect x="24" y="308" width="360" height="44" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="204" y="336" font-size="13" font-weight="bold" text-anchor="middle" fill="#dc2626">화면에 남는 출력 — 없음</text>
+
+  <!-- ===== 오른쪽: 단계별 셀 분리 ===== -->
+  <circle cx="426" cy="74" r="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M421,74 L425,79 L432,69" fill="none" stroke="#059669" stroke-width="2"/>
+  <text x="444" y="80" font-size="15" font-weight="bold" fill="#059669">단계별 셀 분리</text>
+
+  <!-- 셀 1 -->
+  <rect x="416" y="96" width="360" height="38" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="432" y="120" font-size="12.5" fill="#1a2332">1. 전처리</text>
+  <text x="524" y="120" font-size="11" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">print(df.isnull().sum())</text>
+  <circle cx="754" cy="115" r="9" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M749,115 L753,120 L760,110" fill="none" stroke="#059669" stroke-width="2"/>
+
+  <!-- 셀 2 -->
+  <rect x="416" y="140" width="360" height="38" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="432" y="164" font-size="12.5" fill="#1a2332">2. 분리 · 스케일링</text>
+  <text x="560" y="164" font-size="11" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">print(X_train_scaled.shape)</text>
+  <circle cx="754" cy="159" r="9" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M749,159 L753,164 L760,154" fill="none" stroke="#059669" stroke-width="2"/>
+
+  <!-- 셀 3 -->
+  <rect x="416" y="184" width="360" height="38" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="432" y="208" font-size="12.5" fill="#1a2332">3. 모델 구성</text>
+  <text x="540" y="208" font-size="11" fill="#dc2626" font-family="'SFMono-Regular', Menlo, Consolas, monospace">ValueError</text>
+  <circle cx="754" cy="203" r="9" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="750.5" y1="199.5" x2="757.5" y2="206.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="757.5" y1="199.5" x2="750.5" y2="206.5" stroke="#dc2626" stroke-width="2"/>
+
+  <!-- 셀 4 -->
+  <rect x="416" y="228" width="360" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="432" y="252" font-size="12.5" fill="#94a3b8">4. 학습 · 평가</text>
+  <text x="552" y="252" font-size="11" fill="#94a3b8">3번을 고친 뒤 이어서 실행</text>
+  <line x1="745" y1="247" x2="763" y2="247" stroke="#94a3b8" stroke-width="2"/>
+
+  <text x="416" y="292" font-size="12" fill="#059669">3번 셀만 실패하고 1 · 2번의 출력은 화면에 그대로 남습니다.</text>
+
+  <rect x="416" y="308" width="360" height="44" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="596" y="336" font-size="13" font-weight="bold" text-anchor="middle" fill="#059669">화면에 남는 출력 — 1 · 2단계</text>
+
+  <text x="24" y="388" font-size="12" fill="#94a3b8">셀 끝마다 print()로 결과를 남기십시오 — 채점자가 보는 것은 화면에 출력된 결과입니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 8-4</span><span class="diagram__caption">부분 점수를 지키는 답안 구성</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 점수는 <strong>완성도</strong>가 아니라 <strong>완료한 단계 수</strong>로 쌓입니다. 한 셀에 몰아 쓰면 한 번의 오류로 그 전부를 잃습니다.</p>
+<p>Ch01에서 정한 배분(탐색 15 / 전처리 25 / 머신러닝 15 / 딥러닝 25 / 검토 10)을 딥러닝 구간만 더 쪼개면 이렇습니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>구간</th>
+<th>배분</th>
+<th>누적 경과</th>
+<th>이 구간에서 할 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>탐색</td>
+<td>15분</td>
+<td>15분</td>
+<td><code>shape</code>·<code>info</code>·<code>value_counts</code>·결측 확인, 지시된 그래프</td>
+</tr>
+<tr>
+<td>전처리</td>
+<td>25분</td>
+<td>40분</td>
+<td>결측·이상치 → 인코딩 → 분리 → 스케일링</td>
+</tr>
+<tr>
+<td>머신러닝</td>
+<td>15분</td>
+<td>55분</td>
+<td>베이스라인 모델 3줄 + 성능 출력</td>
+</tr>
+<tr>
+<td><strong>딥러닝</strong></td>
+<td><strong>25분</strong></td>
+<td><strong>80분</strong></td>
+<td>유형 판정 2 / 구성 6 / 컴파일 2 / 학습 8 / 평가 7</td>
+</tr>
+<tr>
+<td>검토</td>
+<td>10분</td>
+<td>90분</td>
+<td>새 코드 금지, 전체 재실행과 지시사항 대조만</td>
+</tr>
+</tbody>
+</table></div>
+<p>딥러닝 25분에서 <strong>학습에 배정한 8분이 가장 위험한 구간</strong>입니다. <code>epochs=100</code>을 걸어 두고 기다리다 시간을 잃는 일이 흔합니다. 대응은 두 단계입니다.</p>
+<ol>
+<li><strong>먼저 <code>epochs=20</code> 정도로 한 번 완주시킵니다.</strong> 코드가 끝까지 도는 것을 확인하고 평가 출력까지 만들어 둡니다.</li>
+<li><strong>시간이 남으면 <code>epochs=100</code> + <code>EarlyStopping</code>으로 다시 실행합니다.</strong> 지시문에 <code>EarlyStopping</code>이 있으면 1단계에서도 반드시 넣되, <code>epochs</code>만 줄여서 돌립니다.</li>
+</ol>
+<p>부분 점수를 지키는 답안 구성 원칙은 네 가지입니다.</p>
+<ul>
+<li><strong>단계마다 셀을 나눕니다.</strong> 도해 왼쪽처럼 전처리부터 평가까지 한 셀에 몰아 쓰면, 모델 구성에서 오류가 나는 순간 그 셀 전체가 실행되지 않아 앞 단계 결과도 남지 않습니다.</li>
+<li><strong>셀 끝마다 <code>print()</code>로 결과를 남깁니다.</strong> 채점자가 보는 것은 화면에 출력된 결과입니다. 계산만 하고 출력하지 않으면 하지 않은 것과 같게 보일 수 있습니다.</li>
+<li><strong>막히면 최소 형태로라도 다음 단계에 넘깁니다.</strong> 인코딩이 잘 안 되면 문제가 되는 컬럼을 <code>drop</code>해서라도 분리·모델링 단계로 넘어가십시오. 뒤 문항의 배점이 더 큽니다.</li>
+<li><strong>지시문에 등장한 배점 요소부터 채웁니다.</strong> "은닉층 2개 이상", "Dropout 포함", "EarlyStopping 적용", "<code>random_state=42</code>"처럼 명시된 조건은 그 자체가 채점 항목입니다. 성능을 올리려 노드 수를 조정하기 전에 이 조건들이 코드에 들어가 있는지부터 확인하십시오.</li>
+</ul>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+앞 문항에서 만든 변수명을 뒤 문항이 이어받습니다(Ch01). 중간에 변수명을 임의로 바꾸면 그 뒤 문항이 전부 흔들립니다. 지시된 이름이 있으면 <strong>그대로</strong>, 없으면 이 교재의 표준 이름(<code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code>, <code>model</code>, <code>history</code>)을 끝까지 유지하십시오. 스케일링 결과는 <code>X_train_scaled</code>/<code>X_test_scaled</code>에 담고, <strong>모델에 넣는 것은 언제나 <code>_scaled</code> 쪽</strong>입니다.</p>
+</blockquote>
+<hr />
+<h2 id="8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</h2>
+<figure class="diagram" id="fig-ch08_exam-checklist"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 506" width="800" height="506" role="img" aria-label="제출 전 최종 점검 순서" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>제출 전 최종 점검 순서 — 셀을 위에서부터 다시 실행하기, 지시된 변수명 사용, random_state 확인, 결과를 print로 출력, 저장 파일명 확인, 남은 시간 배분까지 여섯 항목을 위에서부터 확인한다.</title>
+
+  <rect x="0" y="0" width="800" height="506" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">제출 전 최종 점검 순서</text>
+
+  <!-- 배너 -->
+  <rect x="24" y="58" width="752" height="36" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="82" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">마지막 10분 — 새 코드를 쓰는 시간이 아니라 확인하는 시간입니다</text>
+
+  <!-- ===== 1 ===== -->
+  <rect x="24" y="110" width="752" height="52" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="38" y="141" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">1</text>
+  <rect x="52" y="126" width="20" height="20" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="88" y="141" font-size="15" font-weight="bold" fill="#1a2332">셀을 위에서부터 다시 실행</text>
+  <text x="396" y="141" font-size="12" fill="#2563eb">커널 재시작 후 순서대로 전체 실행 — 가장 중요합니다</text>
+
+  <!-- ===== 2 ===== -->
+  <rect x="24" y="170" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="201" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">2</text>
+  <rect x="52" y="186" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="201" font-size="15" fill="#1a2332">지시된 변수명을 그대로 사용</text>
+  <text x="396" y="201" font-size="12" fill="#94a3b8">문제지의 이름과 코드의 이름을 눈으로 대조</text>
+
+  <!-- ===== 3 ===== -->
+  <rect x="24" y="230" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="261" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">3</text>
+  <rect x="52" y="246" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="261" font-size="15" fill="#1a2332"><tspan font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="14">random_state</tspan> 값이 지시대로인가</text>
+  <text x="396" y="261" font-size="12" fill="#94a3b8">train_test_split 인자와 머신러닝 모델 인자 확인</text>
+
+  <!-- ===== 4 ===== -->
+  <rect x="24" y="290" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="321" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">4</text>
+  <rect x="52" y="306" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="321" font-size="15" fill="#1a2332">결과를 <tspan font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="14">print()</tspan>로 출력</text>
+  <text x="396" y="321" font-size="12" fill="#94a3b8">출력하시오 지시가 붙은 항목마다 화면에 결과가 남았는지 확인</text>
+
+  <!-- ===== 5 ===== -->
+  <rect x="24" y="350" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="381" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">5</text>
+  <rect x="52" y="366" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="381" font-size="15" fill="#1a2332">저장 파일명과 확장자 확인</text>
+  <text x="396" y="381" font-size="12" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">ModelCheckpoint('best_model.keras')</text>
+
+  <!-- ===== 6 ===== -->
+  <rect x="24" y="410" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="441" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">6</text>
+  <rect x="52" y="426" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="441" font-size="15" fill="#1a2332">남은 시간에 손댈 곳 결정</text>
+  <text x="396" y="441" font-size="12" fill="#94a3b8">미완성 문항 중 배점이 큰 것부터</text>
+
+  <text x="24" y="486" font-size="12" fill="#94a3b8">성능을 더 올리려 모델 구조를 바꾸는 것보다, 실행 가능한 상태를 유지하는 편이 안전합니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 8-5</span><span class="diagram__caption">제출 전 최종 점검 순서</span></figcaption></figure>
+<p><strong>한 줄 요약</strong> — 마지막 10분은 <strong>새로 쓰는 시간이 아니라 확인하는 시간</strong>입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>점검 항목</th>
+<th>확인 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>셀을 위에서부터 다시 실행해도 끝까지 도는가</td>
+<td>커널 재시작 후 전체 실행(시간이 없으면 최소한 순서대로 실행)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>지시된 변수명을 그대로 썼는가</td>
+<td>문제지의 이름과 코드의 이름을 눈으로 대조</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>random_state</code> 값이 지시대로인가</td>
+<td><code>train_test_split</code>, 머신러닝 모델 인자 확인</td>
+</tr>
+<tr>
+<td>4</td>
+<td>"출력하시오"라는 지시에 <code>print()</code>가 있는가</td>
+<td>화면에 결과가 남아 있는지로 판단</td>
+</tr>
+<tr>
+<td>5</td>
+<td>저장 파일명과 확장자가 맞는가</td>
+<td><code>ModelCheckpoint('best_model.keras')</code> — <code>.keras</code> 확장자</td>
+</tr>
+<tr>
+<td>6</td>
+<td>남은 시간에 손댈 곳을 정했는가</td>
+<td>미완성 문항 중 배점이 큰 것부터</td>
+</tr>
+</tbody>
+</table></div>
+<p>1번이 가장 중요합니다. 시험 중에는 셀을 위아래로 오가며 실행하기 때문에, 화면에는 결과가 있어도 <strong>처음부터 순서대로 실행하면 오류가 나는 상태</strong>가 만들어지기 쉽습니다. 자주 발생하는 원인은 두 가지입니다.</p>
+<ul>
+<li><strong>셀을 지우고 다시 쓰는 과정에서 정의가 사라진 변수</strong> — 위쪽 셀에서 지운 변수를 아래쪽 셀이 쓰고 있는 경우</li>
+<li><strong>스케일러를 두 번 <code>fit</code>한 흔적</strong> — 위에서 <code>fit_transform</code>을 한 배열에 다시 <code>fit_transform</code>을 걸어 값이 이중으로 변환된 경우</li>
+</ul>
+<p>두 경우 모두 재실행 한 번이면 드러납니다. 시간이 정말 없다면 <strong>딥러닝 문항이 있는 셀들만이라도</strong> 순서대로 다시 실행해 보십시오.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+마지막 10분에 "성능을 조금 더 올려 보자"며 모델 구조를 바꾸는 것은 가장 위험한 선택입니다. 바꾼 뒤 재학습이 끝나기 전에 시간이 끝나면, 이미 확보했던 평가 출력까지 사라집니다. <strong>성능 개선보다 실행 가능한 상태 유지가 우선입니다.</strong></p>
+</blockquote>
+<hr />
+<h2 id="시험장-표준-코드">시험장 표준 코드</h2>
+<p>여기까지의 세 템플릿을 <strong>한 화면 골격</strong>으로 압축한 것입니다. 이 골격을 통째로 외워 두고, 문제 유형에 따라 표시된 네 곳만 아래 교체 카드에서 골라 끼우십시오.</p>
+<pre><code class="language-python"># ===== 공통 골격 (이진분류 기준, 실행 가능) =====
+import numpy as np
+import tensorflow as tf
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, confusion_matrix
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+# 1) 데이터 — 시험에서는 df = pd.read_csv(...) 이후 X, y 분리
+X, y = load_breast_cancer(return_X_y=True)
+print('타깃 앞 5개:', y[:5], '/ 서로 다른 값:', len(np.unique(y)))   # 유형 판정
+
+# 2) 분리 → 스케일링
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)     # 회귀는 stratify 제거
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 3) 구성
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))                 # ★교체 (1) 출력층
+model.summary()
+
+# 4) 컴파일
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',                 # ★교체 (2) 손실 함수
+              metrics=['accuracy'])                       # ★교체 (3) 지표
+
+# 5) 학습
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=32,
+                    validation_split=0.2, callbacks=[es], verbose=1)
+print('학습한 epoch 수:', len(history.history['loss']))
+
+# 6) 평가
+loss, metric = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4), '/ test metric:', round(metric, 4))
+
+pred = model.predict(X_test_scaled, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()               # ★교체 (4) 예측 변환
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+</code></pre>
+<p><strong>교체 카드 — 다중분류(K클래스, 정수 라벨)</strong></p>
+<pre><code class="language-python">n_classes = len(np.unique(y_train))
+model.add(Dense(n_classes, activation='softmax'))         # (1)
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',     # (2) 원-핫이면 categorical_crossentropy
+              metrics=['accuracy'])                       # (3)
+y_pred = np.argmax(pred, axis=1)                          # (4)
+</code></pre>
+<p><strong>교체 카드 — 회귀</strong></p>
+<pre><code class="language-python">from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+model.add(Dense(1))                                       # (1) 활성화 없음
+model.compile(optimizer='adam',
+              loss='mse',                                 # (2)
+              metrics=['mae'])                            # (3)
+y_pred = pred.flatten()                                   # (4)
+print('mse:', mean_squared_error(y_test, y_pred))
+print('mae:', mean_absolute_error(y_test, y_pred))
+print('r2 :', r2_score(y_test, y_pred))
+</code></pre>
+<hr />
+<h2 id="핵심-요약">핵심 요약</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>기억할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>유형 판정</td>
+<td><code>print(y_train[:10])</code>와 <code>len(np.unique(y_train))</code> 두 줄로 결정</td>
+</tr>
+<tr>
+<td>교체 지점</td>
+<td>출력층 / loss / metrics / 예측 변환 — <strong>네 곳뿐</strong>, 나머지는 전부 동일</td>
+</tr>
+<tr>
+<td>이진분류</td>
+<td><code>Dense(1,'sigmoid')</code> + <code>binary_crossentropy</code> + <code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+</tr>
+<tr>
+<td>다중분류</td>
+<td><code>Dense(K,'softmax')</code> + <code>sparse_categorical_crossentropy</code>(정수 라벨) + <code>np.argmax(pred, axis=1)</code></td>
+</tr>
+<tr>
+<td>회귀</td>
+<td><code>Dense(1)</code> 활성화 없음 + <code>mse</code> + <code>['mae']</code> + <code>pred.flatten()</code>, <code>stratify</code> 사용 금지</td>
+</tr>
+<tr>
+<td>오류 4종</td>
+<td>shape 불일치 / 라벨·출력층 불일치 / loss <code>nan</code>(결측치) / 지표 정체(스케일링·활성화)</td>
+</tr>
+<tr>
+<td>자가 진단</td>
+<td>입력 결측 → 입력 범위 → 라벨 분포 → 출력층 units·activation</td>
+</tr>
+<tr>
+<td>답안 구성</td>
+<td>단계별 셀 분리 + 셀 끝 <code>print()</code> — 부분 점수를 지키는 유일한 방법</td>
+</tr>
+<tr>
+<td>마지막 10분</td>
+<td>새 코드 금지, 위에서부터 재실행·변수명·<code>random_state</code>·파일명 확인</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>한 문장으로:</strong> 유형이 바뀌어도 <strong>네 줄만 갈아 끼우면 됩니다.</strong> 나머지 시간은 그 네 줄을 정확히 고르는 판단(Ch05 <code>ch05_loss-decision</code>)과, 결과를 화면에 남기는 습관에 쓰십시오.</p>
+<section class="exam" id="exam-ch08">
+<h2 id="ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</h2>
+<blockquote class="callout callout--note">
+<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
+<p>이 챕터에는 <strong>새로운 개념이 없습니다.</strong> 모든 문항은 Ch02~Ch07에서 익힌 조각을<br />
+<strong>유형 판정 → 네 곳(출력층 / loss / metrics / 예측 변환) 교체</strong>로 이어 붙이는 능력을 묻습니다.</p>
+<p>총 5문항 (객관식 1 / 코드 빈칸 2 / 오류 찾기 2), 권장 소요 시간 25분.<br />
+공통 import는 다음과 같다고 가정합니다.</p>
+<p><code>python
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler</code></p>
+</blockquote>
+<hr />
+<h3 id="문제">문제</h3>
+<h4 id="q1-객관식-응용-유형-판정과-교체-지점">Q1. (객관식 · 응용) 유형 판정과 교체 지점</h4>
+<p>서로 다른 세 문제의 <code>y_train</code>을 확인한 결과가 다음과 같습니다.</p>
+<pre><code class="language-python"># 데이터 A
+print(y_train[:8])              # [1 1 1 1 1 1 1 0]
+print(y_train.dtype)            # int64
+print(len(np.unique(y_train)))  # 2
+
+# 데이터 B
+print(y_train[:8])              # [0 0 0 0 1 0 2 1]
+print(y_train.dtype)            # int64
+print(len(np.unique(y_train)))  # 3
+
+# 데이터 C
+print(y_train[:8])              # [208. 261. 179. 258. 262.  51. 237.  71.]
+print(y_train.dtype)            # float64
+print(len(np.unique(y_train)))  # 192
+</code></pre>
+<p>세 데이터에 대한 설명 중 <strong>옳은 것</strong>은?</p>
+<ol>
+<li>A는 서로 다른 값이 2개이므로 출력층을 <code>Dense(2, activation='softmax')</code>, loss를 <code>binary_crossentropy</code>로 둔다.</li>
+<li>B는 정수 라벨 3클래스이므로 출력층은 <code>Dense(3, activation='softmax')</code>, loss는 <code>sparse_categorical_crossentropy</code>, 예측 변환은 <code>np.argmax(pred, axis=1)</code>이다.</li>
+<li>B는 라벨을 먼저 원-핫 인코딩해야 하며, 그렇게 바꾼 뒤에도 loss는 <code>sparse_categorical_crossentropy</code>를 그대로 유지한다.</li>
+<li>C는 서로 다른 값이 192개로 많으므로 출력층을 <code>Dense(192, activation='softmax')</code>로 두고 <code>sparse_categorical_crossentropy</code>로 다중분류 처리한다.</li>
+<li>C는 회귀이므로 출력층은 <code>Dense(1, activation='sigmoid')</code>, loss는 <code>'mse'</code>, metrics는 <code>['accuracy']</code>로 둔다.</li>
+</ol>
+<hr />
+<h4 id="q2-코드-빈칸-기본-이진분류-골격을-다중분류로-교체하기">Q2. (코드 빈칸 · 기본) 이진분류 골격을 다중분류로 교체하기</h4>
+<p>아래는 이진분류 기준으로 외워 둔 <strong>공통 골격</strong>입니다.<br />
+클래스가 3개이고 라벨이 정수(<code>0/1/2</code>)인 와인 품종 데이터에 맞게 <code>(가)</code>~<code>(라)</code>를 채우십시오.<br />
+<code># 그대로</code> 주석이 붙은 줄은 유형이 바뀌어도 손대지 않는 부분입니다.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, confusion_matrix
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_wine(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)          # 그대로
+scaler = StandardScaler()                                       # 그대로
+X_train_scaled = scaler.fit_transform(X_train)                  # 그대로
+X_test_scaled = scaler.transform(X_test)                        # 그대로
+
+n_classes = ______(가)______          # 클래스 개수를 데이터에서 뽑습니다
+print('클래스 수:', n_classes)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))              # 그대로
+model.add(Dense(64, activation='relu'))                         # 그대로
+model.add(Dropout(0.3))                                         # 그대로
+model.add(Dense(32, activation='relu'))                         # 그대로
+model.add(______(나)______)                                      # ★교체 (1) 출력층
+
+model.compile(optimizer='adam',
+              loss=______(다)______,                             # ★교체 (2) 손실 함수
+              metrics=['accuracy'])                             # ★교체 (3)
+
+es = EarlyStopping(monitor='val_loss', patience=5,
+                   restore_best_weights=True)                   # 그대로
+history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=16,
+                    validation_split=0.2, callbacks=[es], verbose=0)   # 그대로
+
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4), '/ test accuracy:', round(acc, 4))
+
+pred = model.predict(X_test_scaled, verbose=0)
+print('predict shape:', pred.shape, '/ 한 행의 합:', round(float(pred[0].sum()), 3))
+y_pred = ______(라)______                                        # ★교체 (4) 예측 변환
+
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+</code></pre>
+<p>추가로, <code>(다)</code>의 metrics를 <code>['accuracy']</code> 그대로 두어도 되는 이유와, <code>n_classes</code>를 숫자 <code>3</code>으로 직접 적지 않는 이유를 각각 한 줄로 쓰십시오.</p>
+<hr />
+<h4 id="q3-코드-빈칸-기본-같은-골격을-회귀로-교체하기">Q3. (코드 빈칸 · 기본) 같은 골격을 회귀로 교체하기</h4>
+<p>이번에는 타깃이 연속값(<code>151. 75. 141. ...</code>)인 회귀 문제입니다.<br />
+Q2와 <strong>완전히 같은 골격</strong>에서 <code>(가)</code>~<code>(마)</code>만 바꾸십시오.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_diabetes(return_X_y=True)
+print('타깃 앞 5개:', y[:5], '/ dtype:', y.dtype)      # 유형 판정
+
+# (가) 이진·다중분류에서 쓰던 인자 하나를 반드시 빼야 합니다
+X_train, X_test, y_train, y_test = ______(가)______
+
+scaler = StandardScaler()                                       # 그대로
+X_train_scaled = scaler.fit_transform(X_train)                  # 그대로
+X_test_scaled = scaler.transform(X_test)                        # 그대로
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))              # 그대로
+model.add(Dense(64, activation='relu'))                         # 그대로
+model.add(Dropout(0.3))                                         # 그대로
+model.add(Dense(32, activation='relu'))                         # 그대로
+model.add(______(나)______)                                      # ★교체 (1) 출력층
+
+model.compile(optimizer='adam',
+              loss=______(다-1)______,                           # ★교체 (2)
+              metrics=______(다-2)______)                        # ★교체 (3)
+
+es = EarlyStopping(monitor='val_loss', patience=10,
+                   restore_best_weights=True)                   # 그대로
+history = model.fit(X_train_scaled, y_train, epochs=200, batch_size=32,
+                    validation_split=0.2, callbacks=[es], verbose=0)   # 그대로
+print('history 키:', list(history.history.keys()))
+
+loss, metric = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('keras mse:', round(loss, 2), '/ keras mae:', round(metric, 2))
+
+y_pred = ______(라)______                                        # ★교체 (4) 예측 변환
+print('예측 shape:', y_pred.shape, '/ 정답 shape:', y_test.shape)
+
+# (마) 회귀 지표 세 줄
+print('mse:', round(______(마-1)______, 2))
+print('mae:', round(______(마-2)______, 2))
+print('r2 :', round(______(마-3)______, 4))
+</code></pre>
+<p>추가로, <code>print('history 키:', ...)</code>가 무엇을 출력하는지와, 그것을 확인해야 하는 이유를 쓰십시오.</p>
+<hr />
+<h4 id="q4-오류-찾기-기본-loss만-바꾸고-출력층을-그대로-둔-코드">Q4. (오류 찾기 · 기본) loss만 바꾸고 출력층을 그대로 둔 코드</h4>
+<p>수험생 B는 이진분류 문제로 만들어 둔 코드를 <strong>3클래스 다중분류</strong> 문제에 재사용하면서<br />
+"loss만 다중분류용으로 바꾸면 되겠지"라고 생각해 아래처럼 작성했습니다.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+X, y = load_wine(return_X_y=True)          # 클래스 3개, 정수 라벨 0/1/2
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))                     # 이진분류 코드 그대로
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',         # loss만 교체
+              metrics=['accuracy'])
+
+history = model.fit(X_train_scaled, y_train, epochs=10, verbose=0)
+</code></pre>
+<p>다음 세 가지에 답하십시오.</p>
+<ol>
+<li>오류는 <strong>어느 단계</strong>(모델 구성 / 컴파일 / 학습)에서 발생합니까?</li>
+<li>오류 메시지의 핵심 문구는 무엇이며, 그것이 왜 나오는지 설명하십시오.</li>
+<li>수정한 전체 코드를 쓰십시오.</li>
+</ol>
+<hr />
+<h4 id="q5-오류-찾기-응용-회귀-코드의-세-가지-실수">Q5. (오류 찾기 · 응용) 회귀 코드의 세 가지 실수</h4>
+<p>아래는 연속 타깃(<code>y</code>의 값은 25~346 범위의 실수)을 예측하는 회귀 코드입니다.<br />
+<strong>잘못된 곳이 세 군데</strong> 있습니다. 각각을 지적하고 수정한 전체 코드를 쓰십시오.<br />
+세 오류 중 하나만 실행을 중단시키고, 나머지 둘은 <strong>오류 없이 조용히 모델을 망가뜨린다</strong>는 점에 유의하십시오.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+X, y = load_diabetes(return_X_y=True)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+
+history = model.fit(X_train_scaled, y_train, epochs=30, batch_size=32,
+                    validation_split=0.2, verbose=0)
+
+y_pred = model.predict(X_test_scaled, verbose=0).flatten()
+print('r2 :', round(r2_score(y_test, y_pred), 4))
+</code></pre>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><h4 id="q1-해답">Q1 해답</h4>
+<p><strong>정답: 2번</strong></p>
+<p><strong>정답 코드 (실증 예제 — 세 데이터의 유형을 판정하는 두 줄)</strong></p>
+<pre><code class="language-python">import numpy as np
+from sklearn.datasets import load_breast_cancer, load_wine, load_diabetes
+from sklearn.model_selection import train_test_split
+
+for name, loader, strat in [('A', load_breast_cancer, True),
+                            ('B', load_wine, True),
+                            ('C', load_diabetes, False)]:
+    X, y = loader(return_X_y=True)
+    kw = dict(test_size=0.3, random_state=42)
+    if strat:
+        kw['stratify'] = y
+    _, _, y_train, _ = train_test_split(X, y, **kw)
+    print(f'[{name}] y_train[:8] = {y_train[:8]} | dtype={y_train.dtype} '
+          f'| 서로 다른 값={len(np.unique(y_train))}')
+</code></pre>
+<pre><code>[A] y_train[:8] = [1 1 1 1 1 1 1 0] | dtype=int64 | 서로 다른 값=2
+[B] y_train[:8] = [0 0 0 0 1 0 2 1] | dtype=int64 | 서로 다른 값=3
+[C] y_train[:8] = [208. 261. 179. 258. 262.  51. 237.  71.] | dtype=float64 | 서로 다른 값=192
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>유형 판정의 근거는 <strong>타깃의 dtype과 서로 다른 값의 개수</strong> 두 가지뿐입니다. 판정이 끝나면 교체할 곳은 네 군데로 정해집니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th></th>
+<th>A (이진분류)</th>
+<th>B (다중분류, 정수 라벨)</th>
+<th>C (회귀)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>출력층</td>
+<td><code>Dense(1, activation='sigmoid')</code></td>
+<td><code>Dense(3, activation='softmax')</code></td>
+<td><code>Dense(1)</code> 활성화 없음</td>
+</tr>
+<tr>
+<td>loss</td>
+<td><code>'binary_crossentropy'</code></td>
+<td><code>'sparse_categorical_crossentropy'</code></td>
+<td><code>'mse'</code></td>
+</tr>
+<tr>
+<td>metrics</td>
+<td><code>['accuracy']</code></td>
+<td><code>['accuracy']</code></td>
+<td><code>['mae']</code></td>
+</tr>
+<tr>
+<td>예측 변환</td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+<td><code>np.argmax(pred, axis=1)</code></td>
+<td><code>pred.flatten()</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>2번은 이 표의 B 열을 그대로 옮긴 것이므로 옳습니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>1번 — 이진분류에 <code>Dense(2, 'softmax')</code>를 쓰고 loss는 <code>binary_crossentropy</code>로 두는 것.</strong> 출력층과 loss가 짝이 맞지 않습니다. 이진분류의 표준은 <code>Dense(1, 'sigmoid')</code> + <code>binary_crossentropy</code> 한 짝입니다. (<code>Dense(2, 'softmax')</code> + <code>sparse_categorical_crossentropy</code>로 푸는 것도 이론적으로는 가능하지만, 시험 표준 패턴에서 벗어나고 실수만 늘어납니다.)</li>
+<li><strong>3번 — 라벨 형태를 바꾸면서 loss를 그대로 두는 것.</strong> 원-핫으로 바꾸면 loss도 <code>categorical_crossentropy</code>로 함께 바뀌어야 합니다. 정수 라벨을 원-핫으로 바꿀 이유도 없습니다. <strong>정수 라벨이면 <code>sparse_</code>, 원-핫이면 <code>sparse_</code> 없이</strong> — 출력층은 둘 다 <code>Dense(K, 'softmax')</code>로 같습니다(Ch05 <code>ch05_loss-decision</code>).</li>
+<li><strong>4번 — 값의 종류가 많다고 다중분류로 처리하는 것.</strong> dtype이 <code>float64</code>이고 값이 대부분 서로 다르면 회귀입니다. 값의 개수가 아니라 <strong>값의 성질</strong>(순서와 크기의 의미가 있는가)이 기준입니다.</li>
+<li><strong>5번 — 회귀 출력층에 <code>sigmoid</code>를 붙이는 것.</strong> 이 챕터에서 가장 위험한 실수입니다. sigmoid는 출력을 0~1로 눌러 버리므로 타깃이 208·261 같은 값이면 예측이 영원히 1을 넘지 못합니다. 오류가 나지 않으므로 알아채기 어렵습니다(Q5에서 실제 수치로 확인합니다). metrics도 <code>['accuracy']</code>가 아니라 <code>['mae']</code>입니다.</li>
+</ul>
+<hr />
+<h4 id="q2-해답">Q2 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, confusion_matrix
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_wine(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+n_classes = len(np.unique(y_train))                          # (가)
+print('클래스 수:', n_classes)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(n_classes, activation='softmax'))            # (나)
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',        # (다)
+              metrics=['accuracy'])
+
+es = EarlyStopping(monitor='val_loss', patience=5,
+                   restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=16,
+                    validation_split=0.2, callbacks=[es], verbose=0)
+print('학습한 epoch 수:', len(history.history['loss']))
+
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4), '/ test accuracy:', round(acc, 4))
+
+pred = model.predict(X_test_scaled, verbose=0)
+print('predict shape:', pred.shape, '/ 한 행의 합:', round(float(pred[0].sum()), 3))
+y_pred = np.argmax(pred, axis=1)                             # (라)
+print('y_pred shape:', y_pred.shape, '/ 앞 8개:', y_pred[:8])
+
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+</code></pre>
+<pre><code>클래스 수: 3
+학습한 epoch 수: 47
+test loss: 0.081 / test accuracy: 0.9815
+predict shape: (54, 3) / 한 행의 합: 1.0
+y_pred shape: (54,) / 앞 8개: [0 1 0 0 0 0 2 1]
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00        18
+           1       1.00      0.95      0.98        21
+           2       0.94      1.00      0.97        15
+
+    accuracy                           0.98        54
+   macro avg       0.98      0.98      0.98        54
+weighted avg       0.98      0.98      0.98        54
+
+[[18  0  0]
+ [ 0 20  1]
+ [ 0  0 15]]
+</code></pre>
+<blockquote class="callout callout--note">
+<p>학습한 epoch 수와 loss·accuracy는 실행할 때마다 달라집니다(EarlyStopping이 멈추는 시점이 다르기 때문입니다. 검증 시 epoch 47, accuracy 0.98 부근).<br />
+환경과 무관하게 항상 같은 값은 <strong>클래스 수 3 / <code>predict</code> shape <code>(54, 3)</code> / 행 합 1.0 / <code>y_pred</code> shape <code>(54,)</code> / 3×3 혼동 행렬</strong>입니다.</p>
+</blockquote>
+<p><strong>추가 질문 답</strong></p>
+<ul>
+<li><strong>metrics를 <code>['accuracy']</code>로 두어도 되는 이유:</strong> 다중분류도 "맞혔다/틀렸다"를 셀 수 있는 분류 문제이므로 정확도가 그대로 의미를 가집니다. metrics가 바뀌는 것은 <strong>회귀뿐</strong>(<code>['mae']</code>)입니다.</li>
+<li><strong><code>n_classes</code>를 숫자 3으로 직접 적지 않는 이유:</strong> 시험장에서 클래스 수를 눈으로 세다 틀리는 사고를 막기 위해서입니다. 라벨이 1부터 시작하거나 중간 번호가 비어 있는 데이터에서 특히 자주 어긋납니다.</li>
+</ul>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>이진분류 골격에서 실제로 손댄 곳은 <strong>세 줄</strong>뿐입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>교체 지점</th>
+<th>이진분류</th>
+<th>→ 다중분류</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(1) 출력층</td>
+<td><code>Dense(1, 'sigmoid')</code></td>
+<td><code>Dense(n_classes, 'softmax')</code></td>
+</tr>
+<tr>
+<td>(2) loss</td>
+<td><code>'binary_crossentropy'</code></td>
+<td><code>'sparse_categorical_crossentropy'</code></td>
+</tr>
+<tr>
+<td>(4) 예측 변환</td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+<td><code>np.argmax(pred, axis=1)</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><code># 그대로</code> 주석이 붙은 줄들 — 분리, 스케일링, <code>Input</code>, 은닉층, <code>Dropout</code>, <code>EarlyStopping</code>, <code>fit</code> — 은 한 글자도 바뀌지 않았습니다. <strong>바뀌지 않는 부분이 훨씬 많다</strong>는 사실이 이 챕터의 핵심입니다.</p>
+<p><code>predict shape: (54, 3)</code>과 <code>한 행의 합: 1.0</code> 두 줄은 출력층이 제대로 교체되었는지 확인하는 점검 코드입니다. 열이 3개이고 행 합이 1이면 softmax가 정상 동작한 것입니다. 만약 shape가 <code>(54, 1)</code>로 나온다면 출력층 교체를 빠뜨린 것입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>출력층은 바꿨는데 예측 변환을 <code>(pred &gt; 0.5)</code>로 두는 것.</strong> <code>(54, 3)</code> 확률 배열에 임계값을 걸면 0/1로 채워진 <code>(54, 3)</code> 배열이 나오고, 그대로 <code>classification_report</code>에 넣으면 정답 <code>(54,)</code>와 모양이 맞지 않아 오류가 납니다.</li>
+<li><strong><code>np.argmax(pred)</code>처럼 축을 빠뜨리는 것.</strong> 배열 전체에서 최댓값 하나의 인덱스(정수 하나)가 나옵니다. <strong>다중분류 = <code>axis=1</code></strong> 로 묶어 외우십시오.</li>
+<li><strong>정수 라벨인데 <code>categorical_crossentropy</code>(<code>sparse_</code> 없이)를 쓰는 것.</strong> 라벨 shape가 맞지 않아 학습 단계에서 오류가 납니다. 원-핫으로 바꿔 두지 않았다면 언제나 <code>sparse_</code>가 붙습니다.</li>
+</ul>
+<hr />
+<h4 id="q3-해답">Q3 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_diabetes(return_X_y=True)
+print('타깃 앞 5개:', y[:5], '/ dtype:', y.dtype)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)                     # (가) stratify 제거
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1))                                           # (나) 활성화 없음
+
+model.compile(optimizer='adam',
+              loss='mse',                                     # (다-1)
+              metrics=['mae'])                                # (다-2)
+
+es = EarlyStopping(monitor='val_loss', patience=10,
+                   restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train, epochs=200, batch_size=32,
+                    validation_split=0.2, callbacks=[es], verbose=0)
+print('학습한 epoch 수:', len(history.history['loss']))
+print('history 키:', list(history.history.keys()))
+
+loss, metric = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('keras mse:', round(loss, 2), '/ keras mae:', round(metric, 2))
+
+y_pred = model.predict(X_test_scaled, verbose=0).flatten()    # (라)
+print('예측 shape:', y_pred.shape, '/ 정답 shape:', y_test.shape)
+
+print('mse:', round(mean_squared_error(y_test, y_pred), 2))   # (마-1)
+print('mae:', round(mean_absolute_error(y_test, y_pred), 2))  # (마-2)
+print('r2 :', round(r2_score(y_test, y_pred), 4))             # (마-3)
+</code></pre>
+<pre><code>타깃 앞 5개: [151.  75. 141. 206. 135.] / dtype: float64
+학습한 epoch 수: 152
+history 키: ['loss', 'mae', 'val_loss', 'val_mae']
+keras mse: 3093.58 / keras mae: 43.6
+예측 shape: (133,) / 정답 shape: (133,)
+mse: 3093.58
+mae: 43.6
+r2 : 0.4269
+</code></pre>
+<blockquote class="callout callout--note">
+<p>epoch 수·mse·mae·r2는 실행할 때마다 달라집니다(검증 시 epoch 152, r2 0.43 부근).<br />
+항상 같은 것은 <strong><code>history</code> 키 4개(<code>loss</code>·<code>mae</code>·<code>val_loss</code>·<code>val_mae</code>)와 예측/정답 shape가 둘 다 <code>(133,)</code>이라는 점</strong>, 그리고 <strong><code>evaluate</code>의 loss와 sklearn <code>mean_squared_error</code> 값이 정확히 일치한다</strong>는 점입니다.</p>
+</blockquote>
+<p><strong>추가 질문 답</strong></p>
+<p><code>print('history 키:', ...)</code>는 <code>['loss', 'mae', 'val_loss', 'val_mae']</code>를 출력합니다.<br />
+분류에서 쓰던 <code>accuracy</code>·<code>val_accuracy</code> 키가 <strong>없습니다.</strong> 학습 곡선을 그릴 때 습관적으로 <code>history.history['accuracy']</code>를 쓰면 <code>KeyError: 'accuracy'</code>가 나므로, 곡선을 그리기 전에 키 이름을 먼저 확인해야 합니다.</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>stratify</code> 제거</strong> — <code>stratify</code>는 "각 클래스 비율을 유지하며 나누라"는 지시입니다. 타깃이 연속값이면 나눌 클래스가 없으므로 <code>ValueError</code>가 납니다(Q5 참조). 회귀에서는 인자를 통째로 뺍니다.</li>
+<li><strong>(나) <code>Dense(1)</code></strong> — 회귀의 정답은 실수 하나이므로 노드 1개, 그리고 <strong>활성화 인자를 아예 적지 않습니다.</strong> relu를 붙이면 음수를 예측할 수 없게 되고, sigmoid를 붙이면 0~1에 갇힙니다.</li>
+<li><strong>(다) <code>loss='mse'</code>, <code>metrics=['mae']</code></strong> — 회귀는 "맞혔다/틀렸다"가 없으므로 accuracy를 쓸 수 없습니다. mse는 학습에 쓰기 좋지만 단위가 타깃의 제곱이라 읽기 어려우므로, 해석용으로 mae를 함께 봅니다. <code>keras mae: 43.6</code>은 "평균적으로 43.6만큼 빗나간다"로 바로 읽힙니다.</li>
+<li><strong>(라) <code>.flatten()</code></strong> — <code>predict</code> 결과는 <code>(133, 1)</code>, <code>y_test</code>는 <code>(133,)</code>입니다. 모양을 맞춰 두면 잔차 계산이나 비교표 작성에서 브로드캐스팅 사고가 생기지 않습니다(Ch07).</li>
+<li><strong>(마)</strong> sklearn 회귀 지표는 모두 <strong><code>(정답, 예측)</code> 순서</strong>입니다.</li>
+</ul>
+<p><code>keras mse: 3093.58</code>과 <code>mse: 3093.58</code>이 같은 값인 것도 확인 포인트입니다. <code>loss='mse'</code>로 컴파일하면 손실 함수 자체가 평가지표이기 때문입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>stratify=y</code>를 습관적으로 남겨 두는 것.</strong> 이진·다중분류 코드를 복사해 올 때 가장 먼저 걸리는 지점입니다. 다행히 실행이 중단되므로 바로 알아챌 수 있습니다.</li>
+<li><strong>출력층에 활성화 함수를 붙이는 것.</strong> <code>Dense(1, activation='relu')</code>도 흔한 실수입니다. 타깃에 음수가 있으면 그 구간을 영원히 예측하지 못합니다.</li>
+<li><strong><code>metrics=['accuracy']</code>를 그대로 두는 것.</strong> 오류가 나지 않고 accuracy가 0.0 근처로 찍힙니다. "모델이 완전히 실패했다"고 오해해 멀쩡한 모델을 뜯어고치게 됩니다.</li>
+<li><strong><code>classification_report</code>를 회귀 결과에 쓰는 것.</strong> 연속값에는 정밀도·재현율 개념이 없습니다. <code>ValueError: Classification metrics can't handle a mix of continuous and continuous targets</code> 계열의 오류가 납니다.</li>
+</ul>
+<hr />
+<h4 id="q4-해답">Q4 해답</h4>
+<p><strong>1. 오류가 발생하는 단계: 학습(<code>fit</code>)</strong></p>
+<p>모델 구성과 컴파일은 아무 말 없이 통과합니다. Keras는 컴파일 시점에 loss 이름만 받아 둘 뿐, <strong>라벨의 실제 값 범위는 첫 배치가 흘러들어 오는 학습 단계에서야 확인</strong>하기 때문입니다.</p>
+<p><strong>2. 오류 메시지의 핵심 문구와 원인</strong></p>
+<pre><code>InvalidArgumentError: Graph execution error:
+...
+Received a label value of 2 which is outside the valid range of [0, 1).
+  Label values: 2 1 2 2 0 2 0 0 0 1 2 1 ...
+</code></pre>
+<p><code>sparse_categorical_crossentropy</code>는 "출력층 노드가 K개이므로 라벨은 0부터 K-1까지"라고 전제합니다. 그런데 출력층이 <code>Dense(1, 'sigmoid')</code>라 K가 <strong>1</strong>이고, 허용 범위는 <code>[0, 1)</code> — 즉 <strong>0 하나뿐</strong>입니다. 라벨에 들어 있는 <code>1</code>과 <code>2</code>가 그 범위를 벗어나므로 오류가 납니다.</p>
+<p>즉 <strong>loss는 다중분류로 바꿨는데 출력층이 이진분류인 채로 남아 있다</strong>는 것이 원인입니다. 출력층과 loss는 언제나 <strong>짝</strong>으로 움직입니다.</p>
+<p><strong>3. 정답 코드 (오류 재현 + 수정)</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_wine(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# --- 잘못된 코드: 구성·컴파일은 통과하고 fit에서 터집니다 ---
+bad = Sequential()
+bad.add(Input(shape=(X_train_scaled.shape[1],)))
+bad.add(Dense(64, activation='relu'))
+bad.add(Dense(1, activation='sigmoid'))
+bad.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
+            metrics=['accuracy'])
+print('구성·컴파일 통과. 출력층:', bad.layers[-1].units,
+      bad.layers[-1].activation.__name__)
+try:
+    bad.fit(X_train_scaled, y_train, epochs=1, verbose=0)
+except Exception as e:
+    print('오류 종류:', type(e).__name__)
+    key = [ln for ln in str(e).split('\n') if 'label value' in ln]
+    print('핵심 문구:', key[0].strip()[:80] if key else str(e)[:80])
+
+# --- 수정: 출력층을 클래스 수에 맞춥니다 ---
+n_classes = len(np.unique(y_train))
+fixed = Sequential()
+fixed.add(Input(shape=(X_train_scaled.shape[1],)))
+fixed.add(Dense(64, activation='relu'))
+fixed.add(Dense(n_classes, activation='softmax'))            # 출력층도 함께 교체
+fixed.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+history = fixed.fit(X_train_scaled, y_train, epochs=10, verbose=0)
+print('수정 후 출력층:', fixed.layers[-1].units,
+      fixed.layers[-1].activation.__name__)
+print('학습 성공, 마지막 loss:', round(history.history['loss'][-1], 4))
+</code></pre>
+<pre><code>구성·컴파일 통과. 출력층: 1 sigmoid
+오류 종류: InvalidArgumentError
+핵심 문구: Received a label value of 2 which is outside the valid range of [0, 1).
+수정 후 출력층: 3 softmax
+학습 성공, 마지막 loss: 0.4103
+</code></pre>
+<blockquote class="callout callout--note">
+<p><code>마지막 loss</code> 값은 실행할 때마다 달라집니다(검증 시 0.4~0.7 범위).<br />
+확인할 것은 <strong>오류 종류(<code>InvalidArgumentError</code>)와 핵심 문구, 그리고 수정 후 출력층이 <code>3 softmax</code>가 된다</strong>는 점입니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>이 문항이 중요한 이유는 <strong>오류가 나는 위치와 원인의 위치가 다르다</strong>는 데 있습니다. 메시지는 loss 계산부(<code>SparseSoftmaxCrossEntropyWithLogits</code>)에서 나오지만, 고쳐야 할 곳은 <strong>출력층 한 줄</strong>입니다. 메시지가 가리키는 곳을 그대로 고치려 들면 loss를 <code>binary_crossentropy</code>로 되돌리게 되고, 그러면 3클래스 문제를 이진분류로 푸는 더 큰 잘못이 됩니다.</p>
+<p><code>Dense(1, 'sigmoid')</code>가 만들 수 있는 것은 "클래스 1일 확률" 하나뿐입니다. 클래스가 3개면 <strong>확률이 3개 필요</strong>하므로 노드도 3개여야 하고, 그 3개의 합을 1로 만들어 주는 활성화 함수가 softmax입니다. <code>n_classes = len(np.unique(y_train))</code>로 뽑아 쓰면 이 짝이 자동으로 맞습니다.</p>
+<p><code>print('구성·컴파일 통과. 출력층:', ...)</code> 한 줄을 넣어 둔 이유도 함께 보십시오. <strong>모델을 만든 직후 출력층의 units와 activation을 찍어 보는 습관</strong>(Ch08 자가 진단 4번)이 이 오류를 학습 전에 잡아냅니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>loss만 바꾸고 출력층을 그대로 두는 것</strong> — 이 챕터에서 가장 흔한 사고입니다. 반대 방향(출력층만 바꾸고 loss를 그대로 둠)도 똑같이 자주 나옵니다. <strong>두 줄은 한 덩어리</strong>입니다.</li>
+<li><strong>오류를 보고 <code>epochs</code>나 <code>batch_size</code>를 조정하는 것.</strong> 학습 설정과는 무관한 오류입니다.</li>
+<li><strong><code>InvalidArgumentError</code>의 첫 줄이 <code>Graph execution error:</code>라서 원인을 못 찾는 것.</strong> 메시지가 길더라도 <code>label value</code>, <code>expected shape</code>, <code>found shape</code> 같은 <strong>키워드 한 개</strong>만 찾아내면 됩니다.</li>
+</ul>
+<hr />
+<h4 id="q5-해답">Q5 해답</h4>
+<p><strong>잘못된 곳 3군데</strong></p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>잘못된 줄</th>
+<th>성격</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>①</td>
+<td><code>train_test_split(..., stratify=y)</code></td>
+<td><strong>실행 중단</strong> — 연속 타깃에는 계층이 없습니다</td>
+</tr>
+<tr>
+<td>②</td>
+<td><code>model.add(Dense(1, activation='sigmoid'))</code></td>
+<td>조용히 망가짐 — 예측이 0~1에 갇힙니다</td>
+</tr>
+<tr>
+<td>③</td>
+<td><code>model.compile(..., metrics=['accuracy'])</code></td>
+<td>조용히 망가짐 — 회귀에 무의미한 지표입니다</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>정답 코드 (오류 재현 + 수정)</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+X, y = load_diabetes(return_X_y=True)
+
+# --- 오류 ① 재현 ---
+try:
+    train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+except ValueError as e:
+    print('①', type(e).__name__, ':', str(e)[:70])
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)                     # stratify 제거
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# --- 오류 ②③ 재현: 오류 없이 실행됩니다 ---
+bad = Sequential()
+bad.add(Input(shape=(X_train_scaled.shape[1],)))
+bad.add(Dense(64, activation='relu'))
+bad.add(Dense(32, activation='relu'))
+bad.add(Dense(1, activation='sigmoid'))
+bad.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+hb = bad.fit(X_train_scaled, y_train, epochs=30, batch_size=32,
+             validation_split=0.2, verbose=0)
+print('②③ history 키:', list(hb.history.keys()))
+print('③ 마지막 accuracy:', round(hb.history['accuracy'][-1], 4))
+yp_bad = bad.predict(X_test_scaled, verbose=0).flatten()
+print('② 예측값 범위:', round(float(yp_bad.min()), 4), '~', round(float(yp_bad.max()), 4))
+print('   실제값 범위:', float(y_test.min()), '~', float(y_test.max()))
+print('   r2 :', round(r2_score(y_test, yp_bad), 4))
+
+# --- 수정본 ---
+np.random.seed(42)
+tf.random.set_seed(42)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1))                                           # ② 활성화 없음
+model.compile(optimizer='adam', loss='mse', metrics=['mae'])  # ③ mae
+
+es = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train, epochs=200, batch_size=32,
+                    validation_split=0.2, callbacks=[es], verbose=0)
+print('수정 history 키:', list(history.history.keys()))
+
+y_pred = model.predict(X_test_scaled, verbose=0).flatten()
+print('수정 예측값 범위:', round(float(y_pred.min()), 2), '~', round(float(y_pred.max()), 2))
+print('mse:', round(mean_squared_error(y_test, y_pred), 2))
+print('mae:', round(mean_absolute_error(y_test, y_pred), 2))
+print('r2 :', round(r2_score(y_test, y_pred), 4))
+</code></pre>
+<pre><code>① ValueError : The least populated classes in y have only 1 member, which is
+②③ history 키: ['accuracy', 'loss', 'val_accuracy', 'val_loss']
+③ 마지막 accuracy: 0.0
+② 예측값 범위: 0.9839 ~ 1.0
+   실제값 범위: 37.0 ~ 310.0
+   r2 : -4.0042
+수정 history 키: ['loss', 'mae', 'val_loss', 'val_mae']
+수정 예측값 범위: 30.62 ~ 279.15
+mse: 3093.58
+mae: 43.6
+r2 : 0.4269
+</code></pre>
+<blockquote class="callout callout--note">
+<p>학습에 의존하는 수치는 실행할 때마다 달라집니다(검증 시 잘못된 코드 r2 -4.00, 수정본 r2 0.43 부근).<br />
+실행 환경과 무관하게 반드시 나타나는 신호는 셋입니다. <strong>① <code>ValueError</code> / ② 예측값이 1을 넘지 못함 → r2가 크게 음수 / ③ accuracy가 0.0 고정.</strong></p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p><strong>① <code>stratify</code>는 분류 전용 인자입니다.</strong> "각 클래스 비율을 유지하며 나누라"는 지시인데, 연속 타깃은 값이 거의 다 다르므로 sklearn이 각 값을 하나의 클래스로 보고 "구성원이 1명뿐인 클래스가 있어 나눌 수 없다"는 <code>ValueError</code>를 냅니다. 세 오류 중 유일하게 <strong>친절한</strong> 오류입니다.</p>
+<p><strong>② sigmoid는 출력을 0~1로 누릅니다.</strong> 타깃 범위는 37~310인데 예측값 범위는 <code>0.9839 ~ 1.0</code>입니다. 모델이 아무리 학습해도 1을 넘을 수 없으므로, 손실을 줄이는 유일한 방법이 "전부 최댓값 1로 밀어붙이기"가 된 것입니다. 그 결과 r2가 <strong>-4.0042</strong> — 음수라는 것은 <strong>타깃의 평균값으로 찍는 것보다도 못하다</strong>는 뜻입니다. 오류 메시지는 전혀 나오지 않습니다.</p>
+<p><strong>③ 회귀에 accuracy는 의미가 없습니다.</strong> accuracy는 "예측값과 정답이 정확히 같은 비율"을 세는데, 실수 예측이 소수점까지 정확히 일치할 일은 없으므로 <code>0.0</code>이 나옵니다. 모델 성능과 무관한 숫자입니다. 회귀의 보조 지표는 <code>['mae']</code>입니다.</p>
+<p>수정 후 예측값 범위가 <code>30.62 ~ 279.15</code>로 실제값 범위와 겹치고 r2가 양수(0.4269)로 돌아온 것이 세 수정이 모두 반영되었다는 증거입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>①만 고치고 실행이 되니 끝났다고 판단하는 것.</strong> ①은 실행을 멈춰 주지만 ②③은 멈추지 않습니다. <strong>"오류가 없다 = 맞다"가 아닙니다.</strong> 회귀에서는 반드시 <strong>예측값의 범위</strong>를 실제값 범위와 비교해 보십시오. 이 한 줄이 ②를 즉시 잡아냅니다.</li>
+<li><strong>r2가 음수인 것을 보고 "데이터가 어렵다"로 넘기는 것.</strong> r2가 0 부근이면 데이터 문제일 수 있지만, <strong>-4처럼 크게 음수면 코드가 잘못된 것</strong>입니다.</li>
+<li><strong>회귀 출력층에 <code>relu</code>를 붙이는 것.</strong> sigmoid만큼 극적이지는 않지만 음수 구간을 예측할 수 없게 됩니다. 회귀 출력층은 <code>Dense(1)</code>, 활성화 인자 자체를 적지 않습니다.</li>
+<li><strong><code>metrics</code>를 확인하지 않고 학습 곡선을 그리는 것.</strong> ③을 고치면 <code>history</code> 키가 <code>accuracy</code>에서 <code>mae</code>로 바뀝니다. <code>print(history.history.keys())</code>를 먼저 찍는 습관이 <code>KeyError</code>를 막습니다.</li>
+</ul>
+<hr /></div></details>
+</section>
+
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch07.html"><span class="pager__dir">이전</span><span class="pager__label">Ch07</span><span class="pager__title">평가와 예측</span></a><a class="pager__slot pager__slot--next" href="mock01.html"><span class="pager__dir">다음</span><span class="pager__label">모의고사 1회</span><span class="pager__title">실전 모의고사 1회 — 이진분류: 통신사 고객 이탈 예측</span></a></nav>
+</main>
+</body>
+</html>

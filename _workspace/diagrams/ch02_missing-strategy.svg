@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="800" height="460" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>결측치 처리 방법 선택 분기 — 결측 비율이 크면 컬럼 삭제, 그렇지 않으면 수치형은 평균이나 중앙값, 범주형은 최빈값으로 대체</title>
+  <defs>
+    <marker id="ch02ms-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="460" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">결측치 처리 방법 선택 분기</text>
+
+  <!-- Q1 -->
+  <polygon points="300,68 470,112 300,156 130,112" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="300" y="118" font-size="15" text-anchor="middle" fill="#1a2332">결측 비율이 매우 큰가?</text>
+
+  <!-- Q1 예 -> 컬럼 삭제 -->
+  <line x1="470" y1="112" x2="558" y2="112" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="514" y="103" font-size="12" text-anchor="middle" fill="#94a3b8">예</text>
+
+  <rect x="560" y="80" width="216" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="668" y="108" font-size="15" text-anchor="middle" fill="#1a2332">컬럼 삭제</text>
+  <text x="668" y="130" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">drop(columns=[...])</text>
+
+  <!-- Q1 아니오 -> Q2 -->
+  <line x1="300" y1="156" x2="300" y2="212" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="312" y="190" font-size="12" fill="#94a3b8">아니오</text>
+
+  <!-- Q2 -->
+  <polygon points="300,214 440,256 300,298 160,256" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="300" y="262" font-size="15" text-anchor="middle" fill="#1a2332">수치형인가?</text>
+
+  <!-- Q2 예 -> 평균 중앙값 -->
+  <line x1="440" y1="256" x2="538" y2="256" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="489" y="247" font-size="12" text-anchor="middle" fill="#94a3b8">예</text>
+
+  <rect x="540" y="224" width="236" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="658" y="252" font-size="15" text-anchor="middle" fill="#1a2332">평균 · 중앙값 대체</text>
+  <text x="658" y="274" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna(median)</text>
+
+  <!-- Q2 아니오 -> 최빈값 -->
+  <line x1="300" y1="298" x2="300" y2="342" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="312" y="326" font-size="12" fill="#94a3b8">아니오</text>
+
+  <rect x="182" y="344" width="236" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="300" y="372" font-size="15" text-anchor="middle" fill="#1a2332">최빈값 대체</text>
+  <text x="300" y="394" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna(mode()[0])</text>
+
+  <text x="24" y="436" font-size="12" fill="#94a3b8">실기 시험에서는 문항이 처리 방법을 직접 지정하는 경우가 대부분입니다.</text>
+</svg>

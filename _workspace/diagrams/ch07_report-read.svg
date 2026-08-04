@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 456" width="800" height="456" role="img" aria-label="classification_report 읽는 순서">
+  <title>classification_report 읽는 순서 — 클래스별 행을 먼저 보고, support로 불균형을 확인한 뒤, macro avg와 weighted avg의 차이를 본다.</title>
+
+  <rect x="0" y="0" width="800" height="456" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">classification_report 읽는 순서</text>
+    <text x="32" y="62" font-size="12" fill="#94a3b8">예시 — 90 대 10 불균형 데이터에서 모델이 전부 0 으로만 예측한 경우</text>
+
+    <!-- 리포트 표 -->
+    <rect x="88" y="80" width="584" height="232" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <g font-size="13" fill="#94a3b8" text-anchor="end">
+      <text x="370" y="108">precision</text>
+      <text x="466" y="108">recall</text>
+      <text x="562" y="108">f1-score</text>
+      <text x="650" y="108">support</text>
+    </g>
+    <line x1="104" y1="120" x2="656" y2="120" stroke="#94a3b8" stroke-width="1"/>
+
+    <!-- 클래스 0 -->
+    <g font-size="14" fill="#1a2332" text-anchor="end">
+      <text x="290" y="150" font-weight="700">0</text>
+      <text x="370" y="150">0.90</text>
+      <text x="466" y="150">1.00</text>
+      <text x="562" y="150">0.95</text>
+      <text x="650" y="150">90</text>
+    </g>
+
+    <!-- 클래스 1 -->
+    <g font-size="14" fill="#dc2626" font-weight="700" text-anchor="end">
+      <text x="290" y="180">1</text>
+      <text x="370" y="180">0.00</text>
+      <text x="466" y="180">0.00</text>
+      <text x="562" y="180">0.00</text>
+      <text x="650" y="180">10</text>
+    </g>
+
+    <line x1="104" y1="198" x2="656" y2="198" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    <g font-size="14" fill="#1a2332" text-anchor="end">
+      <text x="290" y="226">accuracy</text>
+      <text x="562" y="226">0.90</text>
+      <text x="650" y="226">100</text>
+
+      <text x="290" y="254">macro avg</text>
+      <text x="370" y="254">0.45</text>
+      <text x="466" y="254">0.50</text>
+      <text x="562" y="254">0.47</text>
+      <text x="650" y="254">100</text>
+
+      <text x="290" y="282">weighted avg</text>
+      <text x="370" y="282">0.81</text>
+      <text x="466" y="282">0.90</text>
+      <text x="562" y="282">0.85</text>
+      <text x="650" y="282">100</text>
+    </g>
+
+    <!-- 뱃지 1: 클래스별 행 -->
+    <rect x="78" y="136" width="3" height="58" fill="#2563eb"/>
+    <circle cx="58" cy="165" r="13" fill="#2563eb"/>
+    <text x="58" y="170" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+
+    <!-- 뱃지 2: support 열 -->
+    <rect x="596" y="92" width="66" height="104" rx="10" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <line x1="666" y1="144" x2="694" y2="144" stroke="#2563eb" stroke-width="1.5"/>
+    <circle cx="712" cy="144" r="13" fill="#2563eb"/>
+    <text x="712" y="149" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+
+    <!-- 뱃지 3: 평균 행 -->
+    <rect x="78" y="240" width="3" height="56" fill="#2563eb"/>
+    <circle cx="58" cy="268" r="13" fill="#2563eb"/>
+    <text x="58" y="273" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+
+    <!-- 읽는 순서 설명 -->
+    <circle cx="44" cy="336" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="341" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">1</text>
+    <text x="66" y="341" font-size="13" fill="#1a2332">클래스별 precision / recall / f1 부터 봅니다</text>
+
+    <circle cx="44" cy="364" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="369" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">2</text>
+    <text x="66" y="369" font-size="13" fill="#1a2332">support 로 클래스 불균형을 확인합니다</text>
+
+    <circle cx="44" cy="392" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="397" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">3</text>
+    <text x="66" y="397" font-size="13" fill="#1a2332">macro avg 와 weighted avg 의 차이를 봅니다</text>
+
+    <rect x="32" y="414" width="3" height="18" fill="#f59e0b"/>
+    <text x="46" y="428" font-size="13" fill="#f59e0b">accuracy 는 0.90 이지만 클래스 1 의 recall 은 0.00 — 불균형에서 accuracy 만 보면 안 됩니다.</text>
+  </g>
+</svg>

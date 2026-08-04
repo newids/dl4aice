@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ch04. Keras로 모델 만들기 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-chapter">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">Part II. 딥러닝의 뼈대 · Chapter 4</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#4-1-모델-만들기는-전체-4단계-중-첫-단계입니다">4.1 모델 만들기는 전체 4단계 중 첫 단계입니다</a></li><li><a href="#4-2-sequential-코드-한-줄이-층-하나입니다">4.2 Sequential — 코드 한 줄이 층 하나입니다</a></li><li><a href="#4-3-입력-shape-샘플-수는-넣지-않습니다">4.3 입력 shape — 샘플 수는 넣지 않습니다</a></li><li><a href="#4-4-출력층-문제-유형이-units와-activation을-결정합니다">4.4 출력층 — 문제 유형이 units와 activation을 결정합니다</a></li><li><a href="#4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</a></li><li><a href="#4-6-dropout과-batchnormalization-위치가-전부입니다">4.6 Dropout과 BatchNormalization — 위치가 전부입니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch04-확인-문제-keras로-모델-만들기">Ch04 확인 문제 — Keras로 모델 만들기</a></li></ol></nav>
+<article class="page-body">
+<h1>Keras로 모델 만들기</h1>
+<aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>Sequential과 Dense로 은닉층 2개 이상의 모델을 작성할 수 있다</li><li>입력 shape와 출력층(units·activation)을 문제 유형에 맞게 정할 수 있다</li><li>Dropout·BatchNormalization을 올바른 위치에 넣고 summary()로 확인할 수 있다</li></ul></aside>
+<blockquote class="callout callout--note">
+<p><strong>이 챕터에서 배우는 것</strong><br />
+Ch03에서 손으로 계산했던 뉴런과 층을, 이제 Keras 코드 몇 줄로 쌓습니다. 이 챕터는 모델을 <strong>만드는 것(구성)까지</strong>입니다. 학습에 필요한 손실 함수와 optimizer 설정은 Ch05에서 다룹니다.<br />
+시험 연관성: 실기의 딥러닝 문항은 거의 예외 없이 "은닉층 2개 이상의 모델을 만드시오"로 시작합니다. 이 챕터의 코드 골격이 그 문장의 정답입니다.</p>
+</blockquote>
+<hr />
+<h2 id="4-1-모델-만들기는-전체-4단계-중-첫-단계입니다">4.1 모델 만들기는 전체 4단계 중 첫 단계입니다</h2>
+<figure class="diagram" id="fig-ch04_keras-4steps"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 260" width="800" height="260" role="img" aria-label="Keras 모델 제작 4단계" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Keras 모델 제작 4단계 파이프라인. 구성, 컴파일, 학습, 평가 네 단계 중 이 챕터는 첫 단계인 구성을 다룹니다.</title>
+  <defs>
+    <marker id="k4s-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="260" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">Keras 모델 제작 4단계</text>
+  <text x="768" y="38" font-size="12" fill="#94a3b8" text-anchor="end">파란 칸이 이 챕터의 범위</text>
+
+  <!-- 1. 구성 (현재 챕터) -->
+  <rect x="34" y="96" width="150" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="109" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">구성</text>
+  <text x="109" y="152" font-size="12" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Sequential</text>
+  <text x="109" y="170" font-size="12" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense</text>
+  <text x="109" y="204" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">Ch04 (이 챕터)</text>
+
+  <line x1="192" y1="138" x2="220" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  <!-- 2. 컴파일 -->
+  <rect x="228" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="303" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">컴파일</text>
+  <text x="303" y="152" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">optimizer</text>
+  <text x="303" y="170" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss</text>
+  <text x="303" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch05</text>
+
+  <line x1="386" y1="138" x2="414" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  <!-- 3. 학습 -->
+  <rect x="422" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="497" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습</text>
+  <text x="497" y="156" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fit()</text>
+  <text x="497" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch05</text>
+
+  <line x1="580" y1="138" x2="608" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  <!-- 4. 평가 -->
+  <rect x="616" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="691" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">평가</text>
+  <text x="691" y="152" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate()</text>
+  <text x="691" y="170" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">predict()</text>
+  <text x="691" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch07</text>
+
+  <text x="34" y="236" font-size="12" fill="#94a3b8">순서를 건너뛸 수 없다. compile() 없이 fit()을 부르면 오류가 난다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 4-1</span><span class="diagram__caption">Keras 모델 제작 4단계</span></figcaption></figure>
+<p>Keras로 딥러닝 모델을 다루는 일은 항상 같은 순서를 밟습니다. <strong>구성 → 컴파일 → 학습 → 평가</strong>, 네 단계입니다.</p>
+<p>이 순서는 Ch02에서 본 머신러닝의 3줄 패턴(생성 → <code>fit</code> → <code>predict</code>)과 대응됩니다. 다른 점은 sklearn이 한 줄로 끝내는 "모델 생성"이 Keras에서는 <strong>구성</strong>과 <strong>컴파일</strong> 두 단계로 나뉜다는 것입니다. 층을 어떻게 쌓을지(구성)와 그 층들을 어떤 기준으로 학습시킬지(컴파일)를 따로 정하기 때문입니다.</p>
+<p>이 챕터가 책임지는 것은 첫 번째 칸, <strong>구성</strong>입니다. 구성 단계에서 결정하는 것은 세 가지입니다.</p>
+<ol>
+<li>입력을 몇 개 받을 것인가 (입력 shape)</li>
+<li>은닉층을 몇 층, 몇 개 노드로 쌓을 것인가</li>
+<li>출력을 몇 개, 어떤 활성화 함수(activation function)로 낼 것인가</li>
+</ol>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+문제가 "모델을 만들고 학습시키시오"라고 한 문장으로 지시해도, 답안은 구성 → 컴파일 → 학습 세 덩어리를 모두 써야 합니다. 구성만 하고 <code>compile()</code>을 빠뜨리면 <code>fit()</code>에서 오류가 납니다.</p>
+</blockquote>
+<hr />
+<h2 id="4-2-sequential-코드-한-줄이-층-하나입니다">4.2 Sequential — 코드 한 줄이 층 하나입니다</h2>
+<figure class="diagram" id="fig-ch04_sequential-build"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 384" width="800" height="384" role="img" aria-label="코드 한 줄과 층 하나의 대응" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Sequential 모델에서 model.add 코드 한 줄이 층 하나에 대응하는 모습. 작성한 순서가 데이터가 지나가는 순서가 됩니다.</title>
+  <defs>
+    <marker id="sqb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="384" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">코드 한 줄 = 층 하나</text>
+
+  <text x="32" y="66" font-size="12" fill="#94a3b8">작성 순서</text>
+  <text x="460" y="66" font-size="12" fill="#94a3b8">데이터가 지나가는 순서</text>
+
+  <!-- 코드 패널 -->
+  <rect x="32" y="80" width="352" height="252" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="48" y="110" font-size="12" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Input(shape=(8,)))</text>
+  <text x="48" y="174" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(64, activation='relu'))</text>
+  <text x="48" y="238" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(32, activation='relu'))</text>
+  <text x="48" y="302" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(1, activation='sigmoid'))</text>
+
+  <!-- 대응 점선 -->
+  <line x1="392" y1="106" x2="452" y2="106" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="170" x2="452" y2="170" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="234" x2="452" y2="234" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="298" x2="452" y2="298" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+
+  <!-- 층 스택 -->
+  <rect x="460" y="84" width="290" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="478" y="112" font-size="14" fill="#94a3b8">입력 — 특성 8개</text>
+
+  <line x1="605" y1="130" x2="605" y2="146" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="148" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="176" font-size="14" fill="#1a2332">은닉층 1 — 노드 64, relu</text>
+
+  <line x1="605" y1="194" x2="605" y2="210" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="212" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="240" font-size="14" fill="#1a2332">은닉층 2 — 노드 32, relu</text>
+
+  <line x1="605" y1="258" x2="605" y2="274" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="276" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="304" font-size="14" fill="#1a2332">출력층 — 노드 1, sigmoid</text>
+
+  <text x="460" y="356" font-size="12" fill="#94a3b8">Input은 층으로 세지 않는다: len(model.layers) = 3</text>
+</svg></div><figcaption><span class="diagram__num">그림 4-2</span><span class="diagram__caption">코드 한 줄과 층 하나의 대응</span></figcaption></figure>
+<p><code>Sequential</code>은 층을 <strong>위에서 아래로 한 줄로 쌓는</strong> 모델 컨테이너입니다. <code>model.add()</code>를 부른 순서가 그대로 데이터가 지나가는 순서가 됩니다.</p>
+<p><code>Dense</code>는 Ch03에서 본 완전연결층입니다. 앞 층의 모든 노드가 다음 층의 모든 노드에 연결됩니다. 인자는 두 개만 기억하면 됩니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>인자</th>
+<th>의미</th>
+<th>실기에서 쓰는 값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>units</code> (첫 번째 위치 인자)</td>
+<td>이 층의 노드 개수</td>
+<td>은닉층은 보통 32, 64, 128</td>
+</tr>
+<tr>
+<td><code>activation</code></td>
+<td>노드 출력에 씌우는 활성화 함수</td>
+<td>은닉층은 <code>'relu'</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>가장 기본이 되는 모델을 만들어 보겠습니다.</p>
+<p><strong>입력 8개를 받아 은닉층 2개를 거쳐 값 하나를 내는 모델을 구성하는 코드입니다.</strong></p>
+<pre><code class="language-python">import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+tf.random.set_seed(42)
+
+n_features = 8
+
+model = Sequential()
+model.add(Input(shape=(n_features,)))        # 입력 정의
+model.add(Dense(64, activation='relu'))      # 은닉층 1
+model.add(Dense(32, activation='relu'))      # 은닉층 2
+model.add(Dense(1, activation='sigmoid'))    # 출력층
+
+print(len(model.layers))
+</code></pre>
+<p>출력은 <code>3</code>입니다. <code>Input</code>은 실제 연산을 하는 층이 아니라 입력 형태 선언이므로 층 목록에 세지 않습니다. <code>Dense</code> 세 개만 층으로 잡힙니다.</p>
+<p>리스트로 한 번에 넘기는 표기도 같은 결과를 냅니다. 취향에 따라 쓰되, 시험장에서는 한 줄씩 추가하는 <code>add()</code> 방식이 중간에 층을 넣고 빼기 편합니다.</p>
+<pre><code class="language-python">model = Sequential([
+    Input(shape=(n_features,)),
+    Dense(64, activation='relu'),
+    Dense(32, activation='relu'),
+    Dense(1, activation='sigmoid'),
+])
+</code></pre>
+<p>은닉층을 몇 개 쌓아야 할지 고민된다면, 실기 기준으로는 <strong>은닉층 2개, 노드 수는 앞 층이 크고 뒤 층이 작아지는 형태</strong>(64 → 32)를 기본값으로 삼으십시오. Ch03의 <code>ch03_width-depth</code>에서 봤듯 층과 노드를 무작정 늘리면 표현력은 커지지만 과적합 위험도 함께 커집니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+"은닉층 2개 이상"이라는 지시에서 은닉층은 <strong>입력층과 출력층을 뺀 중간층</strong>입니다. <code>Dense(64)</code> + <code>Dense(1, 'sigmoid')</code>는 은닉층이 1개뿐이라 조건을 채우지 못합니다. 출력층은 은닉층 개수에 포함되지 않습니다.</p>
+</blockquote>
+<hr />
+<h2 id="4-3-입력-shape-샘플-수는-넣지-않습니다">4.3 입력 shape — 샘플 수는 넣지 않습니다</h2>
+<figure class="diagram" id="fig-ch04_input-shape"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="800" height="350" role="img" aria-label="입력 shape를 정하는 규칙" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>입력 shape를 정하는 규칙. 표 데이터의 열 수(특성 수)만 Input의 shape에 넣고, 행 수(샘플 수)는 넣지 않습니다.</title>
+  <defs>
+    <marker id="ish-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ish-p-s" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ish-a-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="ish-a-s" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="350" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">입력 shape는 열 수만 쓴다</text>
+
+  <!-- 열 치수 -->
+  <text x="236" y="66" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">8열 = 특성 수</text>
+  <line x1="124" y1="78" x2="348" y2="78" stroke="#2563eb" stroke-width="2" marker-start="url(#ish-p-s)" marker-end="url(#ish-p-e)"/>
+
+  <!-- 행 치수 -->
+  <text x="96" y="146" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="end">1,000행</text>
+  <text x="96" y="164" font-size="12" fill="#f59e0b" text-anchor="end">(샘플 수)</text>
+  <line x1="110" y1="92" x2="110" y2="230" stroke="#f59e0b" stroke-width="2" marker-start="url(#ish-a-s)" marker-end="url(#ish-a-e)"/>
+
+  <!-- 데이터 표 -->
+  <rect x="124" y="92" width="224" height="104" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <line x1="152" y1="92" x2="152" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="180" y1="92" x2="180" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="208" y1="92" x2="208" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="236" y1="92" x2="236" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="264" y1="92" x2="264" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="292" y1="92" x2="292" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="320" y1="92" x2="320" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="118" x2="348" y2="118" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="144" x2="348" y2="144" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="170" x2="348" y2="170" stroke="#94a3b8" stroke-width="1"/>
+  <circle cx="236" cy="208" r="2.5" fill="#94a3b8"/>
+  <circle cx="236" cy="216" r="2.5" fill="#94a3b8"/>
+  <circle cx="236" cy="224" r="2.5" fill="#94a3b8"/>
+
+  <!-- 코드로 -->
+  <line x1="366" y1="163" x2="452" y2="163" stroke="#2563eb" stroke-width="2" marker-end="url(#ish-p-e)"/>
+
+  <rect x="460" y="126" width="290" height="74" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="605" y="162" font-size="16" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(<tspan fill="#2563eb" font-weight="700">8</tspan>,))</text>
+  <text x="605" y="187" font-size="12" fill="#94a3b8" text-anchor="middle">8 = X_train_scaled.shape[1]</text>
+
+  <!-- 주의 -->
+  <rect x="120" y="258" width="560" height="66" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="286" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">행 수(샘플 수)는 shape에 넣지 않는다</text>
+  <text x="400" y="308" font-size="12" fill="#94a3b8" text-anchor="middle">Input(shape=(1000, 8)) 처럼 쓰면 틀린 표기</text>
+</svg></div><figcaption><span class="diagram__num">그림 4-3</span><span class="diagram__caption">입력 shape를 정하는 규칙</span></figcaption></figure>
+<p><code>Input(shape=(n,))</code>의 <code>n</code>은 <strong>특성(컬럼)의 개수</strong>입니다. 데이터가 1,000행 8열이라면 <code>shape=(8,)</code>입니다. 행 수는 절대 들어가지 않습니다.</p>
+<p>모델은 "샘플 하나가 어떻게 생겼는가"만 알면 되고, 샘플이 몇 개 들어올지는 학습할 때 알아서 처리하기 때문입니다.</p>
+<p><strong>전처리를 마친 데이터에서 입력 크기를 직접 뽑아내는 코드입니다.</strong></p>
+<pre><code class="language-python">from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print(X_train_scaled.shape)          # (398, 30)
+n_features = X_train_scaled.shape[1] # 30
+print(n_features)
+</code></pre>
+<p><code>X_train_scaled.shape</code>는 <code>(398, 30)</code>, 즉 (샘플 수, 특성 수)입니다. 여기서 필요한 것은 뒤의 <code>30</code>뿐이므로 <code>X_train_scaled.shape[1]</code>로 꺼냅니다. 숫자를 직접 세어 적지 말고 <strong>항상 이 방식으로 뽑으십시오.</strong> 전처리 단계에서 원-핫 인코딩으로 컬럼이 늘어나거나 불필요한 컬럼을 지우면 특성 수가 바뀌는데, 손으로 적은 숫자는 그때 틀립니다.</p>
+<p><code>shape=(30,)</code>의 쉼표도 빠뜨리면 안 됩니다. 파이썬에서 <code>(30)</code>은 그냥 정수 30이고, 원소가 하나인 튜플은 <code>(30,)</code>으로 써야 합니다.</p>
+<p><strong>구버전 표기 참고.</strong> 오래된 코드에서는 첫 <code>Dense</code>에 입력 크기를 붙인 표기를 자주 봅니다.</p>
+<pre><code class="language-python"># 구버전 표기 — 읽을 줄만 알면 됩니다. 새로 쓸 때는 Input을 쓰십시오.
+model.add(Dense(64, activation='relu', input_shape=(n_features,)))
+</code></pre>
+<p>이 표기는 Keras 3에서 권장되지 않습니다. 이 교재는 Keras 2와 3 양쪽에서 동작하는 <code>model.add(Input(shape=(n,)))</code>를 표준으로 씁니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+<code>Input(shape=(1000, 8))</code>처럼 샘플 수를 넣는 것이 가장 흔한 실수입니다. shape에 들어가는 것은 <strong>샘플 한 개의 모양</strong>이며, 표 형태 데이터에서는 언제나 <code>(특성 수,)</code> 하나짜리 튜플입니다.</p>
+</blockquote>
+<hr />
+<h2 id="4-4-출력층-문제-유형이-units와-activation을-결정합니다">4.4 출력층 — 문제 유형이 units와 activation을 결정합니다</h2>
+<figure class="diagram" id="fig-ch04_output-layer-choice"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" width="800" height="380" role="img" aria-label="문제 유형별 출력층 설계" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>문제 유형별 출력층 설계 분기도. 이진분류, 다중분류, 회귀에 따라 출력층의 units와 activation이 하나로 정해집니다.</title>
+  <defs>
+    <marker id="olc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="380" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">문제 유형이 출력층을 정한다</text>
+
+  <!-- 분기 질문 -->
+  <path d="M300,96 L400,68 L500,96 L400,124 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="102" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">문제 유형?</text>
+
+  <line x1="400" y1="124" x2="400" y2="152" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="148" y1="152" x2="652" y2="152" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="148" y1="152" x2="148" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+  <line x1="400" y1="152" x2="400" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+  <line x1="652" y1="152" x2="652" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+
+  <!-- 이진분류 -->
+  <rect x="32" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="148" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이진분류 (0 / 1)</text>
+  <rect x="48" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="132" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="144" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="132" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="144" y="262" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'sigmoid'</text>
+  <text x="148" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">1일 확률 하나 (0~1)</text>
+  <text x="148" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1, activation='sigmoid')</text>
+  <text x="148" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+
+  <!-- 다중분류 -->
+  <rect x="284" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="400" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">다중분류 (K개 클래스)</text>
+  <rect x="300" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="384" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="396" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">K</text>
+  <text x="384" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="396" y="262" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'softmax'</text>
+  <text x="400" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">클래스별 확률 K개 (합 = 1)</text>
+  <text x="400" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(K, activation='softmax')</text>
+  <text x="400" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+
+  <!-- 회귀 -->
+  <rect x="536" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="652" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">회귀 (연속값)</text>
+  <rect x="552" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="636" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="648" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="636" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="648" y="262" font-size="13" font-weight="700" fill="#f59e0b">쓰지 않음</text>
+  <text x="652" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">예측한 숫자 그 자체</text>
+  <text x="652" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1)</text>
+  <text x="652" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+</svg></div><figcaption><span class="diagram__num">그림 4-4</span><span class="diagram__caption">문제 유형별 출력층 설계</span></figcaption></figure>
+<p>은닉층은 상황에 따라 조금 늘리거나 줄여도 점수에 큰 영향이 없습니다. 그러나 <strong>출력층은 문제 유형에 따라 정답이 하나로 정해집니다.</strong> 여기가 틀리면 모델이 아예 학습되지 않거나, 학습되더라도 결과를 해석할 수 없습니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>문제 유형</th>
+<th>출력층 코드</th>
+<th>출력의 의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이진분류 (0/1)</td>
+<td><code>Dense(1, activation='sigmoid')</code></td>
+<td>1일 확률 하나 (0~1)</td>
+</tr>
+<tr>
+<td>다중분류 (K개 클래스)</td>
+<td><code>Dense(K, activation='softmax')</code></td>
+<td>클래스별 확률 K개 (합 = 1)</td>
+</tr>
+<tr>
+<td>회귀 (연속값 예측)</td>
+<td><code>Dense(1)</code> — 활성화 지정 없음</td>
+<td>예측한 숫자 그 자체</td>
+</tr>
+</tbody>
+</table></div>
+<p>세 가지 모두 Ch03의 <code>ch03_activation-shapes</code>에서 본 활성화 함수의 출력 범위로 설명됩니다. sigmoid는 0~1 사이 하나를 내므로 "그럴 확률"에 맞고, softmax는 여러 값을 합이 1인 확률 분포로 만들어 주므로 "여러 클래스 중 하나"에 맞습니다. 회귀는 예측값이 음수일 수도, 수백만일 수도 있으므로 값을 좁히는 활성화 함수를 씌우면 안 됩니다.</p>
+<p><strong>세 유형의 출력층만 바꿔 보는 코드입니다. 앞의 은닉층 부분은 셋 다 동일합니다.</strong></p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+
+def build_hidden(n_features):
+    m = Sequential()
+    m.add(Input(shape=(n_features,)))
+    m.add(Dense(64, activation='relu'))
+    m.add(Dense(32, activation='relu'))
+    return m
+
+
+# (1) 이진분류
+binary_model = build_hidden(30)
+binary_model.add(Dense(1, activation='sigmoid'))
+
+# (2) 다중분류 — 클래스 개수를 데이터에서 뽑습니다
+y_multi = np.array([0, 1, 2, 1, 0, 2, 2])
+n_class = len(np.unique(y_multi))          # 3
+multi_model = build_hidden(30)
+multi_model.add(Dense(n_class, activation='softmax'))
+
+# (3) 회귀 — activation을 쓰지 않습니다
+reg_model = build_hidden(30)
+reg_model.add(Dense(1))
+
+print(n_class)                              # 3
+</code></pre>
+<p>다중분류의 <code>K</code>도 손으로 세지 말고 <code>len(np.unique(y))</code>로 뽑는 습관을 들이십시오. 클래스가 3개인데 <code>Dense(2, activation='softmax')</code>로 쓰면 학습 단계에서 라벨과 출력 개수가 맞지 않아 오류가 납니다.</p>
+<blockquote class="callout callout--more">
+<p>📎 <strong>손실 함수는 Ch05에서</strong><br />
+출력층 옆에는 항상 짝이 되는 손실 함수가 붙습니다. 다만 손실 함수 선택 규칙은 라벨이 정수인지 원-핫인지까지 따져야 해서 분기가 한 겹 더 깊습니다. 그 정본은 <strong>Ch05의 <code>ch05_loss-decision</code> 도해</strong>입니다. 이 챕터에서는 "출력층은 이렇게 생겼다"까지만 확실히 익히고, 짝짓기는 Ch05에서 한 번에 정리하십시오.</p>
+<p>⚠️ <strong>시험 포인트</strong><br />
+회귀 문제에 <code>Dense(1, activation='sigmoid')</code>를 쓰는 실수가 자주 나옵니다. sigmoid는 출력을 0~1로 눌러 버리므로, 집값이나 잔여 수명 같은 값은 영원히 맞힐 수 없습니다. <strong>회귀 출력층에는 활성화 함수를 쓰지 않습니다.</strong></p>
+</blockquote>
+<hr />
+<h2 id="4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</h2>
+<figure class="diagram" id="fig-ch04_param-count"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 530" width="800" height="530" role="img" aria-label="파라미터 수가 계산되는 방식" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>파라미터 수가 계산되는 방식. 입력 4노드와 은닉 5노드의 연결에서 가중치 20개와 편향 5개가 나와 25가 되고, 이 값이 summary 표의 Param 열에 나타납니다.</title>
+  <defs>
+    <marker id="pc-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="530" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">파라미터 수 세는 법</text>
+
+  <!-- 연결 구조 -->
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="138" y1="102" x2="282" y2="76"/>
+    <line x1="138" y1="102" x2="282" y2="128"/>
+    <line x1="138" y1="102" x2="282" y2="180"/>
+    <line x1="138" y1="102" x2="282" y2="232"/>
+    <line x1="138" y1="102" x2="282" y2="284"/>
+    <line x1="138" y1="154" x2="282" y2="76"/>
+    <line x1="138" y1="154" x2="282" y2="128"/>
+    <line x1="138" y1="154" x2="282" y2="180"/>
+    <line x1="138" y1="154" x2="282" y2="232"/>
+    <line x1="138" y1="154" x2="282" y2="284"/>
+    <line x1="138" y1="206" x2="282" y2="76"/>
+    <line x1="138" y1="206" x2="282" y2="128"/>
+    <line x1="138" y1="206" x2="282" y2="180"/>
+    <line x1="138" y1="206" x2="282" y2="232"/>
+    <line x1="138" y1="206" x2="282" y2="284"/>
+    <line x1="138" y1="258" x2="282" y2="76"/>
+    <line x1="138" y1="258" x2="282" y2="128"/>
+    <line x1="138" y1="258" x2="282" y2="180"/>
+    <line x1="138" y1="258" x2="282" y2="232"/>
+    <line x1="138" y1="258" x2="282" y2="284"/>
+  </g>
+
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="120" cy="102" r="18"/>
+    <circle cx="120" cy="154" r="18"/>
+    <circle cx="120" cy="206" r="18"/>
+    <circle cx="120" cy="258" r="18"/>
+  </g>
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="300" cy="76" r="18"/>
+    <circle cx="300" cy="128" r="18"/>
+    <circle cx="300" cy="180" r="18"/>
+    <circle cx="300" cy="232" r="18"/>
+    <circle cx="300" cy="284" r="18"/>
+  </g>
+
+  <text x="120" y="322" font-size="12" fill="#94a3b8" text-anchor="middle">입력 4노드</text>
+  <text x="300" y="322" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="700">Dense(5) 5노드</text>
+
+  <line x1="326" y1="152" x2="412" y2="152" stroke="#2563eb" stroke-width="2" marker-end="url(#pc-p-e)"/>
+
+  <!-- 계산식 -->
+  <text x="420" y="86" font-size="12" fill="#94a3b8">첫 층 dense (Dense)의 파라미터</text>
+  <rect x="420" y="96" width="356" height="112" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="598" y="128" font-size="13" fill="#1a2332" text-anchor="middle">파라미터 수 = (앞 층 노드 x 이 층 노드) + 이 층 노드</text>
+  <text x="598" y="168" font-size="19" font-weight="700" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">(4 x 5) + 5 = 25</text>
+  <text x="598" y="194" font-size="12" fill="#94a3b8" text-anchor="middle">가중치 4 x 5 = 20개 + 편향 5개</text>
+
+  <!-- summary 표로 연결 -->
+  <path d="M700,214 V404 H654" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#pc-p-e)"/>
+
+  <!-- summary 표 -->
+  <rect x="120" y="346" width="560" height="130" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <g font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="12">
+    <text x="140" y="372" fill="#94a3b8">Layer (type)</text>
+    <text x="380" y="372" fill="#94a3b8">Output Shape</text>
+    <text x="640" y="372" fill="#94a3b8" text-anchor="end">Param #</text>
+
+    <rect x="612" y="389" width="34" height="20" rx="4" fill="#dbeafe"/>
+    <text x="140" y="404" fill="#1a2332">dense (Dense)</text>
+    <text x="380" y="404" fill="#1a2332">(None, 5)</text>
+    <text x="640" y="404" fill="#2563eb" font-weight="700" text-anchor="end">25</text>
+
+    <text x="140" y="430" fill="#1a2332">dense_1 (Dense)</text>
+    <text x="380" y="430" fill="#1a2332">(None, 1)</text>
+    <text x="640" y="430" fill="#1a2332" text-anchor="end">6</text>
+
+    <text x="140" y="464" fill="#1a2332" font-weight="700">Total params: 31</text>
+  </g>
+  <line x1="132" y1="382" x2="668" y2="382" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="132" y1="442" x2="668" y2="442" stroke="#94a3b8" stroke-width="1"/>
+
+  <text x="120" y="502" font-size="12" fill="#94a3b8">둘째 층도 같은 식으로 (5 x 1) + 1 = 6, 두 층을 더해 Total params 31</text>
+</svg></div><figcaption><span class="diagram__num">그림 4-5</span><span class="diagram__caption">파라미터 수가 계산되는 방식</span></figcaption></figure>
+<p><code>model.summary()</code>는 지금까지 쌓은 층을 표로 보여줍니다. 학습을 시작하기 전에 <strong>의도한 대로 만들어졌는지 확인하는 유일한 수단</strong>이므로, 구성 직후에 반드시 한 번 호출하십시오.</p>
+<p><strong>입력 4개 → 은닉 5개 → 출력 1개짜리 최소 모델로 표를 읽어 보겠습니다.</strong></p>
+<pre><code class="language-python">from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+demo = Sequential()
+demo.add(Input(shape=(4,)))
+demo.add(Dense(5, activation='relu'))
+demo.add(Dense(1, activation='sigmoid'))
+demo.summary()
+</code></pre>
+<p>출력의 요지는 다음과 같습니다(표 서식은 Keras 버전에 따라 조금 다르게 보일 수 있습니다).</p>
+<pre><code>Layer (type)              Output Shape        Param #
+=====================================================
+dense (Dense)             (None, 5)                25
+dense_1 (Dense)           (None, 1)                 6
+=====================================================
+Total params: 31
+Trainable params: 31
+Non-trainable params: 0
+</code></pre>
+<p>표에서 읽어야 할 것은 두 열입니다.</p>
+<p><strong>Output Shape의 <code>None</code></strong> — 앞자리 <code>None</code>은 "샘플 수는 아직 정해지지 않았다"는 뜻입니다. 4.3에서 입력 shape에 행 수를 넣지 않은 결과가 여기 나타납니다. 오류가 아니므로 놀랄 필요가 없습니다. 뒷자리 숫자가 그 층의 <code>units</code>와 같은지만 확인하면 됩니다.</p>
+<p><strong>Param #</strong> — 그 층이 학습으로 조정하는 값(가중치와 편향)의 개수입니다. 계산식은 언제나 같습니다.</p>
+<pre><code>파라미터 수 = (앞 층 노드 수 × 이 층 노드 수) + 이 층 노드 수
+</code></pre>
+<p>앞부분은 가중치, 뒤에 더하는 것은 노드마다 하나씩 있는 편향입니다. 첫 층은 <code>(4 × 5) + 5 = 25</code>, 둘째 층은 <code>(5 × 1) + 1 = 6</code>이 되어 합이 31입니다. Ch03의 <code>ch03_neuron</code>에서 뉴런 하나가 <code>w1*x1 + ... + b</code>를 계산했던 그 <code>w</code>와 <code>b</code>의 총 개수입니다.</p>
+<p>Total params가 0이거나 <code>summary()</code>가 "모델이 아직 build되지 않았다"는 메시지를 낸다면, <code>Input</code>을 빠뜨렸다는 신호입니다. 입력 크기를 모르면 Keras가 가중치 행렬 크기를 정할 수 없기 때문입니다.</p>
+<hr />
+<h2 id="4-6-dropout과-batchnormalization-위치가-전부입니다">4.6 Dropout과 BatchNormalization — 위치가 전부입니다</h2>
+<figure class="diagram" id="fig-ch04_dropout-bn-position"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 630" width="800" height="630" role="img" aria-label="Dropout과 BatchNormalization을 넣는 위치" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Dropout과 BatchNormalization을 넣는 위치. 은닉층 Dense 뒤에 BatchNormalization, 그 뒤에 Dropout을 두며 출력층 뒤에는 넣지 않습니다.</title>
+  <defs>
+    <marker id="dbp-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="dbp-d-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="630" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">보조 층을 넣는 위치</text>
+
+  <!-- 은닉 블록 표시 -->
+  <path d="M242,126 H230 V306 H242" fill="none" stroke="#f59e0b" stroke-width="2"/>
+  <text x="214" y="204" font-size="12" font-weight="700" fill="#1a2332" text-anchor="end">은닉층 블록</text>
+  <text x="214" y="222" font-size="12" fill="#94a3b8" text-anchor="end">Dense 뒤에 BN,</text>
+  <text x="214" y="240" font-size="12" fill="#94a3b8" text-anchor="end">그 뒤에 Dropout</text>
+
+  <!-- 1 Input -->
+  <rect x="256" y="58" width="288" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="400" y="86" font-size="14" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(30,))</text>
+  <line x1="400" y1="104" x2="400" y2="124" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  <!-- 2 Dense 64 -->
+  <rect x="256" y="126" width="288" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="154" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(64, activation='relu')</text>
+  <line x1="400" y1="172" x2="400" y2="192" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  <!-- 3 BatchNormalization -->
+  <rect x="256" y="194" width="288" height="44" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="222" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">BatchNormalization()</text>
+  <text x="566" y="221" font-size="12" fill="#94a3b8">값의 분포를 정돈</text>
+  <line x1="400" y1="240" x2="400" y2="260" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  <!-- 4 Dropout -->
+  <rect x="256" y="262" width="288" height="44" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="290" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dropout(0.3)</text>
+  <text x="566" y="278" font-size="12" fill="#94a3b8">노드 일부를 끔</text>
+  <text x="566" y="296" font-size="12" fill="#94a3b8">0.3 = 끄는 비율</text>
+  <line x1="400" y1="308" x2="400" y2="328" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  <!-- 5 Dense 32 -->
+  <rect x="256" y="330" width="288" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="358" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(32, activation='relu')</text>
+  <line x1="400" y1="376" x2="400" y2="396" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  <!-- 6 Dropout -->
+  <rect x="256" y="398" width="288" height="44" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="426" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dropout(0.3)</text>
+  <line x1="400" y1="444" x2="400" y2="464" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  <!-- 7 출력층 -->
+  <rect x="256" y="466" width="288" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="494" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1, activation='sigmoid')</text>
+  <text x="566" y="493" font-size="12" fill="#94a3b8">출력층</text>
+  <line x1="400" y1="512" x2="400" y2="532" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#dbp-d-e)"/>
+
+  <!-- 8 금지 -->
+  <rect x="256" y="534" width="288" height="44" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="400" y="562" font-size="14" fill="#dc2626" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dropout(0.3)</text>
+  <circle cx="222" cy="556" r="13" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="216" y1="550" x2="228" y2="562" stroke="#dc2626" stroke-width="2"/>
+  <line x1="228" y1="550" x2="216" y2="562" stroke="#dc2626" stroke-width="2"/>
+  <text x="566" y="552" font-size="13" font-weight="700" fill="#dc2626">출력층 뒤에는</text>
+  <text x="566" y="570" font-size="13" font-weight="700" fill="#dc2626">넣지 않는다</text>
+
+  <text x="400" y="606" font-size="12" fill="#94a3b8" text-anchor="middle">보조 층은 은닉층 Dense 뒤에만 넣는다. 순서는 Dense, BatchNormalization, Dropout.</text>
+</svg></div><figcaption><span class="diagram__num">그림 4-6</span><span class="diagram__caption">Dropout과 BatchNormalization을 넣는 위치</span></figcaption></figure>
+<p>두 층은 예측값을 직접 만들지 않고 <strong>학습이 더 잘 되도록 돕는 보조 층</strong>입니다. 그래서 인자보다 <strong>어디에 넣느냐</strong>가 중요합니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>층</th>
+<th>하는 일</th>
+<th>넣는 위치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dropout(rate)</code></td>
+<td>학습 중 노드 일부를 임시로 꺼서 과적합을 줄임</td>
+<td>은닉층 <code>Dense</code> <strong>뒤</strong></td>
+</tr>
+<tr>
+<td><code>BatchNormalization()</code></td>
+<td>층을 지나는 값의 분포를 정돈해 학습을 안정시킴</td>
+<td>은닉층 <code>Dense</code> <strong>뒤</strong>, <code>Dropout</code> <strong>앞</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><code>Dropout(0.3)</code>의 0.3은 <strong>끄는 비율</strong>입니다. 남기는 비율이 아닙니다. 실기에서는 0.2~0.5 범위를 쓰고, 지시가 없으면 0.3 정도가 무난합니다. Dropout이 학습할 때와 예측할 때 어떻게 다르게 동작하는지는 Ch06의 <code>ch06_dropout-mechanism</code>에서 자세히 다룹니다.</p>
+<p><strong>보조 층을 넣은 표준 배치입니다.</strong></p>
+<pre><code class="language-python">from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization
+
+model = Sequential()
+model.add(Input(shape=(30,)))
+model.add(Dense(64, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))
+model.summary()
+</code></pre>
+<p><code>BatchNormalization</code>은 <code>summary()</code>에서 특이한 모습을 보입니다. 파라미터가 노드 수의 4배(여기서는 64 × 4 = 256)로 잡히고, 그중 절반이 <strong>Non-trainable params</strong>로 분류됩니다. 학습으로 조정하는 값 두 종류와, 학습 중 관찰한 통계를 저장해 두는 값 두 종류가 함께 있기 때문입니다. 오류가 아니니 그대로 두면 됩니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+<strong>출력층 뒤에는 Dropout을 넣지 않습니다.</strong> 출력층 뒤에 Dropout을 두면 예측 확률 자체가 무작위로 꺼져 결과가 망가집니다. 마지막 <code>Dense</code>는 언제나 모델의 맨 아래에 있어야 합니다.</p>
+</blockquote>
+<hr />
+<h2 id="시험장-표준-코드">시험장 표준 코드</h2>
+<p>전처리를 마친 데이터에서 모델 구성까지 이어지는, 그대로 옮겨 쓸 수 있는 완결 코드입니다. 이진분류 기준이며, 유형이 바뀌면 <strong>마지막 <code>Dense</code> 한 줄만</strong> 4.4의 표대로 교체하십시오.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+np.random.seed(42)
+tf.random.set_seed(42)
+
+# 1) 데이터 준비 (Ch02 범위)
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+n_features = X_train_scaled.shape[1]
+print('입력 특성 수:', n_features)
+
+# 2) 모델 구성 (이 챕터)
+model = Sequential()
+model.add(Input(shape=(n_features,)))
+model.add(Dense(64, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))   # ← 유형별 교체 지점
+
+model.summary()
+
+# 3) 구성한 모델 저장 (선택)
+model.save('my_model.keras')                # 구버전 표기: 'my_model.h5'
+</code></pre>
+<p>예상 출력 요지입니다.</p>
+<pre><code>입력 특성 수: 30
+
+Layer (type)                     Output Shape       Param #
+===========================================================
+dense (Dense)                    (None, 64)            1984
+batch_normalization (BatchNor…)  (None, 64)             256
+dropout (Dropout)                (None, 64)               0
+dense_1 (Dense)                  (None, 32)            2080
+dropout_1 (Dropout)              (None, 32)               0
+dense_2 (Dense)                  (None, 1)                33
+===========================================================
+Total params: 4,353
+Trainable params: 4,225
+Non-trainable params: 128
+</code></pre>
+<p><code>Dropout</code>의 Param #가 0인 것은 정상입니다. 노드를 끄기만 할 뿐 학습하는 값이 없기 때문입니다.</p>
+<p>여기까지가 이 챕터의 범위입니다. 이 모델은 아직 <strong>학습할 수 없습니다.</strong> 어떤 기준으로 오차를 재고 가중치를 갱신할지 정하지 않았기 때문입니다. 다음 챕터에서 <code>compile()</code>과 <code>fit()</code>을 붙여 이 모델을 실제로 학습시킵니다.</p>
+<hr />
+<h2 id="핵심-요약">핵심 요약</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>기억할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4단계</td>
+<td>구성 → 컴파일(Ch05) → 학습(Ch05) → 평가(Ch07)</td>
+</tr>
+<tr>
+<td>입력</td>
+<td><code>model.add(Input(shape=(n_features,)))</code>, <code>n_features = X_train_scaled.shape[1]</code>, 샘플 수는 넣지 않음</td>
+</tr>
+<tr>
+<td>은닉층</td>
+<td><code>Dense(64, activation='relu')</code> → <code>Dense(32, activation='relu')</code>, 은닉층 2개 이상</td>
+</tr>
+<tr>
+<td>출력층</td>
+<td>이진 <code>Dense(1,'sigmoid')</code> / 다중 <code>Dense(K,'softmax')</code> / 회귀 <code>Dense(1)</code></td>
+</tr>
+<tr>
+<td>보조 층</td>
+<td><code>Dense</code> 뒤에 <code>BatchNormalization()</code> → <code>Dropout(0.3)</code> 순서, 출력층 뒤에는 넣지 않음</td>
+</tr>
+<tr>
+<td>확인</td>
+<td><code>model.summary()</code>로 Output Shape와 Param #를 눈으로 검증</td>
+</tr>
+</tbody>
+</table></div>
+<p>파라미터 수 계산식: <code>(앞 층 노드 수 × 이 층 노드 수) + 이 층 노드 수</code></p>
+<section class="exam" id="exam-ch04">
+<h2 id="ch04-확인-문제-keras로-모델-만들기">Ch04 확인 문제 — Keras로 모델 만들기</h2>
+<blockquote class="callout callout--note">
+<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
+<p>이 챕터의 범위는 <strong>모델 구성까지</strong>입니다. <code>compile()</code>·<code>fit()</code>은 Ch05, 평가는 Ch07에서 다룹니다.<br />
+따라서 모든 문항은 <code>Sequential</code> / <code>Input</code> / <code>Dense</code> / <code>Dropout</code> / <code>BatchNormalization</code> / <code>summary()</code>만으로 풀립니다.</p>
+<p>총 6문항 (객관식 2 / 코드 빈칸 2 / 오류 찾기 2), 권장 소요 시간 20분.<br />
+공통 import는 다음과 같다고 가정합니다.</p>
+<p><code>python
+import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization</code></p>
+</blockquote>
+<hr />
+<h3 id="문제">문제</h3>
+<h4 id="q1-객관식-기본-입력-정의">Q1. (객관식 · 기본) 입력 정의</h4>
+<p>전처리를 모두 마친 <code>X_train</code>의 shape가 <code>(1200, 12)</code>입니다.<br />
+이 데이터로 학습할 모델의 <strong>입력 정의</strong>로 옳은 것은?</p>
+<ol>
+<li><code>model.add(Input(shape=(1200, 12)))</code></li>
+<li><code>model.add(Input(shape=(1200,)))</code></li>
+<li><code>model.add(Input(shape=(12,)))</code></li>
+<li><code>model.add(Input(shape=(12)))</code></li>
+<li><code>model.add(Input(shape=(12, 1200)))</code></li>
+</ol>
+<hr />
+<h4 id="q2-객관식-기본-param-읽기">Q2. (객관식 · 기본) Param # 읽기</h4>
+<p>다음과 같이 구성한 모델의 <code>model.summary()</code>가 출력하는 <strong>Total params</strong>는 얼마입니까?</p>
+<pre><code class="language-python">model = Sequential()
+model.add(Input(shape=(10,)))
+model.add(Dense(16, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(3, activation='softmax'))
+model.summary()
+</code></pre>
+<ol>
+<li>27</li>
+<li>208</li>
+<li>312</li>
+<li>339</li>
+<li>360</li>
+</ol>
+<hr />
+<h4 id="q3-코드-빈칸-기본-이진분류-모델-구성">Q3. (코드 빈칸 · 기본) 이진분류 모델 구성</h4>
+<p>전처리를 마친 <code>X_tr</code>의 shape가 <code>(800, 15)</code>이고, 타깃은 0 또는 1인 <strong>이진분류</strong> 문제입니다.<br />
+은닉층 2개(노드 64 → 32, 활성화 함수는 <code>relu</code>)를 두는 모델을 구성하십시오.</p>
+<p><code>(가)</code>에는 특성 수를 <strong>데이터에서 뽑아내는 코드</strong>를, <code>(나)</code>에는 입력 정의 한 줄을, <code>(다)</code>에는 출력층 한 줄을 채우십시오.</p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+X_tr = np.zeros((800, 15))          # 전처리를 마친 학습 데이터라고 가정합니다
+
+n_features = ______(가)______
+
+model = Sequential()
+model.add(______(나)______)
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(______(다)______)
+
+model.summary()
+</code></pre>
+<p>추가로, 이 모델의 <strong>Total params</strong>를 계산식과 함께 쓰십시오.</p>
+<hr />
+<h4 id="q4-코드-빈칸-응용-다중분류-모델-보조-층">Q4. (코드 빈칸 · 응용) 다중분류 모델 + 보조 층</h4>
+<p><code>y_train</code>은 정수 라벨이고, <code>X_tr</code>의 특성 수는 20입니다.<br />
+첫 은닉층 뒤에 <strong>BatchNormalization → Dropout(0.3)</strong> 순서로 보조 층을 넣고, 두 번째 은닉층 뒤에도 <code>Dropout(0.3)</code>을 넣는 <strong>다중분류</strong> 모델을 구성하십시오.</p>
+<p><code>(가)</code>에는 클래스 개수를 <strong>데이터에서 뽑아내는 코드</strong>를, <code>(나)</code>·<code>(다)</code>에는 보조 층 두 줄을, <code>(라)</code>에는 출력층 한 줄을 채우십시오.</p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization
+
+X_tr = np.zeros((10, 20))
+y_train = np.array([0, 2, 1, 3, 2, 0, 1, 3, 3, 1])
+
+n_features = X_tr.shape[1]
+n_class = ______(가)______
+
+model = Sequential()
+model.add(Input(shape=(n_features,)))
+model.add(Dense(64, activation='relu'))
+model.add(______(나)______)
+model.add(______(다)______)
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(______(라)______)
+
+model.summary()
+</code></pre>
+<p>추가로, <code>summary()</code>에서 <code>BatchNormalization</code> 층의 Param #가 몇으로 찍히는지와, 그중 일부가 <strong>Non-trainable params</strong>로 분류되는 이유를 한 줄로 쓰십시오.</p>
+<hr />
+<h4 id="q5-오류-찾기-기본-입력-정의가-잘못된-모델">Q5. (오류 찾기 · 기본) 입력 정의가 잘못된 모델</h4>
+<p>아래 코드는 오류 메시지 없이 실행되지만, <code>summary()</code>의 출력 shape가 의도와 다릅니다.<br />
+<strong>잘못된 줄 한 곳</strong>을 찾아 지적하고, 올바르게 고친 코드를 쓰십시오.</p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+X_train = np.zeros((1000, 8))       # 샘플 1000개, 특성 8개
+
+model = Sequential()
+model.add(Input(shape=X_train.shape))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+model.summary()
+print(model.output_shape)
+</code></pre>
+<hr />
+<h4 id="q6-오류-찾기-응용-다중분류-모델의-두-가지-오류">Q6. (오류 찾기 · 응용) 다중분류 모델의 두 가지 오류</h4>
+<p><code>y_train</code>에는 0, 1, 2, 3 네 종류의 클래스가 들어 있습니다.<br />
+아래 모델 구성 코드에는 <strong>잘못된 곳이 두 군데</strong> 있습니다. 각각을 지적하고 수정한 전체 코드를 쓰십시오.</p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+
+y_train = np.array([0, 1, 2, 3, 1, 0, 3, 2])
+
+model = Sequential()
+model.add(Input(shape=(20,)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(2, activation='softmax'))
+model.add(Dropout(0.3))
+
+model.summary()
+</code></pre>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><h4 id="q1-해답">Q1 해답</h4>
+<p><strong>정답: 3번 <code>model.add(Input(shape=(12,)))</code></strong></p>
+<p><strong>정답 코드 (실증 예제)</strong></p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+X_train = np.zeros((1200, 12))
+n_features = X_train.shape[1]        # 12
+
+model = Sequential()
+model.add(Input(shape=(n_features,)))
+model.add(Dense(32, activation='relu'))
+print(&quot;X_train.shape :&quot;, X_train.shape)
+print(&quot;n_features    :&quot;, n_features)
+print(&quot;출력 shape    :&quot;, model.output_shape)
+</code></pre>
+<pre><code>X_train.shape : (1200, 12)
+n_features    : 12
+출력 shape    : (None, 32)
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p><code>Input(shape=...)</code>에 넣는 것은 <strong>샘플 한 개의 모양</strong>입니다. 표 형태 데이터에서 샘플 한 개는 컬럼 12개짜리 한 줄이므로 <code>(12,)</code>입니다. 샘플이 몇 개 들어올지는 학습할 때 정해지므로 모델은 알 필요가 없고, 그 자리는 <code>summary()</code>에서 <code>None</code>으로 표시됩니다.</p>
+<p>숫자 <code>12</code>를 손으로 적지 말고 <code>X_train.shape[1]</code>로 뽑는 습관이 중요합니다. 원-핫 인코딩으로 컬럼이 늘거나 불필요한 컬럼을 지우면 특성 수가 바뀌는데, 손으로 적은 숫자는 그때 그대로 틀린 값이 됩니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>1번·2번처럼 샘플 수(1200)를 넣는 것</strong> — 이 챕터에서 가장 흔한 실수입니다. shape에 행 수는 절대 들어가지 않습니다.</li>
+<li><strong>4번 <code>shape=(12)</code></strong> — 괄호만 쳤을 뿐 파이썬에서는 그냥 정수 <code>12</code>입니다. 원소가 하나인 튜플은 반드시 쉼표를 붙여 <code>(12,)</code>로 씁니다. 실제로 실행하면 <code>ValueError: Cannot convert '12' to a shape.</code>가 납니다.</li>
+<li>5번처럼 순서를 뒤집는 것도 같은 오해에서 나옵니다. 정답은 언제나 <code>(특성 수,)</code> 하나짜리 튜플입니다.</li>
+</ul>
+<hr />
+<h4 id="q2-해답">Q2 해답</h4>
+<p><strong>정답: 4번 (339)</strong></p>
+<p><strong>정답 코드 (실증 예제)</strong></p>
+<pre><code class="language-python">from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+model = Sequential()
+model.add(Input(shape=(10,)))
+model.add(Dense(16, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(3, activation='softmax'))
+model.summary()
+
+hand = (10 * 16 + 16) + (16 * 8 + 8) + (8 * 3 + 3)
+print(&quot;손 계산 :&quot;, (10 * 16 + 16), &quot;+&quot;, (16 * 8 + 8), &quot;+&quot;, (8 * 3 + 3), &quot;=&quot;, hand)
+print(&quot;실제 값 :&quot;, model.count_params())
+</code></pre>
+<pre><code>Layer (type)              Output Shape        Param #
+=====================================================
+dense (Dense)             (None, 16)              176
+dense_1 (Dense)           (None, 8)               136
+dense_2 (Dense)           (None, 3)                27
+=====================================================
+Total params: 339
+
+손 계산 : 176 + 136 + 27 = 339
+실제 값 : 339
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>층마다 계산식은 언제나 동일합니다.</p>
+<pre><code>파라미터 수 = (앞 층 노드 수 × 이 층 노드 수) + 이 층 노드 수
+</code></pre>
+<p>앞부분이 가중치, 뒤에 더하는 것이 <strong>노드마다 하나씩 있는 편향</strong>입니다.</p>
+<ul>
+<li>1층: <code>(10 × 16) + 16 = 176</code></li>
+<li>2층: <code>(16 × 8) + 8 = 136</code></li>
+<li>3층: <code>(8 × 3) + 3 = 27</code></li>
+<li>합계: <strong>339</strong></li>
+</ul>
+<p>여기서 "앞 층 노드 수"의 첫 값은 <code>Input(shape=(10,))</code>의 10입니다. <code>Input</code>은 계산을 하지 않으므로 <code>summary()</code> 표에 행으로 나타나지 않지만, 첫 <code>Dense</code>의 가중치 크기를 정하는 근거가 됩니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>편향을 빼고 세는 것</strong> — <code>10×16 + 16×8 + 8×3 = 312</code>(3번)가 되어 딱 편향 개수(16+8+3=27)만큼 모자랍니다. 오답 3번이 이 함정입니다.</li>
+<li>출력층(<code>Dense(3)</code>)을 파라미터 합계에서 빼먹는 것. 출력층도 가중치와 편향을 가진 학습 대상 층입니다.</li>
+<li><code>Input</code>을 빠뜨린 채 <code>summary()</code>를 부르면 Total params가 0으로 나오거나 "모델이 아직 build되지 않았다"는 메시지가 뜹니다. 입력 크기를 모르면 가중치 행렬 크기를 정할 수 없기 때문입니다.</li>
+</ul>
+<hr />
+<h4 id="q3-해답">Q3 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+X_tr = np.zeros((800, 15))
+
+n_features = X_tr.shape[1]                       # (가)
+
+model = Sequential()
+model.add(Input(shape=(n_features,)))            # (나)
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))        # (다)
+
+model.summary()
+print(&quot;층 개수(Dense만):&quot;, len(model.layers))
+print(&quot;출력 shape:&quot;, model.output_shape)
+</code></pre>
+<pre><code>Layer (type)              Output Shape        Param #
+=====================================================
+dense (Dense)             (None, 64)            1,024
+dense_1 (Dense)           (None, 32)            2,080
+dense_2 (Dense)           (None, 1)                33
+=====================================================
+Total params: 3,137
+
+층 개수(Dense만): 3
+출력 shape: (None, 1)
+</code></pre>
+<p><strong>Total params:</strong> <code>(15 × 64 + 64) + (64 × 32 + 32) + (32 × 1 + 1) = 1024 + 2080 + 33</code> → <strong>3,137</strong></p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>X_tr.shape[1]</code></strong> — <code>shape</code>는 <code>(샘플 수, 특성 수)</code>이므로 필요한 것은 인덱스 1입니다. 숫자 15를 직접 적지 않는 이유는 Q1 해설과 같습니다.</li>
+<li><strong>(나) <code>Input(shape=(n_features,))</code></strong> — Keras 2와 3 양쪽에서 동작하는 표준 표기입니다. 구버전 표기 <code>Dense(64, activation='relu', input_shape=(n_features,))</code>는 읽을 줄만 알면 되고, 새로 쓸 때는 <code>Input</code>을 씁니다.</li>
+<li><strong>(다) <code>Dense(1, activation='sigmoid')</code></strong> — 타깃이 0 또는 1인 이진분류이므로 출력은 "1일 확률" 하나입니다. 노드 1개 + <code>sigmoid</code>가 짝입니다.</li>
+</ul>
+<p><code>print(len(model.layers))</code>가 3인 것도 확인 포인트입니다. <code>Input</code>은 입력 형태 선언일 뿐 연산 층이 아니어서 층 목록에 세지 않습니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>은닉층 개수 세기</strong> — "은닉층 2개 이상"에서 은닉층은 <strong>입력층과 출력층을 뺀 중간층</strong>입니다. <code>Dense(64)</code> 하나만 두고 출력층을 붙이면 은닉층은 1개뿐이라 조건 미달입니다.</li>
+<li><code>X_tr.shape[0]</code>(=800)을 쓰는 실수. 인덱스 0은 샘플 수입니다.</li>
+<li>출력층에 <code>activation='relu'</code>를 그대로 두는 것. relu는 0 이상 아무 값이나 내므로 확률로 해석할 수 없습니다.</li>
+</ul>
+<hr />
+<h4 id="q4-해답">Q4 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization
+
+X_tr = np.zeros((10, 20))
+y_train = np.array([0, 2, 1, 3, 2, 0, 1, 3, 3, 1])
+
+n_features = X_tr.shape[1]
+n_class = len(np.unique(y_train))                 # (가)  -&gt; 4
+
+model = Sequential()
+model.add(Input(shape=(n_features,)))
+model.add(Dense(64, activation='relu'))
+model.add(BatchNormalization())                   # (나)
+model.add(Dropout(0.3))                           # (다)
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(n_class, activation='softmax'))   # (라)
+
+model.summary()
+print(&quot;클래스 개수:&quot;, n_class)
+print(&quot;출력 shape:&quot;, model.output_shape)
+</code></pre>
+<pre><code>Layer (type)                     Output Shape       Param #
+===========================================================
+dense (Dense)                    (None, 64)            1,344
+batch_normalization              (None, 64)              256
+dropout (Dropout)                (None, 64)                0
+dense_1 (Dense)                  (None, 32)            2,080
+dropout_1 (Dropout)              (None, 32)                0
+dense_2 (Dense)                  (None, 4)               132
+===========================================================
+Total params: 3,812
+Trainable params: 3,684
+Non-trainable params: 128
+
+클래스 개수: 4
+출력 shape: (None, 4)
+</code></pre>
+<p><strong>BatchNormalization의 Param #:</strong> <code>64 × 4 = 256</code>이 찍히고, 그중 <strong>절반인 128이 Non-trainable</strong>입니다. 학습으로 조정하는 값 두 종류와, 학습 중 관찰한 통계를 저장해 두는 값 두 종류가 함께 들어 있기 때문입니다. 오류가 아니므로 그대로 두면 됩니다.</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>len(np.unique(y_train))</code></strong> — 클래스 개수는 눈으로 세지 말고 데이터에서 뽑습니다. 라벨에 0~3이 들어 있으므로 4가 나옵니다. 시험에서는 클래스가 5개, 7개인 데이터도 나오며, 손으로 센 숫자는 전처리 결과가 바뀌면 그대로 틀립니다.</li>
+<li><strong>(나)(다) <code>BatchNormalization()</code> → <code>Dropout(0.3)</code> 순서</strong> — 둘 다 은닉층 <code>Dense</code> <strong>뒤</strong>에 붙습니다. BatchNormalization이 층을 지나는 값의 분포를 먼저 정돈하고, 그다음 Dropout이 노드 일부를 끕니다. 순서를 바꿔도 실행은 되지만 교재 표준 배치는 <code>Dense → BatchNormalization → Dropout</code>입니다.</li>
+<li><strong>(라) <code>Dense(n_class, activation='softmax')</code></strong> — 다중분류 출력층은 클래스 개수만큼 노드를 두고 softmax로 합이 1인 확률 분포를 만듭니다. 출력 shape가 <code>(None, 4)</code>인지 <code>summary()</code>로 반드시 확인하십시오.</li>
+</ul>
+<p><code>Dropout(0.3)</code>의 0.3은 <strong>끄는 비율</strong>이지 남기는 비율이 아닙니다. Dropout 층의 Param #가 0인 것도 정상입니다. 노드를 끄기만 할 뿐 학습하는 값이 없습니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>출력층 units와 클래스 수 불일치</strong> — <code>Dense(3, 'softmax')</code>처럼 클래스 수보다 적게 두면 구성 단계에서는 아무 말이 없다가 학습 단계에서 라벨과 출력 개수가 맞지 않아 오류가 납니다. <code>len(np.unique(y))</code>로 뽑으면 이 사고가 사라집니다.</li>
+<li><code>BatchNormalization</code>을 괄호 없이 <code>model.add(BatchNormalization)</code>으로 쓰는 것. 층은 <strong>인스턴스</strong>를 만들어 넣어야 하므로 <code>()</code>가 필요합니다.</li>
+<li>BatchNormalization의 Non-trainable params를 보고 "모델이 잘못 만들어졌다"고 판단해 층을 지우는 것. 정상 동작입니다.</li>
+</ul>
+<hr />
+<h4 id="q5-해답">Q5 해답</h4>
+<p><strong>잘못된 줄:</strong> <code>model.add(Input(shape=X_train.shape))</code><br />
+<code>X_train.shape</code>는 <code>(1000, 8)</code>이므로 <strong>샘플 수 1000이 입력 shape에 그대로 들어갔습니다.</strong></p>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+X_train = np.zeros((1000, 8))
+
+# --- 잘못된 코드의 결과 확인 ---
+bad = Sequential()
+bad.add(Input(shape=X_train.shape))              # (1000, 8) 이 통째로 들어감
+bad.add(Dense(32, activation='relu'))
+bad.add(Dense(1, activation='sigmoid'))
+print(&quot;[잘못] 출력 shape:&quot;, bad.output_shape)
+
+# --- 수정 ---
+fixed = Sequential()
+fixed.add(Input(shape=(X_train.shape[1],)))      # 특성 수만 튜플로
+fixed.add(Dense(32, activation='relu'))
+fixed.add(Dense(1, activation='sigmoid'))
+print(&quot;[수정] 출력 shape:&quot;, fixed.output_shape)
+fixed.summary()
+</code></pre>
+<pre><code>[잘못] 출력 shape: (None, 1000, 1)
+[수정] 출력 shape: (None, 1)
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>이 오류가 위험한 이유는 <strong>실행이 성공한다</strong>는 데 있습니다. 오류 메시지가 없으니 그대로 다음 단계로 넘어가기 쉽습니다.</p>
+<p>잘못된 코드의 출력 shape는 <code>(None, 1000, 1)</code>입니다. "샘플 하나가 1000줄짜리 표"라고 선언한 셈이므로, 모델은 샘플마다 예측을 1,000개씩 만들어 냅니다. 정답 <code>y_train</code>은 샘플당 값 하나이므로 학습 단계에서 shape 불일치 오류로 이어집니다.</p>
+<p>수정은 <code>X_train.shape[1]</code>로 <strong>특성 수만 꺼내 원소 하나짜리 튜플</strong>로 넘기는 것입니다. 수정 후 출력 shape가 <code>(None, 1)</code>, 즉 "샘플당 확률 1개"로 바뀝니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>shape=X_train.shape</code>처럼 shape를 통째로 넘기는 것. 편해 보이지만 항상 샘플 수가 딸려 들어갑니다.</li>
+<li>오류가 학습 단계에서 터지기 때문에 <strong>원인을 <code>fit()</code> 쪽에서 찾는 것</strong>. 구성 직후 <code>model.summary()</code>를 한 번 호출해 출력 shape가 <code>(None, 1)</code>인지 눈으로 확인하면 이 시간 낭비를 막을 수 있습니다.</li>
+<li>고칠 때 <code>Input(shape=(8))</code>으로 쉼표를 빠뜨리는 것. <code>ValueError: Cannot convert '8' to a shape.</code>가 납니다.</li>
+</ul>
+<hr />
+<h4 id="q6-해답">Q6 해답</h4>
+<p><strong>잘못된 곳 2군데</strong></p>
+<ol>
+<li><code>model.add(Dense(2, activation='softmax'))</code> — <code>y_train</code>의 클래스는 <strong>4개</strong>인데 출력층 노드가 2개입니다. 출력 shape가 <code>(None, 2)</code>가 되어 클래스 4개를 표현할 수 없습니다.</li>
+<li><code>model.add(Dropout(0.3))</code>이 <strong>출력층 뒤</strong>에 붙었습니다. 마지막 <code>Dense</code>는 언제나 모델의 맨 아래에 있어야 합니다.</li>
+</ol>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+
+y_train = np.array([0, 1, 2, 3, 1, 0, 3, 2])
+n_class = len(np.unique(y_train))                  # 4
+
+model = Sequential()
+model.add(Input(shape=(20,)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))                            # 은닉층 뒤로 이동
+model.add(Dense(n_class, activation='softmax'))    # units를 클래스 수에 맞춤
+
+model.summary()
+print(&quot;출력 shape:&quot;, model.output_shape)
+print(&quot;마지막 층 :&quot;, type(model.layers[-1]).__name__)
+</code></pre>
+<pre><code>Layer (type)              Output Shape        Param #
+=====================================================
+dense (Dense)             (None, 64)            1,344
+dropout (Dropout)         (None, 64)                0
+dense_1 (Dense)           (None, 32)            2,080
+dropout_1 (Dropout)       (None, 32)                0
+dense_2 (Dense)           (None, 4)               132
+=====================================================
+Total params: 3,556
+
+출력 shape: (None, 4)
+마지막 층 : Dense
+</code></pre>
+<p>수정 전 코드를 그대로 실행하면 <code>출력 shape: (None, 2)</code>, <code>마지막 층: Dropout</code>이 나옵니다. 이 두 줄만 확인해도 오류 두 개를 동시에 잡아낼 수 있습니다.</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>출력층 units는 클래스 개수와 정확히 같아야 합니다.</strong> 다중분류 출력은 "각 클래스일 확률"의 목록이므로, 노드가 2개면 클래스 4개 중 2개분의 확률만 만들어집니다. 구성 단계에서는 오류가 나지 않고 학습을 시작해야 문제가 드러나므로, <code>n_class = len(np.unique(y_train))</code>로 뽑아 쓰는 습관이 유일한 예방책입니다.</li>
+<li><strong>Dropout은 은닉층 <code>Dense</code> 뒤에만 넣습니다.</strong> 출력층 뒤에 두면 최종 확률값 자체가 무작위로 0이 되어 예측 결과가 망가집니다. Dropout은 "학습이 잘 되도록 돕는 보조 층"이지 예측값을 만드는 층이 아니라는 점을 기억하십시오.</li>
+</ul>
+<p>두 오류의 공통점은 <strong><code>summary()</code> 한 번이면 잡힌다</strong>는 것입니다. 마지막 행이 <code>Dense</code>인지, Output Shape 뒷자리가 클래스 수와 같은지 — 구성 직후 이 두 가지만 확인하는 습관을 들이십시오.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li>클래스 개수를 눈으로 세다 틀리는 것. 라벨이 1부터 시작하거나(1~4) 중간 번호가 비어 있는 데이터에서 특히 자주 발생합니다.</li>
+<li>출력층 뒤 <code>Dropout</code>을 "마지막에 정규화를 한 번 더 하는 것"으로 잘못 이해하는 것.</li>
+<li>오류를 하나만 찾고 넘어가는 것. 실기에서는 한 셀 안에 실수가 겹치는 경우가 흔하므로, 구성 코드는 <strong>위에서 아래로 층 순서를 소리 내어 읽듯</strong> 검토하십시오.</li>
+</ul>
+<hr /></div></details>
+</section>
+
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch03.html"><span class="pager__dir">이전</span><span class="pager__label">Ch03</span><span class="pager__title">딥러닝은 어떻게 배우는가</span></a><a class="pager__slot pager__slot--next" href="ch05.html"><span class="pager__dir">다음</span><span class="pager__label">Ch05</span><span class="pager__title">컴파일과 학습</span></a></nav>
+</main>
+</body>
+</html>

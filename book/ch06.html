@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ch06. 과적합 진단과 대응 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-chapter">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">Part III. 학습과 개선 · Chapter 6</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#6-1-과적합은-외운-것과-이해한-것의-차이입니다">6.1 과적합은 &quot;외운 것&quot;과 &quot;이해한 것&quot;의 차이입니다</a></li><li><a href="#6-2-학습-곡선-두-선이-벌어지는-지점을-찾습니다">6.2 학습 곡선 — 두 선이 벌어지는 지점을 찾습니다</a></li><li><a href="#6-3-dropout-학습할-때만-끄고-예측할-때는-켭니다">6.3 Dropout — 학습할 때만 끄고, 예측할 때는 켭니다</a></li><li><a href="#6-4-earlystopping-가장-좋았던-지점에서-멈추고-되돌립니다">6.4 EarlyStopping — 가장 좋았던 지점에서 멈추고 되돌립니다</a></li><li><a href="#6-5-modelcheckpoint-좋았던-순간을-파일로-남깁니다">6.5 ModelCheckpoint — 좋았던 순간을 파일로 남깁니다</a></li><li><a href="#6-6-과적합-대응-수단을-고르는-순서">6.6 과적합 대응 수단을 고르는 순서</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch06-확인-문제-과적합-진단과-대응">Ch06 확인 문제 — 과적합 진단과 대응</a></li></ol></nav>
+<article class="page-body">
+<h1>과적합 진단과 대응</h1>
+<aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>학습 곡선을 보고 과적합·과소적합·정상 학습을 판별할 수 있다</li><li>Dropout이 학습과 추론에서 다르게 동작한다는 점을 설명할 수 있다</li><li>EarlyStopping·ModelCheckpoint를 시험 표준 인자로 적용할 수 있다</li></ul></aside>
+<blockquote class="callout callout--note">
+<p><strong>이 챕터에서 배우는 것</strong><br />
+Ch05에서 <code>fit()</code>을 돌리고 <code>history</code>로 학습 곡선을 그리는 법까지 익혔습니다. 이 챕터는 그 곡선을 <strong>읽고 판단하는 법</strong>, 그리고 판단 결과에 따라 <strong>손을 쓰는 법</strong>을 다룹니다.<br />
+시험 연관성: 실기 딥러닝 문항은 대부분 "EarlyStopping을 적용해 학습시키시오"라는 지시를 포함합니다. 콜백(callback) 세 줄을 정확히 쓰는 것이 이 챕터의 실전 목표입니다.</p>
+</blockquote>
+<hr />
+<h2 id="6-1-과적합은-외운-것과-이해한-것의-차이입니다">6.1 과적합은 "외운 것"과 "이해한 것"의 차이입니다</h2>
+<figure class="diagram" id="fig-ch06_underfit-overfit-fit"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 360" width="800" height="360" role="img" aria-label="과소적합·적정·과적합의 결정 경계">
+  <title>과소적합·적정·과적합의 결정 경계 — 같은 두 클래스 데이터에 대해 왼쪽은 너무 단순한 직선, 가운데는 완만한 곡선, 오른쪽은 점 하나하나를 감싸는 구불구불한 경계를 그린 개념 도해.</title>
+  <defs>
+    <g id="ch06uof-pts">
+      <!-- 클래스 A: 채운 점 -->
+      <g fill="#1a2332">
+        <circle cx="28" cy="30" r="4"/>
+        <circle cx="52" cy="22" r="4"/>
+        <circle cx="78" cy="24" r="4"/>
+        <circle cx="100" cy="38" r="4"/>
+        <circle cx="124" cy="48" r="4"/>
+        <circle cx="152" cy="32" r="4"/>
+        <circle cx="176" cy="66" r="4"/>
+        <circle cx="200" cy="74" r="4"/>
+        <circle cx="36" cy="46" r="4"/>
+        <circle cx="128" cy="86" r="4"/>
+        <circle cx="152" cy="122" r="4"/>
+        <circle cx="176" cy="134" r="4"/>
+        <circle cx="200" cy="116" r="4"/>
+        <circle cx="108" cy="152" r="4"/>
+      </g>
+      <!-- 클래스 B: 빈 점 -->
+      <g fill="#ffffff" stroke="#1a2332" stroke-width="1.5">
+        <circle cx="28" cy="96" r="4"/>
+        <circle cx="30" cy="148" r="4"/>
+        <circle cx="52" cy="116" r="4"/>
+        <circle cx="56" cy="168" r="4"/>
+        <circle cx="88" cy="92" r="4"/>
+        <circle cx="80" cy="134" r="4"/>
+        <circle cx="96" cy="180" r="4"/>
+        <circle cx="86" cy="108" r="4"/>
+        <circle cx="132" cy="156" r="4"/>
+        <circle cx="130" cy="178" r="4"/>
+        <circle cx="152" cy="164" r="4"/>
+        <circle cx="176" cy="172" r="4"/>
+        <circle cx="200" cy="170" r="4"/>
+        <circle cx="60" cy="80" r="4"/>
+        <circle cx="150" cy="62" r="4"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="360" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">과소적합·적정·과적합의 결정 경계</text>
+
+    <!-- 범례 -->
+    <circle cx="566" cy="33" r="4" fill="#1a2332"/>
+    <text x="578" y="38" font-size="12" fill="#94a3b8">클래스 A</text>
+    <circle cx="664" cy="33" r="4" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="676" y="38" font-size="12" fill="#94a3b8">클래스 B</text>
+
+    <!-- 패널 라벨 -->
+    <text x="148" y="62" font-size="16" font-weight="700" fill="#94a3b8" text-anchor="middle">과소적합</text>
+    <text x="400" y="62" font-size="16" font-weight="700" fill="#059669" text-anchor="middle">적정</text>
+    <text x="652" y="62" font-size="16" font-weight="700" fill="#dc2626" text-anchor="middle">과적합</text>
+
+    <!-- 패널 테두리 -->
+    <rect x="32" y="76" width="232" height="190" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="284" y="76" width="232" height="190" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="536" y="76" width="232" height="190" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <!-- 패널 1: 직선 경계 -->
+    <g transform="translate(32,76)">
+      <line x1="18" y1="80" x2="214" y2="132" stroke="#94a3b8" stroke-width="2.5"/>
+      <use href="#ch06uof-pts" xlink:href="#ch06uof-pts"/>
+    </g>
+
+    <!-- 패널 2: 완만한 곡선 경계 -->
+    <g transform="translate(284,76)">
+      <path d="M18,56 C60,64 94,80 124,112 C150,142 180,152 214,158" fill="none" stroke="#059669" stroke-width="2.5"/>
+      <use href="#ch06uof-pts" xlink:href="#ch06uof-pts"/>
+    </g>
+
+    <!-- 패널 3: 구불구불한 경계 + 점 하나를 감싼 섬 -->
+    <g transform="translate(536,76)">
+      <path d="M18,50 C30,64 40,72 52,62 C64,52 70,84 84,78 C96,73 100,102 112,98 C124,94 122,126 134,122 C146,118 146,148 158,144 C170,140 172,158 186,154 C198,150 202,166 214,160" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+      <path d="M94,152 C94,138 108,132 118,140 C128,148 122,168 108,168 C98,168 94,162 94,152 Z" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+      <path d="M136,62 C136,48 150,42 160,50 C170,58 164,78 150,78 C140,78 136,72 136,62 Z" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+      <use href="#ch06uof-pts" xlink:href="#ch06uof-pts"/>
+    </g>
+
+    <!-- 패널 설명 -->
+    <text x="148" y="290" font-size="13" fill="#1a2332" text-anchor="middle">경계가 너무 단순</text>
+    <text x="148" y="310" font-size="12" fill="#94a3b8" text-anchor="middle">학습·새 데이터 모두 낮음</text>
+
+    <text x="400" y="290" font-size="13" fill="#1a2332" text-anchor="middle">잡음은 넘기고 추세만</text>
+    <text x="400" y="310" font-size="12" fill="#94a3b8" text-anchor="middle">학습·새 데이터 모두 높음</text>
+
+    <text x="652" y="290" font-size="13" fill="#1a2332" text-anchor="middle">점 하나까지 감싼 경계</text>
+    <text x="652" y="310" font-size="12" fill="#94a3b8" text-anchor="middle">학습 높음, 새 데이터 낮음</text>
+
+    <text x="32" y="340" font-size="12" fill="#94a3b8">개념 도해입니다 — 실제 데이터가 아닙니다. 세 패널의 점 배치는 모두 같습니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 6-1</span><span class="diagram__caption">과소적합·적정·과적합의 결정 경계</span></figcaption></figure>
+<p>과적합(overfitting)은 <strong>모델이 학습 데이터의 정답을 통째로 외워 버려서, 처음 보는 데이터에서는 성능이 떨어지는 상태</strong>입니다.</p>
+<p>도해의 세 패널은 같은 데이터에 대해 모델이 그은 경계선입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>상태</th>
+<th>경계선 모습</th>
+<th>학습 데이터 성능</th>
+<th>새 데이터 성능</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>과소적합(underfitting)</td>
+<td>너무 단순한 직선</td>
+<td>낮음</td>
+<td>낮음</td>
+</tr>
+<tr>
+<td>적정</td>
+<td>완만한 곡선</td>
+<td>높음</td>
+<td>높음</td>
+</tr>
+<tr>
+<td>과적합</td>
+<td>점 하나하나를 감싸는 구불구불한 선</td>
+<td>매우 높음</td>
+<td>낮음</td>
+</tr>
+</tbody>
+</table></div>
+<p>오른쪽 패널의 구불구불한 경계는 학습 데이터에 섞인 잡음(noise)까지 정답으로 받아들인 결과입니다. 그 잡음은 새 데이터에는 없으므로, 외운 만큼 손해를 봅니다. Ch03의 <code>ch03_width-depth</code>에서 "층과 노드를 늘리면 표현력은 커지지만 과적합 위험도 커진다"고 한 것이 바로 이 그림입니다.</p>
+<p>문제는 <strong>학습 중에는 이 그림을 볼 수 없다</strong>는 점입니다. 우리가 볼 수 있는 것은 숫자뿐입니다. 그래서 학습 곡선이 필요합니다.</p>
+<hr />
+<h2 id="6-2-학습-곡선-두-선이-벌어지는-지점을-찾습니다">6.2 학습 곡선 — 두 선이 벌어지는 지점을 찾습니다</h2>
+<figure class="diagram" id="fig-ch06_overfit-vs-good"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 392" width="800" height="392" role="img" aria-label="과적합 곡선과 정상 학습 곡선 비교">
+  <title>과적합 곡선과 정상 학습 곡선 비교 — 왼쪽은 학습 손실만 계속 내려가고 검증 손실이 도중부터 올라가 두 선이 벌어지는 과적합, 오른쪽은 두 선이 함께 내려가 나란히 수렴하는 정상 학습을 나타낸 개념 도해.</title>
+  <defs>
+    <marker id="ch06ovg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="392" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">과적합 곡선과 정상 학습 곡선</text>
+
+    <!-- 패널 -->
+    <rect x="32" y="56" width="352" height="264" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="416" y="56" width="352" height="264" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="400" y1="56" x2="400" y2="320" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+    <text x="48" y="84" font-size="16" font-weight="700" fill="#dc2626">과적합</text>
+    <text x="432" y="84" font-size="16" font-weight="700" fill="#059669">정상 학습</text>
+
+    <!-- 왼쪽 축 -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <line x1="88" y1="100" x2="88" y2="278"/>
+      <line x1="88" y1="278" x2="372" y2="278"/>
+    </g>
+    <text x="88" y="92" font-size="12" fill="#94a3b8" text-anchor="middle">loss</text>
+    <text x="368" y="296" font-size="12" fill="#94a3b8" text-anchor="end">epoch</text>
+
+    <!-- 왼쪽 곡선 -->
+    <path d="M88,116 C124,200 160,240 210,252 C270,264 320,266 368,268" fill="none" stroke="#1a2332" stroke-width="2"/>
+    <path d="M88,104 C118,176 142,206 170,212 C200,218 230,190 280,158 C322,132 346,118 368,108" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="7 4"/>
+
+    <!-- 분기점 -->
+    <line x1="170" y1="98" x2="170" y2="278" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="170" y="92" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">과적합 시작</text>
+
+    <!-- 격차 표시 -->
+    <line x1="306" y1="152" x2="306" y2="256" stroke="#dc2626" stroke-width="1.5" marker-start="url(#ch06ovg-arrow)" marker-end="url(#ch06ovg-arrow)"/>
+    <text x="314" y="208" font-size="12" fill="#dc2626">격차 확대</text>
+
+    <!-- 오른쪽 축 -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <line x1="472" y1="100" x2="472" y2="278"/>
+      <line x1="472" y1="278" x2="756" y2="278"/>
+    </g>
+    <text x="472" y="92" font-size="12" fill="#94a3b8" text-anchor="middle">loss</text>
+    <text x="752" y="296" font-size="12" fill="#94a3b8" text-anchor="end">epoch</text>
+
+    <!-- 오른쪽 곡선 -->
+    <path d="M472,116 C508,196 545,230 600,242 C655,250 710,254 752,256" fill="none" stroke="#1a2332" stroke-width="2"/>
+    <path d="M472,102 C508,186 545,222 600,234 C655,242 710,244 752,244" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="7 4"/>
+    <text x="636" y="214" font-size="12" font-weight="700" fill="#059669">나란히 수렴</text>
+
+    <!-- 범례 -->
+    <line x1="210" y1="340" x2="242" y2="340" stroke="#1a2332" stroke-width="2"/>
+    <text x="250" y="345" font-size="12" fill="#1a2332">실선 = 학습 손실 (loss)</text>
+    <line x1="430" y1="340" x2="462" y2="340" stroke="#1a2332" stroke-width="2" stroke-dasharray="7 4"/>
+    <text x="470" y="345" font-size="12" fill="#1a2332">점선 = 검증 손실 (val_loss)</text>
+
+    <text x="32" y="372" font-size="12" fill="#94a3b8">개념 도해입니다 — 실제 학습 결과가 아닙니다. 판단 기준은 두 선의 관계입니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 6-2</span><span class="diagram__caption">과적합 곡선과 정상 학습 곡선 비교</span></figcaption></figure>
+<p>판별 기준은 한 문장입니다. <strong>학습 손실은 계속 내려가는데 검증 손실이 어느 지점부터 올라가면 과적합입니다.</strong></p>
+<p>Ch05의 <code>ch05_history-curve</code>에서 곡선의 구성 요소(x축 epoch, 실선 학습 손실, 점선 검증 손실)를 확인했습니다. 여기서는 그 두 선의 <strong>관계</strong>만 봅니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>곡선 모양</th>
+<th>진단</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>두 선이 함께 내려가 나란히 수렴</td>
+<td>정상</td>
+<td>그대로 두거나 epoch을 조금 더</td>
+</tr>
+<tr>
+<td>학습 손실은 하강, 검증 손실은 상승(벌어짐)</td>
+<td>과적합</td>
+<td>Dropout·EarlyStopping 적용</td>
+</tr>
+<tr>
+<td>두 선 모두 높은 값에서 정체</td>
+<td>과소적합</td>
+<td>층·노드 늘리기, epoch 늘리기, Dropout 줄이기</td>
+</tr>
+<tr>
+<td>검증 손실이 위아래로 심하게 튐</td>
+<td>학습 불안정</td>
+<td>batch_size 늘리기, 학습률 낮추기(Ch05 <code>ch05_optimizer-lr</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>과적합을 일부러 만들어 곡선으로 확인하는 코드입니다.</strong> 샘플 수는 적고(400개) 모델은 큰(노드 256짜리 은닉층 2개) 상황을 만들면 과적합이 잘 재현됩니다.</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# python·numpy·TensorFlow의 난수를 한 줄로 함께 고정합니다
+tf.keras.utils.set_random_seed(42)
+
+# 잡음(flip_y)이 섞인 작은 합성 데이터
+X, y = make_classification(n_samples=400, n_features=30, n_informative=5,
+                           n_redundant=0, flip_y=0.10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+tf.keras.utils.set_random_seed(42)   # 초기 가중치까지 고정하려면 모델을 만들기 직전에 한 번 더
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(256, activation='relu'))
+model.add(Dense(256, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+history = model.fit(X_train_scaled, y_train, epochs=50, batch_size=16,
+                    validation_split=0.2, verbose=0)
+
+h = history.history
+print('마지막 epoch 학습 손실:', round(h['loss'][-1], 4))
+print('마지막 epoch 검증 손실:', round(h['val_loss'][-1], 4))
+print('검증 손실 최저 epoch:', int(np.argmin(h['val_loss'])) + 1,
+      '/ 최저값:', round(min(h['val_loss']), 4))
+print('마지막 학습 정확도:', round(h['accuracy'][-1], 4),
+      '/ 마지막 검증 정확도:', round(h['val_accuracy'][-1], 4))
+</code></pre>
+<p>출력입니다.</p>
+<pre><code>마지막 epoch 학습 손실: 0.0005
+마지막 epoch 검증 손실: 1.4136
+검증 손실 최저 epoch: 3 / 최저값: 0.5857
+마지막 학습 정확도: 1.0 / 마지막 검증 정확도: 0.7321
+</code></pre>
+<p>네 줄이 과적합의 정의를 그대로 보여 줍니다. 학습 손실은 0.0005까지 내려갔고 학습 정확도는 <strong>1.0</strong>, 즉 학습 데이터는 한 문제도 틀리지 않습니다. 그런데 검증 손실은 최저값 0.5857의 <strong>두 배가 넘는</strong> 1.4136까지 올라갔고, 검증 정확도는 0.7321에 머물렀습니다.</p>
+<p><strong>50번을 돌렸지만 실제로 쓸 만한 모델은 3번째 epoch에 있었고, 나머지 47번은 외우는 데 쓴 것입니다.</strong></p>
+<p><code>tf.keras.utils.set_random_seed(42)</code>는 파이썬·numpy·TensorFlow의 난수를 한 줄로 고정하는 함수입니다. 이 줄이 없으면 같은 코드를 돌려도 위 숫자가 매번 달라집니다. 실기에서 재현성이 필요할 때 이 한 줄을 쓰십시오.</p>
+<p><strong>Ch05에서 만든 학습 곡선 플롯 함수를 그대로 씁니다.</strong></p>
+<pre><code class="language-python">def plot_history(history, title=''):
+    h = history.history
+    plt.figure(figsize=(10, 4))
+    plt.subplot(1, 2, 1)
+    plt.plot(h['loss'], label='train loss')
+    plt.plot(h['val_loss'], label='val loss')
+    plt.xlabel('epoch'); plt.ylabel('loss'); plt.legend(); plt.title(title + ' loss')
+    plt.subplot(1, 2, 2)
+    plt.plot(h['accuracy'], label='train acc')
+    plt.plot(h['val_accuracy'], label='val acc')
+    plt.xlabel('epoch'); plt.ylabel('accuracy'); plt.legend(); plt.title(title + ' accuracy')
+    plt.tight_layout()
+    plt.show()
+
+
+plot_history(history, 'no dropout')
+</code></pre>
+<p>그림에서는 두 선이 <strong>3번째 epoch 부근에서 갈라진 뒤</strong> 영영 만나지 않습니다. 학습 손실은 계속 바닥으로 내려가고 검증 손실은 방향을 틀어 올라갑니다. 그 갈라지는 지점이 도해 왼쪽 패널의 "과적합 시작" 세로 점선입니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+과적합 판단의 기준은 <strong>검증 손실(<code>val_loss</code>)</strong>입니다. 위 실험처럼 학습 정확도(<code>accuracy</code>)가 1.0이라는 사실만으로 "잘 학습됐다"고 답하면 안 됩니다. 진짜 성적은 검증 정확도 0.7321 쪽입니다. 답안에 학습 곡선을 그리라는 지시가 있으면 <code>loss</code>와 <code>val_loss</code>를 <strong>한 그래프에 함께</strong> 그려야 비교가 됩니다.</p>
+</blockquote>
+<hr />
+<h2 id="6-3-dropout-학습할-때만-끄고-예측할-때는-켭니다">6.3 Dropout — 학습할 때만 끄고, 예측할 때는 켭니다</h2>
+<figure class="diagram" id="fig-ch06_dropout-mechanism"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 454" width="800" height="454" role="img" aria-label="Dropout이 학습 중 뉴런을 끄는 방식">
+  <title>Dropout이 학습 중 뉴런을 끄는 방식 — 같은 신경망을 두 패널로 비교한다. 학습 중에는 은닉 노드 10개 가운데 3개가 무작위로 꺼져 연결선까지 사라지고, 예측 중에는 모든 노드가 그대로 사용된다.</title>
+
+  <rect x="0" y="0" width="800" height="454" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">Dropout이 학습 중 뉴런을 끄는 방식</text>
+    <text x="768" y="38" font-size="12" fill="#94a3b8" text-anchor="end">예시: 은닉 노드 10개, Dropout(0.3)</text>
+
+    <!-- 패널 -->
+    <rect x="32" y="70" width="352" height="314" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="416" y="70" width="352" height="314" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="400" y1="70" x2="400" y2="384" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+    <text x="208" y="94" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습 중 (fit)</text>
+    <text x="592" y="94" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">예측 중 (predict / evaluate)</text>
+
+    <!-- 왼쪽 연결선: 꺼진 노드로 가는 선은 그리지 않음 -->
+    <path fill="none" stroke="#94a3b8" stroke-width="1" d="M92,190L208,122M92,190L208,170M92,190L208,194M92,190L208,218M92,190L208,266M92,190L208,290M92,190L208,338M92,230L208,122M92,230L208,170M92,230L208,194M92,230L208,218M92,230L208,266M92,230L208,290M92,230L208,338M92,270L208,122M92,270L208,170M92,270L208,194M92,270L208,218M92,270L208,266M92,270L208,290M92,270L208,338M208,122L324,230M208,170L324,230M208,194L324,230M208,218L324,230M208,266L324,230M208,290L324,230M208,338L324,230"/>
+
+    <!-- 오른쪽 연결선: 전부 연결 -->
+    <path fill="none" stroke="#94a3b8" stroke-width="1" d="M476,190L592,122M476,190L592,146M476,190L592,170M476,190L592,194M476,190L592,218M476,190L592,242M476,190L592,266M476,190L592,290M476,190L592,314M476,190L592,338M476,230L592,122M476,230L592,146M476,230L592,170M476,230L592,194M476,230L592,218M476,230L592,242M476,230L592,266M476,230L592,290M476,230L592,314M476,230L592,338M476,270L592,122M476,270L592,146M476,270L592,170M476,270L592,194M476,270L592,218M476,270L592,242M476,270L592,266M476,270L592,290M476,270L592,314M476,270L592,338M592,122L708,230M592,146L708,230M592,170L708,230M592,194L708,230M592,218L708,230M592,242L708,230M592,266L708,230M592,290L708,230M592,314L708,230M592,338L708,230"/>
+
+    <!-- 왼쪽 입력·출력 노드 -->
+    <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.5">
+      <circle cx="92" cy="190" r="10"/>
+      <circle cx="92" cy="230" r="10"/>
+      <circle cx="92" cy="270" r="10"/>
+      <circle cx="324" cy="230" r="10"/>
+    </g>
+    <!-- 왼쪽 은닉 노드: 켜짐 -->
+    <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+      <circle cx="208" cy="122" r="10"/>
+      <circle cx="208" cy="170" r="10"/>
+      <circle cx="208" cy="194" r="10"/>
+      <circle cx="208" cy="218" r="10"/>
+      <circle cx="208" cy="266" r="10"/>
+      <circle cx="208" cy="290" r="10"/>
+      <circle cx="208" cy="338" r="10"/>
+    </g>
+    <!-- 왼쪽 은닉 노드: 꺼짐 -->
+    <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3">
+      <circle cx="208" cy="146" r="10"/>
+      <circle cx="208" cy="242" r="10"/>
+      <circle cx="208" cy="314" r="10"/>
+    </g>
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <path d="M201,139L215,153M201,153L215,139"/>
+      <path d="M201,235L215,249M201,249L215,235"/>
+      <path d="M201,307L215,321M201,321L215,307"/>
+    </g>
+
+    <!-- 오른쪽 입력·출력 노드 -->
+    <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.5">
+      <circle cx="476" cy="190" r="10"/>
+      <circle cx="476" cy="230" r="10"/>
+      <circle cx="476" cy="270" r="10"/>
+      <circle cx="708" cy="230" r="10"/>
+    </g>
+    <!-- 오른쪽 은닉 노드: 전부 켜짐 -->
+    <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+      <circle cx="592" cy="122" r="10"/>
+      <circle cx="592" cy="146" r="10"/>
+      <circle cx="592" cy="170" r="10"/>
+      <circle cx="592" cy="194" r="10"/>
+      <circle cx="592" cy="218" r="10"/>
+      <circle cx="592" cy="242" r="10"/>
+      <circle cx="592" cy="266" r="10"/>
+      <circle cx="592" cy="290" r="10"/>
+      <circle cx="592" cy="314" r="10"/>
+      <circle cx="592" cy="338" r="10"/>
+    </g>
+
+    <!-- 층 이름 -->
+    <text x="92" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">입력</text>
+    <text x="208" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">은닉층 (Dense)</text>
+    <text x="324" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">출력</text>
+    <text x="476" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">입력</text>
+    <text x="592" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">은닉층 (Dense)</text>
+    <text x="708" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">출력</text>
+
+    <!-- 패널 설명 -->
+    <text x="208" y="412" font-size="13" fill="#1a2332" text-anchor="middle">노드의 30%가 무작위로 꺼집니다</text>
+    <text x="208" y="432" font-size="12" fill="#94a3b8" text-anchor="middle">X 표시 = 이번 step에 꺼진 노드 (10개 중 3개)</text>
+
+    <text x="592" y="412" font-size="13" fill="#1a2332" text-anchor="middle">모든 노드를 그대로 사용합니다</text>
+    <text x="592" y="432" font-size="12" fill="#94a3b8" text-anchor="middle">predict(), evaluate()는 자동으로 통과 모드</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 6-3</span><span class="diagram__caption">Dropout이 학습 중 뉴런을 끄는 방식</span></figcaption></figure>
+<p>Ch04에서는 <code>Dropout(0.3)</code>을 <strong>어디에 넣는지</strong>(은닉층 <code>Dense</code> 뒤)만 다뤘습니다. 여기서는 그 층이 실제로 무슨 일을 하는지 봅니다.</p>
+<p><code>Dropout(0.3)</code>은 <strong>학습 중 매 step마다 그 층 노드의 30%를 무작위로 골라 임시로 끄는</strong> 층입니다. 도해 왼쪽처럼 꺼진 노드는 그 step 동안 출력이 0이 되고, 연결된 가중치도 갱신되지 않습니다. 중요한 것은 "매 step마다 꺼지는 노드가 달라진다"는 점입니다. 특정 노드가 영구히 삭제되는 것이 아닙니다.</p>
+<p>이렇게 하면 왜 과적합이 줄어들까요. 노드 몇 개가 수시로 사라지므로, 모델은 <strong>어느 한 노드에만 의존하는 지름길을 만들 수 없습니다.</strong> 여러 노드가 조금씩 나눠서 판단하도록 강제되고, 그 결과 경계선이 6.1 도해의 오른쪽처럼 구불구불해지기 어려워집니다.</p>
+<p>그리고 도해 오른쪽이 핵심입니다. <strong>예측할 때는 아무 노드도 끄지 않습니다.</strong> <code>predict()</code>나 <code>evaluate()</code>를 부르면 Dropout 층은 저절로 통과 모드가 되어 모든 노드를 그대로 흘려보냅니다. 예측값이 호출할 때마다 달라지면 곤란하기 때문입니다.</p>
+<p><strong>같은 입력을 반복해 넣어 두 모드의 차이를 직접 확인하는 코드입니다.</strong></p>
+<pre><code class="language-python">from tensorflow.keras.layers import Dropout
+
+tf.keras.utils.set_random_seed(42)
+d_model = Sequential()
+d_model.add(Input(shape=(X_train_scaled.shape[1],)))
+d_model.add(Dense(64, activation='relu'))
+d_model.add(Dropout(0.3))
+d_model.add(Dense(1, activation='sigmoid'))
+d_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+sample = X_train_scaled[:1]
+
+# (1) 예측 모드 — Dropout이 꺼져 있어 값이 항상 같습니다
+print('predict 1회차:', np.round(d_model.predict(sample, verbose=0).ravel(), 4))
+print('predict 2회차:', np.round(d_model.predict(sample, verbose=0).ravel(), 4))
+
+# (2) 학습 모드 — 꺼지는 노드가 매번 달라 값이 흔들립니다 (원리 확인용 호출)
+print('학습 모드 1회차:', np.round(d_model(sample, training=True).numpy().ravel(), 4))
+print('학습 모드 2회차:', np.round(d_model(sample, training=True).numpy().ravel(), 4))
+</code></pre>
+<p>출력입니다.</p>
+<pre><code>predict 1회차: [0.5059]
+predict 2회차: [0.5059]        ← 동일
+학습 모드 1회차: [0.3552]
+학습 모드 2회차: [0.5609]      ← 매번 다름
+</code></pre>
+<p>학습을 시키지 않은 모델이라 예측값이 0.5 근처에 머물러 있지만, 볼 것은 값의 크기가 아니라 <strong>같은 입력에 대해 값이 고정되는지 흔들리는지</strong>입니다. <code>predict()</code>는 두 번 다 0.5059로 같고, 학습 모드는 0.3552와 0.5609로 다릅니다. 매번 다른 노드가 꺼진다는 증거입니다.</p>
+<p><code>training=True</code> 호출은 원리 확인용이며, 시험 답안에 쓸 일은 없습니다. 답안에서는 언제나 <code>predict()</code>를 씁니다.</p>
+<p><strong>Dropout 비율을 바꿔 가며 학습 곡선과 검증 지표가 어떻게 달라지는지 비교합니다.</strong></p>
+<pre><code class="language-python">def build_model(dropout_rate, units=256):
+    m = Sequential()
+    m.add(Input(shape=(X_train_scaled.shape[1],)))
+    m.add(Dense(units, activation='relu'))
+    if dropout_rate &gt; 0:
+        m.add(Dropout(dropout_rate))
+    m.add(Dense(units, activation='relu'))
+    if dropout_rate &gt; 0:
+        m.add(Dropout(dropout_rate))
+    m.add(Dense(1, activation='sigmoid'))
+    m.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    return m
+
+
+hist_by_rate = {}
+for rate in [0.0, 0.3, 0.5, 0.8]:
+    tf.keras.utils.set_random_seed(42)
+    m = build_model(rate)
+    hist_by_rate[rate] = m.fit(X_train_scaled, y_train, epochs=60, batch_size=16,
+                               validation_split=0.2, verbose=0)
+    hh = hist_by_rate[rate].history
+    print(f'dropout={rate}  최저 val_loss={min(hh[&quot;val_loss&quot;]):.4f}  '
+          f'마지막 val_loss={hh[&quot;val_loss&quot;][-1]:.4f}  '
+          f'최고 val_acc={max(hh[&quot;val_accuracy&quot;]):.4f}')
+
+# 곡선으로도 비교합니다 — Dropout 없음 vs 0.5
+plot_history(hist_by_rate[0.0], 'dropout=0.0')
+plot_history(hist_by_rate[0.5], 'dropout=0.5')
+</code></pre>
+<p>출력입니다.</p>
+<pre><code>dropout=0.0  최저 val_loss=0.5857  마지막 val_loss=1.4784  최고 val_acc=0.7321
+dropout=0.3  최저 val_loss=0.5776  마지막 val_loss=1.6485  최고 val_acc=0.7857
+dropout=0.5  최저 val_loss=0.5722  마지막 val_loss=1.2115  최고 val_acc=0.7857
+dropout=0.8  최저 val_loss=0.5633  마지막 val_loss=0.5864  최고 val_acc=0.7143
+</code></pre>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Dropout 비율</th>
+<th>최저 val_loss</th>
+<th>마지막 val_loss</th>
+<th>최저 대비 상승폭</th>
+<th>최고 val_acc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.0</td>
+<td>0.5857</td>
+<td>1.4784</td>
+<td>약 2.5배</td>
+<td>0.7321</td>
+</tr>
+<tr>
+<td>0.3</td>
+<td>0.5776</td>
+<td>1.6485</td>
+<td>약 2.9배</td>
+<td>0.7857</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>0.5722</td>
+<td>1.2115</td>
+<td>약 2.1배</td>
+<td>0.7857</td>
+</tr>
+<tr>
+<td>0.8</td>
+<td>0.5633</td>
+<td>0.5864</td>
+<td>약 1.04배</td>
+<td>0.7143</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>이 결과는 "비율을 올릴수록 좋아진다"는 기대와 맞지 않습니다.</strong> <code>dropout=0.3</code>의 마지막 검증 손실(1.6485)은 Dropout이 아예 없는 경우(1.4784)보다 오히려 나쁩니다. 교재가 이 수치를 그대로 싣는 이유는, 여러분이 코드를 돌렸을 때 보게 될 것이 바로 이 모습이기 때문입니다.</p>
+<p>읽는 법은 이렇습니다.</p>
+<ul>
+<li><strong>Dropout은 과적합을 없애는 스위치가 아니라 완화 장치입니다.</strong> 400행짜리 잡음 섞인 데이터에서 0.3 정도로는 후반 붕괴를 막지 못합니다.</li>
+<li><strong>비율을 충분히 키우면 붕괴 폭이 줄어듭니다.</strong> 0.5는 2.1배, 0.8은 1.04배로, 특히 0.8은 검증 손실이 거의 무너지지 않습니다. 학습 곡선에서 두 선이 벌어지는 정도가 줄었다는 뜻입니다.</li>
+<li><strong>그렇다고 많이 끌수록 좋은 것도 아닙니다.</strong> <code>dropout=0.8</code>의 최고 검증 정확도는 0.7143으로 네 조건 중 가장 낮습니다. 노드 대부분이 꺼져 모델이 학습할 기회 자체를 잃었습니다.</li>
+<li><strong>Dropout의 실제 이득은 여기서 드러납니다.</strong> 0.3과 0.5의 최고 검증 정확도는 0.7857로, Dropout이 없을 때의 0.7321보다 확실히 높습니다.</li>
+</ul>
+<p>정리하면, Dropout을 평가할 때 볼 것은 "마지막 손실이 낮아졌는가"가 아니라 <strong>학습 곡선의 두 선이 덜 벌어졌는가</strong>입니다. 그리고 결정적으로, <strong>Dropout은 가장 좋은 지점에서 학습을 멈춰 주지 않습니다.</strong> 네 조건 모두 최저값은 초반에 찍고 그 뒤로 나빠졌습니다. 그래서 다음 절의 <code>EarlyStopping</code>이 반드시 함께 필요합니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+<code>Dropout(0.3)</code>의 0.3은 <strong>끄는 비율</strong>입니다. 남기는 비율이 아닙니다. 0.8처럼 큰 값을 넣으면 노드 대부분이 꺼져, 위 실험처럼 검증 정확도가 오히려 떨어집니다. 실기에서는 0.2~0.5 사이를 쓰고, 지시가 없으면 0.3을 기본값으로 삼으십시오.</p>
+</blockquote>
+<hr />
+<h2 id="6-4-earlystopping-가장-좋았던-지점에서-멈추고-되돌립니다">6.4 EarlyStopping — 가장 좋았던 지점에서 멈추고 되돌립니다</h2>
+<figure class="diagram" id="fig-ch06_earlystopping"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" role="img" aria-label="EarlyStopping이 학습을 멈추는 지점">
+  <title>EarlyStopping이 학습을 멈추는 지점 — 검증 손실 곡선의 최저점이 16 epoch이고, 개선 없이 5 epoch을 더 기다린 21 epoch에서 학습을 멈춘 뒤 최저점의 가중치로 되돌리는 과정을 나타낸 개념 도해.</title>
+  <defs>
+    <marker id="ch06es-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="400" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">EarlyStopping이 학습을 멈추는 지점</text>
+
+    <!-- 축 -->
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <line x1="88" y1="96" x2="88" y2="330"/>
+      <line x1="88" y1="330" x2="694" y2="330"/>
+    </g>
+    <text x="32" y="78" font-size="12" fill="#94a3b8">검증 손실 (val_loss)</text>
+    <text x="694" y="350" font-size="12" fill="#94a3b8" text-anchor="end">epoch</text>
+
+    <!-- 검증 손실 곡선 -->
+    <path d="M100,112 C150,205 200,248 260,262 C330,278 410,290 475,292 C520,290 560,274 600,258" fill="none" stroke="#1a2332" stroke-width="2.5"/>
+    <path d="M600,258 C625,252 650,244 675,238" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+
+    <!-- best epoch 안내선과 마커 -->
+    <line x1="475" y1="124" x2="475" y2="284" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <circle cx="475" cy="292" r="6" fill="#059669"/>
+    <text x="475" y="318" font-size="12" font-weight="700" fill="#059669" text-anchor="middle">best epoch = 16</text>
+    <text x="475" y="350" font-size="12" fill="#94a3b8" text-anchor="middle">16</text>
+
+    <!-- patience 브래킷 -->
+    <path d="M475,238 L475,228 L600,228 L600,238" fill="none" stroke="#f59e0b" stroke-width="2"/>
+    <text x="537" y="220" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="middle">patience = 5</text>
+
+    <!-- 중단 지점 -->
+    <line x1="600" y1="124" x2="600" y2="336" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="600" y="350" font-size="12" fill="#94a3b8" text-anchor="middle">21</text>
+    <text x="612" y="152" font-size="13" font-weight="700" fill="#dc2626">학습 중단</text>
+    <text x="612" y="172" font-size="12" fill="#1a2332">epoch 21 = 16 + 5</text>
+    <text x="612" y="232" font-size="12" fill="#94a3b8">실행되지 않은 구간</text>
+
+    <!-- 최적 가중치로 복귀 -->
+    <path d="M594,134 C555,110 505,110 482,128" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ch06es-arrow)"/>
+    <text x="538" y="98" font-size="13" font-weight="700" fill="#059669" text-anchor="middle">restore_best_weights=True</text>
+
+    <text x="32" y="378" font-size="12" fill="#94a3b8">개념 도해입니다 — 실제 학습 곡선이 아닙니다. 숫자는 이해를 돕기 위한 예시입니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 6-4</span><span class="diagram__caption">EarlyStopping이 학습을 멈추는 지점</span></figcaption></figure>
+<p>6.2의 실험에서 우리는 "쓸 만한 모델은 3번째 epoch에 있었다"는 사실을 <strong>50번을 다 돌린 뒤에야</strong> 알았습니다. <code>EarlyStopping</code>은 그 판단을 학습 중에 자동으로 해 주는 콜백입니다.</p>
+<p>콜백은 <strong>학습 도중 정해진 시점에 끼어들어 무언가를 하는 도구</strong>입니다. <code>fit()</code>에 <code>callbacks=[...]</code> 리스트로 넘기면 Keras가 매 epoch이 끝날 때마다 불러 줍니다.</p>
+<p><code>EarlyStopping</code>의 인자는 세 개만 외우면 됩니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>인자</th>
+<th>의미</th>
+<th>시험 표준값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>monitor</code></td>
+<td>무엇을 기준으로 판단할지</td>
+<td><code>'val_loss'</code></td>
+</tr>
+<tr>
+<td><code>patience</code></td>
+<td>개선이 없는 epoch을 몇 번까지 참을지</td>
+<td><code>5</code> (또는 문제 지시값)</td>
+</tr>
+<tr>
+<td><code>restore_best_weights</code></td>
+<td>멈춘 뒤 가장 좋았던 시점의 가중치로 되돌릴지</td>
+<td><code>True</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>도해가 이 세 인자를 그대로 그린 것입니다(도해에 적힌 숫자는 관계를 보여 주기 위한 예시이며, 아래 실행 결과의 값과는 다릅니다). 검증 손실 최저점이 <code>best epoch</code>, 그 뒤로 개선 없이 흘러간 구간이 <code>patience</code>, 브래킷 끝의 세로선이 중단 지점, 그리고 best로 돌아가는 곡선 화살표가 <code>restore_best_weights=True</code>입니다.</p>
+<p><code>restore_best_weights</code>를 빠뜨리면 어떻게 될까요. 학습은 멈추지만 모델에 남는 가중치는 <strong>최저점이 아니라 <code>patience</code>만큼 더 나빠진 마지막 epoch의 것</strong>입니다. 기본값이 <code>False</code>이므로 반드시 직접 <code>True</code>로 적어야 합니다.</p>
+<p><strong>EarlyStopping을 붙여 같은 실험을 다시 돌립니다.</strong></p>
+<pre><code class="language-python">from tensorflow.keras.callbacks import EarlyStopping
+
+tf.keras.utils.set_random_seed(42)
+model = build_model(0.3)
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+
+history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=32,
+                    validation_split=0.2, callbacks=[es], verbose=0)
+
+print('지시한 epochs: 100')
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+print('검증 손실 최저 epoch:', int(np.argmin(history.history['val_loss'])) + 1)
+</code></pre>
+<p>출력입니다.</p>
+<pre><code>지시한 epochs: 100
+실제로 학습한 epoch 수: 11
+검증 손실 최저 epoch: 6
+</code></pre>
+<p>11번째에서 멈췄고, 최저점은 6번째였습니다. <strong><code>11 = 6 + 5</code></strong>, 즉 최저점 이후 <code>patience=5</code>만큼 기다렸다가 중단한 것입니다. <code>restore_best_weights=True</code> 덕분에 지금 <code>model</code>이 들고 있는 가중치는 11번째가 아니라 <strong>6번째 epoch의 것</strong>입니다.</p>
+<p>이 산술 관계는 데이터가 바뀌어도 그대로 성립합니다.</p>
+<pre><code>중단 epoch = 검증 지표가 가장 좋았던 epoch + patience
+</code></pre>
+<p><strong>답안이 의도대로 동작했는지 스스로 검산하는 도구</strong>로 쓰십시오. 두 숫자를 출력해 보고 차이가 <code>patience</code>와 다르면 무언가 잘못된 것입니다. 특히 <code>len(history.history['loss'])</code>가 지시한 <code>epochs</code>와 똑같이 나왔다면 콜백이 동작하지 않았다는 신호입니다.</p>
+<p>그래서 <code>EarlyStopping</code>을 쓸 때는 <strong><code>epochs</code>를 넉넉하게(100~200) 주는 것이 정석입니다.</strong> 어차피 콜백이 알아서 멈추므로, 작게 주면 오히려 최적점에 닿기 전에 끝나 버립니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+<code>monitor='val_loss'</code>인데 <code>fit()</code>에 <code>validation_split</code>이나 <code>validation_data</code>가 없으면 검증 손실이 계산되지 않아 콜백이 동작하지 않거나 경고가 납니다. <strong>검증 데이터 지정과 EarlyStopping은 항상 한 쌍입니다.</strong><br />
+참고로 <code>monitor='val_accuracy'</code>처럼 클수록 좋은 지표를 감시할 때는 <code>mode='max'</code>를 함께 적어 두면 안전합니다.</p>
+</blockquote>
+<hr />
+<h2 id="6-5-modelcheckpoint-좋았던-순간을-파일로-남깁니다">6.5 ModelCheckpoint — 좋았던 순간을 파일로 남깁니다</h2>
+<figure class="diagram" id="fig-ch06_callback-flow"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 640" width="800" height="640" role="img" aria-label="콜백이 학습 루프에 끼어드는 위치">
+  <title>콜백이 학습 루프에 끼어드는 위치 — 매 epoch이 끝나면 검증 지표를 계산하고, 이전 최고보다 개선됐으면 가중치를 저장하며 카운터를 0으로 되돌리고, 개선이 없으면 카운터를 1 올린 뒤 카운터가 patience에 도달하면 학습을 멈추는 흐름.</title>
+  <defs>
+    <marker id="ch06cb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="640" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">콜백이 학습 루프에 끼어드는 위치</text>
+
+    <!-- 연결선 -->
+    <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#ch06cb-arrow)">
+      <path d="M400,108 L400,130"/>
+      <path d="M400,178 L400,190"/>
+      <path d="M250,236 L190,236 L190,288"/>
+      <path d="M550,236 L610,236 L610,288"/>
+      <path d="M400,376 L400,394"/>
+      <path d="M400,482 L400,516"/>
+      <path d="M550,440 L740,440 L740,86 L494,86"/>
+    </g>
+    <g stroke="#94a3b8" stroke-width="2" fill="none">
+      <path d="M190,352 L190,376 L610,376 L610,352"/>
+    </g>
+
+    <!-- epoch 종료 -->
+    <rect x="310" y="64" width="180" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="400" y="92" font-size="15" fill="#1a2332" text-anchor="middle">epoch 종료</text>
+
+    <!-- 검증 지표 계산 -->
+    <rect x="280" y="134" width="240" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="400" y="162" font-size="15" fill="#1a2332" text-anchor="middle">검증 지표 계산 (val_loss)</text>
+
+    <!-- 판단 1 -->
+    <path d="M400,194 L550,236 L400,278 L250,236 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="241" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이전 최고보다 개선?</text>
+    <text x="220" y="228" font-size="13" font-weight="700" fill="#1a2332" text-anchor="middle">예</text>
+    <text x="580" y="228" font-size="13" font-weight="700" fill="#1a2332" text-anchor="middle">아니오</text>
+
+    <!-- 개선됨 -->
+    <rect x="100" y="288" width="180" height="64" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="190" y="314" font-size="15" fill="#1a2332" text-anchor="middle">가중치 저장</text>
+    <text x="190" y="338" font-size="15" fill="#1a2332" text-anchor="middle">카운터 = 0</text>
+
+    <!-- 개선 없음 -->
+    <rect x="520" y="288" width="180" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="610" y="314" font-size="15" fill="#1a2332" text-anchor="middle">개선 없음</text>
+    <text x="610" y="338" font-size="15" fill="#1a2332" text-anchor="middle">카운터 + 1</text>
+
+    <!-- 판단 2 -->
+    <path d="M400,398 L550,440 L400,482 L250,440 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="445" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">카운터가 patience에 도달? (&gt;=)</text>
+    <text x="414" y="506" font-size="13" font-weight="700" fill="#1a2332">예</text>
+    <text x="564" y="432" font-size="13" font-weight="700" fill="#1a2332">아니오</text>
+    <text x="616" y="76" font-size="12" fill="#94a3b8" text-anchor="middle">다음 epoch으로</text>
+
+    <!-- 중단 -->
+    <rect x="310" y="516" width="180" height="44" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="400" y="544" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">학습 중단</text>
+
+    <!-- 주석 -->
+    <rect x="32" y="580" width="12" height="12" rx="2" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+    <text x="52" y="591" font-size="12" fill="#1a2332">저장 = ModelCheckpoint(monitor='val_loss', save_best_only=True)</text>
+    <rect x="32" y="602" width="12" height="12" rx="2" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="52" y="613" font-size="12" fill="#1a2332">중단 = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 6-5</span><span class="diagram__caption">콜백이 학습 루프에 끼어드는 위치</span></figcaption></figure>
+<p>도해의 흐름이 두 콜백이 하는 일의 전부입니다. <strong>매 epoch이 끝날 때마다 검증 지표를 보고, 개선됐으면 저장하고 카운터를 0으로, 아니면 카운터를 1 올린다.</strong> 그리고 카운터가 <code>patience</code>에 <strong>도달하면</strong> 학습을 멈춥니다. 넘어설 때까지 기다리는 것이 아니라 같아지는 순간 멈추기 때문에, 6.4에서 본 <code>중단 epoch = 최저 epoch + patience</code> 관계가 딱 맞아떨어집니다.</p>
+<p>이 흐름에서 "개선됐으면 저장한다"를 담당하는 것이 <code>ModelCheckpoint</code>입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>인자</th>
+<th>의미</th>
+<th>시험 표준값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>첫 번째 위치 인자</td>
+<td>저장할 파일 경로</td>
+<td><code>'best_model.keras'</code></td>
+</tr>
+<tr>
+<td><code>monitor</code></td>
+<td>무엇을 기준으로 개선을 판단할지</td>
+<td><code>'val_loss'</code></td>
+</tr>
+<tr>
+<td><code>save_best_only</code></td>
+<td>개선된 경우에만 덮어쓸지</td>
+<td><code>True</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><code>save_best_only=True</code>가 빠지면 매 epoch마다 파일을 덮어써서, 결국 <strong>마지막 epoch 모델</strong>이 남습니다. 그러면 파일을 만든 의미가 없습니다.</p>
+<p><strong>두 콜백을 함께 적용하고, 저장된 파일에서 모델을 복원합니다.</strong> 여기서는 저장·복원의 효과가 성능 숫자로 분명히 보이도록 잡음이 적은 <code>load_breast_cancer</code> 데이터를 씁니다.</p>
+<pre><code class="language-python">import os
+from tensorflow.keras.models import load_model
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from sklearn.datasets import load_breast_cancer
+
+# 데이터 준비 (Ch02)
+Xb, yb = load_breast_cancer(return_X_y=True)
+Xb_train, Xb_test, yb_train, yb_test = train_test_split(
+    Xb, yb, test_size=0.3, random_state=42, stratify=yb
+)
+sc = StandardScaler()
+Xb_train_scaled = sc.fit_transform(Xb_train)
+Xb_test_scaled = sc.transform(Xb_test)
+
+tf.keras.utils.set_random_seed(42)
+bc_model = Sequential()
+bc_model.add(Input(shape=(Xb_train_scaled.shape[1],)))
+bc_model.add(Dense(64, activation='relu'))
+bc_model.add(Dropout(0.3))
+bc_model.add(Dense(64, activation='relu'))
+bc_model.add(Dropout(0.3))
+bc_model.add(Dense(1, activation='sigmoid'))
+bc_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+mc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)
+
+history = bc_model.fit(Xb_train_scaled, yb_train, epochs=100, batch_size=32,
+                       validation_split=0.2, callbacks=[es, mc], verbose=0)
+
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+print('검증 손실 최저 epoch:', int(np.argmin(history.history['val_loss'])) + 1)
+print('파일 생성 확인:', os.path.exists('best_model.keras'))
+
+best_model = load_model('best_model.keras')
+loss, acc = best_model.evaluate(Xb_test_scaled, yb_test, verbose=0)
+print(f'복원 모델 평가 성능 — loss: {loss:.4f}, accuracy: {acc:.4f}')
+</code></pre>
+<p>출력입니다.</p>
+<pre><code>실제로 학습한 epoch 수: 40
+검증 손실 최저 epoch: 35
+파일 생성 확인: True
+복원 모델 평가 성능 — loss: 0.0629, accuracy: 0.9708
+</code></pre>
+<p>데이터가 바뀌었는데도 <code>35 + 5 = 40</code>, 6.4에서 확인한 관계가 그대로 성립합니다. 외울 것은 개별 숫자가 아니라 이 관계입니다.</p>
+<blockquote class="callout callout--more">
+<p>📎 은닉층 구성이 조금씩 다르면 멈추는 epoch도 달라집니다. 이 예제는 노드 64-64이고, 뒤에 나오는 시험장 표준 코드는 64-32라 중단 지점이 다르게 나옵니다. 값이 다르다고 틀린 것이 아닙니다.</p>
+</blockquote>
+<p><code>restore_best_weights=True</code>를 이미 썼다면 메모리 위의 <code>bc_model</code>도 최적 상태이므로, 파일 복원은 안전장치에 가깝습니다. 다만 문제가 "가장 성능이 좋은 모델을 저장하시오"라고 명시하면 <code>ModelCheckpoint</code>가 정답입니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong><br />
+콜백은 <strong>만들기만 해서는 아무 일도 하지 않습니다.</strong> <code>fit()</code>에 <code>callbacks=[es, mc]</code>로 넘겨야 동작합니다. 이 리스트 전달을 빠뜨리는 것이 가장 흔한 감점 지점입니다.<br />
+저장 파일명은 <code>.keras</code> 확장자를 쓰십시오. Keras 3에서는 <code>.h5</code>나 확장자 없는 경로가 오류를 낼 수 있습니다.</p>
+</blockquote>
+<hr />
+<h2 id="6-6-과적합-대응-수단을-고르는-순서">6.6 과적합 대응 수단을 고르는 순서</h2>
+<figure class="diagram" id="fig-ch06_regularization-menu"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 388" width="800" height="388" role="img" aria-label="과적합 대응 수단 비교">
+  <title>과적합 대응 수단 비교 — Dropout과 EarlyStopping은 시험에 자주 나오는 수단이고, 데이터 늘리기와 모델 크기 줄이기는 실기에서 손대기 어렵거나 지시가 있을 때만 쓰는 수단이다.</title>
+
+  <rect x="0" y="0" width="800" height="388" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">과적합 대응 수단 비교</text>
+
+    <!-- 표 머리 -->
+    <text x="48" y="88" font-size="13" font-weight="700" fill="#94a3b8">수단</text>
+    <text x="248" y="88" font-size="13" font-weight="700" fill="#94a3b8">효과</text>
+    <text x="584" y="88" font-size="13" font-weight="700" fill="#94a3b8">시험에서</text>
+    <line x1="32" y1="96" x2="768" y2="96" stroke="#94a3b8" stroke-width="1"/>
+
+    <!-- 1행 Dropout -->
+    <rect x="32" y="104" width="736" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="48" y="136" font-size="15" font-weight="700" fill="#1a2332">Dropout</text>
+    <text x="248" y="136" font-size="13" fill="#1a2332">특정 노드 의존을 막아 경계선을 부드럽게 함</text>
+    <text x="584" y="136" font-size="13" font-weight="700" fill="#2563eb">빈출 — 모델 구성 지시</text>
+
+    <!-- 2행 EarlyStopping -->
+    <rect x="32" y="164" width="736" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="48" y="196" font-size="15" font-weight="700" fill="#1a2332">EarlyStopping</text>
+    <text x="248" y="196" font-size="13" fill="#1a2332">최적 지점에서 멈추고 되돌림</text>
+    <text x="584" y="196" font-size="13" font-weight="700" fill="#2563eb">빈출 — 학습 지시</text>
+
+    <!-- 3행 데이터 늘리기 -->
+    <rect x="32" y="224" width="736" height="54" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="48" y="256" font-size="15" fill="#1a2332">데이터 늘리기</text>
+    <text x="248" y="256" font-size="13" fill="#1a2332">가장 근본적이지만 실기에서는 불가</text>
+    <text x="584" y="256" font-size="13" fill="#94a3b8">주어진 데이터가 고정</text>
+
+    <!-- 4행 모델 크기 줄이기 -->
+    <rect x="32" y="284" width="736" height="54" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="48" y="316" font-size="15" fill="#1a2332">모델 크기 줄이기</text>
+    <text x="248" y="316" font-size="13" fill="#1a2332">층·노드를 줄여 표현력을 낮춤</text>
+    <text x="584" y="316" font-size="13" fill="#94a3b8">지시가 있을 때만</text>
+
+    <text x="32" y="364" font-size="12" fill="#94a3b8">위 두 행이 실기에서 실제로 손대는 수단입니다.</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 6-6</span><span class="diagram__caption">과적합 대응 수단 비교</span></figcaption></figure>
+<p>과적합에 쓸 수 있는 수단은 여러 가지지만, 실기에서 손대는 것은 사실상 두 가지입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>수단</th>
+<th>효과</th>
+<th>시험에서</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dropout</code></td>
+<td>특정 노드 의존을 막아 경계선을 부드럽게 함</td>
+<td><strong>빈출</strong> — 모델 구성 지시에 자주 포함</td>
+</tr>
+<tr>
+<td><code>EarlyStopping</code></td>
+<td>최적 지점에서 멈추고 되돌림</td>
+<td><strong>빈출</strong> — 학습 지시에 거의 항상 포함</td>
+</tr>
+<tr>
+<td>데이터 늘리기</td>
+<td>가장 근본적이지만 실기에서는 불가</td>
+<td>주어진 데이터가 고정</td>
+</tr>
+<tr>
+<td>모델 크기 줄이기</td>
+<td>층·노드를 줄여 표현력을 낮춤</td>
+<td>지시가 있을 때만</td>
+</tr>
+</tbody>
+</table></div>
+<p>순서는 이렇게 잡으십시오. <strong>① 곡선을 그려 과적합인지 확인 → ② Dropout이 이미 있는지 보고 없으면 추가 → ③ EarlyStopping으로 멈추는 지점을 맡김.</strong> 그래도 검증 손실이 높다면 은닉층 노드 수를 절반으로 줄여 보는 것이 다음 카드입니다.</p>
+<p>반대로 <strong>두 곡선이 모두 높은 값에서 정체한다면 과소적합</strong>이므로, 대응이 정반대가 됩니다. Dropout 비율을 낮추거나 빼고, 노드 수와 epoch을 늘려야 합니다. 과적합 대응 수단을 과소적합 상황에 쓰면 성능이 더 나빠집니다.</p>
+<hr />
+<h2 id="시험장-표준-코드">시험장 표준 코드</h2>
+<p>전처리를 마친 데이터에서 콜백을 붙인 학습까지, 그대로 옮겨 쓸 수 있는 완결 코드입니다. 이진분류 기준이며 출력층과 손실 함수만 유형에 맞게 교체하면 됩니다(Ch05 <code>ch05_loss-decision</code> 참조).</p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+tf.keras.utils.set_random_seed(42)
+
+# 1) 데이터 준비 (Ch02)
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 2) 모델 구성 (Ch04) — Dropout 포함
+tf.keras.utils.set_random_seed(42)   # 초기 가중치까지 고정하려면 모델을 만들기 직전에 한 번 더
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))      # ← 유형별 교체 지점
+
+# 3) 컴파일 (Ch05)
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',      # ← 유형별 교체 지점
+              metrics=['accuracy'])
+
+# 4) 콜백 정의 (이 챕터)
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+mc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)
+
+# 5) 학습 — epochs는 넉넉히, 멈추는 것은 콜백에 맡깁니다
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    callbacks=[es, mc],
+                    verbose=1)
+
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+print('검증 손실 최저 epoch:', int(np.argmin(history.history['val_loss'])) + 1)
+
+# 6) 학습 곡선 확인
+h = history.history
+plt.figure(figsize=(10, 4))
+plt.subplot(1, 2, 1)
+plt.plot(h['loss'], label='train loss')
+plt.plot(h['val_loss'], label='val loss')
+plt.xlabel('epoch'); plt.ylabel('loss'); plt.legend(); plt.title('loss')
+plt.subplot(1, 2, 2)
+plt.plot(h['accuracy'], label='train acc')
+plt.plot(h['val_accuracy'], label='val acc')
+plt.xlabel('epoch'); plt.ylabel('accuracy'); plt.legend(); plt.title('accuracy')
+plt.tight_layout()
+plt.show()
+
+# 7) 저장된 최적 모델 복원 (선택)
+best_model = load_model('best_model.keras')
+loss, acc = best_model.evaluate(X_test_scaled, y_test, verbose=0)
+print(f'평가 데이터 — loss: {loss:.4f}, accuracy: {acc:.4f}')
+</code></pre>
+<p>출력의 요지입니다(진행 막대는 생략했습니다).</p>
+<pre><code>실제로 학습한 epoch 수: 47
+검증 손실 최저 epoch: 42
+평가 데이터 — loss: 0.0689, accuracy: 0.9708
+</code></pre>
+<p>여기서도 <code>47 = 42 + 5</code>입니다. 100을 지시했지만 47에서 멈췄고, 남은 가중치는 42번째 epoch의 것입니다. 은닉층 구성이나 실행 환경이 달라지면 47·42 같은 숫자는 달라질 수 있지만, <strong>두 숫자의 차이가 <code>patience</code>와 같다</strong>는 관계는 그대로입니다.</p>
+<p>여기까지가 학습을 "잘" 끝내는 방법입니다. 이제 남은 것은 완성된 모델의 성능을 제대로 재고 해석하는 일이며, 그것이 Ch07의 내용입니다.</p>
+<hr />
+<h2 id="핵심-요약">핵심 요약</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>기억할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>과적합 판별</td>
+<td>학습 손실은 하강, <strong>검증 손실이 상승</strong>하며 두 선이 벌어짐</td>
+</tr>
+<tr>
+<td>과소적합 판별</td>
+<td>두 손실 모두 높은 값에서 정체 → 대응은 정반대(노드·epoch 늘리기)</td>
+</tr>
+<tr>
+<td>Dropout</td>
+<td>학습 중 매 step마다 지정 <strong>비율만큼 노드를 끔</strong>, 예측 시에는 끄지 않음</td>
+</tr>
+<tr>
+<td>Dropout 효과 확인</td>
+<td>"마지막 손실이 낮아졌는가"가 아니라 <strong>두 곡선이 덜 벌어졌는가</strong>. 비율을 올린다고 항상 좋아지지는 않음(0.2~0.5 권장)</td>
+</tr>
+<tr>
+<td>EarlyStopping</td>
+<td><code>EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)</code></td>
+</tr>
+<tr>
+<td>ModelCheckpoint</td>
+<td><code>ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)</code></td>
+</tr>
+<tr>
+<td>전달</td>
+<td><code>fit(..., validation_split=0.2, callbacks=[es, mc])</code> — 리스트 전달을 빠뜨리지 않기</td>
+</tr>
+<tr>
+<td>epochs</td>
+<td>콜백을 쓸 때는 넉넉히(100 이상) 주고 중단은 콜백에 맡김</td>
+</tr>
+<tr>
+<td>자기 검산</td>
+<td><code>중단 epoch = 검증 지표 최적 epoch + patience</code> — 차이가 <code>patience</code>와 다르거나 지시한 <code>epochs</code>를 다 쓰면 콜백을 의심</td>
+</tr>
+</tbody>
+</table></div>
+<section class="exam" id="exam-ch06">
+<h2 id="ch06-확인-문제-과적합-진단과-대응">Ch06 확인 문제 — 과적합 진단과 대응</h2>
+<blockquote class="callout callout--note">
+<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
+<p>이 챕터의 범위는 <strong>학습 곡선 판독 / Dropout / <code>EarlyStopping</code> / <code>ModelCheckpoint</code></strong> 입니다.<br />
+손실 함수 선택은 Ch05, <code>evaluate</code>·<code>predict</code>와 지표 해석은 Ch07에서 다룹니다.</p>
+<p>실기 딥러닝 문항은 "<strong>EarlyStopping을 적용해 학습시키시오</strong>"라는 지시를 거의 항상 포함합니다.<br />
+Q3의 세 줄을 손이 기억할 때까지 반복하십시오.</p>
+<p>총 5문항 (객관식 2 / 코드 빈칸 2 / 오류 찾기 1), 권장 소요 시간 22분.<br />
+공통 import는 다음과 같다고 가정합니다.</p>
+<p><code>python
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint</code></p>
+</blockquote>
+<hr />
+<h3 id="문제">문제</h3>
+<h4 id="q1-객관식-기본-학습-곡선-판독">Q1. (객관식 · 기본) 학습 곡선 판독</h4>
+<p>은닉층 2개(노드 256)짜리 모델을 <code>epochs=50</code>으로 학습시킨 뒤 <code>history.history</code>에서 일부 epoch의 값을 뽑았습니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>epoch</th>
+<th><code>loss</code></th>
+<th><code>val_loss</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0.6777</td>
+<td>0.6341</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0.2606</td>
+<td>0.5973</td>
+</tr>
+<tr>
+<td>10</td>
+<td>0.0601</td>
+<td>0.7510</td>
+</tr>
+<tr>
+<td>20</td>
+<td>0.0057</td>
+<td>1.0657</td>
+</tr>
+<tr>
+<td>35</td>
+<td>0.0013</td>
+<td>1.2844</td>
+</tr>
+<tr>
+<td>50</td>
+<td>0.0005</td>
+<td>1.4136</td>
+</tr>
+</tbody>
+</table></div>
+<p>마지막 epoch의 <code>accuracy</code>는 1.0, <code>val_accuracy</code>는 0.7321이었습니다.</p>
+<p>이 학습 상태에 대한 <strong>진단과 조치</strong>를 옳게 짝지은 것은?</p>
+<ol>
+<li>정상 학습이다. 두 손실이 모두 낮으므로 <code>epochs</code>를 100으로 늘려 성능을 더 끌어올린다.</li>
+<li>과소적합이다. 은닉층 뒤에 <code>Dropout(0.5)</code>를 추가해 표현력을 낮춘다.</li>
+<li>과적합이다. <code>Dropout</code>을 추가하고 <code>EarlyStopping</code>을 적용해 검증 손실이 최저인 지점에서 멈추게 한다.</li>
+<li>과적합이다. 은닉층 노드 수를 512로 늘리고 <code>epochs</code>를 200으로 늘린다.</li>
+<li>학습이 불안정하다. <code>batch_size</code>를 1로 줄여 가중치를 더 촘촘히 갱신한다.</li>
+</ol>
+<hr />
+<h4 id="q2-객관식-기본-dropout의-동작">Q2. (객관식 · 기본) Dropout의 동작</h4>
+<p><code>model.add(Dropout(0.3))</code>에 대한 설명 중 <strong>옳은 것</strong>은?</p>
+<ol>
+<li>은닉층 노드의 30%를 남기고 70%를 영구히 삭제한다.</li>
+<li>학습 중에는 매 step마다 그 층 노드의 30%를 무작위로 골라 끄고, <code>predict()</code>로 예측할 때는 아무 노드도 끄지 않는다.</li>
+<li>Dropout 층은 자체 학습 파라미터를 가지므로 <code>model.summary()</code>의 Param #가 0이 아니다.</li>
+<li>비율을 0.8로 높일수록 과적합 방지 효과가 커지므로 검증 성능이 항상 좋아진다.</li>
+<li>두 손실이 모두 높은 값에서 정체한 상태(과소적합)에서도 비율을 높이는 것이 표준 대응이다.</li>
+</ol>
+<hr />
+<h4 id="q3-코드-빈칸-기본-콜백-표준-3줄">Q3. (코드 빈칸 · 기본) 콜백 표준 3줄</h4>
+<p>전처리를 마친 <code>X_train_scaled</code>(shape <code>(398, 30)</code>), <code>y_train</code>(0/1)으로 이진분류 모델을 학습시킵니다.<br />
+다음 지시를 코드로 옮기십시오.</p>
+<ul>
+<li>검증 손실을 기준으로 <strong>5 epoch 동안 개선이 없으면 학습을 중단</strong>하고, <strong>가장 좋았던 시점의 가중치로 되돌린다.</strong></li>
+<li>검증 손실이 개선될 때만 <code>'best_model.keras'</code> 파일에 저장한다.</li>
+<li><code>epochs=100</code>, <code>batch_size=32</code>, 학습 데이터의 20%를 검증 데이터로 사용하며, <strong>위 두 콜백을 학습에 적용한다.</strong></li>
+</ul>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+
+# X_train_scaled, y_train, X_test_scaled, y_test 는 전처리가 끝난 상태라고 가정합니다.
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+es = ______(가)______
+mc = ______(나)______
+
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    ______(다)______,
+                    verbose=1)
+
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+</code></pre>
+<p>추가로, <code>epochs=100</code>을 지시했는데도 <code>len(history.history['loss'])</code>가 100보다 작게 나오는 이유를 한 줄로 쓰십시오.</p>
+<hr />
+<h4 id="q4-코드-빈칸-응용-중단-지점-확인과-val-accuracy-감시">Q4. (코드 빈칸 · 응용) 중단 지점 확인과 <code>val_accuracy</code> 감시</h4>
+<p>이번에는 <strong>검증 정확도</strong>를 기준으로 감시하려 합니다.<br />
+<code>patience=8</code>, 최적 시점 가중치 복원을 적용해 <code>epochs=200</code>으로 학습시키고, 실제로 몇 epoch에서 멈췄는지와 최고 시점이 몇 번째였는지를 출력하십시오.</p>
+<p><code>(가)</code>에는 실제 학습 epoch 수를, <code>(나)</code>에는 <code>val_accuracy</code>가 가장 높았던 epoch 번호를, <code>(다)</code>에는 콜백 정의 한 줄을 채우십시오.</p>
+<pre><code class="language-python">import numpy as np
+from tensorflow.keras.callbacks import EarlyStopping
+
+es = ______(다)______
+
+history = model.fit(X_train_scaled, y_train,
+                    epochs=200, batch_size=16,
+                    validation_split=0.2,
+                    callbacks=[es],
+                    verbose=0)
+
+print('실제로 학습한 epoch 수:', ______(가)______)
+print('val_accuracy 최고 epoch:', ______(나)______)
+</code></pre>
+<p>추가로 다음에 답하십시오.</p>
+<ol>
+<li>위 코드의 실행 결과 "val_accuracy 최고 epoch"가 <strong>17</strong>로 나왔다면, "실제로 학습한 epoch 수"는 얼마입니까? 근거와 함께 쓰십시오.</li>
+<li><code>monitor='val_loss'</code>일 때와 달리 <code>monitor='val_accuracy'</code>일 때 <strong>추가로 적어 두는 것이 안전한 인자</strong>는 무엇이며 그 이유는 무엇입니까?</li>
+</ol>
+<hr />
+<h4 id="q5-오류-찾기-응용-동작하지-않는-earlystopping">Q5. (오류 찾기 · 응용) 동작하지 않는 EarlyStopping</h4>
+<p>아래 코드는 오류 없이 끝까지 실행되지만, <code>EarlyStopping</code>이 <strong>전혀 제 역할을 하지 못합니다.</strong><br />
+잘못된 곳 <strong>세 군데</strong>를 지적하고 수정한 코드를 쓰십시오.</p>
+<pre><code class="language-python">from tensorflow.keras.callbacks import EarlyStopping
+
+es = EarlyStopping(monitor='loss', patience=5)
+
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    verbose=0)
+
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+</code></pre>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><h4 id="q1-해답">Q1 해답</h4>
+<p><strong>정답: 3번</strong></p>
+<p><strong>정답 코드 (문제의 표를 만든 실험과 조치 후 비교)</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+
+np.random.seed(42); tf.random.set_seed(42)
+X, y = make_classification(n_samples=400, n_features=30, n_informative=5,
+                           n_redundant=0, flip_y=0.10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+
+def build(dropout_rate=0.0, units=256):
+    m = Sequential()
+    m.add(Input(shape=(X_train_scaled.shape[1],)))
+    m.add(Dense(units, activation='relu'))
+    if dropout_rate &gt; 0:
+        m.add(Dropout(dropout_rate))
+    m.add(Dense(units, activation='relu'))
+    if dropout_rate &gt; 0:
+        m.add(Dropout(dropout_rate))
+    m.add(Dense(1, activation='sigmoid'))
+    m.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    return m
+
+
+# 문제의 표를 만든 학습 (대책 없음)
+tf.keras.utils.set_random_seed(42)
+h = build(0.0).fit(X_train_scaled, y_train, epochs=50, batch_size=16,
+                   validation_split=0.2, verbose=0).history
+
+print('epoch |   loss   | val_loss')
+for e in [1, 5, 10, 20, 35, 50]:
+    print(f'{e:5d} | {h[&quot;loss&quot;][e-1]:8.4f} | {h[&quot;val_loss&quot;][e-1]:8.4f}')
+print('검증 손실 최저 epoch:', int(np.argmin(h['val_loss'])) + 1,
+      '/ 최저값:', round(min(h['val_loss']), 4))
+print('마지막 train accuracy:', round(h['accuracy'][-1], 4),
+      '/ 마지막 val accuracy:', round(h['val_accuracy'][-1], 4))
+</code></pre>
+<pre><code>epoch |   loss   | val_loss
+    1 |   0.6777 |   0.6341
+    5 |   0.2606 |   0.5973
+   10 |   0.0601 |   0.7510
+   20 |   0.0057 |   1.0657
+   35 |   0.0013 |   1.2844
+   50 |   0.0005 |   1.4136
+검증 손실 최저 epoch: 3 / 최저값: 0.5857
+마지막 train accuracy: 1.0 / 마지막 val accuracy: 0.7321
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>판별 기준은 한 문장입니다. <strong><code>loss</code>는 계속 내려가는데 <code>val_loss</code>가 어느 지점부터 올라가면 과적합입니다.</strong></p>
+<p>표를 그 기준으로 읽으면 이렇습니다.</p>
+<ul>
+<li><code>loss</code>는 0.6777 → 0.0005로 끝없이 내려갑니다. <strong>학습 데이터는 사실상 통째로 외웠습니다</strong>(마지막 <code>accuracy</code> 1.0).</li>
+<li><code>val_loss</code>는 5 epoch 부근(0.5973)에서 바닥을 찍고, 그 뒤로 0.7510 → 1.0657 → 1.4136으로 <strong>계속 올라갑니다.</strong></li>
+<li>두 선이 갈라지는 그 지점이 학습 곡선 도해의 "과적합 시작" 세로 점선입니다.</li>
+</ul>
+<p>조치는 챕터 6.6의 순서를 그대로 따릅니다. <strong>① 곡선으로 과적합 확인 → ② Dropout이 없으면 추가 → ③ EarlyStopping으로 멈추는 지점을 맡김.</strong> 3번이 정확히 이 순서입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>1번처럼 학습 손실(0.0005)만 보고 "잘 됐다"고 판단하는 것</strong> — 이 챕터에서 가장 위험한 오독입니다. 정답의 근거는 언제나 <strong>검증 손실(<code>val_loss</code>)</strong> 입니다. 마찬가지로 <code>accuracy</code>가 1.0이라는 사실도 판단 근거가 되지 못합니다. <code>val_accuracy</code>가 0.7321이라는 것이 진짜 성적입니다.</li>
+<li><strong>2번처럼 진단은 틀렸는데 조치만 그럴듯한 것</strong> — <code>Dropout(0.5)</code> 추가는 과적합에 맞는 조치이지만, 이 상태를 "과소적합"으로 진단한 순간 답이 아닙니다. 과소적합은 <strong>두 손실이 모두 높은 값에서 정체</strong>하는 모양입니다.</li>
+<li><strong>4번처럼 과적합에 모델을 더 키우는 것</strong> — 진단은 맞았지만 조치가 정반대입니다. 노드를 늘리면 표현력이 커져 외우기가 더 쉬워집니다. 과적합 상황에서는 오히려 노드 수를 <strong>줄이는</strong> 것이 다음 카드입니다.</li>
+<li><strong>5번처럼 <code>batch_size</code>를 1로 줄이는 것</strong> — 검증 손실이 위아래로 심하게 튀는 "학습 불안정"과 혼동한 것입니다. 이 표의 <code>val_loss</code>는 튀지 않고 <strong>일관되게 상승</strong>하고 있습니다. 게다가 <code>batch_size</code>를 줄이면 갱신이 더 잦아져 학습이 더 불안정해집니다.</li>
+</ul>
+<hr />
+<h4 id="q2-해답">Q2 해답</h4>
+<p><strong>정답: 2번</strong></p>
+<p><strong>정답 코드 (2·3번 실증과 4·5번 반증)</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+
+tf.keras.utils.set_random_seed(42)
+d = Sequential()
+d.add(Input(shape=(X_train_scaled.shape[1],)))
+d.add(Dense(64, activation='relu'))
+d.add(Dropout(0.3))
+d.add(Dense(1, activation='sigmoid'))
+d.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+sample = X_train_scaled[:1]
+print('predict 1회차:', np.round(d.predict(sample, verbose=0).ravel(), 4))
+print('predict 2회차:', np.round(d.predict(sample, verbose=0).ravel(), 4), '&lt;- 동일')
+print('학습 모드 1회차:', np.round(d(sample, training=True).numpy().ravel(), 4))
+print('학습 모드 2회차:', np.round(d(sample, training=True).numpy().ravel(), 4), '&lt;- 매번 다름')
+
+dl = [l for l in d.layers if isinstance(l, Dropout)][0]
+print('Dropout 층의 학습 파라미터 수:', dl.count_params())
+
+print('\n[비율별 비교]')
+for rate in [0.0, 0.3, 0.5, 0.8]:
+    tf.keras.utils.set_random_seed(42)
+    hh = build(rate).fit(X_train_scaled, y_train, epochs=60, batch_size=16,
+                         validation_split=0.2, verbose=0).history
+    print(f'  dropout={rate}  최저 val_loss={min(hh[&quot;val_loss&quot;]):.4f}  '
+          f'마지막 val_loss={hh[&quot;val_loss&quot;][-1]:.4f}  '
+          f'최고 val_acc={max(hh[&quot;val_accuracy&quot;]):.4f}')
+</code></pre>
+<pre><code>predict 1회차: [0.5059]
+predict 2회차: [0.5059] &lt;- 동일
+학습 모드 1회차: [0.3552]
+학습 모드 2회차: [0.5609] &lt;- 매번 다름
+Dropout 층의 학습 파라미터 수: 0
+
+[비율별 비교]
+  dropout=0.0  최저 val_loss=0.5857  마지막 val_loss=1.4784  최고 val_acc=0.7321
+  dropout=0.3  최저 val_loss=0.5776  마지막 val_loss=1.6485  최고 val_acc=0.7857
+  dropout=0.5  최저 val_loss=0.5722  마지막 val_loss=1.2115  최고 val_acc=0.7857
+  dropout=0.8  최저 val_loss=0.5633  마지막 val_loss=0.5864  최고 val_acc=0.7143
+</code></pre>
+<blockquote class="callout callout--note">
+<p>위 수치는 <code>n_samples=400</code>, <code>flip_y=0.10</code>의 잡음 섞인 합성 데이터에 <code>epochs=60</code>, <code>batch_size=16</code>으로 학습한 조건에서의 값입니다. 데이터와 seed가 바뀌면 숫자는 달라지지만 경향은 동일합니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>2번이 정답인 근거는 실행 결과의 앞 네 줄입니다.</p>
+<ul>
+<li><strong><code>predict()</code>를 두 번 불러도 값이 <code>0.5059</code>로 같습니다.</strong> 예측할 때는 Dropout이 통과 모드가 되어 아무 노드도 끄지 않기 때문입니다. 예측값이 호출할 때마다 달라지면 평가 자체가 불가능해집니다.</li>
+<li><strong><code>training=True</code>로 부르면 <code>0.3552</code>, <code>0.5609</code>로 매번 다릅니다.</strong> 학습 중에는 step마다 꺼지는 노드가 바뀐다는 증거입니다.</li>
+</ul>
+<p><code>Dropout(0.3)</code>의 0.3은 <strong>끄는 비율</strong>입니다. 노드 몇 개가 수시로 사라지면 모델은 특정 노드에만 의존하는 지름길을 만들 수 없고, 여러 노드가 나눠서 판단하도록 강제됩니다. 이것이 경계선이 덜 구불구불해지는 이유입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>1번처럼 비율의 방향을 뒤집는 것</strong> — "0.3이면 30%를 남긴다"고 외우면 <code>Dropout(0.8)</code>을 "80%를 살린다"로 오해하게 됩니다. 실제로는 80%를 끄는 것이고, 위 비교표에서 <code>dropout=0.8</code>의 최고 <code>val_acc</code>가 0.7143으로 <strong>0.3·0.5보다 오히려 낮습니다.</strong> "영구히 삭제한다"는 표현도 틀렸습니다. 매 step마다 다른 노드가 임시로 꺼질 뿐입니다.</li>
+<li><strong>3번처럼 Param #를 오해하는 것</strong> — Dropout 층의 학습 파라미터는 <strong>0개</strong>입니다. 노드를 끄기만 할 뿐 학습하는 값이 없습니다. <code>summary()</code>에서 0으로 찍히는 것을 보고 "층이 잘못 들어갔다"고 판단해 지우는 일이 없어야 합니다.</li>
+<li><strong>4번처럼 "높을수록 좋다"고 생각하는 것</strong> — 위 결과에서 <code>dropout=0.8</code>의 최저 <code>val_loss</code>는 낮지만 <code>val_acc</code>는 가장 낮습니다. 노드 대부분이 꺼져 모델이 제대로 학습할 기회를 잃은 것입니다. 실기에서는 <strong>0.2~0.5 사이를 쓰고, 지시가 없으면 0.3</strong>을 기본값으로 삼으십시오.</li>
+<li><strong>5번처럼 과소적합에 Dropout을 더 넣는 것</strong> — 대응이 정반대입니다. 과소적합에서는 Dropout 비율을 <strong>낮추거나 빼고</strong>, 노드 수와 <code>epochs</code>를 늘려야 합니다.</li>
+</ul>
+<hr />
+<h4 id="q3-해답">Q3 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import os
+import numpy as np
+import tensorflow as tf
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+
+# 데이터 준비 (Ch02)
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+print('X_train_scaled:', X_train_scaled.shape, '/ X_test_scaled:', X_test_scaled.shape)
+
+tf.keras.utils.set_random_seed(42)
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+es = EarlyStopping(monitor='val_loss', patience=5,
+                   restore_best_weights=True)                      # (가)
+mc = ModelCheckpoint('best_model.keras', monitor='val_loss',
+                     save_best_only=True)                          # (나)
+
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    callbacks=[es, mc],                            # (다)
+                    verbose=1)
+
+print('지시한 epochs: 100')
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+print('검증 손실 최저 epoch:', int(np.argmin(history.history['val_loss'])) + 1)
+print('파일 생성 확인:', os.path.exists('best_model.keras'))
+
+best_model = load_model('best_model.keras')
+loss, acc = best_model.evaluate(X_test_scaled, y_test, verbose=0)
+print(f'복원 모델 평가 성능 — loss: {loss:.4f}, accuracy: {acc:.4f}')
+</code></pre>
+<pre><code>X_train_scaled: (398, 30) / X_test_scaled: (171, 30)
+지시한 epochs: 100
+실제로 학습한 epoch 수: 40
+검증 손실 최저 epoch: 35
+파일 생성 확인: True
+복원 모델 평가 성능 — loss: 0.0629, accuracy: 0.9708
+</code></pre>
+<p><strong>추가 답:</strong> <code>EarlyStopping</code>이 <code>val_loss</code> 개선이 5 epoch 동안 없자 100번을 채우기 전에 학습을 중단시켰기 때문입니다. (<code>35 + 5 = 40</code>)</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)</code></strong></li>
+<li><code>monitor='val_loss'</code> — "검증 손실을 기준으로"라는 지시입니다. <strong>학습 손실(<code>loss</code>)이 아니라 검증 손실</strong>을 봐야 과적합 시점을 잡을 수 있습니다.</li>
+<li><code>patience=5</code> — "5 epoch 동안 개선이 없으면"을 그대로 옮긴 값입니다.</li>
+<li><code>restore_best_weights=True</code> — "가장 좋았던 시점의 가중치로 되돌린다"에 해당합니다. <strong>기본값이 <code>False</code>이므로 직접 적어야 합니다.</strong></li>
+<li><strong>(나) <code>ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)</code></strong></li>
+<li>파일 경로는 첫 번째 위치 인자입니다. 확장자는 <code>.keras</code>를 씁니다.</li>
+<li><code>save_best_only=True</code>가 빠지면 매 epoch마다 덮어써서 결국 <strong>마지막 epoch 모델</strong>이 남습니다. 그러면 파일을 만든 의미가 사라집니다.</li>
+<li><strong>(다) <code>callbacks=[es, mc]</code></strong> — 콜백은 <strong>만들기만 해서는 아무 일도 하지 않습니다.</strong> <code>fit()</code>에 리스트로 넘겨야 Keras가 매 epoch 끝에 불러 줍니다.</li>
+</ul>
+<p>실행 결과가 이 세 줄의 효과를 그대로 보여 줍니다. 35번째에서 검증 손실이 바닥을 찍었고, <code>patience=5</code>만큼 더 기다린 40번째에서 멈췄습니다. <code>restore_best_weights=True</code> 덕분에 메모리 위의 <code>model</code>이 들고 있는 가중치는 40번째가 아니라 <strong>35번째의 것</strong>입니다.</p>
+<p><code>EarlyStopping</code>을 쓸 때 <strong><code>epochs</code>를 넉넉히(100 이상) 주는 것이 정석</strong>인 이유도 여기 있습니다. 어차피 콜백이 알아서 멈추므로, 작게 주면 오히려 최적점에 닿기 전에 끝나 버립니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>restore_best_weights=True</code>를 빠뜨리는 것</strong> — 오류가 나지 않아 가장 잡기 어려운 감점입니다. 학습은 멈추지만 모델에 남는 것은 최저점이 아니라 <code>patience</code>만큼 더 나빠진 마지막 epoch의 가중치입니다.</li>
+<li><strong><code>callbacks=[es, mc]</code>를 <code>fit()</code>에 넘기지 않는 것</strong> — 챕터가 "가장 흔한 감점 지점"으로 지목한 실수입니다. Q5에서 그 결과를 숫자로 확인합니다.</li>
+<li><strong><code>validation_split</code>을 빠뜨린 채 <code>monitor='val_loss'</code>를 쓰는 것</strong> — 검증 손실이 계산되지 않아 <code>Early stopping conditioned on metric 'val_loss' is not available</code>라는 경고만 뜨고 콜백은 아무 일도 하지 않습니다. <strong>검증 데이터 지정과 <code>EarlyStopping</code>은 항상 한 쌍입니다.</strong></li>
+<li><strong>파일명을 <code>'best_model.h5'</code>나 확장자 없이 쓰는 것</strong> — Keras 3에서는 오류가 날 수 있습니다. <code>.keras</code>를 표준으로 쓰십시오.</li>
+</ul>
+<hr />
+<h4 id="q4-해답">Q4 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping
+
+es = EarlyStopping(monitor='val_accuracy', patience=8,
+                   mode='max', restore_best_weights=True)            # (다)
+
+tf.keras.utils.set_random_seed(42)
+model = build(0.3)                       # Q1에서 정의한 은닉층 2개 + Dropout 모델
+history = model.fit(X_train_scaled, y_train,
+                    epochs=200, batch_size=16,
+                    validation_split=0.2,
+                    callbacks=[es],
+                    verbose=0)
+
+print('실제로 학습한 epoch 수:', len(history.history['loss']))                  # (가)
+print('val_accuracy 최고 epoch:', int(np.argmax(history.history['val_accuracy'])) + 1)  # (나)
+print('감시 지표:', es.monitor, '/ mode:', es.mode,
+      '/ restore_best_weights:', es.restore_best_weights)
+</code></pre>
+<pre><code>실제로 학습한 epoch 수: 25
+val_accuracy 최고 epoch: 17
+감시 지표: val_accuracy / mode: max / restore_best_weights: True
+</code></pre>
+<p><strong>추가 1 — 답: 25 epoch</strong></p>
+<p><code>EarlyStopping</code>은 최고 시점 이후 <code>patience</code> 만큼 더 기다렸다가 중단합니다.</p>
+<pre><code>중단 epoch = 최고 epoch + patience = 17 + 8 = 25
+</code></pre>
+<p><strong>추가 2 — 답: <code>mode='max'</code></strong></p>
+<p><code>monitor='val_accuracy'</code>는 <strong>클수록 좋은 지표</strong>입니다. Keras가 지표 이름으로 방향을 추론해 주기는 하지만, 이름이 낯선 사용자 지정 지표에서는 방향을 잘못 잡아 개선을 "악화"로 판단해 곧바로 멈춰 버릴 수 있습니다. <code>mode='max'</code>를 명시하면 이 위험이 사라집니다. (<code>val_loss</code>는 작을수록 좋으므로 <code>mode='min'</code>이며, 이것이 기본 동작입니다.)</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>len(history.history['loss'])</code></strong> — <code>history.history</code>의 각 값은 <strong>실제로 수행된 epoch 수만큼의 길이를 가진 리스트</strong>입니다. 그래서 리스트 길이가 곧 실제 학습 epoch 수가 됩니다. <code>EarlyStopping</code>이 정말 동작했는지 확인하는 가장 간단한 방법입니다.</li>
+<li><strong>(나) <code>int(np.argmax(history.history['val_accuracy'])) + 1</code></strong> — <code>argmax</code>는 리스트에서 가장 큰 값의 <strong>인덱스</strong>를 돌려주는데, 인덱스는 0부터 시작하고 epoch 번호는 1부터 세므로 <strong><code>+ 1</code></strong> 이 필요합니다. <code>val_loss</code>를 볼 때는 작을수록 좋으므로 <code>np.argmin</code>을 씁니다.</li>
+<li><strong>(다)</strong> 지시문의 세 조건("검증 정확도 기준", "patience=8", "최적 시점 가중치 복원")을 그대로 인자로 옮기고, 클수록 좋은 지표이므로 <code>mode='max'</code>를 덧붙입니다.</li>
+</ul>
+<p><code>17 + 8 = 25</code>가 정확히 맞아떨어지는 것을 확인하십시오. 이 산술 관계를 알고 있으면 <strong>답안이 의도대로 동작했는지 스스로 검산할 수 있습니다.</strong> 두 숫자의 차이가 <code>patience</code>와 다르면 무언가 잘못된 것입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>argmax</code>/<code>argmin</code>을 반대로 쓰는 것</strong> — <code>val_loss</code>는 최소(<code>argmin</code>), <code>val_accuracy</code>는 최대(<code>argmax</code>)입니다. 감시 지표가 바뀌면 함께 바뀝니다.</li>
+<li><strong><code>+ 1</code>을 빠뜨리는 것</strong> — 인덱스 16을 그대로 "16번째 epoch"라고 답하면 <code>patience</code>와의 산술이 한 칸씩 어긋납니다.</li>
+<li><strong><code>epochs=200</code>을 지시받고 그대로 200으로 두는 것을 낭비라고 생각해 줄이는 것</strong> — 콜백을 쓸 때는 <code>epochs</code>를 넉넉히 주는 것이 정석입니다. 작게 주면 콜백이 멈추기 전에 학습이 끝나 <code>EarlyStopping</code>을 쓴 의미가 사라집니다.</li>
+<li><strong><code>monitor</code> 이름을 <code>'accuracy'</code>로 적는 것</strong> — 그러면 <strong>학습 정확도</strong>를 감시하게 되어 과적합을 전혀 잡지 못합니다. 검증 지표에는 반드시 <code>val_</code> 접두어를 붙이십시오.</li>
+</ul>
+<hr />
+<h4 id="q5-해답">Q5 해답</h4>
+<p><strong>잘못된 곳 3군데</strong></p>
+<ol>
+<li><code>monitor='loss'</code> — <strong>학습 손실</strong>을 감시하고 있습니다. 학습 손실은 과적합이 진행돼도 계속 내려가므로 콜백이 멈출 이유를 찾지 못합니다. <code>monitor='val_loss'</code>로 고쳐야 과적합 시점을 잡습니다.</li>
+<li><code>restore_best_weights</code> 누락 — 기본값이 <code>False</code>라, 멈추더라도 모델에는 최저점이 아닌 마지막 epoch의 가중치가 남습니다. <code>restore_best_weights=True</code>를 적어야 합니다.</li>
+<li><code>fit()</code>에 <code>callbacks</code> 미전달 — <code>es</code>를 만들어 놓고 넘기지 않았습니다. <strong>콜백은 <code>fit(..., callbacks=[es])</code>로 전달해야만 동작합니다.</strong> 이 상태에서는 위 두 인자를 어떻게 고쳐도 아무 효과가 없습니다.</li>
+</ol>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping
+
+# ---------- (1) 잘못된 코드: 콜백을 만들었지만 넘기지 않음 ----------
+tf.keras.utils.set_random_seed(42)
+bad = build(0.3)
+es_bad = EarlyStopping(monitor='loss', patience=5)          # 만들어만 둠
+h_bad = bad.fit(X_train_scaled, y_train, epochs=100, batch_size=32,
+                validation_split=0.2, verbose=0)            # callbacks 없음
+print('[잘못] 학습한 epoch 수:', len(h_bad.history['loss']), '(100 전량 소진)')
+print('[잘못] 검증 손실 최저 epoch:', int(np.argmin(h_bad.history['val_loss'])) + 1)
+print('[잘못] 최저 val_loss:', round(min(h_bad.history['val_loss']), 4),
+      '/ 마지막 val_loss:', round(h_bad.history['val_loss'][-1], 4))
+
+# ---------- (2) 콜백은 넘겼지만 monitor='loss' 인 경우 ----------
+tf.keras.utils.set_random_seed(42)
+mid = build(0.3)
+h_mid = mid.fit(X_train_scaled, y_train, epochs=100, batch_size=32, validation_split=0.2,
+                callbacks=[EarlyStopping(monitor='loss', patience=5)], verbose=0)
+print(&quot;[monitor='loss'] 학습한 epoch 수:&quot;, len(h_mid.history['loss']),
+      '/ 검증 손실 최저 epoch:', int(np.argmin(h_mid.history['val_loss'])) + 1)
+
+# ---------- (3) 수정된 코드 ----------
+tf.keras.utils.set_random_seed(42)
+model = build(0.3)
+es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    callbacks=[es],
+                    verbose=0)
+print('[수정] 학습한 epoch 수:', len(history.history['loss']))
+print('[수정] 검증 손실 최저 epoch:', int(np.argmin(history.history['val_loss'])) + 1)
+</code></pre>
+<pre><code>[잘못] 학습한 epoch 수: 100 (100 전량 소진)
+[잘못] 검증 손실 최저 epoch: 6
+[잘못] 최저 val_loss: 0.5685 / 마지막 val_loss: 1.645
+[monitor='loss'] 학습한 epoch 수: 47 / 검증 손실 최저 epoch: 6
+[수정] 학습한 epoch 수: 11
+[수정] 검증 손실 최저 epoch: 6
+</code></pre>
+<p><strong><code>restore_best_weights</code>만 따로 떼어 본 결과</strong></p>
+<pre><code class="language-python">from sklearn.model_selection import train_test_split
+
+X_a, X_v, y_a, y_v = train_test_split(X_train_scaled, y_train, test_size=0.2,
+                                      random_state=42, stratify=y_train)
+for rbw in [False, True]:
+    tf.keras.utils.set_random_seed(42)
+    m = build(0.3)
+    h = m.fit(X_a, y_a, epochs=100, batch_size=32, validation_data=(X_v, y_v),
+              callbacks=[EarlyStopping(monitor='val_loss', patience=5,
+                                       restore_best_weights=rbw)], verbose=0)
+    vl, va = m.evaluate(X_v, y_v, verbose=0)
+    print(f'restore_best_weights={rbw!s:&lt;5} 중단={len(h.history[&quot;loss&quot;])} '
+          f'best시점 val_loss={min(h.history[&quot;val_loss&quot;]):.4f} '
+          f'마지막 val_loss={h.history[&quot;val_loss&quot;][-1]:.4f} '
+          f'-&gt; 남은 가중치의 val_loss={vl:.4f}')
+</code></pre>
+<pre><code>restore_best_weights=False 중단= 11 best시점 val_loss=0.5587 마지막 val_loss=0.5671 -&gt; 남은 가중치의 val_loss=0.5671
+restore_best_weights=True  중단= 11 best시점 val_loss=0.5587 마지막 val_loss=0.5671 -&gt; 남은 가중치의 val_loss=0.5587
+</code></pre>
+<blockquote class="callout callout--note">
+<p>위 수치는 <code>n_samples=400</code>, <code>flip_y=0.10</code>의 잡음 섞인 합성 데이터에 은닉층 2개(노드 256) + <code>Dropout(0.3)</code>, <code>epochs=100</code>, <code>batch_size=32</code> 조건에서 실행한 결과입니다. 데이터·seed가 바뀌면 숫자는 달라지지만 세 경우의 대소 관계는 동일합니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>세 오류가 어떻게 누적되는지 실행 결과가 단계별로 보여 줍니다.</p>
+<ul>
+<li><strong>콜백을 넘기지 않으면</strong> 100 epoch를 전부 돕니다. 검증 손실은 6번째에서 0.5685로 바닥을 찍었지만 마지막에는 <strong>1.645</strong>까지 올라갔습니다. 즉 남은 모델은 최적 지점보다 약 3배 나쁜 상태입니다. <strong><code>epochs=100</code>이 그대로 소진됐다는 사실 자체가 "콜백이 동작하지 않았다"는 신호</strong>입니다.</li>
+<li><strong>콜백은 넘겼지만 <code>monitor='loss'</code>이면</strong> 47 epoch까지 갑니다. 학습 손실은 과적합 구간에서도 계속 내려가므로 "개선 없음"이 좀처럼 성립하지 않기 때문입니다. 검증 손실 최저점은 여전히 6번째인데 41 epoch를 더 외우는 데 쓴 셈입니다.</li>
+<li><strong><code>monitor='val_loss'</code>로 고치면</strong> 11 epoch에서 멈춥니다. <code>6 + 5 = 11</code>, 최저점 이후 <code>patience</code>만큼 기다린 결과입니다.</li>
+<li><strong><code>restore_best_weights</code>만 따로 본 실험</strong>에서, 둘 다 11 epoch에서 멈추지만 모델에 남는 가중치가 다릅니다. <code>False</code>면 마지막 epoch의 값(<code>val_loss</code> 0.5671), <code>True</code>면 최저점의 값(<code>val_loss</code> 0.5587)입니다. <strong>멈추는 시점은 같고 되돌리는지만 다르다</strong>는 것이 이 인자의 정체입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>monitor</code>에 <code>val_</code> 접두어를 빠뜨리는 것</strong> — <code>'loss'</code>와 <code>'val_loss'</code>는 한 글자 차이지만 감시 대상이 학습 데이터냐 검증 데이터냐로 완전히 갈립니다. 과적합을 잡는 것이 목적이므로 언제나 <strong>검증 지표</strong>를 봅니다.</li>
+<li><strong>오류가 안 나니까 맞다고 판단하는 것</strong> — 세 오류 모두 예외를 던지지 않습니다. <strong><code>print(len(history.history['loss']))</code> 한 줄</strong>로 실제 학습 epoch 수를 찍어 보는 것이 유일한 자기 검산 수단입니다. 지시한 <code>epochs</code>와 같은 숫자가 나왔다면 콜백을 의심하십시오.</li>
+<li><strong>정확도만으로 개선 여부를 판단하는 것</strong> — 이 데이터에서 세 경우의 평가 정확도 차이는 크지 않지만 손실은 3배 가까이 벌어집니다. <strong>과적합의 손해는 손실에서 먼저, 훨씬 크게 드러납니다.</strong> <code>EarlyStopping</code>이 <code>val_loss</code>를 기본 감시 대상으로 삼는 이유가 이것입니다.</li>
+<li><strong>콜백 객체를 만든 줄만 보고 넘어가는 것</strong> — 답안을 검토할 때는 <code>es = EarlyStopping(...)</code> 줄과 <code>model.fit(...)</code> 줄을 <strong>반드시 짝지어</strong> 확인하십시오. 만든 콜백이 <code>callbacks=[...]</code> 안에 모두 들어 있는지가 채점 포인트입니다.</li>
+</ul>
+<hr /></div></details>
+</section>
+
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch05.html"><span class="pager__dir">이전</span><span class="pager__label">Ch05</span><span class="pager__title">컴파일과 학습</span></a><a class="pager__slot pager__slot--next" href="ch07.html"><span class="pager__dir">다음</span><span class="pager__label">Ch07</span><span class="pager__title">평가와 예측</span></a></nav>
+</main>
+</body>
+</html>

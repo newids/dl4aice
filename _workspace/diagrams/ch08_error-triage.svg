@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" aria-label="자주 만나는 오류와 원인 판별" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>자주 만나는 오류와 원인 판별 — shape 불일치, 라벨과 출력층 불일치, loss가 nan, accuracy가 0.5 부근 고정이라는 네 가지 증상 각각에 대해 원인과 조치가 짝지어져 있다.</title>
+  <defs>
+    <marker id="ch08et-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="520" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">자주 만나는 오류와 원인 판별</text>
+  <text x="24" y="62" font-size="12" fill="#94a3b8">메시지의 첫 줄만 읽어도 네 갈래 중 하나로 좁혀집니다.</text>
+
+  <!-- ===== 열 머리 ===== -->
+  <text x="143" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">증상</text>
+  <text x="372" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">원인</text>
+  <text x="629" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#059669">조치</text>
+
+  <!-- ===== 화살표 ===== -->
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08et-arrow)">
+    <line x1="266" y1="142" x2="282" y2="142"/>
+    <line x1="462" y1="142" x2="478" y2="142"/>
+    <line x1="266" y1="238" x2="282" y2="238"/>
+    <line x1="462" y1="238" x2="478" y2="238"/>
+    <line x1="266" y1="334" x2="282" y2="334"/>
+    <line x1="462" y1="334" x2="478" y2="334"/>
+    <line x1="266" y1="430" x2="282" y2="430"/>
+    <line x1="462" y1="430" x2="478" y2="430"/>
+  </g>
+
+  <!-- ===== 1행: shape 불일치 ===== -->
+  <rect x="24" y="100" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="124" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="129" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">1</text>
+  <text x="68" y="129" font-size="13" font-weight="bold" fill="#dc2626">shape 불일치</text>
+  <text x="40" y="152" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">expected axis -1 of input shape</text>
+  <text x="40" y="170" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">to have value 10 ... (None, 13)</text>
+
+  <rect x="286" y="100" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="136" font-size="12" text-anchor="middle" fill="#1a2332">Input(shape=)의 숫자가</text>
+  <text x="372" y="156" font-size="12" text-anchor="middle" fill="#1a2332">실제 특성 수와 다름</text>
+
+  <rect x="482" y="100" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="130" font-size="12.5" font-weight="bold" fill="#059669">특성 수를 직접 세지 말고 자동 계산</text>
+  <text x="498" y="156" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(X_train_scaled.shape[1],))</text>
+
+  <!-- ===== 2행: 라벨과 출력층 불일치 ===== -->
+  <rect x="24" y="196" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="220" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="225" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">2</text>
+  <text x="68" y="225" font-size="13" font-weight="bold" fill="#dc2626">라벨 · 출력층 불일치</text>
+  <text x="40" y="248" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Received a label value of 2</text>
+  <text x="40" y="266" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">outside the valid range of [0, 1)</text>
+
+  <rect x="286" y="196" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="232" font-size="12" text-anchor="middle" fill="#1a2332">클래스는 3개인데</text>
+  <text x="372" y="252" font-size="12" text-anchor="middle" fill="#1a2332">출력층이 Dense(1)</text>
+
+  <rect x="482" y="196" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="226" font-size="12.5" font-weight="bold" fill="#059669">출력층을 클래스 수에 맞춰 교체</text>
+  <text x="498" y="252" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(n_classes, activation='softmax')</text>
+
+  <!-- ===== 3행: loss가 nan ===== -->
+  <rect x="24" y="292" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="316" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="321" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">3</text>
+  <text x="68" y="321" font-size="13" font-weight="bold" fill="#dc2626">loss가 nan</text>
+  <text x="40" y="344" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss: nan</text>
+  <text x="40" y="364" font-size="11" fill="#94a3b8">오류 메시지 없이 학습만 진행됩니다</text>
+
+  <rect x="286" y="292" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="328" font-size="12" text-anchor="middle" fill="#1a2332">입력에 결측치(NaN)가</text>
+  <text x="372" y="348" font-size="12" text-anchor="middle" fill="#1a2332">남아 있음</text>
+
+  <rect x="482" y="292" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="322" font-size="12.5" font-weight="bold" fill="#059669">결측 개수를 확인한 뒤 다시 처리</text>
+  <text x="498" y="348" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">np.isnan(X_train_scaled).sum()</text>
+
+  <!-- ===== 4행: accuracy 정체 ===== -->
+  <rect x="24" y="388" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="412" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="417" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">4</text>
+  <text x="68" y="417" font-size="13" font-weight="bold" fill="#dc2626">accuracy 0.5 부근 고정</text>
+  <text x="40" y="444" font-size="11.5" fill="#1a2332">오류 메시지 없이 학습만 안 됩니다</text>
+  <text x="40" y="464" font-size="11" fill="#94a3b8">accuracy가 오르지 않고 멈춰 있습니다</text>
+
+  <rect x="286" y="388" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="416" font-size="12" text-anchor="middle" fill="#1a2332">스케일링 누락</text>
+  <text x="372" y="436" font-size="12" text-anchor="middle" fill="#1a2332">출력층 활성화 오지정</text>
+  <text x="372" y="456" font-size="12" text-anchor="middle" fill="#1a2332">라벨 형태 이상</text>
+
+  <rect x="482" y="388" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="418" font-size="12.5" font-weight="bold" fill="#059669">자가 진단 4줄 실행</text>
+  <text x="498" y="444" font-size="11" fill="#1a2332">입력 결측 · 입력 범위 · 라벨 분포 · 출력층</text>
+
+  <text x="24" y="500" font-size="12" fill="#94a3b8">모델을 만든 직후 model.summary()를 찍어 두면 1번과 2번은 학습을 돌리기 전에 잡힙니다.</text>
+</svg>

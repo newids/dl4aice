@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 262" width="800" height="262" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>데이터 준비 5단계 파이프라인 — 로딩, 탐색, 결측 및 이상치 처리, 인코딩과 스케일링, 분리 순서와 각 단계의 대표 함수</title>
+  <defs>
+    <marker id="ch02dp-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="262" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">데이터 준비 5단계 파이프라인</text>
+
+  <!-- 1. 로딩 -->
+  <rect x="25" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="90" y="128" font-size="15" text-anchor="middle" fill="#1a2332">로딩</text>
+  <text x="90" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">read_csv</text>
+
+  <line x1="157" y1="122" x2="176" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 2. 탐색 -->
+  <rect x="180" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="245" y="128" font-size="15" text-anchor="middle" fill="#1a2332">탐색</text>
+  <text x="245" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">info</text>
+
+  <line x1="312" y1="122" x2="331" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 3. 결측 이상치 처리 -->
+  <rect x="335" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="114" font-size="15" text-anchor="middle" fill="#1a2332">결측 · 이상치</text>
+  <text x="400" y="138" font-size="15" text-anchor="middle" fill="#1a2332">처리</text>
+  <text x="400" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna</text>
+
+  <line x1="467" y1="122" x2="486" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 4. 인코딩 스케일링 -->
+  <rect x="490" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="555" y="114" font-size="15" text-anchor="middle" fill="#1a2332">인코딩</text>
+  <text x="555" y="138" font-size="15" text-anchor="middle" fill="#1a2332">스케일링</text>
+  <text x="555" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">get_dummies</text>
+
+  <line x1="622" y1="122" x2="641" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  <!-- 5. 분리 -->
+  <rect x="645" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="710" y="128" font-size="15" text-anchor="middle" fill="#1a2332">분리</text>
+  <text x="710" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split</text>
+
+  <!-- 순서 규칙 -->
+  <rect x="216" y="206" width="368" height="32" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="227" font-size="13" text-anchor="middle" fill="#1a2332">순서 규칙 — 인코딩은 분리 전, 스케일링은 분리 후</text>
+</svg>

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>실전 모의고사 1회 — 이진분류: 통신사 고객 이탈 예측 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-mock">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">실전 모의고사 1회</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#시작하기-전에-답안-작성-규칙">시작하기 전에 — 답안 작성 규칙</a></li><li><a href="#데이터-준비-문제-풀이-전-1회-실행">데이터 준비 (문제 풀이 전 1회 실행)</a></li><li><a href="#문제">문제</a></li></ol></nav>
+<article class="page-body">
+<section class="exam" id="exam-mock01">
+<h1>실전 모의고사 1회 — 이진분류: 통신사 고객 이탈 예측</h1>
+<blockquote class="callout callout--note">
+<p><strong>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다.</strong> 기출 문제 원문이 아니며, 공개된 출제 범위·문항 흐름을 바탕으로 재구성한 <strong>기출 변형 문제</strong>입니다.</p>
+</blockquote>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>문항 수</td>
+<td>12문항 (Q1 → Q12 연속 구조)</td>
+</tr>
+<tr>
+<td>총 배점</td>
+<td>100점</td>
+</tr>
+<tr>
+<td>권장 소요 시간</td>
+<td>90분</td>
+</tr>
+<tr>
+<td>문제 유형</td>
+<td><strong>이진분류</strong> (타깃 <code>churn</code> 0/1)</td>
+</tr>
+<tr>
+<td>다루는 범위</td>
+<td>탐색 → 전처리(결측·인코딩·분리·스케일링) → 머신러닝 베이스라인 → 딥러닝 → 평가</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>배점에 관한 안내</strong><br />
+본 모의고사의 문항별 배점은 <strong>교재 자체 기준</strong>입니다. AICE Associate 실기의 실제 문항 수·배점 체계는 공개되어 있지 않으며 회차별로 달라질 수 있습니다. 응시 전 <strong>KT AICE 공식 시험 공지 기준을 반드시 확인하십시오.</strong></p>
+</blockquote>
+<hr />
+<h2 id="시작하기-전에-답안-작성-규칙">시작하기 전에 — 답안 작성 규칙</h2>
+<p>실제 시험과 동일한 조건을 만들기 위해 아래 세 가지를 지키면서 푸십시오.</p>
+<ol>
+<li><strong>문항 순서대로, 셀을 나눠서 풉니다.</strong> 한 셀에 몰아 쓰면 중간 오류 한 번에 앞 단계 결과까지 잃습니다.</li>
+<li><strong>아래 변수명을 그대로 사용합니다.</strong> 뒤 문항이 앞 문항의 변수를 그대로 이어받는 구조입니다.</li>
+</ol>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>용도</th>
+<th>변수명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>원본 데이터프레임</td>
+<td><code>df</code></td>
+</tr>
+<tr>
+<td>특성 / 타깃</td>
+<td><code>X</code>, <code>y</code></td>
+</tr>
+<tr>
+<td>분리 결과</td>
+<td><code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code></td>
+</tr>
+<tr>
+<td>스케일러와 변환 결과</td>
+<td><code>scaler</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code></td>
+</tr>
+<tr>
+<td>머신러닝 베이스라인 모델 / 그 예측</td>
+<td><code>rf_model</code>, <code>rf_pred</code></td>
+</tr>
+<tr>
+<td>딥러닝 모델 / 학습 기록</td>
+<td><code>model</code>, <code>history</code></td>
+</tr>
+<tr>
+<td>콜백</td>
+<td><code>es</code>(EarlyStopping), <code>mc</code>(ModelCheckpoint)</td>
+</tr>
+<tr>
+<td>예측 확률 / 예측 클래스</td>
+<td><code>pred</code>, <code>y_pred</code></td>
+</tr>
+</tbody>
+</table></div>
+<ol start="3">
+<li>
+<p><strong>"출력하시오"라는 지시에는 반드시 <code>print()</code>를 씁니다.</strong> 계산만 하고 화면에 남기지 않으면 채점 대상이 되지 않습니다.</p>
+</li>
+<li>
+<p><strong>타깃(<code>y</code>)은 넘파이 배열로 만들어 두면 편합니다.</strong> Keras <code>fit</code>이 받는 표준 형태이고, <code>np.argmax</code>·비교 연산 등 뒤 문항의 넘파이 계산과 형태가 통일됩니다. 이 회차는 pandas Series 그대로도 정상 동작하지만(2회차는 <code>to_numpy()</code>를 지시합니다), <strong>넘파이로 통일하는 습관</strong>을 권합니다.<br />
+   (뒤에서 다룰 "학습 셀이 멈추는" 증상은 <strong>import 순서</strong> 문제이며 타깃 자료형과 무관합니다.)</p>
+</li>
+</ol>
+<hr />
+<h2 id="데이터-준비-문제-풀이-전-1회-실행">데이터 준비 (문제 풀이 전 1회 실행)</h2>
+<p>실제 시험에서는 CSV 파일이 주어집니다. 이 모의고사는 독자가 로컬에서 그대로 재현할 수 있도록, 아래 코드로 <strong>동일한 CSV 파일을 직접 생성</strong>합니다. 이 블록은 문제가 아니므로 그대로 복사해 한 번만 실행하십시오.</p>
+<blockquote class="callout callout--tip">
+<p>💡 <strong>로컬 환경 주의 — 반드시 먼저 읽으십시오 (시험장에서는 신경 쓸 필요 없습니다)</strong><br />
+일부 로컬 환경(특히 macOS + <code>pyarrow</code>가 설치된 pandas 조합)에서는 <strong><code>pandas</code>를 <code>tensorflow</code>보다 먼저 import 하면, 뒤의 학습 셀(Q11)에서 <code>model.fit</code>이 아무 출력도 없이 멈춥니다.</strong> 그래서 이 교재의 코드 블록은 <strong>데이터 생성 블록과 해답의 공통 import 블록 양쪽 모두 <code>import tensorflow as tf</code>를 첫 줄에 두었습니다.</strong> 한쪽만 고치면 효과가 없습니다 — <strong>먼저 실행된 셀이 pandas를 이미 적재</strong>하기 때문입니다.<br />
+<strong>이미 데이터 생성 셀을 pandas 먼저 import한 상태로 실행했다면, 커널을 재시작한 뒤 아래 블록부터 다시 실행하십시오.</strong></p>
+</blockquote>
+<pre><code class="language-python"># ===== [문제 아님] 모의고사용 데이터 파일 생성 — 그대로 1회 실행 =====
+import tensorflow as tf      # [환경] pandas보다 먼저 import — 위 '로컬 환경 주의' 참고
+import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)
+n = 3000
+
+customer_id = np.array([f'C{i:05d}' for i in range(1, n + 1)])
+tenure_months = rng.integers(1, 73, n)
+monthly_fee = np.round(rng.normal(65, 18, n).clip(20, 130), 2)
+contract_type = rng.choice(['month', 'one_year', 'two_year'], n, p=[0.5, 0.3, 0.2])
+internet_service = rng.choice(['dsl', 'fiber', 'no'], n, p=[0.35, 0.45, 0.20])
+support_calls = rng.poisson(1.2, n)
+total_fee = np.round(tenure_months * monthly_fee * rng.normal(1.0, 0.05, n), 2)
+
+contract_bonus = np.where(contract_type == 'month', 0.9,
+                          np.where(contract_type == 'one_year', 0.0, -0.9))
+internet_bonus = np.where(internet_service == 'fiber', 0.5,
+                          np.where(internet_service == 'dsl', 0.0, -0.5))
+score = (-0.045 * tenure_months + 0.015 * monthly_fee
+         + 0.40 * support_calls + contract_bonus + internet_bonus)
+prob = 1 / (1 + np.exp(-((score - score.mean()) - 1.2)))
+churn = rng.binomial(1, prob)
+
+df_raw = pd.DataFrame({
+    'customer_id': customer_id,
+    'tenure_months': tenure_months,
+    'monthly_fee': monthly_fee,
+    'total_fee': total_fee,
+    'contract_type': contract_type,
+    'internet_service': internet_service,
+    'support_calls': support_calls,
+    'churn': churn,
+})
+miss_idx = rng.choice(n, size=int(n * 0.05), replace=False)
+df_raw.loc[miss_idx, 'total_fee'] = np.nan
+df_raw.to_csv('telco_churn.csv', index=False)
+print('데이터 파일 생성 완료: telco_churn.csv')
+</code></pre>
+<h3 id="데이터-명세">데이터 명세</h3>
+<p><code>telco_churn.csv</code> — 통신사 고객 3,000명의 가입 정보와 이탈 여부입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>컬럼</th>
+<th>설명</th>
+<th>자료형</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customer_id</code></td>
+<td>고객 식별 번호</td>
+<td>문자열</td>
+<td>예측에 쓰지 않는 식별자</td>
+</tr>
+<tr>
+<td><code>tenure_months</code></td>
+<td>가입 기간(개월)</td>
+<td>정수</td>
+<td>1~72</td>
+</tr>
+<tr>
+<td><code>monthly_fee</code></td>
+<td>월 요금</td>
+<td>실수</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>total_fee</code></td>
+<td>누적 결제 금액</td>
+<td>실수</td>
+<td><strong>결측치 있음</strong></td>
+</tr>
+<tr>
+<td><code>contract_type</code></td>
+<td>계약 유형</td>
+<td>문자열</td>
+<td><code>month</code> / <code>one_year</code> / <code>two_year</code></td>
+</tr>
+<tr>
+<td><code>internet_service</code></td>
+<td>인터넷 서비스 종류</td>
+<td>문자열</td>
+<td><code>dsl</code> / <code>fiber</code> / <code>no</code></td>
+</tr>
+<tr>
+<td><code>support_calls</code></td>
+<td>고객센터 문의 횟수</td>
+<td>정수</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>churn</code></td>
+<td><strong>타깃</strong> — 이탈 여부</td>
+<td>정수</td>
+<td>0 = 유지, 1 = 이탈</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="문제">문제</h2>
+<h3 id="q1-데이터-로딩과-형태-확인-5점-권장-4분">Q1. 데이터 로딩과 형태 확인 [5점] — 권장 4분</h3>
+<p><code>telco_churn.csv</code> 파일을 읽어 데이터프레임 <code>df</code>에 저장하시오.<br />
+이어서 다음 세 가지를 <strong>출력</strong>하시오.</p>
+<ol>
+<li>데이터의 행·열 개수</li>
+<li>상위 5개 행</li>
+<li>컬럼별 자료형과 결측 여부 요약</li>
+</ol>
+<hr />
+<h3 id="q2-타깃-분포와-결측치-확인-5점-권장-4분">Q2. 타깃 분포와 결측치 확인 [5점] — 권장 4분</h3>
+<p><code>df</code>에 대해 다음 두 가지를 <strong>출력</strong>하시오.</p>
+<ol>
+<li>타깃 컬럼 <code>churn</code>의 클래스별 개수와 <strong>비율</strong></li>
+<li>컬럼별 결측치 개수</li>
+</ol>
+<p>출력 결과를 보고, 이 데이터가 <strong>클래스 불균형</strong> 상태인지 판단할 수 있어야 합니다.</p>
+<hr />
+<h3 id="q3-시각화-8점-권장-8분">Q3. 시각화 [8점] — 권장 8분</h3>
+<p>다음 두 개의 그래프를 그리시오. (라이브러리는 <code>seaborn</code>, <code>matplotlib</code> 사용)</p>
+<ol>
+<li><strong>계약 유형(<code>contract_type</code>)별 이탈 여부 분포</strong>를 <code>countplot</code>으로 그리시오.<br />
+<code>churn</code> 값에 따라 막대가 나뉘도록 <code>hue</code>를 지정하시오.</li>
+<li><strong>수치형 컬럼 간 상관계수</strong>를 <code>heatmap</code>으로 그리시오.<br />
+   대상 컬럼은 <code>tenure_months</code>, <code>monthly_fee</code>, <code>total_fee</code>, <code>support_calls</code>, <code>churn</code> 다섯 개이며,<br />
+   각 칸에 상관계수 숫자가 표시되도록 하시오.</li>
+</ol>
+<hr />
+<h3 id="q4-결측치-처리-7점-권장-6분">Q4. 결측치 처리 [7점] — 권장 6분</h3>
+<p><code>total_fee</code> 컬럼의 결측치를 <strong>해당 컬럼의 중앙값</strong>으로 대체하시오.<br />
+처리 후 데이터프레임 전체에 남은 결측치 개수를 <strong>출력</strong>하여 0임을 확인하시오.</p>
+<blockquote class="callout callout--note">
+<p>이후 모든 문항은 결측치가 처리된 <code>df</code>를 이어받습니다.</p>
+</blockquote>
+<hr />
+<h3 id="q5-불필요한-컬럼-제거-5점-권장-3분">Q5. 불필요한 컬럼 제거 [5점] — 권장 3분</h3>
+<p><code>customer_id</code> 컬럼은 고객을 구분하기 위한 식별자일 뿐 예측에 도움이 되지 않습니다.<br />
+<code>df</code>에서 <code>customer_id</code> 컬럼을 제거하고, 제거 후의 <strong>컬럼 목록과 데이터 형태를 출력</strong>하시오.</p>
+<hr />
+<h3 id="q6-범주형-변수-인코딩-8점-권장-8분">Q6. 범주형 변수 인코딩 [8점] — 권장 8분</h3>
+<p>문자열로 되어 있는 <code>contract_type</code>과 <code>internet_service</code> 두 컬럼을 <strong>원-핫 인코딩</strong>하시오.<br />
+생성되는 더미 변수는 <strong>0과 1의 정수</strong>가 되도록 하시오.<br />
+인코딩 후의 <strong>컬럼 목록과 데이터 형태를 출력</strong>하시오.</p>
+<hr />
+<h3 id="q7-학습-데이터와-평가-데이터-분리-8점-권장-6분">Q7. 학습 데이터와 평가 데이터 분리 [8점] — 권장 6분</h3>
+<p><code>churn</code>을 타깃 <code>y</code>로, 나머지 전체 컬럼을 특성 <code>X</code>로 나누시오.<br />
+이어서 <strong>학습 데이터와 평가 데이터를 7:3으로 분리</strong>하여 <code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>에 저장하시오.</p>
+<ul>
+<li><code>random_state=42</code>를 사용하시오.</li>
+<li>타깃의 <strong>클래스 비율이 학습·평가 양쪽에 동일하게 유지</strong>되도록 하시오.</li>
+</ul>
+<p>분리 후 <code>X_train</code>과 <code>X_test</code>의 형태, 그리고 <code>y_train</code>·<code>y_test</code>의 클래스 비율을 <strong>출력</strong>하시오.</p>
+<hr />
+<h3 id="q8-스케일링-8점-권장-6분">Q8. 스케일링 [8점] — 권장 6분</h3>
+<p><code>StandardScaler</code>를 사용해 특성을 표준화하시오.</p>
+<ul>
+<li>스케일러 객체는 <code>scaler</code>라는 이름으로 만드시오.</li>
+<li><strong>평가 데이터의 정보가 변환 규칙에 섞여 들어가지 않도록</strong> 처리하시오.</li>
+<li>변환 결과는 각각 <code>X_train_scaled</code>, <code>X_test_scaled</code>에 저장하시오.</li>
+</ul>
+<p>변환 후 두 배열의 형태와, <code>X_train_scaled</code>의 평균·표준편차를 <strong>출력</strong>하시오.</p>
+<hr />
+<h3 id="q9-머신러닝-베이스라인-10점-권장-9분">Q9. 머신러닝 베이스라인 [10점] — 권장 9분</h3>
+<p>딥러닝 모델의 성능을 비교할 기준선을 만듭니다.<br />
+<code>RandomForestClassifier</code>로 베이스라인 모델을 학습시키고 평가 데이터 성능을 확인하시오.</p>
+<ul>
+<li>모델 변수명은 <code>rf_model</code>로 하시오. (뒤 문항의 딥러닝 모델 <code>model</code>과 겹치지 않게 하기 위함입니다.)</li>
+<li><code>n_estimators=100</code>, <code>random_state=42</code>를 사용하시오.</li>
+<li><code>X_train_scaled</code>로 학습하고 <code>X_test_scaled</code>로 예측하시오.</li>
+<li>평가 데이터에 대한 <strong>정확도(accuracy)</strong> 와 <strong><code>classification_report</code></strong> 를 출력하시오.</li>
+</ul>
+<hr />
+<h3 id="q10-딥러닝-모델-구성과-컴파일-12점-권장-12분">Q10. 딥러닝 모델 구성과 컴파일 [12점] — 권장 12분</h3>
+<p>이 문제 유형에 맞는 딥러닝 모델을 <code>model</code>이라는 이름으로 만드시오.</p>
+<p><strong>구성 조건</strong></p>
+<ul>
+<li><code>Sequential</code> 모델을 사용하시오.</li>
+<li>입력층은 <code>X_train_scaled</code>의 특성 개수에 맞춰 지정하시오.</li>
+<li><strong>은닉층을 2개 이상</strong> 쌓되, 활성화 함수는 <code>relu</code>를 사용하시오.</li>
+<li>은닉층 사이에 <strong><code>Dropout</code>을 포함</strong>시키시오.</li>
+<li>출력층은 <strong>이진분류에 맞는 노드 수와 활성화 함수</strong>로 지정하시오.</li>
+<li>구성 후 <code>model.summary()</code>로 구조를 <strong>출력</strong>하시오.</li>
+</ul>
+<p><strong>컴파일 조건</strong></p>
+<ul>
+<li>optimizer는 <code>adam</code>을 사용하시오.</li>
+<li>손실 함수는 <strong>이진분류에 맞는 것</strong>을 선택하시오.</li>
+<li>metrics로 <code>accuracy</code>를 지정하시오.</li>
+</ul>
+<hr />
+<h3 id="q11-콜백을-적용한-학습-12점-권장-14분">Q11. 콜백을 적용한 학습 [12점] — 권장 14분</h3>
+<p><code>model</code>을 학습시키시오.</p>
+<p><strong>학습 조건</strong></p>
+<ul>
+<li><code>X_train_scaled</code>, <code>y_train</code>으로 학습하시오.</li>
+<li><code>epochs=100</code>, <code>batch_size=32</code>로 지정하시오.</li>
+<li>학습 데이터의 <strong>20%를 검증 데이터로 사용</strong>하시오.</li>
+<li>콜백 두 개를 적용하시오.</li>
+<li><code>es</code> — <code>EarlyStopping</code>: <code>val_loss</code>를 관찰하고, <code>patience=5</code>, <strong>가장 좋았던 시점의 가중치를 복원</strong>하도록 설정</li>
+<li><code>mc</code> — <code>ModelCheckpoint</code>: <code>val_loss</code> 기준으로 <strong>가장 좋은 모델만</strong> <code>best_model.keras</code> 파일에 저장</li>
+<li>학습 결과는 <code>history</code>에 저장하시오.</li>
+</ul>
+<p><strong>학습 후</strong></p>
+<ul>
+<li><strong>실제로 학습이 진행된 epoch 수</strong>를 출력하시오.</li>
+<li><code>history</code>를 이용해 <strong>학습 곡선</strong>을 그리시오. loss와 accuracy를 각각 학습·검증 두 선으로 표시하시오.</li>
+</ul>
+<hr />
+<h3 id="q12-평가와-성능-해석-12점-권장-10분">Q12. 평가와 성능 해석 [12점] — 권장 10분</h3>
+<p>학습된 <code>model</code>로 평가 데이터의 성능을 확인하시오.</p>
+<ol>
+<li><code>evaluate</code>로 평가 데이터의 <strong>loss와 accuracy</strong>를 출력하시오.</li>
+<li><code>predict</code>로 예측 확률 <code>pred</code>를 구하고, <strong>임계값 0.5</strong>를 기준으로 클래스 <code>y_pred</code>(0 또는 1)로 변환하시오.</li>
+<li><code>classification_report</code>와 <code>confusion_matrix</code>를 <strong>출력</strong>하시오.</li>
+<li><strong>평가 데이터를 전부 0(유지)으로만 예측했을 때의 정확도</strong>를 계산해 함께 출력하고,<br />
+   이 데이터에서 <strong>정확도(accuracy)만으로 모델 성능을 판단하면 안 되는 이유</strong>를 주석으로 2줄 이내로 서술하시오.</li>
+</ol>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><blockquote class="callout callout--note">
+<p>아래 코드는 모두 실제 실행으로 검증되었습니다. 검증 환경과 결과 수치는 문서 맨 아래 검증 주석을 참고하십시오.</p>
+</blockquote>
+<h3 id="공통-import">공통 import</h3>
+<p>문항을 풀기 전에 아래 import 블록을 한 번 실행해 두면 이후 문항에서 반복하지 않아도 됩니다.</p>
+<pre><code class="language-python">import tensorflow as tf      # [환경] pandas보다 먼저 import — 아래 '로컬 환경 주의' 참고
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+
+np.random.seed(42)
+tf.random.set_seed(42)
+</code></pre>
+<blockquote class="callout callout--tip">
+<p>💡 <strong>로컬 환경 주의 (시험장에서는 신경 쓸 필요 없습니다)</strong><br />
+위 블록의 첫 줄이 <code>import tensorflow as tf</code>인 것은 오타가 아닙니다. 일부 로컬 환경(macOS + <code>pyarrow</code>가 설치된 pandas 조합)에서는 <strong><code>pandas</code>를 <code>tensorflow</code>보다 먼저 import 하면 Q11의 <code>model.fit</code>이 아무 출력도 없이 멈춥니다.</strong> 데이터 준비 절의 생성 블록과 이 공통 import 블록 <strong>양쪽 모두</strong> 첫 줄을 <code>tensorflow</code>로 맞춰야 하며, <strong>한쪽만 고치면 효과가 없습니다.</strong><br />
+<strong>학습 셀이 진행되지 않고 멈춘다면 커널을 재시작한 뒤 데이터 생성 블록부터 다시 실행하십시오.</strong> 이미 pandas가 먼저 적재된 세션에서는 import 순서를 고쳐도 증상이 남습니다.</p>
+</blockquote>
+<hr />
+<h3 id="q1-해답-데이터-로딩과-형태-확인-5점">Q1 해답 — 데이터 로딩과 형태 확인 [5점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df = pd.read_csv('telco_churn.csv')
+
+print(df.shape)      # 1) 행·열 개수
+print(df.head())     # 2) 상위 5개 행
+print(df.info())     # 3) 자료형과 결측 여부
+</code></pre>
+<p>실행 결과 요지입니다.</p>
+<pre><code>(3000, 8)
+  customer_id  tenure_months  ...  support_calls  churn
+0      C00001              7  ...              1      0
+...
+ #   Column            Non-Null Count  Dtype
+ 0   customer_id       3000 non-null   str
+ ...
+ 3   total_fee         2850 non-null   float64
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>shape</code>·<code>head</code>·<code>info</code> 세 줄이 탐색의 표준 세트</strong>입니다. <code>shape</code>로 규모를, <code>head</code>로 값의 생김새를, <code>info</code>로 자료형과 결측을 한 번에 봅니다.</li>
+<li>특히 <code>info()</code>의 <strong>Non-Null Count 열</strong>이 중요합니다. 전체 3000행인데 <code>total_fee</code>만 2850으로 찍히므로, <strong>이 시점에서 이미 "결측 150건"을 알 수 있습니다.</strong> Q4에서 어느 컬럼을 손봐야 하는지가 여기서 결정됩니다.</li>
+<li><code>info()</code>의 Dtype 열에서 <code>str</code>(또는 <code>object</code>)로 표시된 컬럼 — <code>customer_id</code>, <code>contract_type</code>, <code>internet_service</code> — 이 Q5·Q6에서 처리 대상이 됩니다. <strong>탐색 단계의 출력이 전처리 계획서 역할을 합니다.</strong></li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>df.info()</code>를 <code>print()</code> 없이 셀 마지막 줄에 두는 것. 노트북에서는 화면에 보이지만, 셀 중간에 있으면 아무것도 출력되지 않습니다. <strong>"출력하시오"라는 지시에는 예외 없이 <code>print()</code>를 붙이십시오.</strong></li>
+<li>파일 경로를 임의로 바꾸는 것. 문제지에 명시된 파일명을 그대로 써야 채점자가 재현할 수 있습니다.</li>
+</ul>
+<hr />
+<h3 id="q2-해답-타깃-분포와-결측치-확인-5점">Q2 해답 — 타깃 분포와 결측치 확인 [5점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">print(df['churn'].value_counts())                       # 클래스별 개수
+print(df['churn'].value_counts(normalize=True).round(3))  # 클래스별 비율
+print(df.isnull().sum())                                # 컬럼별 결측치 개수
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>churn
+0    2113
+1     887
+
+churn
+0    0.704
+1    0.296
+
+customer_id           0
+tenure_months         0
+monthly_fee           0
+total_fee           150
+contract_type         0
+internet_service      0
+support_calls         0
+churn                 0
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>value_counts()</code>는 개수, <code>value_counts(normalize=True)</code>는 비율</strong>을 줍니다. 문항이 "비율"까지 요구했으므로 두 줄 모두 필요합니다.</li>
+<li>결과가 <strong>70.4% : 29.6%</strong> — 이 숫자가 이 모의고사 전체를 관통하는 조건입니다. 두 가지 결정이 여기서 나옵니다.<br />
+  1. Q7에서 <strong><code>stratify=y</code>를 반드시 넣어야 합니다.</strong> 비율이 한쪽으로 기울어 있으므로, 무작위로 나누면 평가 데이터의 클래스 비율이 원본과 어긋납니다.<br />
+  2. Q12에서 <strong>accuracy만 보면 안 됩니다.</strong> 전부 0으로만 찍어도 정확도가 70%가 나오는 데이터이기 때문입니다.</li>
+<li><code>isnull().sum()</code>은 컬럼별 결측 개수를 한 번에 보여 줍니다. Q1의 <code>info()</code>로도 알 수 있지만, <strong>"결측치 개수를 출력하시오"라는 지시에 가장 정확히 대응하는 함수</strong>입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>df.isnull().sum().sum()</code>(전체 합계, 스칼라 하나)과 <code>df.isnull().sum()</code>(컬럼별 Series)을 혼동하는 것. <strong>어느 컬럼인지</strong>를 묻는 문항에는 <code>.sum()</code> 하나만 붙입니다.</li>
+<li>불균형을 확인해 놓고도 뒤 문항에서 <code>stratify</code>를 빠뜨리는 것. Q2의 출력은 보고 끝내는 정보가 아니라 <strong>Q7·Q12로 이어지는 근거</strong>입니다.</li>
+</ul>
+<hr />
+<h3 id="q3-해답-시각화-8점">Q3 해답 — 시각화 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># 1) 계약 유형별 이탈 분포
+sns.countplot(data=df, x='contract_type', hue='churn')
+plt.title('contract_type vs churn')
+plt.show()
+
+# 2) 수치형 컬럼 상관 heatmap
+num_cols = ['tenure_months', 'monthly_fee', 'total_fee', 'support_calls', 'churn']
+sns.heatmap(df[num_cols].corr(), annot=True, cmap='Blues')
+plt.title('numeric correlation')
+plt.show()
+</code></pre>
+<p>그래프에서 읽히는 내용입니다(수치로 확인하면 아래와 같습니다).</p>
+<pre><code>계약유형별 이탈률
+  month       0.390
+  one_year    0.242
+  two_year    0.125
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>countplot</code>의 <code>hue</code>가 이 문항의 채점 포인트</strong>입니다. <code>hue='churn'</code>을 지정해야 계약 유형마다 막대가 유지/이탈 두 개로 나뉘어, "월 단위 계약이 이탈률이 높다"는 관계가 눈에 보입니다. <code>hue</code>가 없으면 계약 유형별 고객 수만 나올 뿐 이탈과의 관계는 전혀 드러나지 않습니다.</li>
+<li><strong><code>heatmap</code>에 <code>annot=True</code></strong> 를 넣어야 각 칸에 상관계수 숫자가 찍힙니다. "각 칸에 상관계수 숫자가 표시되도록"이라는 지시가 곧 <code>annot=True</code>입니다.</li>
+<li>대상 컬럼을 <code>num_cols</code>로 <strong>명시적으로 골라낸 이유</strong>가 중요합니다. <code>df.corr()</code>를 그냥 부르면 <code>customer_id</code>·<code>contract_type</code> 같은 문자열 컬럼 때문에 오류가 납니다. 실제로 실행하면 이렇습니다.</li>
+</ul>
+<p><code>ValueError: could not convert string to float: 'C00001'</code></p>
+<p>대안으로 <code>df.select_dtypes(include='number').corr()</code>를 써도 됩니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>문자열 컬럼이 섞인 채 <code>df.corr()</code> 호출</strong> — 위 <code>ValueError</code>가 나는 가장 흔한 실수입니다. 상관 분석 전에는 수치형만 골라내는 한 줄이 반드시 필요합니다.</li>
+<li><code>plt.show()</code>를 빠뜨려 그래프가 화면에 남지 않는 것. 시각화 문항은 <strong>그림이 출력된 상태</strong>가 답안입니다.</li>
+<li>시각화 문항의 출제 비중은 회차에 따라 달라질 수 있으므로, 시험 공지 기준을 확인하십시오. 다만 그리는 데 시간을 많이 쓰지는 마십시오. 배점 대비 시간 소모가 큰 구간입니다.</li>
+</ul>
+<hr />
+<h3 id="q4-해답-결측치-처리-7점">Q4 해답 — 결측치 처리 [7점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df['total_fee'] = df['total_fee'].fillna(df['total_fee'].median())
+
+print('남은 결측치 총합:', df.isnull().sum().sum())
+</code></pre>
+<p>실행 결과입니다. (이 데이터에서 <code>total_fee</code>의 중앙값은 <code>2148.03</code>입니다.)</p>
+<pre><code>남은 결측치 총합: 0
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>fillna</code>는 원본을 바꾸지 않고 새 Series를 반환합니다.</strong> 그래서 <code>df['total_fee'] = ...</code> 형태로 <strong>다시 대입</strong>해야 합니다. 이 한 가지가 이 문항 배점의 절반입니다.</li>
+<li><strong>중앙값(<code>median</code>)을 쓰라고 지시한 이유</strong>를 이해해 두십시오. <code>total_fee</code>는 <code>가입 개월 × 월 요금</code>으로 만들어져 값의 범위가 매우 넓고 오른쪽으로 길게 늘어진 분포입니다. 이런 분포에서 평균은 큰 값들에 끌려가지만 중앙값은 영향을 덜 받습니다. <strong>다만 시험에서는 문항이 방법을 직접 지정하는 경우가 대부분이므로, 스스로 판단하기보다 지시된 함수를 정확히 쓰는 것이 우선입니다.</strong></li>
+<li>마지막 확인 출력이 <code>0</code>이어야 다음 단계로 넘어갈 수 있습니다. 결측치가 남은 채로 딥러닝 학습에 들어가면 오류 없이 <strong><code>loss: nan</code></strong> 이 나옵니다(Ch08 오류 유형 ③). 여기서 0을 확인해 두는 것이 뒤의 사고를 막습니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>재대입 누락.</strong> <code>df['total_fee'].fillna(df['total_fee'].median())</code>만 쓰고 넘어가는 경우입니다. 실제로 실행해 보면 결측치가 그대로 150건 남아 있습니다.</li>
+</ul>
+<p><code>재대입 없이: 150
+  재대입 후 : 0</code></p>
+<ul>
+<li><code>df.fillna(df.median())</code>처럼 데이터프레임 전체에 거는 것. 문자열 컬럼이 섞여 있어 의도치 않은 동작을 하거나 오류가 납니다. <strong>지시된 컬럼 하나만</strong> 처리하십시오.</li>
+<li>결측 행을 <code>dropna()</code>로 지워 버리는 것. 3,000행 중 150행이 사라지면 뒤 문항의 출력 형태가 전부 달라집니다. 지시는 "중앙값으로 대체"입니다.</li>
+</ul>
+<hr />
+<h3 id="q5-해답-불필요한-컬럼-제거-5점">Q5 해답 — 불필요한 컬럼 제거 [5점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df = df.drop(columns=['customer_id'])
+
+print(df.shape)
+print(df.columns.tolist())
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>(3000, 7)
+['tenure_months', 'monthly_fee', 'total_fee', 'contract_type',
+ 'internet_service', 'support_calls', 'churn']
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>drop</code>도 새 데이터프레임을 반환합니다.</strong> <code>df = df.drop(...)</code>처럼 다시 대입해야 합니다(Q4와 같은 원리입니다).</li>
+<li><code>customer_id</code>를 지우는 이유는 단순히 "쓸모없어서"가 아닙니다. 이 컬럼은 <strong>문자열</strong>이므로 남겨 두면 Q8의 <code>StandardScaler</code>에서 곧바로 오류가 납니다. 실제로 남긴 채 스케일링을 시도하면 이렇습니다.</li>
+</ul>
+<p><code>ValueError: could not convert string to float: 'C00001'</code></p>
+<p>즉 Q5는 독립된 정리 작업이 아니라 <strong>Q8이 성립하기 위한 선행 조건</strong>입니다.<br />
+- 만약 <code>customer_id</code>가 숫자 ID(예: <code>1, 2, 3, ...</code>)였다면 오류는 안 나지만 더 위험합니다. 모델이 의미 없는 번호를 특성으로 학습하기 때문입니다. <strong>식별자 컬럼은 자료형과 무관하게 제거</strong>가 원칙입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>df.drop(columns=['customer_id'])</code>만 쓰고 재대입하지 않는 것.</li>
+<li><code>df.drop('customer_id')</code>처럼 축을 지정하지 않는 것. <code>drop</code>의 기본 축은 <strong>행(index)</strong> 이라 <code>KeyError</code>가 납니다. 컬럼을 지울 때는 <code>columns=[...]</code> 또는 <code>axis=1</code>이 필요합니다.</li>
+</ul>
+<hr />
+<h3 id="q6-해답-범주형-변수-인코딩-8점">Q6 해답 — 범주형 변수 인코딩 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df = pd.get_dummies(df, columns=['contract_type', 'internet_service'], dtype=int)
+
+print(df.shape)
+print(df.columns.tolist())
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>(3000, 11)
+['tenure_months', 'monthly_fee', 'total_fee', 'support_calls', 'churn',
+ 'contract_type_month', 'contract_type_one_year', 'contract_type_two_year',
+ 'internet_service_dsl', 'internet_service_fiber', 'internet_service_no']
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>columns=[...]</code>로 대상 컬럼을 명시</strong>합니다. 생략하면 문자 컬럼 전체가 한꺼번에 변환되는데, 이 단계에서는 문제가 없어 보여도 다른 데이터에서는 예상 밖의 컬럼까지 더미로 바뀝니다. 명시하는 습관이 안전합니다.</li>
+<li><strong><code>dtype=int</code>가 이 문항의 채점 포인트</strong>입니다. pandas 2.x 이후 <code>get_dummies</code>의 기본 출력은 <strong>불리언(<code>True</code>/<code>False</code>)</strong> 입니다. 문항이 "0과 1의 정수"를 요구했으므로 반드시 지정해야 합니다.</li>
+</ul>
+<p><code>dtype 미지정: bool
+  dtype=int   : int64</code></p>
+<ul>
+<li>컬럼 수 변화를 확인하십시오. 7개 → <strong>11개</strong>입니다. 범주형 2개가 사라지고 각각 3개씩 총 6개의 더미 컬럼이 생겼기 때문입니다(7 − 2 + 6 = 11). <strong>이 11개 중 <code>churn</code>을 뺀 10개가 Q10의 입력 특성 수</strong>가 됩니다.</li>
+<li><strong>라벨 인코딩이 아니라 원-핫 인코딩</strong>을 쓰는 이유는, <code>month</code>/<code>one_year</code>/<code>two_year</code>에 <code>0</code>/<code>1</code>/<code>2</code>를 붙이면 모델이 "two_year가 month의 2배"라는 없던 크기 관계를 학습하기 때문입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>dtype=int</code> 누락.</strong> 불리언 컬럼도 스케일링·학습은 통과하지만, 지시를 어긴 것이므로 감점 대상입니다.</li>
+<li><strong>인코딩을 데이터 분리 뒤에 하는 것.</strong> 순서 규칙은 <strong>인코딩은 분리 전, 스케일링은 분리 후</strong>입니다. 분리 후에 각각 인코딩하면 한쪽에만 있는 범주 때문에 컬럼 구성이 달라집니다. 실제로 평가 데이터가 작을 때 재현해 보면 이렇습니다.</li>
+</ul>
+<p><code>test 표본 3개일 때: train 컬럼 10개 / test 컬럼 7개
+  누락 컬럼 ['contract_type_one_year', 'contract_type_two_year', 'internet_service_dsl']</code></p>
+<p>이 상태로 <code>predict</code>를 부르면 입력 shape 불일치 오류가 납니다.<br />
+- <code>churn</code>까지 인코딩 대상에 넣는 것. 타깃은 이미 0/1 정수이므로 건드리지 않습니다.</p>
+<hr />
+<h3 id="q7-해답-학습-데이터와-평가-데이터-분리-8점">Q7 해답 — 학습 데이터와 평가 데이터 분리 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">X = df.drop(columns=['churn'])
+y = df['churn']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+print(X_train.shape, X_test.shape)
+print(y_train.value_counts(normalize=True).round(3))
+print(y_test.value_counts(normalize=True).round(3))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>(2100, 10) (900, 10)
+churn
+0    0.704
+1    0.296
+churn
+0    0.704
+1    0.296
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>test_size=0.3</code>이 "7:3"입니다.</strong> 인자가 지정하는 것은 <strong>평가 데이터의 비율</strong>이라는 점을 기억하십시오. 8:2면 <code>0.2</code>입니다. <code>test_size=0.7</code>로 쓰면 정반대가 됩니다.</li>
+<li><strong><code>random_state=42</code></strong> 는 채점자가 같은 결과를 재현하기 위한 장치입니다. 지시된 숫자를 그대로 씁니다.</li>
+<li><strong>"클래스 비율이 양쪽에 동일하게 유지되도록" = <code>stratify=y</code></strong> 입니다. 문항이 <code>stratify</code>라는 단어를 직접 쓰지 않고 "층화 추출", "클래스 비율을 유지하여"처럼 우회 표현하는 경우가 많으므로, 이 표현을 인자로 옮기는 연습이 필요합니다.</li>
+<li>효과를 수치로 확인하면 이렇습니다. <code>stratify</code> 없이 나누면 <code>random_state</code> 값에 따라 평가 데이터의 이탈 비율이 흔들립니다.</li>
+</ul>
+<p><code>stratify 없음 random_state=0 → test 클래스1 비율 0.2878
+  stratify 없음 random_state=1 → test 클래스1 비율 0.2967
+  stratify 없음 random_state=7 → test 클래스1 비율 0.3011
+  stratify=y                   → test 클래스1 비율 0.2956  (원본 0.2957)</code></p>
+<p><code>stratify=y</code>를 쓰면 원본 비율 <code>0.2957</code>이 소수 넷째 자리까지 그대로 재현됩니다.<br />
+- <strong><code>X</code>는 <code>churn</code>을 제외한 전체</strong>입니다. <code>drop(columns=['churn'])</code>으로 만들면 Q6에서 생성된 더미 컬럼까지 자동으로 포함되므로, 컬럼을 하나씩 나열하는 것보다 안전합니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>반환 순서 착각.</strong> <code>train_test_split</code>은 <code>X_train, X_test, y_train, y_test</code> 순서로 반환합니다. <code>X_train, y_train, X_test, y_test</code>로 받으면 오류 없이 진행되다가 학습 단계에서 이해할 수 없는 shape 오류가 납니다.</li>
+<li><code>stratify=y</code> 누락. 이 데이터처럼 불균형이 있을 때 특히 손해가 큽니다.</li>
+<li><code>stratify='churn'</code>처럼 문자열을 넣는 것. <strong>타깃 배열 자체</strong>(<code>y</code>)를 넣어야 합니다.</li>
+</ul>
+<hr />
+<h3 id="q8-해답-스케일링-8점">Q8 해답 — 스케일링 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # 학습 데이터: 계산 + 변환
+X_test_scaled = scaler.transform(X_test)         # 평가 데이터: 변환만
+
+print(X_train_scaled.shape, X_test_scaled.shape)
+print('학습 데이터 평균:', X_train_scaled.mean().round(3),
+      '/ 표준편차:', X_train_scaled.std().round(3))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>(2100, 10) (900, 10)
+학습 데이터 평균: 0.0 / 표준편차: 1.0
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>"평가 데이터의 정보가 변환 규칙에 섞이지 않도록" = 학습 데이터에만 <code>fit</code></strong> 하라는 뜻입니다. <code>fit</code>은 "평균과 표준편차를 계산해 기억하는" 동작입니다. 전체 데이터로 <code>fit</code>하면 평가 데이터의 통계량이 변환 규칙에 들어가고, 이것이 <strong>데이터 누수(data leakage)</strong> 입니다. 평가 점수가 실제보다 좋게 나와 모델을 과대평가하게 됩니다.</li>
+<li>그래서 순서는 세 줄로 고정됩니다. <strong>① 먼저 나눈다 → ② <code>X_train</code>에 <code>fit_transform</code> → ③ <code>X_test</code>에 <code>transform</code>.</strong></li>
+<li>학습 데이터의 평균이 <code>0.0</code>, 표준편차가 <code>1.0</code>으로 나오는 것이 <code>StandardScaler</code>가 제대로 동작했다는 증거입니다. 반면 <strong>평가 데이터의 평균은 정확히 0이 아닙니다</strong>(이 데이터에서는 <code>0.011</code>). 학습 데이터 기준으로 변환했기 때문이며, <strong>이것이 정상</strong>입니다.</li>
+<li>딥러닝에서 스케일링은 사실상 필수입니다. <code>total_fee</code>는 수천 단위, <code>support_calls</code>는 한 자릿수인데 이대로 넣으면 큰 값을 가진 특성이 가중치 갱신을 지배해 학습이 제대로 진행되지 않습니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>평가 데이터에도 <code>fit_transform</code>을 쓰는 것.</strong> 가장 흔한 감점 패턴입니다. <code>X_test_scaled = scaler.fit_transform(X_test)</code>로 쓰면 평가 데이터의 자체 통계로 다시 변환되어 학습 데이터와 기준이 달라집니다.</li>
+<li><strong>분리 전에 <code>scaler.fit_transform(X)</code> 한 줄로 끝내고 나서 <code>train_test_split</code>을 부르는 것.</strong> 오류가 나지 않아 알아채기 어렵습니다.</li>
+<li>뒤 문항에서 <strong>스케일링 안 된 <code>X_train</code>을 그대로 넣는 것.</strong> 딥러닝 모델에는 반드시 <code>X_train_scaled</code>를 넣습니다. 변수명이 비슷해 헷갈리기 쉬우니, 학습 코드를 쓸 때 <code>_scaled</code>가 붙어 있는지 눈으로 한 번 확인하십시오.</li>
+</ul>
+<hr />
+<h3 id="q9-해답-머신러닝-베이스라인-10점">Q9 해답 — 머신러닝 베이스라인 [10점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">rf_model = RandomForestClassifier(n_estimators=100, random_state=42)   # 1) 생성
+rf_model.fit(X_train_scaled, y_train)                                  # 2) 학습
+rf_pred = rf_model.predict(X_test_scaled)                              # 3) 예측
+
+print('RandomForest accuracy:', round(accuracy_score(y_test, rf_pred), 4))
+print(classification_report(y_test, rf_pred))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>RandomForest accuracy: 0.73
+
+              precision    recall  f1-score   support
+           0       0.78      0.87      0.82       634
+           1       0.56      0.40      0.47       266
+    accuracy                           0.73       900
+   macro avg       0.67      0.63      0.64       900
+weighted avg       0.71      0.73      0.72       900
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>sklearn 모델은 "생성 → <code>fit</code> → <code>predict</code>" 세 줄</strong>이면 끝납니다. 알고리즘이 바뀌어도 클래스 이름만 교체하면 됩니다.</li>
+<li><strong><code>random_state=42</code>가 여기에도 필요합니다.</strong> 랜덤 포레스트는 이름 그대로 무작위성을 쓰는 모델이라, 지정하지 않으면 실행할 때마다 성능이 달라져 재현이 되지 않습니다. <code>train_test_split</code>에만 넣고 모델에는 빠뜨리는 경우가 많습니다.</li>
+<li><strong>모델 변수명을 <code>rf_model</code>로 지정한 것이 이 문항의 숨은 함정입니다.</strong> 교재 표준에서 <code>model</code>은 Keras 모델을 가리킵니다. 여기서 <code>model = RandomForestClassifier(...)</code>로 써 두면, Q10에서 <code>model = Sequential()</code>을 만드는 순간 베이스라인이 사라집니다. 그 자체로는 오류가 아니지만, <strong>"딥러닝이 베이스라인보다 나은가"를 마지막에 다시 비교할 수 없게 됩니다.</strong> 실기에서는 앞뒤 문항이 같은 변수를 이어 쓰므로, 이름 충돌을 미리 피하는 습관이 필요합니다.</li>
+<li><strong>베이스라인의 목적은 최고 성능이 아니라 기준선</strong>입니다. 뒤에 만들 딥러닝 모델이 이 점수보다 크게 낮다면 전처리나 모델 설정에 문제가 있다는 신호로 읽으면 됩니다.</li>
+<li>여기서 이미 불균형의 그림자가 보입니다. 전체 accuracy는 <code>0.73</code>으로 나쁘지 않아 보이지만, <strong>정작 찾아내야 할 이탈 고객(클래스 1)의 recall은 <code>0.40</code></strong> 입니다. 실제 이탈자 266명 중 107명만 잡아냈다는 뜻입니다. Q12에서 이 관점을 다시 씁니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li>모델에 <code>random_state</code>를 빠뜨리는 것.</li>
+<li><strong>원본 <code>X_train</code>을 넣는 것.</strong> 랜덤 포레스트는 스케일링에 둔감해서 성능이 크게 달라지지 않지만, 문항이 <code>X_train_scaled</code>를 쓰라고 지시했다면 지시를 따르는 것이 채점 기준입니다.</li>
+<li><code>accuracy_score(rf_pred, y_test)</code>처럼 인자 순서를 바꾸는 것. accuracy는 대칭이라 값이 같지만, <code>classification_report</code>는 <strong>첫 번째가 실제값, 두 번째가 예측값</strong>이라는 순서가 지켜져야 precision·recall이 뒤바뀌지 않습니다.</li>
+</ul>
+<hr />
+<h3 id="q10-해답-딥러닝-모델-구성과-컴파일-12점">Q10 해답 — 딥러닝 모델 구성과 컴파일 [12점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># ===== 구성 =====
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))      # 이진분류 출력층
+model.summary()
+
+# ===== 컴파일 =====
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',      # 이진분류 손실 함수
+              metrics=['accuracy'])
+</code></pre>
+<p><code>summary()</code> 출력의 요지입니다.</p>
+<pre><code> Layer (type)          Output Shape       Param #
+ dense (Dense)         (None, 64)             704
+ dropout (Dropout)     (None, 64)               0
+ dense_1 (Dense)       (None, 32)           2,080
+ dropout_1 (Dropout)   (None, 32)               0
+ dense_2 (Dense)       (None, 1)               33
+ Total params: 2,817
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>입력 shape를 <code>X_train_scaled.shape[1]</code>로 자동 계산</strong>합니다. 이 데이터의 특성은 10개지만, 숫자 <code>10</code>을 직접 적으면 앞 문항에서 컬럼이 하나만 달라져도 shape 불일치 오류가 납니다. <code>shape[1]</code>로 쓰면 Q6·Q7의 결과가 무엇이든 자동으로 맞습니다. <strong>Q10이 Q6·Q7의 결과를 이어받는 지점이 바로 이 한 줄입니다.</strong></li>
+<li><strong>출력층 <code>Dense(1, activation='sigmoid')</code></strong> 인 이유는 이진분류이기 때문입니다. 노드가 1개인 것은 "이탈일 확률" 하나만 있으면 충분하기 때문이고(유지 확률은 1에서 빼면 됩니다), <code>sigmoid</code>인 것은 출력을 <strong>0~1 확률</strong>로 눌러 주기 위해서입니다.</li>
+<li><strong><code>binary_crossentropy</code>와 <code>sigmoid</code>는 언제나 짝으로 움직입니다.</strong> 손실 함수만 바꾸고 출력층을 그대로 두거나, 그 반대로 하는 것이 가장 흔한 사고입니다.</li>
+<li><strong><code>Dropout</code>은 은닉층 <code>Dense</code> 뒤에만</strong> 넣습니다. 출력층 뒤에 두면 최종 확률값 자체가 무작위로 0이 되어 예측이 망가집니다. 비율 <code>0.3</code>은 관례적 기본값이며, 문항에 지정이 없으면 0.2~0.5 범위에서 고르면 됩니다.</li>
+<li>은닉층 노드 수를 <code>64 → 32</code>로 <strong>줄여 가며</strong> 쌓는 것은 관례적인 구성입니다. 성능에 결정적이지는 않으므로 여기에 시간을 쓰지 마십시오. <strong>"은닉층 2개 이상", "Dropout 포함"이라는 지시 조건을 충족했는지가 채점 항목</strong>입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>입력 shape에 샘플 수를 넣는 것.</strong> <code>Input(shape=(2100, 10))</code>은 틀립니다. 행 수는 넣지 않습니다.</li>
+<li><strong>출력층에 <code>softmax</code>를 쓰는 것.</strong> 노드가 1개인 층에 <code>softmax</code>를 걸면 그 값은 언제나 1이 되어 학습이 전혀 되지 않습니다. 오류도 나지 않아 발견이 늦습니다.</li>
+<li><strong><code>metrics='accuracy'</code>를 리스트 없이 쓰는 것.</strong> 최신 버전에서는 통과하는 경우가 있지만, <code>metrics=['accuracy']</code>처럼 <strong>리스트로 감싸는 것이 표준</strong>입니다.</li>
+<li>구성만 하고 <code>compile()</code>을 빠뜨리는 것. 컴파일 없이 <code>fit</code>을 부르면 "모델이 컴파일되지 않았다"는 오류가 납니다. <strong>구성과 컴파일은 한 세트</strong>로 붙여 쓰십시오.</li>
+</ul>
+<hr />
+<h3 id="q11-해답-콜백을-적용한-학습-12점">Q11 해답 — 콜백을 적용한 학습 [12점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+mc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)
+
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    callbacks=[es, mc], verbose=0)     # verbose는 0/1 무엇이든 무방
+
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+print('history 키:', list(history.history.keys()))
+best_epoch = int(np.argmin(history.history['val_loss'])) + 1
+print('최저 val_loss:', round(min(history.history['val_loss']), 4), '@ epoch', best_epoch)
+
+# 학습 곡선
+plt.figure(figsize=(10, 4))
+plt.subplot(1, 2, 1)
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='val loss')
+plt.xlabel('epoch'); plt.ylabel('loss'); plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(history.history['accuracy'], label='train accuracy')
+plt.plot(history.history['val_accuracy'], label='val accuracy')
+plt.xlabel('epoch'); plt.ylabel('accuracy'); plt.legend()
+
+plt.tight_layout()
+plt.show()
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>실제로 학습한 epoch 수: 10
+history 키: ['accuracy', 'loss', 'val_accuracy', 'val_loss']
+최저 val_loss: 0.5165 @ epoch 5
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>epochs=100</code>을 지정했는데 10에서 끝난 것이 <code>EarlyStopping</code>이 동작했다는 증거</strong>입니다. <code>val_loss</code>가 5번째 epoch에서 최저를 찍은 뒤 5번(<code>patience=5</code>) 더 지켜봤지만 개선되지 않아 10에서 중단했습니다. <code>print('실제로 학습한 epoch 수:', len(history.history['loss']))</code> 한 줄이 그 확인 방법입니다. <strong>중단 시점은 실행마다 달라집니다</strong>(검증 환경에서 10~20 범위). 숫자 자체가 아니라 <strong>상한 100보다 훨씬 앞에서 끝났다는 사실</strong>이 채점 포인트입니다.</li>
+<li><strong><code>verbose</code>는 0이든 1이든 상관없습니다.</strong> 1이면 epoch마다 진행 로그가 흐르고 0이면 조용합니다. 다만 <strong>화면 로그는 채점 근거가 아니므로</strong>, 어느 쪽을 쓰든 위의 <code>len(history.history['loss'])</code> 출력은 남겨야 합니다. (2회차 Q11도 같은 규칙입니다.)</li>
+<li><strong><code>restore_best_weights=True</code>가 이 문항의 핵심 인자</strong>입니다. 이것을 빠뜨리면 학습은 최저점에서 멈추지만 <strong>모델에 남는 가중치는 중단 시점(10번째)의 것</strong>입니다. 즉 최고 성능 지점을 지나쳐 놓고 그보다 나쁜 상태로 평가하게 됩니다. "가장 좋았던 시점의 가중치를 복원"이라는 지시가 곧 이 인자입니다.</li>
+<li><strong><code>ModelCheckpoint</code>의 <code>save_best_only=True</code></strong> 는 매 epoch마다 덮어쓰지 않고 <code>val_loss</code>가 개선될 때만 파일을 갱신합니다. 확장자는 <strong><code>.keras</code></strong> 를 쓰십시오. Keras 3에서 <code>.h5</code>는 여전히 동작하지만 <code>.keras</code>가 표준이며, 확장자 없이 <code>'best_model'</code>처럼 쓰면 오류가 납니다.</li>
+<li><strong><code>callbacks=[es, mc]</code>처럼 리스트로 전달</strong>해야 합니다. 콜백 객체를 만들어 놓고 <code>fit</code>에 넘기지 않으면 아무 일도 일어나지 않습니다. 오류도 나지 않아 "EarlyStopping을 넣었는데 100 epoch을 다 돌았다"는 상황이 생깁니다.</li>
+<li><strong><code>validation_split=0.2</code></strong> 는 <code>X_train</code>의 뒤쪽 20%를 잘라 검증에 씁니다. 여기서 잘라내는 것은 <strong>학습 데이터의 일부</strong>이며, <code>X_test</code>는 이 과정에 전혀 관여하지 않습니다. 평가 데이터는 마지막 Q12에서 딱 한 번만 씁니다.</li>
+<li>학습 곡선은 <strong><code>history.history</code>의 네 개 키</strong>로 그립니다. 키 이름이 기억나지 않으면 <code>print(history.history.keys())</code>로 먼저 확인하십시오. 이진분류에서는 <code>accuracy</code>/<code>val_accuracy</code>지만, 회귀에서는 <code>mae</code>/<code>val_mae</code>가 되므로 유형에 따라 달라집니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>restore_best_weights=True</code> 누락</strong> — 지시문에 명시된 조건이므로 그 자체로 감점이며, 평가 성능도 손해를 봅니다.</li>
+<li><strong><code>callbacks=[es, mc]</code> 전달 누락</strong> 또는 <code>callbacks=es</code>처럼 리스트 없이 넘기는 것.</li>
+<li><strong><code>validation_split</code>과 <code>validation_data</code> 혼동.</strong> <code>validation_split</code>은 비율(숫자), <code>validation_data</code>는 <code>(X_val, y_val)</code> 튜플입니다. 둘을 바꿔 쓰면 오류가 납니다.</li>
+<li><strong><code>X_train</code>(스케일링 전)을 넣는 것.</strong> 이 경우 오류는 없지만 accuracy가 낮은 값에서 잘 오르지 않습니다.</li>
+<li>학습 곡선에서 <code>history.history['acc']</code>처럼 옛 키 이름을 쓰는 것. 최신 Keras는 <code>accuracy</code>입니다. <code>KeyError</code>가 나면 키 목록부터 출력하십시오.</li>
+</ul>
+<blockquote class="callout callout--note">
+<p><strong>시간 관리 조언</strong> — 시험장에서 <code>epochs=100</code>을 그대로 걸고 기다리다 시간을 잃는 일이 흔합니다. 먼저 <code>epochs=20</code> 정도로 한 번 완주시켜 Q12의 평가 출력까지 만들어 두고, 시간이 남으면 <code>epochs=100</code>으로 다시 돌리십시오. <strong><code>EarlyStopping</code>은 어느 쪽이든 반드시 넣어 둡니다</strong>(지시 조건이므로).</p>
+</blockquote>
+<hr />
+<h3 id="q12-해답-평가와-성능-해석-12점">Q12 해답 — 평가와 성능 해석 [12점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># 1) evaluate
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4), '/ test accuracy:', round(acc, 4))
+
+# 2) predict → 임계값 0.5로 클래스 변환
+pred = model.predict(X_test_scaled, verbose=0)
+y_pred = (pred &gt; 0.5).astype(int).flatten()
+
+# 3) 상세 지표
+print(classification_report(y_test, y_pred, digits=3))
+print(confusion_matrix(y_test, y_pred))
+
+# 4) 전부 0으로만 예측했을 때의 정확도
+naive = np.zeros(len(y_test), dtype=int)
+print('무조건 0 예측 accuracy:', round(accuracy_score(y_test, naive), 4))
+
+# 이 데이터는 유지:이탈이 약 7:3이라 전부 0으로 찍어도 정확도가 0.70이 나온다.
+# 따라서 accuracy가 아니라 클래스 1의 recall과 f1으로 판단해야 한다.
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>test loss: 0.4986 / test accuracy: 0.7467
+
+              precision    recall  f1-score   support
+           0      0.801     0.852     0.826       634
+           1      0.584     0.496     0.537       266
+    accuracy                          0.747       900
+   macro avg      0.693     0.674     0.681       900
+weighted avg      0.737     0.747     0.740       900
+
+[[540  94]
+ [134 132]]
+
+무조건 0 예측 accuracy: 0.7044
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>evaluate</code>와 <code>predict</code>는 반환값이 다릅니다.</strong> <code>evaluate</code>는 컴파일 때 지정한 <code>[loss, accuracy]</code> <strong>두 숫자</strong>를 돌려주고, <code>predict</code>는 <strong>샘플별 확률 배열</strong> <code>(900, 1)</code>을 돌려줍니다. 문항이 "loss와 accuracy"를 요구하면 <code>evaluate</code>, "예측 결과"를 요구하면 <code>predict</code>입니다.</li>
+<li><strong><code>(pred &gt; 0.5).astype(int)</code>가 확률 → 클래스 변환</strong>입니다. <code>pred</code>에는 <code>0.009</code>, <code>0.166</code> 같은 확률이 들어 있고, 이대로는 분류 지표를 계산할 수 없습니다. 실제로 확률을 그대로 넣으면 이런 오류가 납니다.</li>
+</ul>
+<p><code>ValueError: Classification metrics can't handle a mix of binary and continuous targets</code></p>
+<p><code>.flatten()</code>은 <code>(900, 1)</code>을 <code>(900,)</code>으로 펴 주는 정리 작업입니다. sklearn은 <code>(N, 1)</code> 형태도 받아 주지만, <code>y_test</code>와 형태를 맞춰 두면 이후 계산에서 헷갈릴 일이 없습니다.<br />
+- <strong>혼동 행렬을 읽는 법</strong>입니다. <code>[[540, 94], [134, 132]]</code>는 행이 실제값, 열이 예측값입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th></th>
+<th>예측 0</th>
+<th>예측 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>실제 0 (유지)</strong></td>
+<td>540 (맞춤)</td>
+<td>94 (헛짚음)</td>
+</tr>
+<tr>
+<td><strong>실제 1 (이탈)</strong></td>
+<td><strong>134 (놓침)</strong></td>
+<td>132 (잡아냄)</td>
+</tr>
+</tbody>
+</table></div>
+<p>즉 실제 이탈 고객 266명 중 <strong>134명을 놓쳤습니다.</strong><br />
+- <strong>4번이 이 모의고사 전체의 결론입니다.</strong> 아무 학습도 하지 않고 전부 "유지"로만 찍어도 정확도가 <strong>0.7044</strong>입니다. 우리 모델의 정확도는 <strong>0.7467</strong> — 겨우 4%p 높습니다. <strong>accuracy만 보면 "70% 넘으니 괜찮다"고 오판하게 되는 구조</strong>입니다.<br />
+- 실제로 봐야 할 것은 <strong>클래스 1(이탈)의 recall <code>0.496</code>과 f1 <code>0.537</code></strong> 입니다. 전부 0으로 찍는 모델은 클래스 1의 recall이 <code>0.000</code>이므로, 이 지표에서 우리 모델이 확실한 개선을 보였다는 것이 드러납니다. <strong><code>classification_report</code>가 필요한 이유가 정확히 여기에 있습니다.</strong><br />
+- <code>support</code> 열(634 / 266)도 함께 보십시오. <strong>클래스별 표본 수가 크게 다르면 그 자체가 불균형 신호</strong>이고, 이때 <code>macro avg</code>(클래스를 동등 취급)와 <code>weighted avg</code>(표본 수로 가중)의 차이가 벌어집니다. 여기서도 macro f1 <code>0.681</code> vs weighted f1 <code>0.740</code>으로 벌어져 있습니다.<br />
+- 참고로 Q9의 랜덤 포레스트는 accuracy <code>0.73</code> / 클래스 1 recall <code>0.40</code>이었습니다. 딥러닝 모델이 <strong>정확도는 비슷하지만 이탈 고객을 더 많이 잡아냈다</strong>는 점이 실질적인 개선입니다. 베이스라인을 남겨 둔 덕분에 이 비교가 가능합니다(Q9에서 변수명을 <code>rf_model</code>로 분리한 이유입니다).</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>확률값을 그대로 <code>classification_report</code>에 넣는 것.</strong> 위 <code>ValueError</code>가 나는 대표적인 사고입니다. 임계값 변환 한 줄을 반드시 거치십시오.</li>
+<li><strong><code>np.argmax(pred, axis=1)</code>를 쓰는 것.</strong> 이것은 다중분류용입니다. 이진분류의 <code>pred</code>는 열이 1개뿐이라 <code>argmax</code>를 걸면 <strong>전부 0</strong>이 나옵니다. 오류가 나지 않아 발견이 매우 늦습니다.</li>
+<li><strong>accuracy만 출력하고 끝내는 것.</strong> 이 문항은 "정확도만으로 판단하면 안 되는 이유"까지 요구합니다. 불균형 데이터에서는 <code>classification_report</code>와 혼동 행렬이 함께 있어야 답안이 완성됩니다.</li>
+<li><code>evaluate</code>의 반환값을 하나로 받는 것. <code>acc = model.evaluate(...)</code>로 쓰면 <code>acc</code>에 리스트 <code>[loss, accuracy]</code>가 통째로 들어갑니다. <strong>컴파일 때 metrics를 몇 개 지정했는지에 따라 반환 개수가 달라진다</strong>는 점을 기억하십시오.</li>
+</ul>
+<hr />
+<h2 id="채점표">채점표</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Q</th>
+<th>단계</th>
+<th>배점</th>
+<th>핵심 채점 요소</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>로딩·형태</td>
+<td>5</td>
+<td><code>read_csv</code> / <code>shape</code>·<code>head</code>·<code>info</code> 출력</td>
+</tr>
+<tr>
+<td>2</td>
+<td>탐색</td>
+<td>5</td>
+<td><code>value_counts</code> 개수+비율 / <code>isnull().sum()</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>시각화</td>
+<td>8</td>
+<td><code>countplot</code>의 <code>hue='churn'</code> / <code>heatmap</code>의 <code>annot=True</code> / 수치형만 선택</td>
+</tr>
+<tr>
+<td>4</td>
+<td>결측 처리</td>
+<td>7</td>
+<td><code>median()</code> 사용 / <strong>재대입</strong> / 결과 확인 출력</td>
+</tr>
+<tr>
+<td>5</td>
+<td>컬럼 정리</td>
+<td>5</td>
+<td><code>drop(columns=[...])</code> / 재대입</td>
+</tr>
+<tr>
+<td>6</td>
+<td>인코딩</td>
+<td>8</td>
+<td><code>get_dummies</code> / <code>columns</code> 명시 / <strong><code>dtype=int</code></strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>분리</td>
+<td>8</td>
+<td><code>test_size=0.3</code> / <code>random_state=42</code> / <strong><code>stratify=y</code></strong> / 반환 순서</td>
+</tr>
+<tr>
+<td>8</td>
+<td>스케일링</td>
+<td>8</td>
+<td>train <code>fit_transform</code> / test <strong><code>transform</code>만</strong></td>
+</tr>
+<tr>
+<td>9</td>
+<td>머신러닝</td>
+<td>10</td>
+<td><code>rf_model</code> 이름 / <code>n_estimators=100</code>·<code>random_state=42</code> / 성능 출력</td>
+</tr>
+<tr>
+<td>10</td>
+<td>DL 구성·컴파일</td>
+<td>12</td>
+<td><code>Input(shape=(n,))</code> / 은닉층 2개 이상 + <code>Dropout</code> / <strong><code>Dense(1,'sigmoid')</code></strong> / <strong><code>binary_crossentropy</code></strong></td>
+</tr>
+<tr>
+<td>11</td>
+<td>학습</td>
+<td>12</td>
+<td><code>epochs=100</code>·<code>batch_size=32</code> / <code>validation_split=0.2</code> / <strong><code>restore_best_weights=True</code></strong> / <code>callbacks=[es, mc]</code> / 학습 곡선</td>
+</tr>
+<tr>
+<td>12</td>
+<td>평가</td>
+<td>12</td>
+<td><code>evaluate</code> / <strong>임계값 0.5 변환</strong> / <code>classification_report</code>·<code>confusion_matrix</code> / <strong>불균형 해석</strong></td>
+</tr>
+<tr>
+<td>—</td>
+<td><strong>합계</strong></td>
+<td><strong>100</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="callout callout--note">
+<p>배점은 <strong>교재 자체 기준</strong>입니다. 실제 시험의 배점 체계는 공개되어 있지 않으므로 학습 우선순위를 정하는 참고용으로만 사용하십시오.</p>
+</blockquote>
+<hr />
+<h2 id="이-회차에서-반드시-가져갈-것">이 회차에서 반드시 가져갈 것</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>지점</th>
+<th>기억할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>순서 규칙</td>
+<td><strong>인코딩은 분리 전, 스케일링은 분리 후</strong></td>
+</tr>
+<tr>
+<td>재대입</td>
+<td><code>fillna</code>·<code>drop</code>·<code>get_dummies</code>는 <strong>새 객체를 반환</strong> — <code>df = df.…</code></td>
+</tr>
+<tr>
+<td>불균형 신호</td>
+<td><code>value_counts(normalize=True)</code>가 7:3 이상으로 기울면 <code>stratify=y</code> + <code>classification_report</code></td>
+</tr>
+<tr>
+<td>이진분류 짝</td>
+<td><code>Dense(1,'sigmoid')</code> ↔ <code>binary_crossentropy</code> — <strong>언제나 함께 바꾼다</strong></td>
+</tr>
+<tr>
+<td>콜백</td>
+<td><code>restore_best_weights=True</code>와 <code>callbacks=[es, mc]</code> 두 곳을 모두 확인</td>
+</tr>
+<tr>
+<td>예측 변환</td>
+<td>이진분류는 <code>(pred &gt; 0.5).astype(int).flatten()</code> — <code>argmax</code> 아님</td>
+</tr>
+<tr>
+<td>최종 판단</td>
+<td>accuracy <code>0.7467</code> vs 전부 0 예측 <code>0.7044</code> — <strong>차이가 4%p뿐이라면 accuracy는 지표로서 무의미</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>한 문장으로:</strong> 이 회차의 진짜 문제는 모델이 아니라 <strong>지표를 고르는 눈</strong>입니다. 정확도 0.75를 보고 만족하는 답안과, 클래스 1의 recall 0.50을 짚어내는 답안의 차이가 이 시험이 보려는 것입니다.</p>
+<hr /></div></details>
+</section>
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch08.html"><span class="pager__dir">이전</span><span class="pager__label">Ch08</span><span class="pager__title">문제 유형별 완성 코드와 시험장 전략</span></a><a class="pager__slot pager__slot--next" href="mock02.html"><span class="pager__dir">다음</span><span class="pager__label">모의고사 2회</span><span class="pager__title">실전 모의고사 2회 — 다중분류(+회귀 확장): 설비 센서 기반 불량 유형 분류</span></a></nav>
+</main>
+</body>
+</html>

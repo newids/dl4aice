@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 336" width="800" height="336" role="img" aria-label="epoch, batch_size, step의 관계">
+  <title>epoch, batch_size, step의 관계 — 1,000행짜리 학습 데이터가 32행 단위 블록으로 잘려 있고, 블록 하나가 1 step, 띠 전체를 한 번 통과하는 것이 1 epoch이다. 1,000은 32로 나누어떨어지지 않아 마지막 블록은 8행만 남는다.</title>
+
+  <rect x="0" y="0" width="800" height="336" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">epoch, batch_size, step의 관계</text>
+
+    <!-- 좌측 콜아웃 -->
+    <text x="160" y="68" font-size="12" fill="#94a3b8">batch_size=32</text>
+    <text x="160" y="88" font-size="13" font-weight="700" fill="#2563eb">1 step = 32행 학습 후 가중치 1회 갱신</text>
+    <line x1="170" y1="96" x2="170" y2="138" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+    <!-- 우측 콜아웃 -->
+    <text x="768" y="68" font-size="12" fill="#94a3b8" text-anchor="end">1,000 = 31 x 32 + 8</text>
+    <text x="768" y="88" font-size="13" font-weight="700" fill="#f59e0b" text-anchor="end">마지막 step은 8행</text>
+    <line x1="765.6" y1="96" x2="765.6" y2="138" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+    <!-- 데이터 라벨 -->
+    <rect x="32" y="140" width="112" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="88" y="164" font-size="12" fill="#94a3b8" text-anchor="middle">학습 데이터</text>
+    <text x="88" y="185" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">1,000행</text>
+
+    <!-- 배치 블록 띠 -->
+    <g>
+      <rect x="160.00" y="140" width="19.46" height="56" fill="#2563eb" stroke="#2563eb" stroke-width="1"/>
+      <rect x="179.46" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="198.91" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="218.37" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="237.82" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="257.28" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="276.74" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="296.19" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="315.65" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="335.10" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="354.56" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="374.02" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="393.47" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="412.93" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="432.38" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="451.84" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="471.30" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="490.75" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="510.21" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="529.66" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="549.12" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="568.58" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="588.03" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="607.49" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="626.94" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="646.40" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="665.86" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="685.31" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="704.77" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="724.22" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="743.68" y="140" width="19.46" height="56" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+      <rect x="763.14" y="140" width="4.86" height="56" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"/>
+    </g>
+
+    <!-- 1 epoch 브래킷 -->
+    <path d="M160 206 L160 216 L768 216 L768 206" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    <text x="464" y="240" font-size="13" fill="#1a2332" text-anchor="middle">1 epoch = 1,000행 전체를 1회 통과 (step 32회)</text>
+
+    <text x="32" y="288" font-size="15" font-weight="700" fill="#1a2332">step = ceil(1000 / 32) = 32</text>
+    <text x="32" y="314" font-size="12" fill="#94a3b8">epochs=50 이면 이 한 바퀴를 50번 반복하므로 가중치는 총 1,600번 갱신됩니다.</text>
+  </g>
+</svg>

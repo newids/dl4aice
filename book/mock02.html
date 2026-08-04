@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>실전 모의고사 2회 — 다중분류(+회귀 확장): 설비 센서 기반 불량 유형 분류 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-mock">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">실전 모의고사 2회</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#시작하기-전에-답안-작성-규칙">시작하기 전에 — 답안 작성 규칙</a></li><li><a href="#데이터-준비-문제-풀이-전-1회-실행">데이터 준비 (문제 풀이 전 1회 실행)</a></li><li><a href="#문제">문제</a></li></ol></nav>
+<article class="page-body">
+<section class="exam" id="exam-mock02">
+<h1>실전 모의고사 2회 — 다중분류(+회귀 확장): 설비 센서 기반 불량 유형 분류</h1>
+<blockquote class="callout callout--note">
+<p><strong>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다.</strong> 기출 문제 원문이 아니며, 공개된 출제 범위·문항 흐름을 바탕으로 재구성한 <strong>기출 변형 문제</strong>입니다.</p>
+</blockquote>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>문항 수</td>
+<td><strong>본편 12문항</strong>(Q1 → Q12 연속 구조) + <strong>회귀 확장 3문항</strong>(R1 → R3)</td>
+</tr>
+<tr>
+<td>총 배점</td>
+<td>본편 100점 / 확장 30점(별도 집계)</td>
+</tr>
+<tr>
+<td>권장 소요 시간</td>
+<td>본편 90분 + 확장 20분</td>
+</tr>
+<tr>
+<td>문제 유형</td>
+<td><strong>다중분류</strong> (타깃 <code>defect_type</code> 0/1/2, <strong>정수 라벨</strong>) → 확장에서 <strong>회귀</strong>(<code>rul_days</code>)</td>
+</tr>
+<tr>
+<td>다루는 범위</td>
+<td>탐색 → 전처리(이상치·결측·인코딩·분리·스케일링) → 머신러닝 베이스라인 → 딥러닝(softmax K개) → 평가(argmax·혼동행렬) → 유형 교체(회귀)</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>배점에 관한 안내</strong><br />
+본 모의고사의 문항별 배점은 <strong>교재 자체 기준</strong>입니다. AICE Associate 실기의 실제 문항 수·배점 체계는 공개되어 있지 않으며 회차별로 달라질 수 있습니다. 응시 전 <strong>KT AICE 공식 시험 공지 기준을 반드시 확인하십시오.</strong></p>
+<p>📌 <strong>회귀 확장 세트(R1~R3)에 관한 안내</strong><br />
+확장 세트는 <strong>추가 연습</strong>입니다. 실제 시험은 한 회차에 <strong>한 가지 유형(분류 또는 회귀)만 출제되는 경우가 많습니다.</strong> 그러나 어느 유형이 나올지는 시험지를 열어 봐야 알 수 있으므로, <strong>같은 데이터·같은 전처리에서 타깃만 바꿔 출력층·loss·지표를 교체하는 훈련</strong>을 여기서 마쳐 두십시오. 본편 12문항을 먼저 끝낸 뒤 진행하십시오.</p>
+</blockquote>
+<hr />
+<h2 id="시작하기-전에-답안-작성-규칙">시작하기 전에 — 답안 작성 규칙</h2>
+<p>실제 시험과 동일한 조건을 만들기 위해 아래 네 가지를 지키면서 푸십시오.</p>
+<ol>
+<li>
+<p><strong>문항 순서대로, 셀을 나눠서 풉니다.</strong> 이 회차는 Q3(이상치) → Q4(결측) → Q5(인코딩) → Q6(분리) → Q7(스케일링) → Q9~Q12가 앞 단계 결과를 그대로 이어받는 구조입니다. 한 셀에 몰아 쓰면 중간 오류 한 번에 앞 단계 결과까지 잃습니다.</p>
+</li>
+<li>
+<p><strong>아래 변수명을 그대로 사용합니다.</strong></p>
+</li>
+</ol>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>용도</th>
+<th>변수명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>원본 데이터프레임</td>
+<td><code>df</code></td>
+</tr>
+<tr>
+<td>특성 / 타깃</td>
+<td><code>X</code>, <code>y</code></td>
+</tr>
+<tr>
+<td>분리 결과</td>
+<td><code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code></td>
+</tr>
+<tr>
+<td>스케일러와 변환 결과</td>
+<td><code>scaler</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code></td>
+</tr>
+<tr>
+<td>머신러닝 베이스라인 모델 / 그 예측</td>
+<td><code>rf_model</code>, <code>rf_pred</code></td>
+</tr>
+<tr>
+<td>딥러닝 모델 / 학습 기록</td>
+<td><code>model</code>, <code>history</code></td>
+</tr>
+<tr>
+<td>콜백</td>
+<td><code>es</code>(EarlyStopping)</td>
+</tr>
+<tr>
+<td>예측 확률 / 예측 클래스</td>
+<td><code>pred</code>, <code>y_pred</code></td>
+</tr>
+<tr>
+<td>회귀 확장(R1~R3)</td>
+<td>위 이름에 <code>_r</code>을 붙입니다: <code>y_reg</code>, <code>X_r</code>, <code>X_train_r</code>, <code>y_train_r</code>, <code>scaler_r</code>, <code>X_train_r_scaled</code>, <code>model_r</code>, <code>history_r</code>, <code>es_r</code>, <code>y_pred_r</code></td>
+</tr>
+</tbody>
+</table></div>
+<ol start="3">
+<li>
+<p><strong>"출력하시오"라는 지시에는 반드시 <code>print()</code>를 씁니다.</strong> 계산만 하고 화면에 남기지 않으면 채점 대상이 되지 않습니다.</p>
+</li>
+<li>
+<p><strong>타깃(<code>y</code>)은 넘파이 배열로 만들어 사용합니다.</strong> Keras <code>fit</code>은 넘파이 배열을 가장 안정적으로 받고, <code>np.bincount</code>·<code>np.unique</code>·<code>np.argmax</code> 같은 뒤 문항의 넘파이 연산이 매끄럽게 이어집니다. 이 회차는 타깃을 만드는 단계(Q6)에서 <code>to_numpy()</code>로 변환하도록 지시합니다.<br />
+   (참고: 앞서 안내한 "학습 셀이 멈추는" 증상은 <strong>import 순서 문제이며 타깃 자료형과는 무관합니다.</strong> pandas Series를 넘겨도 그 증상 자체는 생기지 않습니다.)</p>
+</li>
+</ol>
+<hr />
+<h2 id="데이터-준비-문제-풀이-전-1회-실행">데이터 준비 (문제 풀이 전 1회 실행)</h2>
+<p>실제 시험에서는 CSV 파일이 주어집니다. 이 모의고사는 독자가 로컬에서 그대로 재현할 수 있도록, 아래 코드로 <strong>동일한 CSV 파일을 직접 생성</strong>합니다. 이 블록은 문제가 아니므로 그대로 복사해 한 번만 실행하십시오.</p>
+<blockquote class="callout callout--tip">
+<p>💡 <strong>로컬 환경 주의 — 반드시 먼저 읽으십시오 (시험장에서는 신경 쓸 필요 없습니다)</strong><br />
+일부 로컬 환경(특히 macOS + <code>pyarrow</code>가 설치된 pandas 조합)에서는 <strong><code>pandas</code>를 <code>tensorflow</code>보다 먼저 import 하면, 뒤의 학습 셀에서 <code>model.fit</code>이 아무 출력도 없이 멈춥니다.</strong> 그래서 이 교재의 코드 블록은 <strong>데이터 생성 블록과 해답의 공통 import 블록 양쪽 모두 <code>import tensorflow as tf</code>를 첫 줄에 두었습니다.</strong> 한쪽만 고치면 효과가 없습니다 — <strong>먼저 실행된 셀이 pandas를 이미 적재</strong>하기 때문입니다.<br />
+<strong>이미 데이터 생성 셀을 pandas 먼저 import한 상태로 실행했다면, 커널을 재시작한 뒤 아래 블록부터 다시 실행하십시오.</strong> 커널을 재시작하지 않으면 import 순서를 고쳐도 증상이 그대로 남습니다.</p>
+</blockquote>
+<pre><code class="language-python"># ===== [문제 아님] 모의고사용 데이터 파일 생성 — 그대로 1회 실행 =====
+import tensorflow as tf      # [환경] pandas보다 먼저 import — 위 '로컬 환경 주의' 참고
+import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)
+n = 4000
+
+defect_type = rng.choice([0, 1, 2], n, p=[0.60, 0.25, 0.15])
+line_id = rng.choice(['L1', 'L2', 'L3'], n, p=[0.4, 0.35, 0.25])
+shift = rng.choice(['A', 'B', 'C'], n, p=[0.4, 0.35, 0.25])
+
+temp_shift = np.select([defect_type == 1, defect_type == 2], [2.0, 9.0], 0.0)
+vib_shift = np.select([defect_type == 1, defect_type == 2], [2.2, 0.8], 0.0)
+pres_shift = np.select([defect_type == 1, defect_type == 2], [-0.25, -0.55], 0.0)
+rpm_shift = np.select([defect_type == 1, defect_type == 2], [-40.0, -15.0], 0.0)
+cur_shift = np.select([defect_type == 1, defect_type == 2], [0.5, 1.4], 0.0)
+line_temp = np.select([line_id == 'L2', line_id == 'L3'], [1.5, -1.0], 0.0)
+
+temp = np.round(70 + temp_shift + line_temp + rng.normal(0, 6.0, n), 2)
+vibration = np.round((3.0 + vib_shift + rng.normal(0, 1.2, n)).clip(0.1, None), 2)
+pressure = np.round(5.0 + pres_shift + rng.normal(0, 0.6, n), 2)
+rpm = np.round(1500 + rpm_shift + rng.normal(0, 90, n), 1)
+current = np.round(12.0 + cur_shift + rng.normal(0, 1.3, n), 2)
+humidity = np.round(45 + rng.normal(0, 8, n), 1)
+
+rul_days = np.round((200
+                     - 1.5 * (temp - 70)
+                     - 8.0 * (vibration - 3)
+                     - 20.0 * (current - 12)
+                     + 10.0 * (pressure - 5)
+                     + rng.normal(0, 12, n)).clip(1, None), 1)
+
+df_raw = pd.DataFrame({
+    'temp': temp,
+    'vibration': vibration,
+    'pressure': pressure,
+    'rpm': rpm,
+    'current': current,
+    'humidity': humidity,
+    'line_id': line_id,
+    'shift': shift,
+    'defect_type': defect_type,
+    'rul_days': rul_days,
+})
+
+out_idx = rng.choice(n, size=40, replace=False)                      # 이상치 40건 주입
+df_raw.loc[out_idx, 'vibration'] = np.round(rng.uniform(55, 95, 40), 2)
+miss_idx = rng.choice(n, size=int(n * 0.04), replace=False)          # 결측 4%
+df_raw.loc[miss_idx, 'pressure'] = np.nan
+df_raw.to_csv('factory_defect.csv', index=False)
+print('데이터 파일 생성 완료: factory_defect.csv')
+</code></pre>
+<h3 id="데이터-명세">데이터 명세</h3>
+<p><code>factory_defect.csv</code> — 어느 공장 설비에서 4,000회 측정한 센서 기록과, 그때 발생한 불량 유형입니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>컬럼</th>
+<th>설명</th>
+<th>자료형</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>temp</code></td>
+<td>설비 온도(℃)</td>
+<td>실수</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>vibration</code></td>
+<td>진동(mm/s)</td>
+<td>실수</td>
+<td><strong>이상치 있음</strong> (센서 오작동으로 기록된 비정상 큰 값)</td>
+</tr>
+<tr>
+<td><code>pressure</code></td>
+<td>압력(bar)</td>
+<td>실수</td>
+<td><strong>결측치 있음</strong></td>
+</tr>
+<tr>
+<td><code>rpm</code></td>
+<td>회전 속도</td>
+<td>실수</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>current</code></td>
+<td>전류(A)</td>
+<td>실수</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>humidity</code></td>
+<td>습도(%)</td>
+<td>실수</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>line_id</code></td>
+<td>생산 라인</td>
+<td>문자열</td>
+<td><code>L1</code> / <code>L2</code> / <code>L3</code></td>
+</tr>
+<tr>
+<td><code>shift</code></td>
+<td>근무 교대조</td>
+<td>문자열</td>
+<td><code>A</code> / <code>B</code> / <code>C</code></td>
+</tr>
+<tr>
+<td><code>defect_type</code></td>
+<td><strong>본편 타깃</strong> — 불량 유형</td>
+<td>정수</td>
+<td><strong>0 = 정상, 1 = 마모, 2 = 과열</strong></td>
+</tr>
+<tr>
+<td><code>rul_days</code></td>
+<td><strong>확장 타깃</strong> — 잔여 수명(일)</td>
+<td>실수</td>
+<td>본편(Q1~Q12)에서는 <strong>특성으로 쓰지 않습니다</strong></td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="callout callout--warn">
+<p>⚠️ 이 데이터에는 <strong>타깃이 두 개</strong> 들어 있습니다. 본편에서 예측할 값은 <code>defect_type</code>이고, <code>rul_days</code>는 회귀 확장에서만 씁니다. <strong>본편의 특성 <code>X</code>에 <code>rul_days</code>를 넣으면 안 됩니다.</strong> 이유는 Q6 해설에서 설명합니다.</p>
+</blockquote>
+<hr />
+<h2 id="문제">문제</h2>
+<h3 id="q1-데이터-로딩과-클래스-분포-확인-5점-권장-5분">Q1. 데이터 로딩과 클래스 분포 확인 [5점] — 권장 5분</h3>
+<p><code>factory_defect.csv</code> 파일을 읽어 데이터프레임 <code>df</code>에 저장하시오.<br />
+이어서 다음 네 가지를 <strong>출력</strong>하시오.</p>
+<ol>
+<li>데이터의 행·열 개수</li>
+<li>상위 5개 행</li>
+<li>컬럼별 자료형과 결측 여부 요약</li>
+<li>타깃 컬럼 <code>defect_type</code>의 <strong>클래스별 개수</strong>와 <strong>비율</strong></li>
+</ol>
+<p>출력 결과에서 다음 두 가지를 스스로 확인하십시오. <strong>뒤 문항의 판단 근거가 여기서 나옵니다.</strong></p>
+<ul>
+<li>타깃이 <strong>몇 개의 클래스</strong>로 되어 있고, 값이 <strong>정수인지 문자열인지</strong></li>
+<li>어느 컬럼에 <strong>결측치</strong>가 있는지</li>
+</ul>
+<hr />
+<h3 id="q2-클래스별-센서-분포-시각화-7점-권장-8분">Q2. 클래스별 센서 분포 시각화 [7점] — 권장 8분</h3>
+<p>불량 유형에 따라 센서 값이 어떻게 다른지 확인합니다. 다음 두 개의 그래프를 그리시오. (<code>seaborn</code>, <code>matplotlib</code> 사용)</p>
+<ol>
+<li><code>defect_type</code>별 <strong><code>temp</code>(온도) 분포</strong>를 <code>boxplot</code>으로 그리시오. x축은 <code>defect_type</code>, y축은 <code>temp</code>로 하시오.</li>
+<li><code>vibration</code>(진동)의 <strong>분포를 클래스별로 겹쳐 보이도록</strong> <code>histplot</code>으로 그리시오. <code>defect_type</code>에 따라 색이 나뉘도록 지정하시오.</li>
+</ol>
+<p>그래프에 이어, <strong>클래스별로 센서 6종의 평균값</strong>을 표 형태로 <strong>출력</strong>하시오.<br />
+(출력 결과에서 "어떤 센서가 클래스를 구분하고, 어떤 센서가 구분에 도움이 안 되는지"를 읽을 수 있어야 합니다.)</p>
+<hr />
+<h3 id="q3-이상치-처리-8점-권장-10분">Q3. 이상치 처리 [8점] — 권장 10분</h3>
+<p><code>vibration</code> 컬럼에는 센서 오작동으로 기록된 비정상적으로 큰 값이 섞여 있습니다.<br />
+<strong>IQR(사분위 범위) 방식</strong>으로 이상치를 판별하고 처리하시오.</p>
+<ol>
+<li><code>vibration</code>의 1사분위수(Q1), 3사분위수(Q3), IQR을 구해 <strong>출력</strong>하시오.</li>
+<li>이상치 경계를 <strong>하한 = Q1 − 1.5 × IQR</strong>, <strong>상한 = Q3 + 1.5 × IQR</strong> 로 계산해 <strong>출력</strong>하시오.</li>
+<li><strong>상한을 초과하는 값의 개수</strong>와 처리 전 <code>vibration</code>의 <strong>최댓값</strong>을 <strong>출력</strong>하시오.</li>
+<li>이상치를 <strong>삭제하지 말고</strong>, 하한보다 작은 값은 하한으로, 상한보다 큰 값은 상한으로 <strong>바꾸시오(경계값으로 대체)</strong>.</li>
+<li>처리 후 <code>vibration</code>의 <strong>최댓값</strong>을 <strong>출력</strong>하여 상한 이하로 내려왔음을 확인하시오.</li>
+</ol>
+<blockquote class="callout callout--note">
+<p>행을 삭제하지 않는 이유가 있습니다. 해설에서 확인하십시오.</p>
+</blockquote>
+<hr />
+<h3 id="q4-결측치-처리-6점-권장-5분">Q4. 결측치 처리 [6점] — 권장 5분</h3>
+<p><code>pressure</code> 컬럼의 결측치를 <strong>해당 컬럼의 평균값</strong>으로 대체하시오.</p>
+<ol>
+<li>처리 전 <code>pressure</code>의 <strong>결측 개수</strong>와 <strong>평균값</strong>을 <strong>출력</strong>하시오.</li>
+<li>결측치를 평균으로 대체하시오.</li>
+<li>처리 후 <strong>데이터프레임 전체에 남은 결측치 개수</strong>를 <strong>출력</strong>하여 0임을 확인하시오.</li>
+</ol>
+<hr />
+<h3 id="q5-범주형-변수-인코딩-8점-권장-8분">Q5. 범주형 변수 인코딩 [8점] — 권장 8분</h3>
+<p>문자열로 되어 있는 <code>line_id</code>와 <code>shift</code> 두 컬럼을 <strong>원-핫 인코딩</strong>하시오.</p>
+<ul>
+<li>생성되는 더미 변수는 <strong>0과 1의 정수</strong>가 되도록 하시오.</li>
+<li>인코딩 후의 <strong>컬럼 목록</strong>과 <strong>데이터 형태</strong>를 <strong>출력</strong>하시오.</li>
+</ul>
+<blockquote class="callout callout--note">
+<p>타깃 <code>defect_type</code>은 이미 정수(0/1/2)입니다. <strong>타깃에는 원-핫 인코딩을 하지 마십시오.</strong> 이 판단이 Q10의 loss 선택과 직결됩니다.</p>
+</blockquote>
+<hr />
+<h3 id="q6-특성타깃-분리와-데이터-분리-8점-권장-8분">Q6. 특성·타깃 분리와 데이터 분리 [8점] — 권장 8분</h3>
+<ol>
+<li>타깃 <code>y</code>는 <code>defect_type</code>으로 만드시오. 이때 <strong><code>to_numpy()</code>로 넘파이 배열로 변환</strong>하시오.</li>
+<li>특성 <code>X</code>는 <strong><code>defect_type</code>과 <code>rul_days</code>를 제외한</strong> 나머지 전체 컬럼으로 만드시오.</li>
+<li><strong>학습 데이터와 평가 데이터를 8:2로 분리</strong>하여 <code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>에 저장하시오.<br />
+   - <code>random_state=42</code>를 사용하시오.<br />
+   - 타깃의 <strong>세 클래스 비율이 학습·평가 양쪽에 동일하게 유지</strong>되도록 하시오.</li>
+<li><code>X</code>의 형태, <code>y</code>의 형태와 자료형, <code>X_train</code>·<code>X_test</code>의 형태, 그리고 <strong><code>y_train</code>·<code>y_test</code>의 클래스별 비율</strong>을 <strong>출력</strong>하시오.</li>
+</ol>
+<hr />
+<h3 id="q7-스케일링-7점-권장-6분">Q7. 스케일링 [7점] — 권장 6분</h3>
+<p><code>MinMaxScaler</code>를 사용해 특성을 0~1 범위로 변환하시오.</p>
+<ul>
+<li>스케일러 객체는 <code>scaler</code>라는 이름으로 만드시오.</li>
+<li><strong>평가 데이터의 정보가 변환 규칙에 섞여 들어가지 않도록</strong> 처리하시오.</li>
+<li>변환 결과는 각각 <code>X_train_scaled</code>, <code>X_test_scaled</code>에 저장하시오.</li>
+</ul>
+<p>변환 후 두 배열의 <strong>형태</strong>와, <code>X_train_scaled</code>·<code>X_test_scaled</code> 각각의 <strong>최솟값·최댓값</strong>을 <strong>출력</strong>하시오.<br />
+(평가 데이터의 최솟값·최댓값이 정확히 0과 1이 아닐 수 있습니다. 그것이 정상인 이유를 해설에서 확인하십시오.)</p>
+<hr />
+<h3 id="q8-머신러닝-베이스라인-8점-권장-8분">Q8. 머신러닝 베이스라인 [8점] — 권장 8분</h3>
+<p>딥러닝 모델과 비교할 기준선을 만듭니다.<br />
+<code>RandomForestClassifier</code>로 베이스라인 모델을 학습시키고 평가 데이터 성능을 확인하시오.</p>
+<ul>
+<li>모델 변수명은 <code>rf_model</code>로 하시오. (뒤 문항의 딥러닝 모델 <code>model</code>과 겹치지 않게 하기 위함입니다.)</li>
+<li><code>n_estimators=100</code>, <code>random_state=42</code>를 사용하시오.</li>
+<li><code>X_train_scaled</code>로 학습하고 <code>X_test_scaled</code>로 예측하시오.</li>
+<li>평가 데이터에 대한 <strong>정확도(accuracy)</strong>, <strong><code>classification_report</code></strong>, <strong><code>confusion_matrix</code></strong> 를 <strong>출력</strong>하시오.</li>
+<li>추가로, <strong>평가 데이터를 전부 0(정상)으로만 예측했을 때의 정확도</strong>를 계산해 <strong>출력</strong>하시오.</li>
+</ul>
+<hr />
+<h3 id="q9-딥러닝-모델-구성-12점-권장-12분">Q9. 딥러닝 모델 구성 [12점] — 권장 12분</h3>
+<p>이 문제 유형에 맞는 딥러닝 모델을 <code>model</code>이라는 이름으로 만드시오.</p>
+<p><strong>구성 조건</strong></p>
+<ul>
+<li><code>Sequential</code> 모델을 사용하시오.</li>
+<li>입력층은 <code>X_train_scaled</code>의 <strong>특성 개수에 맞춰</strong> 지정하시오.</li>
+<li><strong>은닉층을 2개 이상</strong> 쌓되, 활성화 함수는 <code>relu</code>를 사용하시오.</li>
+<li>은닉층 사이에 <strong><code>Dropout</code>을 포함</strong>시키시오.</li>
+<li>출력층은 <strong>이 문제의 클래스 개수와 유형에 맞는 노드 수·활성화 함수</strong>로 지정하시오.</li>
+<li>클래스 개수는 숫자를 직접 적지 말고, <strong><code>y_train</code>에서 계산해</strong> 사용하시오. 그 값을 함께 <strong>출력</strong>하시오.</li>
+<li>구성 후 <code>model.summary()</code>로 구조를 <strong>출력</strong>하시오.</li>
+</ul>
+<blockquote class="callout callout--note">
+<p><code>summary()</code>의 마지막 층 Output Shape가 <code>(None, 3)</code>인지 확인하십시오. 여기서 어긋나면 Q10~Q12가 전부 무너집니다.</p>
+</blockquote>
+<hr />
+<h3 id="q10-컴파일-손실-함수-선택-8점-권장-6분">Q10. 컴파일 — 손실 함수 선택 [8점] — 권장 6분</h3>
+<p><code>model</code>을 컴파일하시오.</p>
+<ol>
+<li>먼저 <code>y_train</code>의 <strong>앞 10개 값과 자료형(dtype)</strong> 을 <strong>출력</strong>하여, 라벨이 <strong>정수 형태인지 원-핫 형태인지</strong> 확인하시오.</li>
+<li>확인한 라벨 형태에 맞는 <strong>손실 함수</strong>를 선택해 컴파일하시오.<br />
+   - optimizer는 <code>adam</code>을 사용하시오.<br />
+   - metrics로 <code>accuracy</code>를 지정하시오.</li>
+<li>선택한 손실 함수의 이름을 <strong>출력</strong>하고, <strong>왜 그 손실 함수를 골랐는지</strong>를 주석으로 1~2줄 서술하시오.</li>
+</ol>
+<blockquote class="callout callout--note">
+<p>이 문항은 코드 한 줄보다 <strong>판단 근거</strong>를 보는 문항입니다. 다중분류에서 손실 함수가 갈리는 기준은 오직 하나입니다.</p>
+</blockquote>
+<hr />
+<h3 id="q11-콜백을-적용한-학습-11점-권장-14분">Q11. 콜백을 적용한 학습 [11점] — 권장 14분</h3>
+<p><code>model</code>을 학습시키시오.</p>
+<p><strong>학습 조건</strong></p>
+<ul>
+<li><code>X_train_scaled</code>, <code>y_train</code>으로 학습하시오.</li>
+<li><code>epochs=100</code>, <code>batch_size=32</code>로 지정하시오.</li>
+<li>학습 데이터의 <strong>20%를 검증 데이터로 사용</strong>하시오.</li>
+<li>콜백을 적용하시오.</li>
+<li><code>es</code> — <code>EarlyStopping</code>: <code>val_loss</code>를 관찰하고, <code>patience=5</code>, <strong>가장 좋았던 시점의 가중치를 복원</strong>하도록 설정</li>
+<li>학습 결과는 <code>history</code>에 저장하시오.</li>
+</ul>
+<p><strong>학습 후</strong></p>
+<ul>
+<li><strong>실제로 학습이 진행된 epoch 수</strong>와 <code>history</code>의 <strong>키 목록</strong>을 <strong>출력</strong>하시오.</li>
+<li><code>history</code>를 이용해 <strong>학습 곡선</strong>을 그리시오. loss와 accuracy를 각각 학습·검증 두 선으로 표시하시오.</li>
+</ul>
+<hr />
+<h3 id="q12-평가와-클래스별-성능-해석-12점-권장-12분">Q12. 평가와 클래스별 성능 해석 [12점] — 권장 12분</h3>
+<p>학습된 <code>model</code>로 평가 데이터의 성능을 확인하시오.</p>
+<ol>
+<li><code>evaluate</code>로 평가 데이터의 <strong>loss와 accuracy</strong>를 출력하시오.</li>
+<li><code>predict</code>로 예측 결과 <code>pred</code>를 구하고, <strong><code>pred</code>의 형태</strong>와 <strong>첫 번째 행의 합</strong>을 출력하시오.</li>
+<li><code>pred</code>를 <strong>예측 클래스 <code>y_pred</code>(0/1/2)로 변환</strong>하시오.</li>
+<li><code>classification_report</code>와 <code>confusion_matrix</code>를 <strong>출력</strong>하시오.</li>
+<li>출력 결과를 보고 다음 두 가지를 주석으로 <strong>2~3줄 이내</strong> 서술하시오.<br />
+   - <strong>어느 클래스의 성능이 가장 낮은지</strong>와 그 이유로 짐작되는 것<br />
+   - 혼동 행렬에서 <strong>가장 많이 헷갈린 클래스 쌍</strong></li>
+</ol>
+<hr />
+<h3 id="회귀-확장-세트-r1r3-별도-30점">회귀 확장 세트 (R1~R3) — 별도 30점</h3>
+<blockquote class="callout callout--pin">
+<p>📌 <strong>여기서부터는 추가 연습입니다.</strong> 실제 시험은 한 회차에 한 유형만 출제되는 경우가 많으므로, 본편 12문항을 먼저 끝낸 뒤 진행하십시오.<br />
+<strong>상황 설정:</strong> 현장 요구가 바뀌었습니다. "불량 유형을 맞히는 것"이 아니라 <strong>"설비의 잔여 수명(<code>rul_days</code>)이 며칠인지"</strong> 를 예측해야 합니다.<br />
+데이터와 전처리(Q3~Q5까지 처리된 <code>df</code>)는 <strong>그대로 재사용</strong>합니다. 변수명은 본편 이름에 <code>_r</code>을 붙입니다.</p>
+</blockquote>
+<h3 id="r1-타깃-교체와-데이터-준비-10점-권장-7분">R1. 타깃 교체와 데이터 준비 [10점] — 권장 7분</h3>
+<p>Q5까지 전처리를 마친 <code>df</code>를 그대로 이어받아, 회귀용 데이터를 준비하시오.</p>
+<ol>
+<li>타깃 <code>y_reg</code>를 <code>rul_days</code>로 만드시오(<strong><code>to_numpy()</code>로 변환</strong>).</li>
+<li>특성 <code>X_r</code>는 본편과 <strong>동일하게</strong> <code>defect_type</code>과 <code>rul_days</code>를 제외한 컬럼으로 만드시오. <strong>본편의 <code>X</code>를 덮어쓰지 말고 새 이름에 담으시오.</strong></li>
+<li><code>y_reg</code>의 <strong>앞 5개 값·자료형</strong>, 그리고 <strong>평균·최솟값·최댓값</strong>을 <strong>출력</strong>하시오.</li>
+<li>8:2로 분리하여 <code>X_train_r</code>, <code>X_test_r</code>, <code>y_train_r</code>, <code>y_test_r</code>에 저장하시오. <code>random_state=42</code>를 사용하시오.<br />
+   - <strong>본편 Q6에서 썼던 옵션 중 하나는 여기서 쓸 수 없습니다.</strong> 무엇이며 왜 그런지 주석으로 1줄 서술하시오.</li>
+<li><code>MinMaxScaler</code>(<code>scaler_r</code>)로 <code>X_train_r_scaled</code>, <code>X_test_r_scaled</code>를 만들고 형태를 <strong>출력</strong>하시오.</li>
+</ol>
+<hr />
+<h3 id="r2-회귀-딥러닝-모델-구성컴파일학습-12점-권장-8분">R2. 회귀 딥러닝 모델 구성·컴파일·학습 [12점] — 권장 8분</h3>
+<p><code>model_r</code>이라는 이름으로 회귀 모델을 만들고 학습시키시오.</p>
+<p><strong>구성·컴파일 조건</strong></p>
+<ul>
+<li>은닉층 구성은 본편 <code>model</code>과 동일한 형태로 두어도 됩니다(<code>relu</code> 은닉층 2개 + <code>Dropout</code>).</li>
+<li><strong>출력층을 회귀에 맞게</strong> 지정하시오.</li>
+<li><strong>손실 함수와 metrics를 회귀에 맞게</strong> 지정하시오. optimizer는 <code>adam</code>을 사용하시오.</li>
+<li><code>model_r.summary()</code>를 <strong>출력</strong>하시오.</li>
+</ul>
+<p><strong>학습 조건</strong></p>
+<ul>
+<li><code>epochs=200</code>, <code>batch_size=32</code>, 검증 데이터 20%로 학습하시오.</li>
+<li><code>es_r</code> — <code>EarlyStopping</code>: <code>val_loss</code> 관찰, <code>patience=10</code>, 최적 가중치 복원.</li>
+<li>학습 결과는 <code>history_r</code>에 저장하시오.</li>
+<li>학습 후 <strong>실제 학습 epoch 수</strong>와 <code>history_r</code>의 <strong>키 목록</strong>을 <strong>출력</strong>하고, 학습 곡선(loss, 그리고 회귀용 지표)을 그리시오.</li>
+</ul>
+<blockquote class="callout callout--note">
+<p><code>history_r</code>의 키 목록을 반드시 눈으로 확인하십시오. 본편과 <strong>키 이름이 다릅니다.</strong></p>
+</blockquote>
+<hr />
+<h3 id="r3-회귀-평가와-해석-8점-권장-5분">R3. 회귀 평가와 해석 [8점] — 권장 5분</h3>
+<p><code>model_r</code>의 평가 데이터 성능을 확인하시오.</p>
+<ol>
+<li><code>evaluate</code>로 평가 데이터의 <strong>loss와 metrics 값</strong>을 출력하시오.</li>
+<li><code>predict</code>로 예측값 <code>y_pred_r</code>을 구하시오. <strong>1차원으로 형태를 정리</strong>하시오.</li>
+<li>sklearn의 <strong><code>mean_squared_error</code>, <code>mean_absolute_error</code>, <code>r2_score</code></strong> 를 출력하시오. <strong>RMSE</strong>(mse의 제곱근)도 함께 출력하시오.</li>
+<li><strong>비교 기준</strong>으로, "학습 데이터 타깃의 평균값을 모든 샘플에 그대로 답한 경우"의 <strong>mae와 r2</strong>를 계산해 출력하시오.</li>
+<li>위 수치를 근거로 <strong>모델이 쓸 만한지</strong>를 주석으로 2줄 이내 서술하시오. <code>mae</code>와 <code>r2</code>를 각각 어떻게 읽었는지 밝히시오.</li>
+</ol>
+<blockquote class="callout callout--note">
+<p>이 문항에서 <code>classification_report</code>나 <code>argmax</code>를 쓰면 0점입니다. 이유는 해설에서 확인하십시오.</p>
+</blockquote>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><blockquote class="callout callout--note">
+<p>아래 코드는 모두 실제 실행으로 검증되었습니다. 검증 환경과 결과 수치는 문서 맨 아래 검증 주석을 참고하십시오.<br />
+딥러닝 결과 수치(정확도·epoch 수 등)는 실행 환경과 난수에 따라 <strong>소폭 달라집니다.</strong> 게재된 값은 검증 실행의 실측치이며, 판단 기준은 "값의 자릿수와 대소 관계"로 잡으십시오.</p>
+</blockquote>
+<h3 id="공통-import">공통 import</h3>
+<p>문항을 풀기 전에 아래 import 블록을 한 번 실행해 두면 이후 문항에서 반복하지 않아도 됩니다.</p>
+<pre><code class="language-python">import tensorflow as tf      # [환경] pandas보다 먼저 import — 아래 '로컬 환경 주의' 참고
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+
+np.random.seed(42)
+tf.random.set_seed(42)
+</code></pre>
+<blockquote class="callout callout--tip">
+<p>💡 <strong>로컬 환경 주의 (시험장에서는 신경 쓸 필요 없습니다)</strong><br />
+위 블록의 첫 줄이 <code>import tensorflow as tf</code>인 것은 오타가 아닙니다. 일부 로컬 환경(macOS + <code>pyarrow</code>가 설치된 pandas 조합)에서는 <strong><code>pandas</code>를 <code>tensorflow</code>보다 먼저 import 하면 Q11의 <code>model.fit</code>이 아무 출력도 없이 멈춥니다.</strong> 데이터 준비 절의 생성 블록과 이 공통 import 블록 <strong>양쪽 모두</strong> 첫 줄을 <code>tensorflow</code>로 맞춰야 하며, <strong>한쪽만 고치면 효과가 없습니다.</strong><br />
+<strong>학습 셀이 진행되지 않고 멈춘다면 커널을 재시작한 뒤 데이터 생성 블록부터 다시 실행하십시오.</strong> 이미 pandas가 먼저 적재된 세션에서는 import 순서를 고쳐도 증상이 남습니다.</p>
+</blockquote>
+<hr />
+<h3 id="q1-해답-데이터-로딩과-클래스-분포-확인-5점">Q1 해답 — 데이터 로딩과 클래스 분포 확인 [5점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df = pd.read_csv('factory_defect.csv')
+
+print(df.shape)                                              # 1) 행·열 개수
+print(df.head())                                             # 2) 상위 5개 행
+print(df.info())                                             # 3) 자료형·결측 요약
+print(df['defect_type'].value_counts().sort_index())         # 4) 클래스별 개수
+print(df['defect_type'].value_counts(normalize=True).sort_index().round(3))  # 4) 비율
+</code></pre>
+<p>실행 결과 요지입니다.</p>
+<pre><code>(4000, 10)
+
+ #   Column       Non-Null Count  Dtype
+ 0   temp         4000 non-null   float64
+ 1   vibration    4000 non-null   float64
+ 2   pressure     3840 non-null   float64      ← 결측 160건
+ ...
+ 6   line_id      4000 non-null   str          ← 인코딩 대상
+ 7   shift        4000 non-null   str          ← 인코딩 대상
+ 8   defect_type  4000 non-null   int64        ← 타깃(정수)
+ 9   rul_days     4000 non-null   float64
+
+defect_type
+0    2421
+1     968
+2     611
+
+defect_type
+0    0.605
+1    0.242
+2    0.153
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li>이 회차의 Q1은 단순 확인이 아니라 <strong>유형 판정 문항</strong>입니다. <code>value_counts()</code> 결과가 <strong>세 줄(0/1/2)</strong> 이라는 것 하나로 뒤 문항 세 개가 결정됩니다.<br />
+  1. Q9의 출력층은 <code>Dense(3, 'softmax')</code><br />
+  2. Q10의 loss는 라벨이 <strong>정수</strong>이므로 <code>sparse_categorical_crossentropy</code><br />
+  3. Q12의 예측 변환은 임계값이 아니라 <code>argmax</code></li>
+<li><code>value_counts()</code>에 <strong><code>.sort_index()</code></strong> 를 붙인 이유는, 기본 정렬이 <strong>개수 내림차순</strong>이라 클래스 번호 순서와 어긋나기 때문입니다. 클래스별 성능을 비교할 문항(Q12)이 뒤에 있으므로 처음부터 번호순으로 읽는 습관을 들이십시오.</li>
+<li><code>info()</code>의 <strong>Non-Null Count</strong>에서 <code>pressure</code>만 3840입니다. <strong>이 시점에 이미 "결측 160건"을 알 수 있고</strong>, Q4에서 손볼 컬럼이 확정됩니다. <code>Dtype</code>이 <code>str</code>(환경에 따라 <code>object</code>)인 <code>line_id</code>·<code>shift</code>는 Q5의 인코딩 대상입니다.</li>
+<li>비율 <strong>0.605 : 0.242 : 0.153</strong> — 3배 이상 기울어져 있습니다. Q6의 <code>stratify</code>와 Q12의 클래스별 지표 해석이 여기서 근거를 얻습니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>df.info()</code>를 <code>print()</code> 없이 셀 중간에 두는 것. 노트북 셀의 마지막 줄이 아니면 아무것도 출력되지 않습니다. <strong>"출력하시오"에는 예외 없이 <code>print()</code></strong> 입니다.</li>
+<li>클래스 개수를 "세 개겠지" 하고 눈으로 짐작하는 것. 실제 시험 데이터는 클래스가 4개·5개일 수도 있습니다. <strong><code>value_counts()</code>로 확인한 뒤 Q9에서 <code>len(np.unique(y_train))</code>으로 계산</strong>하는 흐름이 안전합니다.</li>
+</ul>
+<hr />
+<h3 id="q2-해답-클래스별-센서-분포-시각화-7점">Q2 해답 — 클래스별 센서 분포 시각화 [7점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># 1) 클래스별 온도 분포
+sns.boxplot(data=df, x='defect_type', y='temp')
+plt.title('temp by defect_type')
+plt.show()
+
+# 2) 클래스별 진동 분포
+sns.histplot(data=df, x='vibration', hue='defect_type', bins=30)
+plt.title('vibration by defect_type')
+plt.show()
+
+# 3) 클래스별 센서 평균
+sensor_cols = ['temp', 'vibration', 'pressure', 'rpm', 'current', 'humidity']
+print(df.groupby('defect_type')[sensor_cols].mean().round(2))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>              temp  vibration  pressure      rpm  current  humidity
+defect_type
+0            70.33       3.78      5.01  1504.23    11.98     44.77
+1            71.96       5.80      4.78  1461.87    12.46     45.22
+2            79.68       4.74      4.46  1487.41    13.51     45.10
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>그래프 종류를 지시대로 골라야 합니다.</strong> "클래스별 수치 분포 비교"는 <code>boxplot</code>(중앙값·사분위·이상치를 한눈에), "분포 겹쳐 보기"는 <code>histplot</code> + <code>hue</code>입니다. <code>countplot</code>은 <strong>범주의 개수</strong>를 세는 그래프라서 온도 같은 연속값에는 쓰지 않습니다.</li>
+<li><code>hue='defect_type'</code>이 이 문항의 채점 포인트입니다. <code>hue</code>가 없으면 전체 분포 하나만 그려져 <strong>"클래스별"이라는 지시를 만족하지 못합니다.</strong></li>
+<li>평균 표에서 읽어야 할 것이 셋입니다.<br />
+  1. <strong>클래스 2(과열)는 <code>temp</code> 79.7 / <code>current</code> 13.5</strong> 로 뚜렷하게 높습니다 → 온도·전류가 강한 단서.<br />
+  2. <strong>클래스 1(마모)은 <code>vibration</code> 5.80</strong> 으로 높습니다 → 진동이 마모의 단서.<br />
+  3. <strong><code>humidity</code>는 44.8 / 45.2 / 45.1로 사실상 차이가 없습니다</strong> → 예측에 거의 기여하지 않는 컬럼입니다. 이런 컬럼이 섞여 있어도 딥러닝은 가중치를 낮게 학습하므로 굳이 지울 필요는 없지만, <strong>"모든 컬럼이 정보를 갖고 있지는 않다"</strong> 는 사실은 Q12에서 성능 한계를 해석할 때 필요합니다.</li>
+<li><code>boxplot</code>의 위쪽 점들(이상치 표시)이 Q3의 근거가 됩니다. 시각화 문항은 <strong>다음 전처리 문항의 이유를 만들어 주는 자리</strong>입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>groupby</code> 뒤에 컬럼을 지정하지 않고 <code>df.groupby('defect_type').mean()</code>을 쓰는 것. 문자열 컬럼(<code>line_id</code>, <code>shift</code>)이 남아 있으면 환경에 따라 <strong><code>TypeError</code></strong> 가 나거나 해당 컬럼이 조용히 빠집니다. <strong>수치형 컬럼 목록을 명시</strong>하십시오.</li>
+<li><code>plt.show()</code>를 빼먹어 그래프 두 개가 한 그림에 겹쳐 나오는 것. 그래프마다 <code>show()</code>로 끊어 주십시오.</li>
+<li><code>rul_days</code>를 평균 표에 함께 넣는 것 자체는 오류가 아니지만, <strong>본편의 특성이 아니므로</strong> 센서 분석에 섞으면 뒤에서 혼동합니다.</li>
+</ul>
+<hr />
+<h3 id="q3-해답-이상치-처리-8점">Q3 해답 — 이상치 처리 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">q1 = df['vibration'].quantile(0.25)
+q3 = df['vibration'].quantile(0.75)
+iqr = q3 - q1
+lower = q1 - 1.5 * iqr
+upper = q3 + 1.5 * iqr
+
+print('Q1:', round(q1, 2), '/ Q3:', round(q3, 2), '/ IQR:', round(iqr, 2))
+print('하한:', round(lower, 2), '/ 상한:', round(upper, 2))
+print('상한 초과 개수:', (df['vibration'] &gt; upper).sum())
+print('처리 전 최대:', df['vibration'].max())
+
+df['vibration'] = df['vibration'].clip(lower=lower, upper=upper)   # 경계값으로 대체
+
+print('처리 후 최대:', round(df['vibration'].max(), 2))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>Q1: 2.7 / Q3: 4.74 / IQR: 2.04
+하한: -0.37 / 상한: 7.8
+상한 초과 개수: 54
+처리 전 최대: 93.51
+처리 후 최대: 7.8
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>IQR 공식은 외워 두는 것이 빠릅니다.</strong> <code>Q1 = quantile(0.25)</code>, <code>Q3 = quantile(0.75)</code>, <code>IQR = Q3 - Q1</code>, 경계는 <code>Q1 - 1.5*IQR</code> ~ <code>Q3 + 1.5*IQR</code>. 시험에서 "IQR 방식으로 이상치를 처리하시오"라는 지시가 나오면 이 네 줄이 그대로 답입니다.</li>
+<li><strong><code>clip()</code>이 "경계값으로 대체"의 정답 함수</strong>입니다. <code>clip(lower=..., upper=...)</code>은 하한보다 작은 값은 하한으로, 상한보다 큰 값은 상한으로 눌러 줍니다. 최댓값이 <strong>93.51 → 7.8</strong> 로 내려온 것이 처리가 먹혔다는 증거입니다.</li>
+<li><strong>행을 삭제하지 않는 이유</strong>가 이 문항의 핵심입니다. 이상치가 있는 54개 행에도 <code>temp</code>·<code>current</code> 같은 <strong>정상적으로 측정된 다른 센서 값과 정답 라벨이 들어 있습니다.</strong> 행을 지우면 그 정보까지 함께 버립니다. 게다가 이상치 행이 특정 클래스에 몰려 있으면 <strong>삭제가 클래스 비율을 왜곡</strong>합니다. 그래서 "센서 오작동으로 값 하나만 튄 상황"에서는 삭제보다 <strong>클리핑(또는 결측 처리 후 대체)</strong> 이 기본 선택입니다.</li>
+<li>상한 초과가 <strong>54개</strong>로, 주입된 오작동 값 40개보다 많습니다. 즉 <strong>정상 범위의 큰 진동값 14개도 함께 눌렸습니다.</strong> IQR은 통계적 기준일 뿐이므로 이런 일이 생깁니다. 클래스 1(마모)의 진동이 원래 높다는 점을 생각하면 아쉬운 손실이지만, <strong>93.51 같은 물리적으로 불가능한 값을 그대로 두는 편이 훨씬 위험합니다.</strong> 이상치 처리는 "완벽한 분리"가 아니라 "치명적인 값 제거"가 목표입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>재대입 누락</strong> — <code>df['vibration'].clip(...)</code> 만 쓰고 대입하지 않는 것. <code>clip</code>은 새 Series를 반환하므로 <code>df['vibration'] = ...</code> 로 되돌려 넣어야 합니다. 출력만 보고 처리됐다고 착각하는 사고가 가장 많습니다.</li>
+<li><strong>스케일링 후에 이상치를 처리하는 것.</strong> 93.51이 섞인 채 <code>MinMaxScaler</code>를 걸면 <strong>최댓값 93.51이 1.0의 기준</strong>이 되어 정상 값들이 모두 0.03~0.08 근처로 뭉갭니다. <strong>이상치 처리는 스케일링보다 먼저</strong>입니다.</li>
+<li><code>(df['vibration'] &gt; upper).sum()</code>을 <code>len(...)</code>으로 세려는 것. 불리언 Series의 <code>.sum()</code>이 개수입니다.</li>
+</ul>
+<hr />
+<h3 id="q4-해답-결측치-처리-6점">Q4 해답 — 결측치 처리 [6점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">print('처리 전 pressure 결측:', df['pressure'].isnull().sum())
+print('pressure 평균:', round(df['pressure'].mean(), 3))
+
+df['pressure'] = df['pressure'].fillna(df['pressure'].mean())      # 평균 대체
+
+print('처리 후 전체 결측 합:', df.isnull().sum().sum())
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>처리 전 pressure 결측: 160
+pressure 평균: 4.872
+처리 후 전체 결측 합: 0
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li>문항이 <strong>"평균값으로 대체"</strong> 라고 지정했으므로 <code>mean()</code>입니다. 중앙값(<code>median()</code>)이 더 안전한 선택인 상황이 많지만, <strong>시험에서는 지시된 통계량을 그대로 씁니다.</strong> 지시를 벗어난 판단은 감점 요소입니다.</li>
+<li><code>fillna()</code>가 <strong>새 Series를 반환</strong>하므로 <code>df['pressure'] = ...</code> 재대입이 필수입니다.</li>
+<li><code>df['pressure'].mean()</code>은 <strong>결측을 제외하고 계산</strong>합니다(pandas 기본 동작). 그래서 "평균을 구해 그 평균으로 채운다"가 한 줄로 성립합니다.</li>
+<li>확인 출력은 <code>df.isnull().sum().sum()</code> — <strong><code>.sum()</code>을 두 번</strong> 붙여 전체 합계 스칼라를 얻습니다. 컬럼별로 보고 싶으면 <code>.sum()</code> 한 번입니다. 문항이 "전체에 남은 결측치 개수"를 요구했으므로 두 번이 정확합니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>df.fillna(df.mean())</code> 처럼 <strong>데이터프레임 전체에</strong> 적용하는 것. 문자열 컬럼이 섞여 있어 환경에 따라 오류가 나거나, 지시하지 않은 컬럼까지 값이 바뀝니다. <strong>지정된 컬럼만</strong> 처리하십시오.</li>
+<li><code>inplace=True</code>에 의존하는 것. 최신 pandas에서는 경고가 나거나 동작이 달라질 수 있어, <strong>재대입 방식이 안전합니다.</strong></li>
+<li>결측을 채우기 전에 스케일링·분리로 넘어가는 것. <code>NaN</code>이 남은 상태로 <code>fit</code>을 호출하면 sklearn은 <strong><code>ValueError: Input contains NaN</code></strong> 을 던집니다. 이 메시지를 만나면 되돌아와 Q4를 확인하십시오.</li>
+</ul>
+<hr />
+<h3 id="q5-해답-범주형-변수-인코딩-8점">Q5 해답 — 범주형 변수 인코딩 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">df = pd.get_dummies(df, columns=['line_id', 'shift'], dtype=int)
+
+print(df.columns.tolist())
+print(df.shape)
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>['temp', 'vibration', 'pressure', 'rpm', 'current', 'humidity',
+ 'defect_type', 'rul_days',
+ 'line_id_L1', 'line_id_L2', 'line_id_L3', 'shift_A', 'shift_B', 'shift_C']
+(4000, 14)
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><code>pd.get_dummies(df, columns=[...])</code> 는 <strong>지정한 컬럼만</strong> 더미로 바꾸고 나머지는 그대로 둡니다. <code>columns</code>를 생략하면 문자열 컬럼 전체가 대상이 되는데, 이 데이터에서는 결과가 같더라도 <strong>의도를 명시하는 편이 안전</strong>합니다.</li>
+<li><strong><code>dtype=int</code>가 채점 포인트</strong>입니다. 지정하지 않으면 pandas 버전에 따라 더미가 <code>bool</code>(True/False)로 생성됩니다. 학습이 되기는 하지만 문항이 "0과 1의 정수"를 요구했으므로 명시해야 합니다.</li>
+<li>컬럼 10개 → <strong>14개</strong>로 늘었습니다. 3종 범주 두 개가 각각 3개 더미가 되어 <code>+6</code>, 원본 문자열 컬럼 2개가 사라져 <code>-2</code> 입니다. <strong>숫자로 검산하는 습관</strong>을 들이면 인코딩 누락을 바로 잡아냅니다.</li>
+<li><strong>타깃 <code>defect_type</code>은 손대지 않았습니다.</strong> 정수 라벨을 그대로 유지하는 것이 이 회차의 설계입니다. 이 상태 그대로 Q10에서 <code>sparse_categorical_crossentropy</code>를 선택하게 됩니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>타깃까지 원-핫으로 만드는 것.</strong> <code>pd.get_dummies(df)</code> 를 컬럼 지정 없이 부르고 타깃이 문자열이었다면 타깃이 3개 컬럼으로 쪼개집니다. 그러면 loss도 <code>categorical_crossentropy</code>로 바꿔야 하는데 한쪽만 바꿔서 <strong>shape 오류</strong>를 만나는 경우가 잦습니다.</li>
+<li><strong>분리(Q6) 후에 인코딩하는 것.</strong> train과 test에 등장하는 범주가 다르면 컬럼 수가 어긋나 <code>X_test</code>에서 <strong>feature 개수 불일치 오류</strong>가 납니다. 순서 규칙은 <strong>인코딩은 분리 전, 스케일링은 분리 후</strong>입니다.</li>
+<li><code>drop_first=True</code>를 임의로 붙이는 것. 다중공선성을 줄이는 기법이지만 문항이 요구하지 않았고, 컬럼 수가 달라져 검산이 어긋납니다. <strong>지시가 없으면 붙이지 않습니다.</strong></li>
+</ul>
+<hr />
+<h3 id="q6-해답-특성타깃-분리와-데이터-분리-8점">Q6 해답 — 특성·타깃 분리와 데이터 분리 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">y = df['defect_type'].to_numpy()                       # 타깃 → 넘파이 배열
+X = df.drop(columns=['defect_type', 'rul_days'])       # 두 타깃 컬럼 모두 제외
+
+print('X shape:', X.shape, '/ y shape:', y.shape, '/ y dtype:', y.dtype)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y)
+
+print('X_train:', X_train.shape, '/ X_test:', X_test.shape)
+print('y_train 비율:', np.round(np.bincount(y_train) / len(y_train), 3))
+print('y_test  비율:', np.round(np.bincount(y_test) / len(y_test), 3))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>X shape: (4000, 12) / y shape: (4000,) / y dtype: int64
+X_train: (3200, 12) / X_test: (800, 12)
+y_train 비율: [0.605 0.242 0.153]
+y_test  비율: [0.605 0.242 0.152]
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>rul_days</code>를 반드시 빼야 합니다.</strong> <code>rul_days</code>(잔여 수명)는 불량 유형과 같은 원인에서 나온 값이라 <strong>정답을 거의 알려주는 컬럼</strong>입니다. 이런 컬럼을 특성에 넣으면 평가 정확도가 비현실적으로 높게 나오는데, 이것이 <strong>타깃 누수(data leakage)</strong> 입니다. 시험에서 "예측 시점에 알 수 없는 값"이나 "타깃과 같은 사건을 기록한 값"이 컬럼에 섞여 있으면 제거 대상입니다. 컬럼 개수 검산: 14 − 2 = <strong>12개</strong>.</li>
+<li><strong><code>to_numpy()</code>로 타깃을 넘파이 배열로 만든 이유</strong>가 두 가지입니다.<br />
+  1. Keras <code>fit</code>은 넘파이 배열을 <strong>가장 표준적인 입력 형태</strong>로 받습니다. pandas Series를 넘겨도 대부분 동작하지만, 인덱스가 딸려 다니므로 슬라이싱·비교 과정에서 예상 밖의 정렬이 생길 여지를 없애 둡니다.<br />
+  2. <code>np.bincount</code>, <code>np.unique</code>, <code>argmax</code> 비교 등 뒤 문항의 넘파이 연산이 매끄럽게 이어집니다. 특히 Q12의 <code>y_pred</code>(넘파이 배열)와 <code>y_test</code>를 비교할 때 형태가 통일되어 있으면 헷갈리지 않습니다.<br />
+  타깃을 numpy로 바꿔도 <code>train_test_split</code>·<code>stratify</code>·<code>classification_report</code>는 모두 그대로 동작합니다.<br />
+  (문서 앞의 "학습 셀이 멈추는" 증상은 <strong>import 순서 때문이며 타깃 자료형과 무관</strong>합니다. <code>to_numpy()</code>는 그 증상의 해결책이 아닙니다.)</li>
+<li><strong><code>test_size=0.2</code>가 8:2</strong> 입니다. 7:3이었던 1회차와 숫자가 다릅니다. <strong>문항이 지시한 비율을 그때그때 확인</strong>하십시오.</li>
+<li><strong><code>stratify=y</code>가 채점 포인트</strong>입니다. 클래스가 0.605 / 0.242 / 0.153으로 기울어 있어, 넣지 않으면 평가 데이터의 소수 클래스(2번, 과열) 비율이 흔들립니다. <code>stratify=y</code>를 넣은 결과 train·test 양쪽이 <strong>0.605 / 0.242 / 0.152</strong> 로 원본과 일치합니다.</li>
+<li><code>np.bincount(y_train) / len(y_train)</code> 은 정수 라벨의 클래스 비율을 구하는 간단한 방법입니다. <code>pd.Series(y_train).value_counts(normalize=True)</code> 를 써도 됩니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>drop(columns=['defect_type'])</code> 만 하고 <code>rul_days</code>를 남기는 것.</strong> 오류가 나지 않고 정확도가 훌쩍 올라가기 때문에 <strong>끝까지 못 알아채는 가장 위험한 실수</strong>입니다.</li>
+<li><strong>반환 순서를 바꿔 받는 것.</strong> <code>train_test_split</code>은 항상 <code>X_train, X_test, y_train, y_test</code> 순서입니다. <code>X_train, y_train, X_test, y_test</code>로 받으면 이후 모든 문항이 조용히 어긋납니다.</li>
+<li><strong><code>stratify=y_train</code>처럼 잘못된 대상을 넣는 것.</strong> 분리 전 전체 타깃 <code>y</code>를 넣습니다.</li>
+<li><code>y = df['defect_type']</code> 로 Series를 그대로 쓰는 것. 오류는 나지 않지만 문항이 <code>to_numpy()</code>를 <strong>지시</strong>했으므로 지시를 따릅니다.</li>
+</ul>
+<hr />
+<h3 id="q7-해답-스케일링-7점">Q7 해답 — 스케일링 [7점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)     # train에서만 fit
+X_test_scaled = scaler.transform(X_test)           # test는 transform만
+
+print(X_train_scaled.shape, X_test_scaled.shape)
+print('train min/max:', X_train_scaled.min().round(3), X_train_scaled.max().round(3))
+print('test  min/max:', X_test_scaled.min().round(3), X_test_scaled.max().round(3))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>(3200, 12) (800, 12)
+train min/max: 0.0 1.0
+test  min/max: -0.007 1.0
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>fit</code>은 train에만, test는 <code>transform</code>만</strong> — 이 회차에서도 같은 규칙입니다. <code>MinMaxScaler</code>의 변환 규칙은 <code>(x - min) / (max - min)</code> 이고, 이 <code>min</code>·<code>max</code>는 <strong>학습 데이터에서만</strong> 얻어야 합니다. test의 최솟값·최댓값을 섞으면 평가 데이터 정보가 모델 학습에 흘러드는 <strong>데이터 누수</strong>입니다.</li>
+<li><strong>test의 최솟값이 −0.007로 음수인 것이 정상입니다.</strong> 평가 데이터에 train의 최솟값보다 더 작은 값이 하나라도 있으면 변환 결과가 0보다 작아집니다. 0~1을 벗어났다고 해서 잘못 푼 것이 아니며, <strong>오히려 <code>test min/max</code>가 정확히 0과 1이면 test로 <code>fit</code>했다는 신호</strong>일 수 있습니다.</li>
+<li><code>StandardScaler</code>가 아니라 <code>MinMaxScaler</code>인 이유는 <strong>문항이 지정</strong>했기 때문입니다. 둘 다 시험 범위이며, 문항이 지정한 스케일러를 그대로 씁니다. 사용법(<code>fit_transform</code> / <code>transform</code>)은 완전히 동일합니다.</li>
+<li>결과가 넘파이 배열이라는 점도 기억하십시오. <code>X_train_scaled.shape[1]</code> 로 <strong>특성 개수 12</strong>를 얻어 Q9의 <code>Input(shape=(12,))</code>에 그대로 씁니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>scaler.fit_transform(X_test)</code></strong> — 가장 흔한 누수 사고입니다. test에는 <code>transform</code>만 씁니다.</li>
+<li>스케일링을 <strong>분리 전에</strong> 하는 것. 전체 데이터로 <code>fit</code>하면 test 정보가 이미 섞입니다. <strong>인코딩은 분리 전, 스케일링은 분리 후.</strong></li>
+<li>원-핫 더미 컬럼까지 스케일링되는 것을 걱정하는 것. 이미 0/1이므로 <code>MinMaxScaler</code>를 통과해도 값이 그대로입니다. <strong>전체 특성에 한 번에 적용해도 문제가 없습니다.</strong></li>
+<li>스케일링 결과를 다시 <code>X_train</code>에 대입해 원본을 잃는 것. 변수명 <code>X_train_scaled</code>를 지시대로 쓰면 뒤 문항에서 비교·재현이 쉽습니다.</li>
+</ul>
+<hr />
+<h3 id="q8-해답-머신러닝-베이스라인-8점">Q8 해답 — 머신러닝 베이스라인 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train_scaled, y_train)
+rf_pred = rf_model.predict(X_test_scaled)
+
+print('RF accuracy:', round(accuracy_score(y_test, rf_pred), 4))
+print(classification_report(y_test, rf_pred, digits=3))
+print(confusion_matrix(y_test, rf_pred))
+print('전부 0으로 예측한 정확도:', round((y_test == 0).mean(), 4))
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>RF accuracy: 0.7863
+
+              precision    recall  f1-score   support
+           0      0.832     0.888     0.859       484
+           1      0.722     0.629     0.672       194
+           2      0.675     0.631     0.653       122
+    accuracy                          0.786       800
+   macro avg      0.743     0.716     0.728       800
+weighted avg      0.781     0.786     0.782       800
+
+[[430  33  21]
+ [ 56 122  16]
+ [ 31  14  77]]
+
+전부 0으로 예측한 정확도: 0.605
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>베이스라인의 목적은 "기준선"</strong> 입니다. 딥러닝 정확도 0.79를 단독으로 보면 좋은지 나쁜지 알 수 없습니다. 랜덤 포레스트 <strong>0.7863</strong>, 무조건 0 예측 <strong>0.605</strong> 라는 두 기준이 있어야 Q12의 해석이 성립합니다.</li>
+<li><strong><code>rf_model</code>로 이름을 분리</strong>한 이유는 Q9에서 딥러닝 모델을 <code>model</code>로 만들기 때문입니다. 같은 이름을 쓰면 베이스라인이 덮여 비교가 불가능해집니다.</li>
+<li>다중분류에서도 <code>RandomForestClassifier</code>의 사용법은 이진분류와 <strong>완전히 동일</strong>합니다. <code>predict</code>가 확률이 아니라 <strong>클래스 번호(0/1/2)를 바로</strong> 반환하므로 변환 없이 지표에 넣을 수 있습니다. 이 편리함이 딥러닝(softmax 확률 → <code>argmax</code>)과의 차이입니다.</li>
+<li><strong><code>classification_report</code>가 세 줄</strong>로 나오는 것을 확인하십시오. 클래스 0의 f1이 0.859인데 클래스 2는 0.653입니다. <strong>소수 클래스가 어렵다</strong>는 사실이 베이스라인에서부터 드러납니다.</li>
+<li>혼동 행렬은 <strong>3×3</strong>입니다. <code>cm.ravel()</code>로 TN/FP/FN/TP를 꺼내는 이진분류 방식은 여기서 성립하지 않습니다. 표 전체를 보고 행(실제) × 열(예측)로 읽습니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>accuracy_score(rf_pred, y_test)</code>처럼 인수 순서를 바꾸는 것.</strong> accuracy는 순서가 바뀌어도 값이 같아 넘어가지만, <strong><code>confusion_matrix</code>는 행과 열이 뒤바뀌어</strong> 완전히 다른 해석이 나옵니다. 순서는 항상 <strong>(정답, 예측)</strong> 입니다.</li>
+<li>스케일링하지 않은 <code>X_train</code>을 넣는 것. 트리 모델은 스케일링에 둔감해서 결과가 비슷하게 나오지만, 문항이 <code>X_train_scaled</code>를 지시했으므로 지시를 따릅니다.</li>
+<li><code>n_estimators</code>·<code>random_state</code>를 지정하지 않는 것. 지정하지 않으면 <strong>실행마다 결과가 달라져</strong> 채점자가 재현할 수 없습니다.</li>
+</ul>
+<hr />
+<h3 id="q9-해답-딥러닝-모델-구성-12점">Q9 해답 — 딥러닝 모델 구성 [12점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">n_classes = len(np.unique(y_train))          # 클래스 수를 코드로 계산
+print('클래스 수:', n_classes)
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))     # 특성 12개
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(n_classes, activation='softmax'))      # 다중분류: K개 + softmax
+model.summary()
+</code></pre>
+<p>실행 결과 요지입니다.</p>
+<pre><code>클래스 수: 3
+
+ Layer (type)              Output Shape        Param #
+ dense (Dense)             (None, 64)              832
+ dropout (Dropout)         (None, 64)                0
+ dense_1 (Dense)           (None, 32)            2,080
+ dense_2 (Dense)           (None, 3)                99
+ Total params: 3,011
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>출력층이 이 문항의 전부입니다.</strong> 다중분류의 출력층은 <code>Dense(클래스 수, activation='softmax')</code>. softmax는 K개의 출력을 <strong>합이 1인 확률 분포</strong>로 만들어 "어느 클래스일 가능성이 가장 큰가"를 표현합니다. 이진분류의 <code>Dense(1, 'sigmoid')</code>와 여기가 갈립니다.</li>
+<li><strong><code>n_classes = len(np.unique(y_train))</code></strong> 로 계산한 이유는 시험장에서 클래스 수를 눈으로 세다가 틀리는 일을 막기 위해서입니다. 숫자 <code>3</code>을 직접 써도 정답이지만, <strong>데이터가 바뀌어도 그대로 통하는 코드</strong>가 실전에서 강합니다.</li>
+<li><strong><code>Input(shape=(X_train_scaled.shape[1],))</code></strong> — 입력 shape에는 <strong>샘플 수를 넣지 않습니다.</strong> <code>(3200, 12)</code> 중 뒤의 12만 씁니다. <code>shape=(12,)</code>처럼 콤마를 포함한 튜플로 적는 것도 잊지 마십시오. <code>summary()</code>의 Output Shape에 찍히는 <code>None</code>이 바로 샘플 수 자리이며, 배치 크기에 따라 달라지는 값이라 모델 정의에서는 비워 둡니다.</li>
+<li><strong>은닉층 활성화는 <code>relu</code></strong> 입니다. 은닉층에 softmax나 sigmoid를 넣으면 학습이 느려지거나 정보가 뭉갭니다. <strong>softmax는 출력층에만.</strong></li>
+<li><code>summary()</code>의 마지막 줄 Output Shape가 <strong><code>(None, 3)</code></strong> 인지 반드시 확인하십시오. 여기가 <code>(None, 1)</code>이면 Q10~Q12가 전부 오류입니다.</li>
+<li>파라미터 검산: 12×64+64 = <strong>832</strong>, 64×32+32 = <strong>2,080</strong>, 32×3+3 = <strong>99</strong>. <code>Dropout</code>은 학습 파라미터가 <strong>0</strong>입니다(끄고 켜는 규칙일 뿐 가중치가 없습니다).</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>출력층 노드 수를 1로 두는 것.</strong> 이진분류 코드를 복사해 오면 <code>Dense(1, 'softmax')</code>가 되는데, 노드가 1개인 softmax는 <strong>항상 1.0만 출력</strong>합니다. 오류가 나지 않고 정확도가 클래스 0 비율(0.605)에 붙어 버려 원인을 찾기 어렵습니다.</li>
+<li><strong>출력층에 <code>relu</code>를 쓰는 것.</strong> 확률이 아니라 0 이상의 임의 값이 나와 <code>argmax</code> 결과가 엉킵니다.</li>
+<li><strong><code>Dropout</code>을 출력층 바로 뒤에 넣는 것.</strong> Dropout은 은닉층 뒤에 둡니다. 출력 확률을 무작위로 0으로 만들면 학습이 망가집니다.</li>
+<li><code>input_shape=</code> 를 <code>Dense</code>의 인수로 쓰는 구버전 표기. 동작하더라도 Keras 3에서는 비권장이므로 <strong><code>Input(shape=(n,))</code></strong> 을 표준으로 쓰십시오.</li>
+</ul>
+<hr />
+<h3 id="q10-해답-컴파일-손실-함수-선택-8점">Q10 해답 — 컴파일: 손실 함수 선택 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># 1) 라벨 형태 확인 — loss 선택의 유일한 근거
+print('y_train 앞 10개:', y_train[:10], '/ dtype:', y_train.dtype)
+
+# 2) 정수 라벨 → sparse_categorical_crossentropy
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+print('선택한 loss:', model.loss)
+# 라벨이 [0 2 0 0 ...] 처럼 정수 하나로 되어 있으므로 sparse_ 계열을 선택했다.
+# 원-핫([1,0,0])이었다면 categorical_crossentropy를 썼을 것이다. 출력층은 둘 다 Dense(3,'softmax')로 같다.
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>y_train 앞 10개: [0 2 0 0 0 2 2 2 0 1] / dtype: int64
+선택한 loss: sparse_categorical_crossentropy
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>다중분류에서 loss가 갈리는 기준은 오직 "라벨의 형태" 하나입니다.</strong></li>
+</ul>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>라벨 형태</th>
+<th>예시</th>
+<th>loss</th>
+<th>출력층</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>정수 라벨</strong></td>
+<td><code>0</code>, <code>2</code>, <code>1</code></td>
+<td><strong><code>sparse_categorical_crossentropy</code></strong></td>
+<td><code>Dense(3, 'softmax')</code></td>
+</tr>
+<tr>
+<td>원-핫</td>
+<td><code>[1,0,0]</code>, <code>[0,0,1]</code></td>
+<td><code>categorical_crossentropy</code></td>
+<td><code>Dense(3, 'softmax')</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>출력층은 두 경우가 똑같습니다.</strong> 바뀌는 것은 loss 이름뿐입니다. 이 표를 외워 두면 이 문항은 10초에 끝납니다.<br />
+- 우리는 Q5에서 <strong>타깃을 일부러 원-핫으로 만들지 않았습니다.</strong> <code>y_train</code>이 <code>[0 2 0 0 ...]</code> 정수이므로 <code>sparse_</code> 접두어가 붙은 쪽입니다. <code>sparse</code>는 "정답을 인덱스 하나로 희소하게 표현했다"는 뜻으로 이해하면 기억에 남습니다.<br />
+- <strong><code>metrics=['accuracy']</code>는 유형과 무관하게 분류라면 동일</strong>합니다. loss와 metrics를 혼동해 <code>metrics=['sparse_categorical_crossentropy']</code>를 쓰는 답안이 있는데, 그러면 화면에 정확도가 나오지 않아 Q11·Q12의 학습 곡선 지시를 만족할 수 없습니다.<br />
+- optimizer는 지시대로 <code>'adam'</code>입니다. 시험에서 특별한 언급이 없으면 adam이 무난한 기본값입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>정수 라벨에 <code>categorical_crossentropy</code>를 쓰는 것</strong> — 이 회차 최다 감점 포인트입니다. 학습이 시작되자마자 다음과 같은 shape 오류가 납니다.</li>
+</ul>
+<p><code>ValueError: Shapes (32, 1) and (32, 3) are incompatible</code></p>
+<p>메시지의 <code>(32, 1)</code>이 정수 라벨, <code>(32, 3)</code>이 softmax 출력입니다. <strong>이 조합을 보면 곧바로 <code>sparse_</code>를 붙이십시오.</strong><br />
+- <strong>거꾸로, 라벨을 원-핫으로 바꿔 놓고 <code>sparse_categorical_crossentropy</code>를 유지하는 것.</strong> <code>to_categorical()</code>을 썼다면 loss도 함께 <code>categorical_crossentropy</code>로 바꿔야 합니다. <strong>둘은 항상 짝으로 움직입니다.</strong><br />
+- <strong>이진분류의 <code>binary_crossentropy</code>를 그대로 두는 것.</strong> 클래스가 3개인데 binary를 쓰면 오류 없이 학습이 진행되면서 정확도가 이상하게 높거나 낮게 나옵니다. 출력층·loss·예측 변환 <strong>세 곳을 함께</strong> 점검하십시오.<br />
+- 컴파일을 건너뛰고 <code>fit</code>을 부르는 것. <code>RuntimeError: You must compile your model before training</code> 이 납니다.</p>
+<hr />
+<h3 id="q11-해답-콜백을-적용한-학습-11점">Q11 해답 — 콜백을 적용한 학습 [11점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+
+history = model.fit(X_train_scaled, y_train,
+                    epochs=100, batch_size=32,
+                    validation_split=0.2,
+                    callbacks=[es],          # 리스트로 전달
+                    verbose=0)
+
+print('실제 학습 epoch 수:', len(history.history['loss']))
+print('history 키:', list(history.history.keys()))
+
+h = history.history
+plt.figure(figsize=(10, 4))
+plt.subplot(1, 2, 1)
+plt.plot(h['loss'], label='train')
+plt.plot(h['val_loss'], label='val')
+plt.title('loss'); plt.legend()
+plt.subplot(1, 2, 2)
+plt.plot(h['accuracy'], label='train')
+plt.plot(h['val_accuracy'], label='val')
+plt.title('accuracy'); plt.legend()
+plt.show()
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>실제 학습 epoch 수: 23
+history 키: ['accuracy', 'loss', 'val_accuracy', 'val_loss']
+</code></pre>
+<blockquote class="callout callout--note">
+<p>멈추는 시점은 실행마다 달라집니다. 검증 환경에서는 <strong>20~47 epoch</strong> 사이에서 끝났습니다. 숫자를 맞히는 것이 목적이 아니라, <strong>지시한 상한 100보다 훨씬 앞에서 끝났다는 사실</strong>을 확인하는 것이 목적입니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>epochs=100</code>을 지시받았지만 실제로는 23에서 끝났습니다.</strong> <code>EarlyStopping</code>이 <code>val_loss</code>가 5 epoch 연속 개선되지 않는 것을 보고 멈춘 것입니다. <strong>"지시한 epochs는 상한이고, 실제 학습 길이는 콜백이 정한다"</strong> 는 것이 이 문항의 핵심이며, <code>len(history.history['loss'])</code>가 그 증거입니다.</li>
+<li><strong><code>restore_best_weights=True</code>가 채점 포인트</strong>입니다. 이 옵션이 없으면 "가장 나빠진 마지막 시점"의 가중치로 평가하게 됩니다. 멈추는 시점은 최적점보다 <code>patience</code>만큼 뒤이므로, <strong>복원 옵션 없이 멈추면 일부러 과적합된 모델을 제출하는 셈</strong>입니다.</li>
+<li><strong><code>callbacks=[es]</code></strong> — 리스트로 감싸야 합니다. <code>callbacks=es</code>로 쓰면 오류가 나거나 무시됩니다. 콜백을 만들어 놓고 <code>fit</code>에 전달하지 않는 실수도 흔한데, 이때는 오류 없이 100 epoch를 전부 돌아 버려 <strong>"왜 멈추지 않지"</strong> 하고 시간을 잃습니다.</li>
+<li><code>validation_split=0.2</code>는 <strong>학습 데이터의 뒤쪽 20%</strong> 를 검증용으로 떼어 씁니다(3200 → 학습 2560 / 검증 640). <code>EarlyStopping</code>이 관찰하는 <code>val_loss</code>가 여기서 나오므로, <strong>검증 데이터 없이는 <code>val_loss</code>가 존재하지 않아</strong> 콜백이 동작하지 않습니다.</li>
+<li><strong><code>history</code> 키 4개를 확인하는 습관</strong>을 들이십시오. 분류이므로 <code>accuracy</code>·<code>val_accuracy</code>가 있습니다. 회귀로 바꾸면 이 이름이 <code>mae</code>·<code>val_mae</code>로 달라집니다(R2에서 확인합니다). <strong>키 이름을 확인하지 않고 그래프 코드를 복사하면 <code>KeyError</code></strong> 가 납니다.</li>
+<li>학습 곡선을 읽는 법: 검증 loss가 내려가다 <strong>평평해지거나 다시 올라가는 지점</strong>이 과적합 시작점입니다. EarlyStopping이 멈춘 위치가 대체로 그 근처여야 정상입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>monitor='val_loss'</code>인데 <code>validation_split</code>(또는 <code>validation_data</code>)을 주지 않는 것.</strong> 관찰 대상이 없어 콜백이 작동하지 않고 경고만 나옵니다.</li>
+<li><strong><code>patience</code>를 1처럼 너무 작게 두는 것.</strong> loss는 오르내리며 내려가므로 진짜 최적점 전에 멈춰 버립니다. 문항이 지시한 값(여기서는 5)을 그대로 쓰십시오.</li>
+<li><strong><code>verbose=0</code>으로 학습 로그를 끈 채, "실제 epoch 수"까지 출력하지 않는 것.</strong> 문항이 요구한 출력이 사라집니다. <code>verbose</code>를 0으로 두든 1로 두든 상관없지만, <strong><code>len(history.history['loss'])</code> 한 줄은 반드시 남기십시오.</strong> 화면 로그는 채점 대상이 아니라 이 출력이 근거입니다.</li>
+<li>학습 결과를 <code>history</code>에 받지 않고 <code>model.fit(...)</code> 만 호출하는 것. 학습 곡선을 그릴 재료가 사라집니다.</li>
+<li>(환경 이슈) 학습 셀에서 <strong>아무 출력도 없이 멈추는</strong> 경우 — 코드 잘못이 아니라 <strong>import 순서</strong> 문제입니다. 이 문서 앞의 "로컬 환경 주의"대로 커널을 재시작하고, <strong>데이터 생성 블록과 공통 import 블록 양쪽</strong> 첫 줄이 <code>import tensorflow as tf</code>인 상태에서 처음부터 다시 실행하십시오. 타깃을 <code>to_numpy()</code>로 바꾸는 것은 이 증상과 무관합니다.</li>
+</ul>
+<hr />
+<h3 id="q12-해답-평가와-클래스별-성능-해석-12점">Q12 해답 — 평가와 클래스별 성능 해석 [12점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># 1) 평가
+loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+print('test loss:', round(loss, 4), '/ test accuracy:', round(acc, 4))
+
+# 2) 예측 확률
+pred = model.predict(X_test_scaled, verbose=0)
+print('pred shape:', pred.shape, '/ 첫 행의 합:', pred[0].sum().round(3))
+
+# 3) 확률 → 클래스 (다중분류는 argmax, 축은 1)
+y_pred = np.argmax(pred, axis=1)
+print('y_pred 앞 10개:', y_pred[:10])
+
+# 4) 지표
+print(classification_report(y_test, y_pred, digits=3))
+print(confusion_matrix(y_test, y_pred))
+
+# 5) 해석
+# 클래스 2(과열)의 f1이 0.669로 가장 낮다. 표본이 122개뿐인 소수 클래스이고,
+# 온도·전류 외 센서는 클래스 0과 겹쳐 경계가 흐리기 때문으로 보인다.
+# 혼동 행렬에서 가장 많이 헷갈린 쌍은 실제 1 → 예측 0(50건)과 실제 0 → 예측 1(39건)이다.
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>test loss: 0.5385 / test accuracy: 0.7862
+pred shape: (800, 3) / 첫 행의 합: 1.0
+y_pred 앞 10개: [0 0 2 0 0 0 0 0 0 1]
+
+              precision    recall  f1-score   support
+           0      0.848     0.868     0.858       484
+           1      0.704     0.649     0.676       194
+           2      0.659     0.680     0.669       122
+    accuracy                          0.786       800
+   macro avg      0.737     0.733     0.734       800
+weighted avg      0.784     0.786     0.785       800
+
+[[420  39  25]
+ [ 50 126  18]
+ [ 25  14  83]]
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>pred.shape</code>가 <code>(800, 3)</code></strong> 입니다. 이진분류의 <code>(800, 1)</code>과 다릅니다. 샘플마다 <strong>클래스 개수만큼의 확률</strong>이 나오고, 첫 행의 합이 <strong>1.0</strong> 인 것이 softmax가 제대로 걸렸다는 증거입니다. 이 두 값을 출력하라고 한 이유가 여기에 있습니다.</li>
+<li><strong><code>np.argmax(pred, axis=1)</code></strong> — "각 행에서 가장 큰 값의 <strong>위치(인덱스)</strong>"를 고릅니다. 클래스 번호가 0/1/2이므로 인덱스가 곧 예측 클래스입니다. <strong><code>axis=1</code>(행 방향)</strong> 이 핵심입니다.</li>
+<li><strong>혼동 행렬을 읽는 법</strong> (행 = 실제, 열 = 예측):</li>
+</ul>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th></th>
+<th>예측 0</th>
+<th>예측 1</th>
+<th>예측 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>실제 0 (정상, 484)</strong></td>
+<td><strong>420</strong></td>
+<td>39</td>
+<td>25</td>
+</tr>
+<tr>
+<td><strong>실제 1 (마모, 194)</strong></td>
+<td><strong>50</strong></td>
+<td><strong>126</strong></td>
+<td>18</td>
+</tr>
+<tr>
+<td><strong>실제 2 (과열, 122)</strong></td>
+<td>25</td>
+<td>14</td>
+<td><strong>83</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>대각선(420 / 126 / 83)이 맞힌 것이고 나머지가 틀린 것입니다. 가장 큰 오분류는 <strong>실제 1을 0으로 예측한 50건</strong> — 마모 불량을 정상으로 놓친 경우로, 현장에서는 가장 값비싼 실수입니다.<br />
+- <strong>클래스별 성능 차이가 이 문항의 결론입니다.</strong> f1이 0.858(정상) → 0.676(마모) → 0.669(과열) 순으로 낮아집니다. 이유는 두 가지입니다.<br />
+  1. <strong>표본 수 차이</strong> — support 484 / 194 / 122. 학습 기회 자체가 적습니다.<br />
+  2. <strong>특성 겹침</strong> — Q2에서 확인했듯 클래스 1의 단서는 <code>vibration</code>, 클래스 2는 <code>temp</code>·<code>current</code> 하나뿐이고 나머지 센서는 클래스 0과 겹칩니다. <code>humidity</code>처럼 정보가 없는 컬럼도 있습니다.<br />
+- <strong><code>macro avg</code>(0.734)와 <code>weighted avg</code>(0.785)의 차이</strong>를 보십시오. macro는 세 클래스를 동등하게, weighted는 표본 수로 가중해 평균합니다. <strong>둘의 격차가 클수록 "소수 클래스에서 약하다"는 뜻</strong>입니다.<br />
+- 세 기준선과 비교하는 것으로 마무리합니다. 무조건 0 예측 <strong>0.605</strong> &lt; 랜덤 포레스트 <strong>0.7863</strong> ≒ 딥러닝 <strong>0.7862</strong>. 즉 <strong>이 데이터에서 딥러닝은 랜덤 포레스트를 이기지 못했습니다.</strong> 이것이 정직한 결론이며, 시험에서도 "딥러닝이 무조건 낫다"고 쓸 필요는 없습니다. 표 형태 데이터에서 트리 계열이 강한 것은 흔한 결과입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>확률 <code>pred</code>를 그대로 <code>classification_report</code>에 넣는 것.</strong></li>
+</ul>
+<p><code>ValueError: Classification metrics can't handle a mix of multiclass and continuous-multioutput targets</code></p>
+<p><code>argmax</code> 변환 한 줄을 반드시 거치십시오.<br />
+- <strong>이진분류 방식인 <code>(pred &gt; 0.5).astype(int)</code>를 쓰는 것.</strong> <code>(800, 3)</code> 배열에 임계값을 걸면 0/1로 채워진 <strong>3열 배열</strong>이 나와 지표 계산이 깨집니다. 다중분류는 <code>argmax</code>입니다.<br />
+- <strong><code>axis</code>를 빼거나 <code>axis=0</code>으로 쓰는 것.</strong> <code>np.argmax(pred)</code> 는 전체에서 최댓값 위치 <strong>하나</strong>를 반환하고, <code>axis=0</code>은 <strong>열 방향</strong>으로 계산해 길이 3의 배열이 나옵니다. 둘 다 <code>y_test</code>와 길이가 맞지 않아 오류가 납니다. <strong>행마다 하나씩 → <code>axis=1</code>.</strong><br />
+- <strong><code>evaluate</code> 반환값을 하나로 받는 것.</strong> <code>acc = model.evaluate(...)</code> 로 쓰면 <code>acc</code>에 <code>[loss, accuracy]</code> 리스트가 통째로 들어갑니다.<br />
+- <strong>accuracy만 출력하고 끝내는 것.</strong> 이 문항은 클래스별 성능 해석까지 요구합니다. 불균형 다중분류에서는 <code>classification_report</code>와 혼동 행렬이 함께 있어야 답안이 완성됩니다.</p>
+<hr />
+<h3 id="r1-해답-타깃-교체와-데이터-준비-10점">R1 해답 — 타깃 교체와 데이터 준비 [10점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">y_reg = df['rul_days'].to_numpy()                       # 타깃 교체
+X_r = df.drop(columns=['defect_type', 'rul_days'])      # 특성 구성은 본편과 동일 (본편 X는 그대로 보존)
+
+print('y_reg 앞 5개:', y_reg[:5], '/ dtype:', y_reg.dtype)
+print('평균:', round(y_reg.mean(), 2), '/ 최소:', y_reg.min(), '/ 최대:', y_reg.max())
+
+# stratify는 쓸 수 없다: 타깃이 연속값이라 같은 값이 1개뿐인 '계층'이 생겨 분리가 불가능하다.
+X_train_r, X_test_r, y_train_r, y_test_r = train_test_split(
+    X_r, y_reg, test_size=0.2, random_state=42)
+
+scaler_r = MinMaxScaler()
+X_train_r_scaled = scaler_r.fit_transform(X_train_r)
+X_test_r_scaled = scaler_r.transform(X_test_r)
+print('X_train_r:', X_train_r_scaled.shape, '/ X_test_r:', X_test_r_scaled.shape)
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>y_reg 앞 5개: [129.  164.1 184.1 124.6 221.1] / dtype: float64
+평균: 183.08 / 최소: 64.4 / 최대: 304.1
+X_train_r: (3200, 12) / X_test_r: (800, 12)
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>타깃을 보고 유형을 판정하는 훈련이 이 문항의 목적입니다.</strong> <code>y_reg</code>가 <code>129.0</code>, <code>164.1</code>처럼 <strong>실수이고 값의 종류가 사실상 무한</strong>합니다. <code>value_counts()</code>를 찍어 봐야 의미가 없습니다. <strong>dtype이 <code>float64</code>이고 값이 연속적이면 회귀</strong>입니다. 반대로 본편의 <code>defect_type</code>은 정수 3종이었으므로 분류였습니다.</li>
+<li><strong><code>stratify</code>를 쓸 수 없습니다.</strong> 넣으면 다음 오류가 납니다.</li>
+</ul>
+<p><code>ValueError: The least populated classes in y have only 1 member, which is too few...</code></p>
+<p><code>stratify</code>는 "각 클래스 비율을 유지"하는 옵션인데, 연속값은 거의 모든 값이 유일해서 <strong>클래스당 표본 1개</strong>가 됩니다. 나눌 수가 없습니다. <strong>회귀에서는 <code>stratify</code>를 지웁니다</strong> — 이것이 회귀 전환 시 놓치기 쉬운 첫 번째 지점입니다.<br />
+- <strong>전처리는 그대로 재사용합니다.</strong> 이상치 클리핑(Q3), 결측 평균 대체(Q4), 원-핫 인코딩(Q5), MinMax 스케일링 — 전부 <strong>타깃 유형과 무관한 작업</strong>입니다. 유형이 바뀌어도 전처리 파이프라인은 대개 그대로 갑니다. 바뀌는 곳은 <strong>타깃, 출력층, loss, 지표</strong> 네 군데뿐입니다.<br />
+- <strong>특성에서 <code>defect_type</code>도 제외한 이유</strong>: 불량 유형은 잔여 수명과 같은 원인에서 나온 결과 지표이므로, 넣으면 또 다른 누수가 됩니다(설비 상태를 미리 알 수 없는 예측 시점을 가정합니다). 특성 개수는 본편과 동일하게 <strong>12개</strong>입니다.<br />
+- 타깃 범위(64.4 ~ 304.1, 평균 183.08)를 미리 출력해 두면 R3에서 <strong>"mae 10.5가 큰 오차인가"</strong> 를 판단할 기준이 생깁니다. 회귀 지표는 <strong>타깃의 스케일과 함께 읽어야</strong> 의미가 있습니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>stratify=y_reg</code>를 그대로 복사해 오는 것</strong> — 회귀 전환 최다 오류입니다. 위 <code>ValueError</code>를 만나면 <code>stratify</code>를 지우십시오.</li>
+<li><strong>타깃을 스케일링하는 것.</strong> 문항이 지시하지 않았습니다. 타깃을 0~1로 바꾸면 mae·rmse가 원래 단위(일)가 아니라 <strong>해석 불가능한 값</strong>이 되어 R3의 서술이 무너집니다.</li>
+<li><strong><code>rul_days</code>를 특성에서 빼는 것을 잊는 것.</strong> 타깃이 특성에 들어가면 r2가 1.000에 붙습니다. <strong>r2가 0.99를 넘으면 누수를 의심</strong>하십시오.</li>
+<li>본편 변수(<code>X</code>, <code>X_train</code>, <code>y_train</code>)를 덮어써 버리는 것. 특성 구성이 같더라도 <strong><code>X_r</code>처럼 새 이름에 담으십시오.</strong> <code>_r</code> 접미어를 지시한 이유는 본편 결과를 잃지 않고 <strong>두 세트를 나란히 비교</strong>하기 위해서입니다. 본편 <code>X</code>를 덮어쓰면 Q6~Q12를 다시 실행할 때 무엇이 들어 있는지 알 수 없게 됩니다.</li>
+</ul>
+<hr />
+<h3 id="r2-해답-회귀-딥러닝-모델-구성컴파일학습-12점">R2 해답 — 회귀 딥러닝 모델 구성·컴파일·학습 [12점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">model_r = Sequential()
+model_r.add(Input(shape=(X_train_r_scaled.shape[1],)))
+model_r.add(Dense(64, activation='relu'))
+model_r.add(Dropout(0.2))
+model_r.add(Dense(32, activation='relu'))
+model_r.add(Dense(1))                       # 교체 (1) 노드 1개, 활성화 함수 없음
+model_r.compile(optimizer='adam',
+                loss='mse',                 # 교체 (2) 회귀 손실
+                metrics=['mae'])            # 교체 (3) accuracy 아님
+model_r.summary()
+
+es_r = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+history_r = model_r.fit(X_train_r_scaled, y_train_r,
+                        epochs=200, batch_size=32,
+                        validation_split=0.2,
+                        callbacks=[es_r], verbose=0)
+
+print('실제 학습 epoch 수:', len(history_r.history['loss']))
+print('history_r 키:', list(history_r.history.keys()))
+
+h = history_r.history
+plt.figure(figsize=(10, 4))
+plt.subplot(1, 2, 1)
+plt.plot(h['loss'], label='train'); plt.plot(h['val_loss'], label='val')
+plt.title('loss (mse)'); plt.legend()
+plt.subplot(1, 2, 2)
+plt.plot(h['mae'], label='train'); plt.plot(h['val_mae'], label='val')
+plt.title('mae'); plt.legend()          # accuracy가 아니라 mae
+plt.show()
+</code></pre>
+<p>실행 결과 요지입니다.</p>
+<pre><code> Layer (type)              Output Shape        Param #
+ dense (Dense)             (None, 64)              832
+ dropout (Dropout)         (None, 64)                0
+ dense_1 (Dense)           (None, 32)            2,080
+ dense_2 (Dense)           (None, 1)                33
+ Total params: 2,945
+
+실제 학습 epoch 수: 85
+history_r 키: ['loss', 'mae', 'val_loss', 'val_mae']
+</code></pre>
+<blockquote class="callout callout--note">
+<p>학습 길이는 실행마다 크게 달라집니다. 검증 환경의 두 차례 실행에서 각각 <strong>85 / 118 epoch</strong>에 멈췄습니다(대략 <strong>70~130 범위</strong>). 중요한 것은 숫자 자체가 아니라 <strong>지시한 상한 200보다 앞에서 끝났다는 사실</strong> — <code>EarlyStopping</code>이 동작했다는 증거입니다.<br />
+본편 Q11(20~47)보다 훨씬 길게 도는 이유는 <code>patience</code>가 5에서 <strong>10으로 커졌고</strong>, 회귀의 <code>val_loss</code>(mse)가 더 늦게까지 조금씩 개선되기 때문입니다.</p>
+</blockquote>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>바뀌는 곳은 정확히 세 줄입니다.</strong> 은닉층은 본편과 똑같습니다.</li>
+</ul>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>위치</th>
+<th>다중분류</th>
+<th>회귀</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>출력층</td>
+<td><code>Dense(3, activation='softmax')</code></td>
+<td><strong><code>Dense(1)</code></strong> — 활성화 인자 없음</td>
+</tr>
+<tr>
+<td>loss</td>
+<td><code>sparse_categorical_crossentropy</code></td>
+<td><strong><code>mse</code></strong></td>
+</tr>
+<tr>
+<td>metrics</td>
+<td><code>['accuracy']</code></td>
+<td><strong><code>['mae']</code></strong></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>출력층에 활성화 함수를 쓰지 않는 이유</strong>가 이 문항의 핵심입니다. 회귀는 <strong>범위가 정해지지 않은 실수 하나</strong>를 그대로 내보내야 합니다. 여기에 <code>sigmoid</code>를 붙이면 출력이 0~1로 눌려, 타깃이 64~304인 이 데이터에서는 <strong>예측이 영원히 1을 넘지 못하고 r2가 크게 음수</strong>가 됩니다. <code>softmax</code>를 붙이면 노드가 1개이므로 <strong>항상 1.0</strong>만 나옵니다. 둘 다 오류 메시지가 없어서 발견이 늦습니다.</li>
+<li><strong><code>mse</code>는 loss, <code>mae</code>는 metrics</strong> 로 역할이 다릅니다. mse는 오차를 제곱해 큰 오차에 강한 벌점을 주므로 <strong>학습 신호</strong>로 적합하고, mae는 "평균 몇 일 틀렸나"를 그대로 보여 주므로 <strong>사람이 읽는 지표</strong>로 적합합니다. 둘을 바꿔 넣어도 학습은 되지만, 지시된 조합을 쓰십시오.</li>
+<li><strong><code>history_r</code>의 키가 <code>['loss', 'mae', 'val_loss', 'val_mae']</code></strong> 입니다. <code>accuracy</code>가 <strong>없습니다.</strong> 본편의 곡선 코드를 그대로 복사하면 <code>KeyError: 'accuracy'</code>가 납니다. <code>print(history_r.history.keys())</code>를 먼저 찍는 습관이 여기서 값을 합니다.</li>
+<li><code>patience=10</code>이 본편(5)보다 큰 이유는, 회귀의 <code>val_loss</code>(mse)가 값이 크고 출렁임도 커서 <strong>성급하게 멈추기 쉽기</strong> 때문입니다. 문항이 값을 지시했으므로 그대로 씁니다.</li>
+<li>파라미터 검산: 출력층이 <code>32×1+1 = 33</code>. 분류(99)보다 작습니다. <strong>출력 노드 수만 3 → 1로 바뀐 결과</strong>입니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>Dense(1, activation='sigmoid')</code></strong> — 회귀 최다 오류입니다. 활성화 인자 자체를 적지 않습니다.</li>
+<li><strong>loss만 <code>mse</code>로 바꾸고 출력층을 <code>Dense(3,'softmax')</code>로 남겨 두는 것.</strong> "유형을 바꿀 때 한 곳만 고치는" 대표적 사고입니다. <strong>출력층·loss·metrics·예측 변환 네 곳을 세트로</strong> 점검하십시오.</li>
+<li><strong><code>metrics=['accuracy']</code>를 남겨 두는 것.</strong> 연속값에 정확도는 정의되지 않아 항상 0에 가까운 무의미한 값이 찍힙니다. 오류가 아니라 <strong>조용한 무의미</strong>라서 더 위험합니다.</li>
+<li>학습 곡선에서 <code>h['accuracy']</code>를 참조하는 것 → <code>KeyError</code>.</li>
+</ul>
+<hr />
+<h3 id="r3-해답-회귀-평가와-해석-8점">R3 해답 — 회귀 평가와 해석 [8점]</h3>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python"># 1) keras 평가 (loss=mse, metrics=mae)
+loss_r, mae_keras = model_r.evaluate(X_test_r_scaled, y_test_r, verbose=0)
+print('keras mse:', round(loss_r, 2), '/ keras mae:', round(mae_keras, 2))
+
+# 2) 예측 — 1차원으로 정리
+y_pred_r = model_r.predict(X_test_r_scaled, verbose=0).flatten()
+
+# 3) sklearn 지표
+mse = mean_squared_error(y_test_r, y_pred_r)
+print('mse :', round(mse, 2))
+print('rmse:', round(np.sqrt(mse), 2))
+print('mae :', round(mean_absolute_error(y_test_r, y_pred_r), 2))
+print('r2  :', round(r2_score(y_test_r, y_pred_r), 4))
+
+# 4) 비교 기준 — 학습 데이터 평균만 답하는 모델
+base = np.full(len(y_test_r), y_train_r.mean())     # 모든 샘플에 평균값 하나만 답한 경우
+print('평균 예측 baseline mae:', round(mean_absolute_error(y_test_r, base), 2),
+      '/ r2:', round(r2_score(y_test_r, base), 4))
+
+# 5) 해석
+# mae 10.54일 → 잔여 수명 예측이 평균 약 10일 오차. 타깃 범위(64~304일, 표준편차 37.9)에
+# 비하면 작고, 평균만 답하는 기준선(mae 30.58 / r2 -0.00)을 크게 앞선다. r2 0.879는
+# 타깃 분산의 약 88%를 설명한다는 뜻이므로 이 모델은 실용 후보로 볼 수 있다.
+</code></pre>
+<p>실행 결과입니다.</p>
+<pre><code>keras mse: 174.02 / keras mae: 10.54
+mse : 174.02
+rmse: 13.19
+mae : 10.54
+r2  : 0.8789
+평균 예측 baseline mae: 30.58 / r2: -0.0019
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong><code>.flatten()</code>이 필요한 이유</strong>: <code>predict</code>는 <code>(800, 1)</code> 2차원 배열을 반환하는데 <code>y_test_r</code>은 <code>(800,)</code> 1차원입니다. sklearn 지표는 <code>(N,1)</code>도 받아 주지만, 형태를 맞춰 두면 이후 계산에서 헷갈릴 일이 없습니다. <strong>분류의 <code>argmax</code> 자리에 회귀에서는 <code>flatten</code>이 들어간다</strong>고 기억하십시오.</li>
+<li><strong>세 지표를 읽는 법</strong>이 이 문항의 전부입니다.</li>
+</ul>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>지표</th>
+<th>값</th>
+<th>읽는 법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mae</code></td>
+<td><strong>10.54</strong></td>
+<td>평균 절대 오차. <strong>"평균 10.5일 틀린다"</strong> — 단위가 타깃과 같아 가장 직관적</td>
+</tr>
+<tr>
+<td><code>mse</code> / <code>rmse</code></td>
+<td>174.02 / <strong>13.19</strong></td>
+<td>mse는 제곱 단위라 해석이 어렵고, <strong>rmse(13.19일)</strong> 가 사람이 읽을 수 있는 형태. rmse &gt; mae 이면 <strong>큰 오차가 일부 섞여 있다</strong>는 신호</td>
+</tr>
+<tr>
+<td><code>r2</code></td>
+<td><strong>0.8789</strong></td>
+<td>타깃 분산의 <strong>약 88%를 설명</strong>. 1에 가까울수록 좋고, <strong>0이면 평균만 답한 수준, 음수면 그보다도 못한 상태</strong></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong><code>mae</code>는 반드시 타깃의 스케일과 함께 판단합니다.</strong> mae 10.54가 큰지 작은지는 값만으로 알 수 없습니다. 타깃 범위가 <strong>64~304일, 표준편차 37.9일</strong> 이므로 10.5일은 작은 편입니다. 만약 타깃이 0~1 범위였다면 mae 10.5는 참담한 성능입니다.</li>
+<li><strong>4번의 비교 기준이 결론을 만듭니다.</strong> "학습 데이터 평균(약 183일)을 모든 샘플에 그대로 답하는" 모델은 mae <strong>30.58</strong>, r2 <strong>−0.0019</strong> 입니다. r2가 0 근처라는 점을 확인하십시오 — <strong>r2 = 0의 의미가 바로 "평균만 답한 수준"</strong> 입니다. 우리 모델은 mae를 30.58 → 10.54로 3분의 1로 줄였으므로 <strong>분명한 개선</strong>입니다. 회귀 문항에서 "성능이 좋은가"를 묻는다면 이런 기준선과의 비교로 답하는 것이 가장 안전합니다.</li>
+<li><code>evaluate</code>의 반환값이 <strong><code>[loss, mae]</code> 두 개</strong>입니다(compile의 metrics 개수에 따라 달라집니다). sklearn으로 다시 계산한 mse·mae와 값이 일치하는지 대조하면 계산 실수를 잡을 수 있습니다.</li>
+</ul>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong><code>classification_report</code>나 <code>confusion_matrix</code>, <code>argmax</code>를 쓰는 것.</strong> 연속값에는 정밀도·재현율·클래스 개념이 없습니다. 실행하면 다음과 같이 거부됩니다.</li>
+</ul>
+<p><code>ValueError: continuous is not supported</code></p>
+<p>회귀 지표는 <strong>mse / rmse / mae / r2</strong> 넷입니다.<br />
+- <strong><code>accuracy_score</code>를 시도하는 것.</strong> 같은 이유로 오류입니다.<br />
+- <strong>r2가 음수인데 "0에 가까우니 괜찮다"고 쓰는 것.</strong> 음수 r2는 <strong>평균만 답하는 것보다 못하다</strong>는 뜻으로, 대개 출력층에 활성화 함수를 잘못 붙였거나 타깃 스케일이 어긋난 신호입니다. 원인을 R2의 출력층부터 되짚으십시오.<br />
+- <code>mean_squared_error(..., squared=False)</code>로 rmse를 구하려는 것. 이 인수는 최신 sklearn에서 제거되었습니다. <strong><code>np.sqrt(mse)</code></strong> 가 버전에 무관하게 안전합니다.<br />
+- 지표 인수 순서를 <code>(예측, 정답)</code>으로 넣는 것. mse·mae는 값이 같아 넘어가지만 <strong>r2는 값이 달라집니다.</strong> 항상 <strong>(정답, 예측)</strong> 입니다.</p>
+<hr />
+<h2 id="채점표">채점표</h2>
+<p><strong>본편 (100점)</strong></p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Q</th>
+<th>단계</th>
+<th>배점</th>
+<th>핵심 채점 요소</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>로딩·탐색</td>
+<td>5</td>
+<td><code>read_csv</code> / <code>shape</code>·<code>head</code>·<code>info</code> / <code>value_counts</code> <strong>개수 + 비율</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>시각화</td>
+<td>7</td>
+<td><code>boxplot</code>(x=<code>defect_type</code>) / <code>histplot</code>의 <strong><code>hue='defect_type'</code></strong> / 클래스별 평균 표</td>
+</tr>
+<tr>
+<td>3</td>
+<td>이상치</td>
+<td>8</td>
+<td>Q1·Q3·IQR 계산 / 경계 ±1.5×IQR / <strong><code>clip()</code>으로 경계값 대체</strong> / <strong>재대입</strong> / 전후 최댓값 출력</td>
+</tr>
+<tr>
+<td>4</td>
+<td>결측 처리</td>
+<td>6</td>
+<td><code>mean()</code> 사용 / <strong>지정 컬럼만</strong> / 재대입 / 처리 후 0 확인</td>
+</tr>
+<tr>
+<td>5</td>
+<td>인코딩</td>
+<td>8</td>
+<td><code>get_dummies</code> / <code>columns</code> 명시 / <strong><code>dtype=int</code></strong> / <strong>타깃은 인코딩하지 않음</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td>분리</td>
+<td>8</td>
+<td><strong><code>rul_days</code> 제외</strong> / <code>to_numpy()</code> / <code>test_size=0.2</code> / <code>random_state=42</code> / <strong><code>stratify=y</code></strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>스케일링</td>
+<td>7</td>
+<td><code>MinMaxScaler</code> / train <code>fit_transform</code> / test <strong><code>transform</code>만</strong></td>
+</tr>
+<tr>
+<td>8</td>
+<td>머신러닝</td>
+<td>8</td>
+<td><code>rf_model</code> 이름 / <code>n_estimators=100</code>·<code>random_state=42</code> / report·혼동행렬 / 무조건 0 예측 기준선</td>
+</tr>
+<tr>
+<td>9</td>
+<td>DL 구성</td>
+<td>12</td>
+<td><code>Input(shape=(12,))</code> / 은닉층 2개 이상 + <code>Dropout</code> / <strong><code>Dense(3,'softmax')</code></strong> / 클래스 수를 코드로 계산</td>
+</tr>
+<tr>
+<td>10</td>
+<td>컴파일</td>
+<td>8</td>
+<td>라벨 형태 확인 출력 / <strong><code>sparse_categorical_crossentropy</code></strong> / <code>metrics=['accuracy']</code> / 선택 근거 서술</td>
+</tr>
+<tr>
+<td>11</td>
+<td>학습</td>
+<td>11</td>
+<td><code>epochs=100</code>·<code>batch_size=32</code> / <code>validation_split=0.2</code> / <strong><code>restore_best_weights=True</code></strong> / <code>callbacks=[es]</code> / 실제 epoch 수 + 학습 곡선</td>
+</tr>
+<tr>
+<td>12</td>
+<td>평가</td>
+<td>12</td>
+<td><code>evaluate</code> / <code>pred.shape</code>·행 합 확인 / <strong><code>np.argmax(pred, axis=1)</code></strong> / report·<strong>3×3 혼동행렬</strong> / <strong>클래스별 성능 해석</strong></td>
+</tr>
+<tr>
+<td>—</td>
+<td><strong>합계</strong></td>
+<td><strong>100</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>회귀 확장 (30점, 별도 집계)</strong></p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Q</th>
+<th>단계</th>
+<th>배점</th>
+<th>핵심 채점 요소</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1</td>
+<td>타깃 교체</td>
+<td>10</td>
+<td><code>rul_days</code>로 타깃 교체 / 특성에서 두 타깃 모두 제외 / <strong><code>stratify</code> 제거 + 이유 서술</strong> / <code>scaler_r</code> 재적용</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>회귀 모델</td>
+<td>12</td>
+<td><strong><code>Dense(1)</code> 활성화 없음</strong> / <strong><code>loss='mse'</code></strong> / <strong><code>metrics=['mae']</code></strong> / <code>patience=10</code> / <strong><code>history_r</code> 키 확인 후 곡선</strong></td>
+</tr>
+<tr>
+<td>R3</td>
+<td>회귀 평가</td>
+<td>8</td>
+<td><code>.flatten()</code> / mse·<strong>rmse</strong>·mae·r2 / <strong>평균 예측 기준선 비교</strong> / 타깃 스케일과 함께 해석</td>
+</tr>
+<tr>
+<td>—</td>
+<td><strong>합계</strong></td>
+<td><strong>30</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="callout callout--note">
+<p>배점은 <strong>교재 자체 기준</strong>입니다. 실제 시험의 배점 체계는 공개되어 있지 않으므로 학습 우선순위를 정하는 참고용으로만 사용하십시오.</p>
+</blockquote>
+<hr />
+<h2 id="이-회차에서-반드시-가져갈-것">이 회차에서 반드시 가져갈 것</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>지점</th>
+<th>기억할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>유형 판정</td>
+<td>타깃 <code>value_counts()</code>가 <strong>3줄 + 정수</strong> → 다중분류 / <strong>float 연속값</strong> → 회귀</td>
+</tr>
+<tr>
+<td>다중분류 3종 세트</td>
+<td><code>Dense(K,'softmax')</code> ↔ <strong>정수 라벨이면 <code>sparse_</code></strong> ↔ <code>np.argmax(pred, axis=1)</code></td>
+</tr>
+<tr>
+<td>loss 갈림길</td>
+<td>출력층은 정수·원-핫 모두 <code>Dense(K,'softmax')</code>로 <strong>같다.</strong> 바뀌는 것은 <strong>loss 이름뿐</strong></td>
+</tr>
+<tr>
+<td>이상치 순서</td>
+<td><strong>이상치 처리 → 스케일링.</strong> 순서가 뒤집히면 이상치가 스케일 기준이 되어 정상 값이 뭉갠다</td>
+</tr>
+<tr>
+<td>전처리 순서</td>
+<td><strong>인코딩은 분리 전, 스케일링은 분리 후</strong></td>
+</tr>
+<tr>
+<td>재대입</td>
+<td><code>clip</code>·<code>fillna</code>·<code>get_dummies</code>는 <strong>새 객체를 반환</strong> — <code>df = df.…</code></td>
+</tr>
+<tr>
+<td>누수 컬럼</td>
+<td>타깃과 같은 사건을 기록한 컬럼(<code>rul_days</code>)은 <strong>특성에서 제거.</strong> r2 0.99↑, 정확도 0.99↑는 누수 신호</td>
+</tr>
+<tr>
+<td>타깃 자료형</td>
+<td><code>y</code>는 <strong><code>to_numpy()</code></strong> 로 — 뒤 문항의 <code>bincount</code>·<code>argmax</code> 연산과 형태를 통일하기 위함</td>
+</tr>
+<tr>
+<td>유형 교체 4곳</td>
+<td><strong>출력층 / loss / metrics / 예측 변환</strong> — 언제나 네 곳을 세트로 바꾼다</td>
+</tr>
+<tr>
+<td>회귀 함정</td>
+<td>출력층 <strong>활성화 없음</strong> / <code>stratify</code> 삭제 / <code>history</code> 키는 <code>mae</code>·<code>val_mae</code> / <code>classification_report</code> 금지</td>
+</tr>
+<tr>
+<td>성능 해석</td>
+<td>딥러닝 <code>0.7862</code> vs 랜덤 포레스트 <code>0.7863</code> vs 무조건 0 예측 <code>0.605</code> — <strong>기준선 없이 좋은 성능은 판단할 수 없다</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>한 문장으로:</strong> 이 회차는 <strong>"타깃을 보고 네 곳을 바꾸는 반사 신경"</strong> 을 시험합니다. 클래스가 3개면 출력층 3 + <code>softmax</code> + <code>sparse_</code> + <code>argmax</code>, 타깃이 연속값이면 <code>Dense(1)</code> + <code>mse</code> + <code>mae</code> + <code>flatten</code> — 이 두 세트가 손에 붙으면 어떤 데이터가 나와도 30분 안에 모델링을 끝낼 수 있습니다.</p>
+<hr /></div></details>
+</section>
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="mock01.html"><span class="pager__dir">이전</span><span class="pager__label">모의고사 1회</span><span class="pager__title">실전 모의고사 1회 — 이진분류: 통신사 고객 이탈 예측</span></a><span class="pager__slot pager__slot--empty"></span></nav>
+</main>
+</body>
+</html>

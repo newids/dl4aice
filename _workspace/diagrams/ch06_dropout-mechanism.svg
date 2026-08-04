@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 454" width="800" height="454" role="img" aria-label="Dropout이 학습 중 뉴런을 끄는 방식">
+  <title>Dropout이 학습 중 뉴런을 끄는 방식 — 같은 신경망을 두 패널로 비교한다. 학습 중에는 은닉 노드 10개 가운데 3개가 무작위로 꺼져 연결선까지 사라지고, 예측 중에는 모든 노드가 그대로 사용된다.</title>
+
+  <rect x="0" y="0" width="800" height="454" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">Dropout이 학습 중 뉴런을 끄는 방식</text>
+    <text x="768" y="38" font-size="12" fill="#94a3b8" text-anchor="end">예시: 은닉 노드 10개, Dropout(0.3)</text>
+
+    <!-- 패널 -->
+    <rect x="32" y="70" width="352" height="314" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="416" y="70" width="352" height="314" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="400" y1="70" x2="400" y2="384" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+    <text x="208" y="94" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습 중 (fit)</text>
+    <text x="592" y="94" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">예측 중 (predict / evaluate)</text>
+
+    <!-- 왼쪽 연결선: 꺼진 노드로 가는 선은 그리지 않음 -->
+    <path fill="none" stroke="#94a3b8" stroke-width="1" d="M92,190L208,122M92,190L208,170M92,190L208,194M92,190L208,218M92,190L208,266M92,190L208,290M92,190L208,338M92,230L208,122M92,230L208,170M92,230L208,194M92,230L208,218M92,230L208,266M92,230L208,290M92,230L208,338M92,270L208,122M92,270L208,170M92,270L208,194M92,270L208,218M92,270L208,266M92,270L208,290M92,270L208,338M208,122L324,230M208,170L324,230M208,194L324,230M208,218L324,230M208,266L324,230M208,290L324,230M208,338L324,230"/>
+
+    <!-- 오른쪽 연결선: 전부 연결 -->
+    <path fill="none" stroke="#94a3b8" stroke-width="1" d="M476,190L592,122M476,190L592,146M476,190L592,170M476,190L592,194M476,190L592,218M476,190L592,242M476,190L592,266M476,190L592,290M476,190L592,314M476,190L592,338M476,230L592,122M476,230L592,146M476,230L592,170M476,230L592,194M476,230L592,218M476,230L592,242M476,230L592,266M476,230L592,290M476,230L592,314M476,230L592,338M476,270L592,122M476,270L592,146M476,270L592,170M476,270L592,194M476,270L592,218M476,270L592,242M476,270L592,266M476,270L592,290M476,270L592,314M476,270L592,338M592,122L708,230M592,146L708,230M592,170L708,230M592,194L708,230M592,218L708,230M592,242L708,230M592,266L708,230M592,290L708,230M592,314L708,230M592,338L708,230"/>
+
+    <!-- 왼쪽 입력·출력 노드 -->
+    <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.5">
+      <circle cx="92" cy="190" r="10"/>
+      <circle cx="92" cy="230" r="10"/>
+      <circle cx="92" cy="270" r="10"/>
+      <circle cx="324" cy="230" r="10"/>
+    </g>
+    <!-- 왼쪽 은닉 노드: 켜짐 -->
+    <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+      <circle cx="208" cy="122" r="10"/>
+      <circle cx="208" cy="170" r="10"/>
+      <circle cx="208" cy="194" r="10"/>
+      <circle cx="208" cy="218" r="10"/>
+      <circle cx="208" cy="266" r="10"/>
+      <circle cx="208" cy="290" r="10"/>
+      <circle cx="208" cy="338" r="10"/>
+    </g>
+    <!-- 왼쪽 은닉 노드: 꺼짐 -->
+    <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3">
+      <circle cx="208" cy="146" r="10"/>
+      <circle cx="208" cy="242" r="10"/>
+      <circle cx="208" cy="314" r="10"/>
+    </g>
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <path d="M201,139L215,153M201,153L215,139"/>
+      <path d="M201,235L215,249M201,249L215,235"/>
+      <path d="M201,307L215,321M201,321L215,307"/>
+    </g>
+
+    <!-- 오른쪽 입력·출력 노드 -->
+    <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.5">
+      <circle cx="476" cy="190" r="10"/>
+      <circle cx="476" cy="230" r="10"/>
+      <circle cx="476" cy="270" r="10"/>
+      <circle cx="708" cy="230" r="10"/>
+    </g>
+    <!-- 오른쪽 은닉 노드: 전부 켜짐 -->
+    <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+      <circle cx="592" cy="122" r="10"/>
+      <circle cx="592" cy="146" r="10"/>
+      <circle cx="592" cy="170" r="10"/>
+      <circle cx="592" cy="194" r="10"/>
+      <circle cx="592" cy="218" r="10"/>
+      <circle cx="592" cy="242" r="10"/>
+      <circle cx="592" cy="266" r="10"/>
+      <circle cx="592" cy="290" r="10"/>
+      <circle cx="592" cy="314" r="10"/>
+      <circle cx="592" cy="338" r="10"/>
+    </g>
+
+    <!-- 층 이름 -->
+    <text x="92" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">입력</text>
+    <text x="208" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">은닉층 (Dense)</text>
+    <text x="324" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">출력</text>
+    <text x="476" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">입력</text>
+    <text x="592" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">은닉층 (Dense)</text>
+    <text x="708" y="366" font-size="12" fill="#94a3b8" text-anchor="middle">출력</text>
+
+    <!-- 패널 설명 -->
+    <text x="208" y="412" font-size="13" fill="#1a2332" text-anchor="middle">노드의 30%가 무작위로 꺼집니다</text>
+    <text x="208" y="432" font-size="12" fill="#94a3b8" text-anchor="middle">X 표시 = 이번 step에 꺼진 노드 (10개 중 3개)</text>
+
+    <text x="592" y="412" font-size="13" fill="#1a2332" text-anchor="middle">모든 노드를 그대로 사용합니다</text>
+    <text x="592" y="432" font-size="12" fill="#94a3b8" text-anchor="middle">predict(), evaluate()는 자동으로 통과 모드</text>
+  </g>
+</svg>

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 396" width="800" height="396" role="img" aria-label="학습 곡선의 구성 요소">
+  <title>학습 곡선의 구성 요소 — 가로축은 epoch, 세로축은 loss이며 학습 손실은 실선, 검증 손실은 점선으로 두 줄이 함께 내려간다. 각 줄은 history.history의 loss 키와 val_loss 키에 대응한다. 실제 학습 결과가 아닌 개념 개략도이다.</title>
+
+  <rect x="0" y="0" width="800" height="396" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">학습 곡선의 구성 요소</text>
+
+    <!-- 축 -->
+    <line x1="120" y1="80" x2="120" y2="300" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="120" y1="300" x2="700" y2="300" stroke="#94a3b8" stroke-width="2"/>
+    <text x="86" y="190" font-size="13" fill="#1a2332" text-anchor="middle" transform="rotate(-90 86 190)">loss (손실)</text>
+    <text x="410" y="326" font-size="13" fill="#1a2332" text-anchor="middle">epoch</text>
+    <text x="114" y="304" font-size="11" fill="#94a3b8" text-anchor="end">0</text>
+
+    <!-- val loss (점선, accent) -->
+    <path d="M130 104 C200 188 260 222 340 240 C430 252 540 258 690 256" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <!-- train loss (실선, primary) -->
+    <path d="M130 112 C200 194 260 228 340 248 C430 268 540 278 690 284" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+
+    <!-- 범례 -->
+    <rect x="406" y="90" width="284" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="422" y1="114" x2="452" y2="114" stroke="#2563eb" stroke-width="2.5"/>
+    <text x="462" y="118" font-size="13" fill="#1a2332">train loss</text>
+    <text x="534" y="118" font-size="11" fill="#94a3b8">history.history['loss']</text>
+    <line x1="422" y1="138" x2="452" y2="138" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <text x="462" y="142" font-size="13" fill="#1a2332">val loss</text>
+    <text x="524" y="142" font-size="11" fill="#94a3b8">history.history['val_loss']</text>
+
+    <text x="32" y="356" font-size="12" fill="#94a3b8">개념 개략도입니다. 실제 학습 결과가 아니라 곡선을 이루는 요소를 보이기 위한 그림입니다.</text>
+    <text x="32" y="376" font-size="12" fill="#94a3b8">metrics를 accuracy나 mae로 바꾸면 세로축과 키 이름만 바뀌고 읽는 법은 같습니다.</text>
+  </g>
+</svg>

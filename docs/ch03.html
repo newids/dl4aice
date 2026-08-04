@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ch03. 딥러닝은 어떻게 배우는가 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-chapter">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">Part II. 딥러닝의 뼈대 · Chapter 3</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#3-1-뉴런-하나가-하는-일">3.1 뉴런 하나가 하는 일</a></li><li><a href="#3-2-뉴런을-나란히겹겹이-쌓으면-층이-됩니다">3.2 뉴런을 나란히·겹겹이 쌓으면 층이 됩니다</a></li><li><a href="#3-3-활성화-함수-어디에-무엇을-쓰는가">3.3 활성화 함수 — 어디에 무엇을 쓰는가</a></li><li><a href="#3-4-순전파와-역전파-예측하고-되돌아가-고칩니다">3.4 순전파와 역전파 — 예측하고, 되돌아가 고칩니다</a></li><li><a href="#3-5-학습-루프-step과-epoch">3.5 학습 루프 — step과 epoch</a></li><li><a href="#3-6-층을-몇-개-노드를-몇-개-둘-것인가">3.6 층을 몇 개, 노드를 몇 개 둘 것인가</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch03-확인-문제-딥러닝은-어떻게-배우는가">Ch03 확인 문제 — 딥러닝은 어떻게 배우는가</a></li></ol></nav>
+<article class="page-body">
+<h1>딥러닝은 어떻게 배우는가</h1>
+<aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>뉴런 하나의 계산(가중합 + 편향 → 활성화)을 그림과 수식 한 줄로 설명할 수 있다</li><li>relu·sigmoid·softmax의 출력 범위와 사용 위치를 구분할 수 있다</li><li>순전파와 역전파가 한 epoch 안에서 반복되는 흐름을 설명할 수 있다</li></ul></aside>
+<blockquote class="callout callout--note">
+<p><strong>이 챕터에서 배우는 것</strong><br />
+1. 뉴런 하나가 값을 계산하는 과정(가중합 + 편향 → 활성화 함수)<br />
+2. relu·sigmoid·softmax의 출력 범위와 각각을 쓰는 자리<br />
+3. 순전파와 역전파가 한 epoch 안에서 반복되는 흐름</p>
+<p>시험은 이론을 글로 묻지 않습니다. 대신 "은닉층 2개 이상의 모델을 만드시오", "출력층을 문제에 맞게 설계하시오" 같은 지시가 나옵니다. 이 챕터의 개념을 알고 있어야 다음 챕터부터 나오는 코드 한 줄 한 줄이 무엇을 정하는 것인지 보입니다.</p>
+</blockquote>
+<p>이 챕터에서는 Keras를 아직 쓰지 않습니다. 딥러닝의 계산은 numpy 몇 줄이면 손으로 재현할 수 있을 만큼 단순합니다. 그 단순한 계산을 먼저 눈으로 확인한 뒤, 다음 챕터에서 같은 것을 Keras 코드로 옮깁니다.</p>
+<hr />
+<h2 id="3-1-뉴런-하나가-하는-일">3.1 뉴런 하나가 하는 일</h2>
+<figure class="diagram" id="fig-ch03_neuron"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-neuron-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-neuron-title">뉴런 하나가 값을 계산하는 과정 — 입력 x1, x2, x3에 가중치 w1, w2, w3을 곱해 더하고 편향 b를 더한 뒤 활성화 함수를 통과시켜 출력 a를 만드는 구조도</title>
+  <defs>
+    <marker id="ch03n-arw-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="ch03n-arw-primary" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ch03n-arw-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="470" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">뉴런 하나가 값을 계산하는 과정</text>
+
+  <!-- 입력 -> 합산 연결선 -->
+  <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#ch03n-arw-muted)">
+    <line x1="117" y1="126" x2="301" y2="186"/>
+    <line x1="118" y1="195" x2="300" y2="195"/>
+    <line x1="117" y1="264" x2="301" y2="204"/>
+  </g>
+
+  <!-- 편향 입력 -->
+  <line x1="258" y1="330" x2="316" y2="222" stroke="#f59e0b" stroke-width="2" marker-end="url(#ch03n-arw-accent)"/>
+
+  <!-- 합산 -> 활성화 -->
+  <line x1="363" y1="195" x2="424" y2="195" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch03n-arw-muted)"/>
+  <text x="393" y="182" font-size="13" fill="#1a2332" text-anchor="middle">z</text>
+
+  <!-- 활성화 -> 출력 -->
+  <line x1="584" y1="195" x2="638" y2="195" stroke="#2563eb" stroke-width="2" marker-end="url(#ch03n-arw-primary)"/>
+
+  <!-- 입력 노드 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="100" cy="120" r="18"/>
+    <circle cx="100" cy="195" r="18"/>
+    <circle cx="100" cy="270" r="18"/>
+  </g>
+  <g font-size="14" fill="#1a2332" text-anchor="middle">
+    <text x="100" y="125">x1</text>
+    <text x="100" y="200">x2</text>
+    <text x="100" y="275">x3</text>
+  </g>
+  <text x="100" y="312" font-size="12" fill="#94a3b8" text-anchor="middle">입력</text>
+
+  <!-- 가중치 라벨 -->
+  <g>
+    <rect x="190" y="145" width="36" height="20" rx="6" fill="#ffffff"/>
+    <rect x="190" y="185" width="36" height="20" rx="6" fill="#ffffff"/>
+    <rect x="190" y="225" width="36" height="20" rx="6" fill="#ffffff"/>
+  </g>
+  <g font-size="13" fill="#2563eb" text-anchor="middle" font-weight="600">
+    <text x="208" y="159">w1</text>
+    <text x="208" y="199">w2</text>
+    <text x="208" y="239">w3</text>
+  </g>
+
+  <!-- 편향 노드 -->
+  <circle cx="250" cy="345" r="17" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="250" y="350" font-size="14" fill="#1a2332" text-anchor="middle">b</text>
+  <text x="250" y="382" font-size="12" fill="#f59e0b" text-anchor="middle">편향</text>
+
+  <!-- 합산 노드 -->
+  <circle cx="330" cy="195" r="30" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="330" y="200" font-size="15" fill="#1a2332" text-anchor="middle">sum</text>
+
+  <!-- 활성화 함수 -->
+  <rect x="430" y="163" width="150" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="505" y="201" font-size="15" fill="#1a2332" text-anchor="middle">활성화 함수 f</text>
+  <text x="505" y="250" font-size="12" fill="#94a3b8" text-anchor="middle">(은닉층은 relu)</text>
+
+  <!-- 출력 노드 -->
+  <circle cx="660" cy="195" r="18" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="660" y="200" font-size="15" fill="#1a2332" text-anchor="middle">a</text>
+  <text x="660" y="237" font-size="12" fill="#94a3b8" text-anchor="middle">출력</text>
+
+  <!-- 수식 -->
+  <rect x="150" y="398" width="500" height="48" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="428" font-size="16" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">a = f(w1*x1 + w2*x2 + w3*x3 + b)</text>
+</svg></div><figcaption><span class="diagram__num">그림 3-1</span><span class="diagram__caption">뉴런 하나가 값을 계산하는 과정</span></figcaption></figure>
+<p><strong>한 줄 요약 — 뉴런은 입력에 가중치를 곱해 모두 더하고, 편향을 더한 뒤, 활성화 함수를 한 번 통과시킨 값을 내보냅니다.</strong></p>
+<p>뉴런(neuron)은 딥러닝 모델을 이루는 최소 계산 단위입니다. 하는 일은 두 단계뿐입니다.</p>
+<ol>
+<li><strong>가중합 + 편향</strong>: 입력값 각각에 가중치(weight)를 곱해 전부 더하고, 편향(bias) 한 개를 더합니다. 결과를 <code>z</code>라고 부릅니다.</li>
+<li><strong>활성화</strong>: <code>z</code>를 활성화 함수(activation function)에 넣어 최종 출력 <code>a</code>를 만듭니다.</li>
+</ol>
+<p>여기서 <strong>가중치는 "이 입력을 얼마나 중요하게 볼 것인가"</strong>를 나타내는 숫자이고, <strong>편향은 "기본적으로 얼마만큼 얹고 시작할 것인가"</strong>를 나타내는 숫자입니다. 이 두 종류의 숫자가 바로 학습으로 바뀌는 값, 즉 <strong>모델의 파라미터</strong>입니다. 입력 데이터도 정답도 바뀌지 않습니다. 학습 중에 바뀌는 것은 오직 가중치와 편향입니다.</p>
+<p>뉴런 하나를 numpy로 그대로 계산해 봅니다.</p>
+<pre><code class="language-python">import numpy as np
+
+x = np.array([2.0, 3.0, 1.0])     # 입력 3개
+w = np.array([0.5, -1.0, 2.0])    # 각 입력에 붙은 가중치 3개
+b = 0.1                           # 편향 1개
+
+z = np.dot(w, x) + b              # 1단계: 가중합 + 편향
+a = np.maximum(0, z)              # 2단계: 활성화(relu)
+print(f&quot;z = {z:.2f}, a = {a:.2f}&quot;)
+
+# 가중치를 바꾸면 z가 음수가 되고, relu는 그것을 0으로 막습니다
+w2 = np.array([0.5, -1.0, -2.0])
+z2 = np.dot(w2, x) + b
+print(f&quot;z2 = {z2:.2f}, a2 = {np.maximum(0, z2):.2f}&quot;)
+</code></pre>
+<p>출력 요지: 첫 줄은 <code>z = 0.10, a = 0.10</code>, 둘째 줄은 <code>z2 = -3.90, a2 = 0.00</code>이 나옵니다. <code>z</code>가 음수일 때 relu가 0으로 잘라내는 동작을 확인할 수 있습니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트 1 — 파라미터는 가중치와 편향뿐입니다</strong><br />
+다음 챕터에서 <code>model.summary()</code>가 출력하는 "Param #"은 이 가중치와 편향의 개수를 센 값입니다. 층의 노드 수를 바꾸면 이 숫자가 왜 달라지는지 여기서 이해해 두면 Ch04의 파라미터 계산이 그대로 따라옵니다.</p>
+</blockquote>
+<hr />
+<h2 id="3-2-뉴런을-나란히겹겹이-쌓으면-층이-됩니다">3.2 뉴런을 나란히·겹겹이 쌓으면 층이 됩니다</h2>
+<figure class="diagram" id="fig-ch03_layer-stack"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 484" width="800" height="484" role="img" aria-labelledby="ch03-layer-stack-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-layer-stack-title">입력층, 은닉층 2개, 출력층으로 이어지는 신경망의 계층 구조도. 입력 4노드, 은닉 5노드, 은닉 5노드, 출력 1노드가 좌에서 우로 완전 연결되어 있다</title>
+
+  <rect x="0" y="0" width="800" height="484" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">입력층·은닉층·출력층의 계층 구조</text>
+  <text x="768" y="100" font-size="12" fill="#94a3b8" text-anchor="end">각 노드는 앞 층의 모든 노드와 연결됩니다</text>
+
+  <!-- 연결선 -->
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.55" fill="none">
+    <path d="M130,157L320,126M130,157L320,188M130,157L320,250M130,157L320,312M130,157L320,374"/>
+    <path d="M130,219L320,126M130,219L320,188M130,219L320,250M130,219L320,312M130,219L320,374"/>
+    <path d="M130,281L320,126M130,281L320,188M130,281L320,250M130,281L320,312M130,281L320,374"/>
+    <path d="M130,343L320,126M130,343L320,188M130,343L320,250M130,343L320,312M130,343L320,374"/>
+
+    <path d="M320,126L510,126M320,126L510,188M320,126L510,250M320,126L510,312M320,126L510,374"/>
+    <path d="M320,188L510,126M320,188L510,188M320,188L510,250M320,188L510,312M320,188L510,374"/>
+    <path d="M320,250L510,126M320,250L510,188M320,250L510,250M320,250L510,312M320,250L510,374"/>
+    <path d="M320,312L510,126M320,312L510,188M320,312L510,250M320,312L510,312M320,312L510,374"/>
+    <path d="M320,374L510,126M320,374L510,188M320,374L510,250M320,374L510,312M320,374L510,374"/>
+
+    <path d="M510,126L680,250M510,188L680,250M510,250L680,250M510,312L680,250M510,374L680,250"/>
+  </g>
+
+  <!-- 입력층 노드 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="130" cy="157" r="18"/>
+    <circle cx="130" cy="219" r="18"/>
+    <circle cx="130" cy="281" r="18"/>
+    <circle cx="130" cy="343" r="18"/>
+  </g>
+
+  <!-- 은닉층 1 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="320" cy="126" r="18"/>
+    <circle cx="320" cy="188" r="18"/>
+    <circle cx="320" cy="250" r="18"/>
+    <circle cx="320" cy="312" r="18"/>
+    <circle cx="320" cy="374" r="18"/>
+  </g>
+
+  <!-- 은닉층 2 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="510" cy="126" r="18"/>
+    <circle cx="510" cy="188" r="18"/>
+    <circle cx="510" cy="250" r="18"/>
+    <circle cx="510" cy="312" r="18"/>
+    <circle cx="510" cy="374" r="18"/>
+  </g>
+
+  <!-- 출력층 -->
+  <circle cx="680" cy="250" r="18" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+
+  <!-- 층 이름 -->
+  <g font-size="15" fill="#1a2332" text-anchor="middle" font-weight="600">
+    <text x="130" y="430">입력층</text>
+    <text x="320" y="430">은닉층 1</text>
+    <text x="510" y="430">은닉층 2</text>
+    <text x="680" y="430">출력층</text>
+  </g>
+  <text x="130" y="454" font-size="13" fill="#94a3b8" text-anchor="middle">특성 4개</text>
+  <g font-size="13" text-anchor="middle" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">
+    <text x="320" y="454" fill="#2563eb">Dense(5)</text>
+    <text x="510" y="454" fill="#2563eb">Dense(5)</text>
+    <text x="680" y="454" fill="#2563eb">Dense(1)</text>
+  </g>
+</svg></div><figcaption><span class="diagram__num">그림 3-2</span><span class="diagram__caption">입력층·은닉층·출력층의 계층 구조</span></figcaption></figure>
+<p><strong>한 줄 요약 — 같은 입력을 받는 뉴런을 옆으로 나란히 놓으면 하나의 층이고, 층의 출력을 다음 층의 입력으로 넘기면 깊은 신경망이 됩니다.</strong></p>
+<p>층은 세 종류로 부릅니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>층</th>
+<th>역할</th>
+<th>노드 수를 정하는 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>입력층</td>
+<td>데이터가 들어오는 자리</td>
+<td><strong>특성(컬럼) 개수</strong>로 고정</td>
+</tr>
+<tr>
+<td>은닉층</td>
+<td>입력을 조합해 특징을 만들어 내는 중간 층</td>
+<td>자유롭게 선택(예: 64, 32)</td>
+</tr>
+<tr>
+<td>출력층</td>
+<td>최종 답을 내놓는 층</td>
+<td><strong>문제 유형</strong>이 결정(Ch04)</td>
+</tr>
+</tbody>
+</table></div>
+<p>입력층과 출력층의 크기는 우리가 정하는 것이 아니라 <strong>데이터와 문제가 정해 줍니다.</strong> 컬럼이 8개면 입력은 8이고, 이진분류면 출력은 1입니다. 반면 은닉층의 개수와 노드 수는 설계자가 고르는 값입니다.</p>
+<p>층 전체의 계산은 뉴런 하나의 계산을 행렬 곱으로 묶은 것뿐입니다. 입력 3개를 받아 은닉 노드 4개를 만드는 층을 계산해 봅니다.</p>
+<pre><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(42)
+
+x = np.array([2.0, 3.0, 1.0])       # 입력 3개
+W1 = rng.normal(size=(3, 4))        # 가중치 행렬: (입력 수, 노드 수)
+b1 = np.zeros(4)                    # 편향은 노드마다 1개씩
+
+h = np.maximum(0, x @ W1 + b1)      # 은닉층 4개 노드의 출력
+print(&quot;가중치 행렬 shape:&quot;, W1.shape)
+print(&quot;은닉층 출력 shape:&quot;, h.shape)
+print(&quot;음수가 하나도 없는가?:&quot;, bool((h &gt;= 0).all()))
+</code></pre>
+<p>출력 요지: 가중치 행렬은 <code>(3, 4)</code>, 은닉층 출력은 <code>(4,)</code>이고, relu를 통과했으므로 음수가 하나도 없습니다(<code>True</code>).</p>
+<p>여기서 기억할 규칙은 하나입니다. <strong>가중치 행렬의 모양은 (앞 층의 노드 수, 뒤 층의 노드 수)이고, 편향은 뒤 층의 노드 수만큼 있습니다.</strong> 그래서 이 층의 파라미터 개수는 <code>3 × 4 + 4 = 16</code>개입니다. 층을 더 쌓고 싶으면 <code>h</code>를 다음 층의 입력으로 넣어 같은 계산을 반복하면 됩니다.</p>
+<hr />
+<h2 id="3-3-활성화-함수-어디에-무엇을-쓰는가">3.3 활성화 함수 — 어디에 무엇을 쓰는가</h2>
+<figure class="diagram" id="fig-ch03_activation-shapes"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 424" width="800" height="424" role="img" aria-labelledby="ch03-activation-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-activation-title">relu, sigmoid, softmax 세 활성화 함수의 모양과 출력 범위, 사용 위치를 비교한 3분할 개념 그래프. relu는 음수 구간이 0인 꺾은선, sigmoid는 0에서 1 사이의 S자 곡선, softmax는 합이 1인 막대 3개로 표현</title>
+
+  <rect x="0" y="0" width="800" height="424" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">주요 활성화 함수의 모양과 사용 위치</text>
+
+  <!-- 패널 테두리 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="1" opacity="0.9">
+    <rect x="32" y="84" width="232" height="286" rx="10"/>
+    <rect x="284" y="84" width="232" height="286" rx="10"/>
+    <rect x="536" y="84" width="232" height="286" rx="10"/>
+  </g>
+
+  <!-- 패널 제목 -->
+  <g font-size="16" text-anchor="middle" fill="#2563eb" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">
+    <text x="148" y="114">relu</text>
+    <text x="400" y="114">sigmoid</text>
+    <text x="652" y="114">softmax</text>
+  </g>
+
+  <!-- 패널 1: relu -->
+  <g stroke="#94a3b8" stroke-width="1.5">
+    <line x1="60" y1="255" x2="240" y2="255"/>
+    <line x1="148" y1="150" x2="148" y2="275"/>
+  </g>
+  <polyline points="60,255 148,255 236,163" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="140" y="272" font-size="12" fill="#94a3b8" text-anchor="end">0</text>
+  <text x="148" y="305" font-size="13" fill="#1a2332" text-anchor="middle">출력 범위: 0 이상</text>
+  <rect x="73" y="322" width="150" height="30" rx="10" fill="#dbeafe"/>
+  <text x="148" y="342" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="600">은닉층 기본값</text>
+
+  <!-- 패널 2: sigmoid -->
+  <line x1="312" y1="159" x2="492" y2="159" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+  <g stroke="#94a3b8" stroke-width="1.5">
+    <line x1="312" y1="251" x2="492" y2="251"/>
+    <line x1="402" y1="150" x2="402" y2="275"/>
+  </g>
+  <polyline points="312,250.8 327,250.4 342,249.3 357,246.7 372,240.1 387,226.3 402,205 417,183.7 432,170 447,163.3 462,160.7 477,159.6 492,159.2"
+            fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="306" y="163" font-size="12" fill="#94a3b8" text-anchor="end">1</text>
+  <text x="306" y="255" font-size="12" fill="#94a3b8" text-anchor="end">0</text>
+  <text x="400" y="305" font-size="13" fill="#1a2332" text-anchor="middle">출력 범위: 0 ~ 1 (값 1개)</text>
+  <rect x="325" y="322" width="150" height="30" rx="10" fill="#dbeafe"/>
+  <text x="400" y="342" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="600">이진분류 출력층</text>
+
+  <!-- 패널 3: softmax -->
+  <text x="652" y="150" font-size="13" fill="#2563eb" text-anchor="middle" font-weight="600">합 = 1.00</text>
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <rect x="576" y="233" width="36" height="22"/>
+    <rect x="634" y="195" width="36" height="60"/>
+    <rect x="692" y="242" width="36" height="13"/>
+  </g>
+  <line x1="566" y1="255" x2="738" y2="255" stroke="#94a3b8" stroke-width="1.5"/>
+  <g font-size="12" fill="#1a2332" text-anchor="middle">
+    <text x="594" y="225">0.23</text>
+    <text x="652" y="187">0.63</text>
+    <text x="710" y="234">0.14</text>
+  </g>
+  <g font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="594" y="273">클래스 1</text>
+    <text x="652" y="273">클래스 2</text>
+    <text x="710" y="273">클래스 3</text>
+  </g>
+  <text x="652" y="305" font-size="13" fill="#1a2332" text-anchor="middle">출력 범위: 0 ~ 1, 합 = 1</text>
+  <rect x="577" y="322" width="150" height="30" rx="10" fill="#dbeafe"/>
+  <text x="652" y="342" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="600">다중분류 출력층</text>
+
+  <!-- 주석 -->
+  <text x="32" y="398" font-size="12" fill="#94a3b8">※ 개념 개략도이며 실제 측정값 그래프가 아닙니다. softmax 막대는 본문 예시 z = [1.0, 2.0, 0.5]의 계산 결과입니다.</text>
+</svg></div><figcaption><span class="diagram__num">그림 3-3</span><span class="diagram__caption">주요 활성화 함수의 모양과 사용 위치</span></figcaption></figure>
+<p><strong>한 줄 요약 — 은닉층에는 relu, 이진분류 출력에는 sigmoid, 다중분류 출력에는 softmax를 씁니다.</strong></p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>활성화 함수</th>
+<th>출력 범위</th>
+<th>쓰는 자리</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>relu</code></td>
+<td>0 이상</td>
+<td><strong>은닉층 기본값</strong></td>
+<td>음수는 0으로, 양수는 그대로</td>
+</tr>
+<tr>
+<td><code>sigmoid</code></td>
+<td>0 ~ 1 (값 1개)</td>
+<td>이진분류 출력층</td>
+<td>"1일 확률"</td>
+</tr>
+<tr>
+<td><code>softmax</code></td>
+<td>0 ~ 1, <strong>합이 1</strong> (값 K개)</td>
+<td>다중분류 출력층</td>
+<td>"각 클래스일 확률"</td>
+</tr>
+<tr>
+<td>없음</td>
+<td>제한 없음</td>
+<td>회귀 출력층</td>
+<td>예측한 숫자 그 자체</td>
+</tr>
+</tbody>
+</table></div>
+<p>세 함수를 직접 계산해 확인합니다.</p>
+<pre><code class="language-python">import numpy as np
+
+def relu(z):
+    return np.maximum(0, z)
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+def softmax(z):
+    return np.exp(z) / np.exp(z).sum()
+
+z = np.array([1.0, 2.0, 0.5])
+p = softmax(z)
+
+print(&quot;relu   :&quot;, np.round(relu(z), 3))
+print(&quot;sigmoid:&quot;, np.round(sigmoid(z), 3))
+print(&quot;softmax:&quot;, np.round(p, 3))
+print(&quot;softmax 합:&quot;, round(float(p.sum()), 6))
+</code></pre>
+<p>출력 요지: <code>relu</code>는 <code>[1. 2. 0.5]</code>, <code>sigmoid</code>는 <code>[0.731 0.881 0.622]</code>(각각 독립적으로 0~1), <code>softmax</code>는 <code>[0.231 0.629 0.14 ]</code>이고 합은 정확히 <code>1.0</code>입니다. sigmoid 세 값의 합은 1이 아니지만 softmax는 1이라는 점이 두 함수의 결정적 차이입니다.</p>
+<blockquote class="callout callout--note">
+<p>참고: 실무에서는 <code>z</code>가 아주 큰 값일 때 <code>np.exp</code>가 넘치는 것을 막기 위해 <code>np.exp(z - z.max())</code>로 바꿔 쓰기도 합니다. 계산 결과는 같습니다. 시험에서는 Keras가 내부적으로 처리하므로 <code>activation='softmax'</code>라고만 쓰면 됩니다.</p>
+</blockquote>
+<h3 id="활성화-함수가-없으면-무슨-일이-생기는가">활성화 함수가 없으면 무슨 일이 생기는가</h3>
+<p>은닉층에서 활성화 함수를 빼면, 층을 아무리 많이 쌓아도 전체가 <strong>하나의 직선(선형식)으로 합쳐집니다.</strong> 곱하고 더하는 연산만 반복한 결과는 결국 곱하고 더한 식 하나이기 때문입니다. 딥러닝이 복잡한 패턴을 배울 수 있는 이유는 층 사이마다 relu 같은 꺾인 함수가 끼어들어 직선을 구부려 주기 때문입니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트 2 — 은닉층에 sigmoid를 남용하지 않습니다</strong><br />
+sigmoid는 출력을 0~1로 눌러 담기 때문에 층을 여러 개 쌓으면 신호가 점점 작아져 학습이 잘 진행되지 않습니다. <strong>은닉층은 relu가 표준</strong>이고, sigmoid는 이진분류 출력층 자리에 씁니다.</p>
+<p>⚠️ <strong>시험 포인트 3 — 이진분류 출력층에 softmax를 쓰지 않습니다</strong><br />
+<code>Dense(1, activation='softmax')</code>는 값이 하나뿐이라 항상 1.0을 출력합니다. 학습이 전혀 되지 않는데도 오류 메시지가 나지 않아 알아채기 어렵습니다. <strong>이진분류는 <code>sigmoid</code>로 노드 1개</strong>, <strong>다중분류는 <code>softmax</code>로 노드 K개</strong>입니다. 출력층은 Ch04에서, 손실 함수와의 짝은 Ch05에서 확정합니다.</p>
+</blockquote>
+<hr />
+<h2 id="3-4-순전파와-역전파-예측하고-되돌아가-고칩니다">3.4 순전파와 역전파 — 예측하고, 되돌아가 고칩니다</h2>
+<figure class="diagram" id="fig-ch03_forward-backward"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="800" height="460" role="img" aria-labelledby="ch03-fb-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-fb-title">같은 신경망 위에 순전파와 역전파의 방향을 표시한 구조도. 위쪽은 왼쪽에서 오른쪽으로 예측값을 계산하는 순전파, 아래쪽은 오른쪽 손실에서 왼쪽으로 되돌아오며 가중치 수정 방향을 구하는 역전파</title>
+  <defs>
+    <marker id="fb-arw-primary" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="fb-arw-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="460" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">순전파와 역전파의 방향</text>
+
+  <!-- 순전파 -->
+  <text x="415" y="100" font-size="15" font-weight="600" fill="#2563eb" text-anchor="middle">순전파: 예측값 계산</text>
+  <line x1="130" y1="118" x2="700" y2="118" stroke="#2563eb" stroke-width="2.5" marker-end="url(#fb-arw-primary)"/>
+
+  <!-- 연결선 -->
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.55" fill="none">
+    <path d="M140,192L300,166M140,192L300,222M140,192L300,278M140,192L300,334"/>
+    <path d="M140,250L300,166M140,250L300,222M140,250L300,278M140,250L300,334"/>
+    <path d="M140,308L300,166M140,308L300,222M140,308L300,278M140,308L300,334"/>
+
+    <path d="M300,166L460,166M300,166L460,222M300,166L460,278M300,166L460,334"/>
+    <path d="M300,222L460,166M300,222L460,222M300,222L460,278M300,222L460,334"/>
+    <path d="M300,278L460,166M300,278L460,222M300,278L460,278M300,278L460,334"/>
+    <path d="M300,334L460,166M300,334L460,222M300,334L460,278M300,334L460,334"/>
+
+    <path d="M460,166L600,250M460,222L600,250M460,278L600,250M460,334L600,250"/>
+  </g>
+
+  <!-- 출력 -> 손실 -->
+  <line x1="622" y1="250" x2="654" y2="250" stroke="#2563eb" stroke-width="2" marker-end="url(#fb-arw-primary)"/>
+
+  <!-- 입력층 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="140" cy="192" r="18"/>
+    <circle cx="140" cy="250" r="18"/>
+    <circle cx="140" cy="308" r="18"/>
+  </g>
+
+  <!-- 은닉층 1 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="300" cy="166" r="18"/>
+    <circle cx="300" cy="222" r="18"/>
+    <circle cx="300" cy="278" r="18"/>
+    <circle cx="300" cy="334" r="18"/>
+  </g>
+
+  <!-- 은닉층 2 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="460" cy="166" r="18"/>
+    <circle cx="460" cy="222" r="18"/>
+    <circle cx="460" cy="278" r="18"/>
+    <circle cx="460" cy="334" r="18"/>
+  </g>
+
+  <!-- 출력층 -->
+  <circle cx="600" cy="250" r="18" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+
+  <!-- 손실 노드 -->
+  <rect x="660" y="222" width="110" height="56" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="715" y="255" font-size="15" fill="#1a2332" text-anchor="middle">손실 계산</text>
+  <text x="715" y="300" font-size="12" fill="#94a3b8" text-anchor="middle">정답과 비교</text>
+
+  <!-- 층 이름 -->
+  <g font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="140" y="376">입력층</text>
+    <text x="300" y="376">은닉층</text>
+    <text x="460" y="376">은닉층</text>
+    <text x="600" y="376">출력층</text>
+  </g>
+
+  <!-- 역전파 -->
+  <line x1="700" y1="404" x2="130" y2="404" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#fb-arw-accent)"/>
+  <text x="415" y="430" font-size="15" font-weight="600" fill="#f59e0b" text-anchor="middle">역전파: 오차로 가중치 수정 방향 계산</text>
+</svg></div><figcaption><span class="diagram__num">그림 3-4</span><span class="diagram__caption">순전파와 역전파의 방향</span></figcaption></figure>
+<p><strong>한 줄 요약 — 순전파는 왼쪽에서 오른쪽으로 가며 예측값을 만들고, 역전파는 오른쪽에서 왼쪽으로 돌아오며 각 가중치를 얼마나 고칠지 알려 줍니다.</strong></p>
+<p><strong>순전파(forward propagation)</strong> 는 지금까지 본 계산 그대로입니다. 입력 → 은닉층 → 은닉층 → 출력층 순서로 값을 흘려보내면 예측값이 나옵니다.</p>
+<p>예측값이 나오면 정답과 비교해 <strong>손실 함수(loss function)</strong> 로 오차를 하나의 숫자로 잽니다. 이 숫자가 작을수록 좋은 모델입니다. 어떤 손실 함수를 쓰는지는 문제 유형에 따라 달라지며, Ch05에서 정리합니다.</p>
+<p><strong>역전파(backpropagation)</strong> 는 이 손실값에서 출발해 거꾸로 거슬러 가며 <strong>"가중치 하나하나가 오차에 얼마나 기여했는지"</strong> 를 계산합니다. 마지막 층부터 앞 층으로 책임을 나눠 전달하기 때문에 "역"전파라고 부릅니다. 계산된 기여도(기울기)를 보고 <strong>손실이 줄어드는 방향으로 모든 가중치를 조금씩 옮기는 것</strong>이 학습입니다. 이때 "조금씩"의 보폭을 정하는 값이 학습률(learning rate)이며, 이 갱신을 담당하는 것이 Ch05에서 배울 <code>optimizer</code>입니다.</p>
+<p>역전파의 수식 유도는 AICE Associate 시험 범위 밖입니다. 시험에서 필요한 것은 <strong>"손실이 줄어드는 방향으로 가중치가 자동으로 수정된다"</strong> 는 방향 감각과, 그 과정이 <code>model.fit()</code> 한 줄 안에서 벌어진다는 사실입니다.</p>
+<hr />
+<h2 id="3-5-학습-루프-step과-epoch">3.5 학습 루프 — step과 epoch</h2>
+<figure class="diagram" id="fig-ch03_learning-loop"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-loop-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-loop-title">학습 한 번의 반복 루프를 시계 방향 순환 흐름도로 표현. 배치 입력, 예측, 손실 계산, 기울기 계산, 가중치 갱신의 다섯 단계가 한 바퀴 돌면 1 step이고 전체 데이터를 한 번 통과하면 1 epoch이다</title>
+  <defs>
+    <marker id="loop-arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="470" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">학습 한 번의 반복 루프</text>
+
+  <!-- 순환 화살표 -->
+  <g stroke="#2563eb" stroke-width="2.5" fill="none" marker-end="url(#loop-arw)">
+    <line x1="254" y1="151" x2="326" y2="151"/>
+    <path d="M514,151 H650 V226"/>
+    <path d="M650,296 V371 H514"/>
+    <line x1="326" y1="371" x2="254" y2="371"/>
+    <line x1="160" y1="336" x2="160" y2="186"/>
+  </g>
+
+  <!-- 단계 박스 -->
+  <g fill="#ffffff" stroke="#1a2332" stroke-width="1.5">
+    <rect x="70" y="120" width="180" height="62" rx="10"/>
+    <rect x="330" y="120" width="180" height="62" rx="10"/>
+    <rect x="560" y="230" width="180" height="62" rx="10"/>
+    <rect x="330" y="340" width="180" height="62" rx="10"/>
+    <rect x="70" y="340" width="180" height="62" rx="10"/>
+  </g>
+
+  <!-- 단계 번호 -->
+  <g fill="#2563eb">
+    <circle cx="94" cy="151" r="13"/>
+    <circle cx="354" cy="151" r="13"/>
+    <circle cx="584" cy="261" r="13"/>
+    <circle cx="354" cy="371" r="13"/>
+    <circle cx="94" cy="371" r="13"/>
+  </g>
+  <g font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">
+    <text x="94" y="156">1</text>
+    <text x="354" y="156">2</text>
+    <text x="584" y="266">3</text>
+    <text x="354" y="376">4</text>
+    <text x="94" y="376">5</text>
+  </g>
+
+  <!-- 단계 라벨 -->
+  <g font-size="15" fill="#1a2332">
+    <text x="116" y="147">배치 입력</text>
+    <text x="376" y="147">예측</text>
+    <text x="606" y="257">손실 계산</text>
+    <text x="376" y="367">기울기 계산</text>
+    <text x="116" y="367">가중치 갱신</text>
+  </g>
+  <g font-size="12" fill="#94a3b8">
+    <text x="116" y="166">batch_size 만큼</text>
+    <text x="376" y="166">순전파</text>
+    <text x="606" y="276">정답과 비교</text>
+    <text x="376" y="386">역전파</text>
+    <text x="116" y="386">학습률만큼 이동</text>
+  </g>
+
+  <!-- 중앙 정의 -->
+  <rect x="270" y="206" width="280" height="92" rx="10" fill="#dbeafe"/>
+  <text x="410" y="244" font-size="17" font-weight="700" fill="#2563eb" text-anchor="middle">한 바퀴 = 1 step</text>
+  <text x="410" y="275" font-size="14" fill="#1a2332" text-anchor="middle">전체 데이터 1회 통과 = 1 epoch</text>
+
+  <!-- 주석 -->
+  <text x="400" y="442" font-size="12" fill="#94a3b8" text-anchor="middle">예: 데이터 1,000행에 batch_size=32이면 1 epoch은 32 step으로 이루어집니다</text>
+</svg></div><figcaption><span class="diagram__num">그림 3-5</span><span class="diagram__caption">학습 한 번의 반복 루프</span></figcaption></figure>
+<p><strong>한 줄 요약 — 데이터 한 묶음을 넣고 예측·채점·수정하는 한 바퀴가 1 step이고, 전체 데이터를 한 번 다 도는 것이 1 epoch입니다.</strong></p>
+<p>학습은 위 그림의 다섯 단계를 수없이 반복하는 일입니다.</p>
+<ol>
+<li>데이터를 <code>batch_size</code>만큼 잘라 한 묶음 넣습니다</li>
+<li>순전파로 예측합니다</li>
+<li>손실 함수로 오차를 잽니다</li>
+<li>역전파로 가중치별 수정 방향을 구합니다</li>
+<li>가중치를 그 방향으로 조금 옮깁니다 → 다시 1번으로</li>
+</ol>
+<p>여기서 두 용어를 정확히 구분해야 합니다.</p>
+<ul>
+<li><strong>step</strong>: 위 다섯 단계를 한 바퀴 돈 것. 한 묶음(batch)당 한 번 가중치가 갱신됩니다.</li>
+<li><strong>epoch</strong>: 학습 데이터 전체를 한 번 다 사용한 것. 데이터가 1,000행이고 <code>batch_size=32</code>라면 1 epoch은 32 step으로 이루어집니다. 1,000을 32로 나누면 31.25인데, 남는 8행도 마지막 한 묶음으로 학습에 쓰이므로 올림해서 32 step이 됩니다.</li>
+</ul>
+<p><code>epochs=50</code>이라고 쓰면 전체 데이터를 50번 반복해서 본다는 뜻이고, 그동안 가중치는 50 × 32 = 1,600번 갱신됩니다. 이 인자들의 설정 방법은 Ch05에서 다룹니다.</p>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트 4 — epoch과 batch_size를 헷갈리지 않습니다</strong><br />
+<code>epochs</code>는 "전체 데이터를 몇 번 반복할지", <code>batch_size</code>는 "한 번에 몇 행씩 넣을지"입니다. 두 값을 바꿔 넣으면 오류는 나지 않지만 학습 시간이 비정상적으로 길어지거나 성능이 나오지 않습니다.</p>
+</blockquote>
+<hr />
+<h2 id="3-6-층을-몇-개-노드를-몇-개-둘-것인가">3.6 층을 몇 개, 노드를 몇 개 둘 것인가</h2>
+<figure class="diagram" id="fig-ch03_width-depth"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-wd-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-wd-title">층 수와 노드 수가 모델에 미치는 영향을 좌우로 비교한 구조도. 왼쪽은 은닉층 1개에 노드 3개인 작은 모델로 표현력이 부족하고, 오른쪽은 은닉층 3개에 노드 8개인 큰 모델로 표현력은 크지만 과적합 위험이 있다</title>
+
+  <rect x="0" y="0" width="800" height="470" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">층 수와 노드 수가 모델에 미치는 영향</text>
+
+  <!-- 중앙 구분선 -->
+  <line x1="400" y1="72" x2="400" y2="444" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  <!-- 패널 제목 -->
+  <text x="212" y="92" font-size="15" font-weight="600" fill="#94a3b8" text-anchor="middle">작게 만들면</text>
+  <text x="588" y="92" font-size="15" font-weight="600" fill="#2563eb" text-anchor="middle">크게 만들면</text>
+
+  <!-- 왼쪽 연결선 -->
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.55" fill="none">
+    <path d="M132,209L212,209M132,209L212,243M132,209L212,277"/>
+    <path d="M132,243L212,209M132,243L212,243M132,243L212,277"/>
+    <path d="M132,277L212,209M132,277L212,243M132,277L212,277"/>
+    <path d="M212,209L292,243M212,243L292,243M212,277L292,243"/>
+  </g>
+
+  <!-- 왼쪽 노드 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.8">
+    <circle cx="132" cy="209" r="14"/>
+    <circle cx="132" cy="243" r="14"/>
+    <circle cx="132" cy="277" r="14"/>
+    <circle cx="212" cy="209" r="14"/>
+    <circle cx="212" cy="243" r="14"/>
+    <circle cx="212" cy="277" r="14"/>
+    <circle cx="292" cy="243" r="14"/>
+  </g>
+
+  <!-- 오른쪽 연결선 -->
+  <g stroke="#94a3b8" stroke-width="0.8" opacity="0.4" fill="none">
+    <path d="M436,209L512,124M436,209L512,158M436,209L512,192M436,209L512,226M436,209L512,260M436,209L512,294M436,209L512,328M436,209L512,362"/>
+    <path d="M436,243L512,124M436,243L512,158M436,243L512,192M436,243L512,226M436,243L512,260M436,243L512,294M436,243L512,328M436,243L512,362"/>
+    <path d="M436,277L512,124M436,277L512,158M436,277L512,192M436,277L512,226M436,277L512,260M436,277L512,294M436,277L512,328M436,277L512,362"/>
+
+    <path d="M512,124L588,124M512,124L588,158M512,124L588,192M512,124L588,226M512,124L588,260M512,124L588,294M512,124L588,328M512,124L588,362"/>
+    <path d="M512,158L588,124M512,158L588,158M512,158L588,192M512,158L588,226M512,158L588,260M512,158L588,294M512,158L588,328M512,158L588,362"/>
+    <path d="M512,192L588,124M512,192L588,158M512,192L588,192M512,192L588,226M512,192L588,260M512,192L588,294M512,192L588,328M512,192L588,362"/>
+    <path d="M512,226L588,124M512,226L588,158M512,226L588,192M512,226L588,226M512,226L588,260M512,226L588,294M512,226L588,328M512,226L588,362"/>
+    <path d="M512,260L588,124M512,260L588,158M512,260L588,192M512,260L588,226M512,260L588,260M512,260L588,294M512,260L588,328M512,260L588,362"/>
+    <path d="M512,294L588,124M512,294L588,158M512,294L588,192M512,294L588,226M512,294L588,260M512,294L588,294M512,294L588,328M512,294L588,362"/>
+    <path d="M512,328L588,124M512,328L588,158M512,328L588,192M512,328L588,226M512,328L588,260M512,328L588,294M512,328L588,328M512,328L588,362"/>
+    <path d="M512,362L588,124M512,362L588,158M512,362L588,192M512,362L588,226M512,362L588,260M512,362L588,294M512,362L588,328M512,362L588,362"/>
+
+    <path d="M588,124L664,124M588,124L664,158M588,124L664,192M588,124L664,226M588,124L664,260M588,124L664,294M588,124L664,328M588,124L664,362"/>
+    <path d="M588,158L664,124M588,158L664,158M588,158L664,192M588,158L664,226M588,158L664,260M588,158L664,294M588,158L664,328M588,158L664,362"/>
+    <path d="M588,192L664,124M588,192L664,158M588,192L664,192M588,192L664,226M588,192L664,260M588,192L664,294M588,192L664,328M588,192L664,362"/>
+    <path d="M588,226L664,124M588,226L664,158M588,226L664,192M588,226L664,226M588,226L664,260M588,226L664,294M588,226L664,328M588,226L664,362"/>
+    <path d="M588,260L664,124M588,260L664,158M588,260L664,192M588,260L664,226M588,260L664,260M588,260L664,294M588,260L664,328M588,260L664,362"/>
+    <path d="M588,294L664,124M588,294L664,158M588,294L664,192M588,294L664,226M588,294L664,260M588,294L664,294M588,294L664,328M588,294L664,362"/>
+    <path d="M588,328L664,124M588,328L664,158M588,328L664,192M588,328L664,226M588,328L664,260M588,328L664,294M588,328L664,328M588,328L664,362"/>
+    <path d="M588,362L664,124M588,362L664,158M588,362L664,192M588,362L664,226M588,362L664,260M588,362L664,294M588,362L664,328M588,362L664,362"/>
+
+    <path d="M664,124L740,243M664,158L740,243M664,192L740,243M664,226L740,243M664,260L740,243M664,294L740,243M664,328L740,243M664,362L740,243"/>
+  </g>
+
+  <!-- 오른쪽 입력 노드 -->
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="1.8">
+    <circle cx="436" cy="209" r="14"/>
+    <circle cx="436" cy="243" r="14"/>
+    <circle cx="436" cy="277" r="14"/>
+  </g>
+
+  <!-- 오른쪽 은닉 노드 -->
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="1.8">
+    <circle cx="512" cy="124" r="14"/>
+    <circle cx="512" cy="158" r="14"/>
+    <circle cx="512" cy="192" r="14"/>
+    <circle cx="512" cy="226" r="14"/>
+    <circle cx="512" cy="260" r="14"/>
+    <circle cx="512" cy="294" r="14"/>
+    <circle cx="512" cy="328" r="14"/>
+    <circle cx="512" cy="362" r="14"/>
+    <circle cx="588" cy="124" r="14"/>
+    <circle cx="588" cy="158" r="14"/>
+    <circle cx="588" cy="192" r="14"/>
+    <circle cx="588" cy="226" r="14"/>
+    <circle cx="588" cy="260" r="14"/>
+    <circle cx="588" cy="294" r="14"/>
+    <circle cx="588" cy="328" r="14"/>
+    <circle cx="588" cy="362" r="14"/>
+    <circle cx="664" cy="124" r="14"/>
+    <circle cx="664" cy="158" r="14"/>
+    <circle cx="664" cy="192" r="14"/>
+    <circle cx="664" cy="226" r="14"/>
+    <circle cx="664" cy="260" r="14"/>
+    <circle cx="664" cy="294" r="14"/>
+    <circle cx="664" cy="328" r="14"/>
+    <circle cx="664" cy="362" r="14"/>
+  </g>
+
+  <!-- 오른쪽 출력 노드 -->
+  <circle cx="740" cy="243" r="14" fill="#2563eb" stroke="#2563eb" stroke-width="1.8"/>
+
+  <!-- 라벨 -->
+  <text x="212" y="406" font-size="15" font-weight="600" fill="#1a2332" text-anchor="middle">은닉층 1개 · 노드 3개</text>
+  <text x="212" y="432" font-size="13" fill="#94a3b8" text-anchor="middle">표현력 부족 → 과소적합 위험</text>
+  <text x="588" y="406" font-size="15" font-weight="600" fill="#1a2332" text-anchor="middle">은닉층 3개 · 노드 8개</text>
+  <text x="588" y="432" font-size="13" fill="#dc2626" text-anchor="middle">표현력 크지만 과적합 위험</text>
+</svg></div><figcaption><span class="diagram__num">그림 3-6</span><span class="diagram__caption">층 수와 노드 수가 모델에 미치는 영향</span></figcaption></figure>
+<p><strong>한 줄 요약 — 층과 노드를 늘리면 표현력이 커지지만 과적합 위험도 함께 커집니다.</strong></p>
+<ul>
+<li><strong>너무 작으면</strong>: 데이터의 패턴을 담아내지 못해 학습 데이터에서조차 성능이 낮습니다(과소적합).</li>
+<li><strong>너무 크면</strong>: 학습 데이터를 통째로 외워 버려 학습 성능만 좋고 평가(테스트) 데이터 성능은 떨어집니다(과적합). 진단과 대응은 Ch06에서 다룹니다.</li>
+</ul>
+<p>시험에서는 최적 구조를 찾는 실험을 요구하지 않습니다. 요구 사항은 대개 <strong>"은닉층 2개 이상"</strong> 같은 형태입니다. 아래 정도를 기본형으로 외워 두면 대부분의 문항에 무리 없이 대응할 수 있습니다.</p>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>시험장 기본값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>은닉층 수</td>
+<td>2~3개 (지시가 있으면 지시 우선)</td>
+</tr>
+<tr>
+<td>노드 수</td>
+<td>앞 층부터 64 → 32 처럼 점점 줄이기</td>
+</tr>
+<tr>
+<td>은닉층 활성화</td>
+<td>전부 <code>relu</code></td>
+</tr>
+<tr>
+<td>출력층</td>
+<td>문제 유형에 맞춰 결정 (Ch04)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="시험장-표준-코드">시험장 표준 코드</h2>
+<p>Keras 없이 numpy만으로 <strong>2층 신경망의 순전파 → 손실 계산 → "가중치를 흔들면 손실이 변한다"</strong> 까지를 한 번에 확인하는 코드입니다. <code>model.fit()</code>이 내부에서 수천 번 반복하는 일의 축소판입니다.</p>
+<pre><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(42)
+
+# 1) 데이터: 특성 4개짜리 샘플 6개, 정답은 0/1
+X = rng.normal(size=(6, 4))
+y = np.array([0, 1, 1, 0, 1, 0])
+
+# 2) 파라미터 초기화: 입력 4 -&gt; 은닉 5 -&gt; 출력 1
+W1 = rng.normal(size=(4, 5)) * 0.5
+b1 = np.zeros(5)
+W2 = rng.normal(size=(5, 1)) * 0.5
+b2 = np.zeros(1)
+
+def relu(z):
+    return np.maximum(0, z)
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+# 3) 순전파: 은닉층은 relu, 이진분류 출력층은 sigmoid
+def forward(X, W1, b1, W2, b2):
+    h = relu(X @ W1 + b1)
+    out = sigmoid(h @ W2 + b2)
+    return out.ravel()
+
+# 4) 손실 함수: 이진 교차 엔트로피(binary_crossentropy와 같은 계산)
+def binary_crossentropy(y_true, y_pred):
+    y_pred = np.clip(y_pred, 1e-7, 1 - 1e-7)   # log(0) 방지
+    return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+
+pred = forward(X, W1, b1, W2, b2)
+loss = binary_crossentropy(y, pred)
+print(&quot;예측 확률:&quot;, np.round(pred, 3))
+print(&quot;손실:&quot;, round(float(loss), 4))
+
+# 5) 가중치 하나만 살짝 키워 보고 손실 변화를 봅니다
+W2_up = W2.copy()
+W2_up[0, 0] += 0.1
+loss_up = binary_crossentropy(y, forward(X, W1, b1, W2_up, b2))
+print(&quot;W2[0,0] += 0.1 이후 손실:&quot;, round(float(loss_up), 4))
+print(&quot;손실 변화량:&quot;, round(float(loss_up - loss), 4))
+</code></pre>
+<p>출력 요지:<br />
+- <code>예측 확률</code>은 6개 값이 모두 0과 1 사이에 있습니다(sigmoid의 출력 범위).<br />
+- <code>손실</code>은 0.7 안팎의 값입니다. 아직 학습을 하지 않아 예측이 절반 확률에 가깝기 때문입니다.<br />
+- <code>손실 변화량</code>은 이 실행에서 <strong><code>0.0019</code>, 즉 양수</strong>입니다(<code>손실: 0.708</code> → <code>W2[0,0] += 0.1 이후 손실: 0.7099</code>). 가중치를 키웠더니 손실이 오히려 늘었다는 뜻이므로, <code>W2[0, 0]</code>은 <strong>키우는 쪽이 아니라 줄이는 쪽</strong>으로 옮겨야 합니다.<br />
+- 일반화하면, 변화량이 <strong>음수면 그 방향으로 가중치를 옮기는 것이 이득</strong>이고, 양수면 반대 방향으로 옮겨야 합니다.</p>
+<p>마지막 출력이 이 챕터의 결론입니다. 역전파는 이 "어느 방향으로 옮겨야 손실이 줄어드는가"를 가중치 <strong>하나씩 흔들어 보지 않고 전부 한 번에</strong> 계산해 주는 방법이고, optimizer는 그 방향으로 실제로 값을 옮기는 담당자입니다. 우리가 Keras에서 쓰게 될 코드는 이 전 과정을 <code>model.fit()</code> 한 줄로 대신합니다.</p>
+<hr />
+<h2 id="핵심-요약">핵심 요약</h2>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>개념</th>
+<th>한 줄 정리</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>뉴런</td>
+<td><code>z = 가중합 + 편향</code> → <code>a = 활성화(z)</code>. 학습으로 바뀌는 값은 가중치와 편향뿐</td>
+</tr>
+<tr>
+<td>층</td>
+<td>입력층 = 특성 수 고정 / 은닉층 = 설계자 선택 / 출력층 = 문제 유형이 결정</td>
+</tr>
+<tr>
+<td>활성화 함수</td>
+<td>은닉층 <code>relu</code>, 이진 출력 <code>sigmoid</code>(0~1), 다중 출력 <code>softmax</code>(합 1), 회귀 출력은 활성화 없음</td>
+</tr>
+<tr>
+<td>순전파·역전파</td>
+<td>순전파로 예측 → 손실 계산 → 역전파로 수정 방향 계산 → 가중치 갱신</td>
+</tr>
+<tr>
+<td>step / epoch</td>
+<td>배치 한 묶음 처리 = 1 step, 전체 데이터 1회 통과 = 1 epoch</td>
+</tr>
+<tr>
+<td>구조 설계</td>
+<td>크면 표현력↑·과적합 위험↑. 시험은 "은닉층 2개 이상 + relu + 64→32"면 충분</td>
+</tr>
+</tbody>
+</table></div>
+<p>다음 챕터에서는 이 구조를 <code>Sequential</code>과 <code>Dense</code>로 옮겨 실제로 동작하는 모델을 만듭니다.</p>
+<section class="exam" id="exam-ch03">
+<h2 id="ch03-확인-문제-딥러닝은-어떻게-배우는가">Ch03 확인 문제 — 딥러닝은 어떻게 배우는가</h2>
+<blockquote class="callout callout--note">
+<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
+<p>이 챕터는 Keras를 사용하지 않습니다. 모든 코드 문항은 numpy만으로 풀 수 있습니다.<br />
+총 5문항 (객관식 3 / 코드 빈칸 2), 권장 소요 시간 15분.</p>
+</blockquote>
+<hr />
+<h3 id="문제">문제</h3>
+<h4 id="q1-객관식-기본-활성화-함수의-출력-범위와-쓰는-자리">Q1. (객관식 · 기본) 활성화 함수의 출력 범위와 쓰는 자리</h4>
+<p>다음 중 활성화 함수와 그 <strong>출력 범위</strong>, <strong>쓰는 자리</strong>를 모두 옳게 짝지은 것은?</p>
+<ol>
+<li><code>relu</code> — 출력 범위 −1 ~ 1 — 이진분류 출력층</li>
+<li><code>sigmoid</code> — 출력 범위 0 ~ 1 (값 1개) — 이진분류 출력층</li>
+<li><code>softmax</code> — 출력 범위 0 이상 (상한 없음) — 은닉층 기본값</li>
+<li>활성화 함수 없음 — 출력 범위 0 ~ 1 — 다중분류 출력층</li>
+<li><code>sigmoid</code> — 출력 범위 0 이상 (상한 없음) — 은닉층 기본값</li>
+</ol>
+<hr />
+<h4 id="q2-객관식-기본-노드-1개에-softmax를-씌우면">Q2. (객관식 · 기본) 노드 1개에 softmax를 씌우면</h4>
+<p>한 수험생이 이진분류 모델의 출력층을 <strong>노드 1개 + softmax</strong>로 만들었습니다.<br />
+실행해도 오류 메시지는 나오지 않았지만, epoch을 아무리 늘려도 정확도가 전혀 오르지 않았습니다.</p>
+<p>원인을 가장 정확히 설명한 것은?</p>
+<ol>
+<li><code>softmax</code>는 은닉층 전용 함수여서 출력층에서는 계산 자체가 수행되지 않는다.</li>
+<li><code>softmax</code>는 값이 하나뿐일 때 입력값과 관계없이 <strong>항상 1.0</strong>을 내놓기 때문에, 예측이 입력을 전혀 반영하지 못한다.</li>
+<li><code>softmax</code>는 음수 입력을 0으로 잘라내므로 데이터의 절반이 버려진다.</li>
+<li><code>softmax</code>는 출력의 합을 0으로 맞추므로 확률로 해석할 수 없다.</li>
+<li>노드가 1개인 층에는 편향이 만들어지지 않아 학습할 파라미터가 없다.</li>
+</ol>
+<hr />
+<h4 id="q3-객관식-응용-step과-epoch">Q3. (객관식 · 응용) step과 epoch</h4>
+<p>학습 데이터가 <strong>2,000행</strong>이고 <code>batch_size=50</code>, <code>epochs=10</code>으로 학습했습니다.<br />
+학습이 끝날 때까지 <strong>가중치가 갱신되는 총 횟수</strong>는 몇 번입니까? (마지막 배치도 1 step으로 셉니다)</p>
+<ol>
+<li>10회</li>
+<li>40회</li>
+<li>50회</li>
+<li>400회</li>
+<li>20,000회</li>
+</ol>
+<hr />
+<h4 id="q4-코드-빈칸-기본-뉴런-하나의-계산">Q4. (코드 빈칸 · 기본) 뉴런 하나의 계산</h4>
+<p>입력 3개를 받는 뉴런 하나가 값을 계산하는 코드입니다.<br />
+<code>(가)</code>에는 <strong>가중합 + 편향</strong>을, <code>(나)</code>에는 <strong>relu 활성화</strong>를 채우십시오.<br />
+단, 두 빈칸 모두 numpy 함수를 사용해 한 줄로 작성하십시오.</p>
+<pre><code class="language-python">import numpy as np
+
+x = np.array([1.0, -2.0, 4.0])     # 입력 3개
+w = np.array([0.5, 1.5, -0.25])    # 가중치 3개
+b = 0.4                            # 편향 1개
+
+z = ______(가)______
+a = ______(나)______
+
+print(f&quot;z = {z:.2f}&quot;)
+print(f&quot;a = {a:.2f}&quot;)
+</code></pre>
+<p>추가로, 위 코드의 출력 <code>a</code> 값은 얼마입니까? 그 값이 나온 이유도 한 줄로 쓰십시오.</p>
+<hr />
+<h4 id="q5-코드-빈칸-응용-2층-신경망의-순전파">Q5. (코드 빈칸 · 응용) 2층 신경망의 순전파</h4>
+<p>특성 4개짜리 샘플 6개를 입력받아, <strong>은닉층 노드 5개</strong>를 거쳐 <strong>이진분류 확률 1개</strong>를 내놓는 순전파 코드입니다.<br />
+<code>(가)</code>에는 두 번째 가중치 행렬의 <code>size</code> 튜플을, <code>(나)</code>·<code>(다)</code>에는 각 위치에 맞는 활성화 함수 이름을 채우십시오.</p>
+<pre><code class="language-python">import numpy as np
+
+def relu(z):
+    return np.maximum(0, z)
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+rng = np.random.default_rng(42)
+X = rng.normal(size=(6, 4))          # 샘플 6개, 특성 4개
+
+W1 = rng.normal(size=(4, 5))
+b1 = np.zeros(5)
+W2 = rng.normal(size=___(가)___)     # 은닉 5개 -&gt; 출력 1개
+b2 = np.zeros(1)
+
+h   = ___(나)___(X @ W1 + b1)        # 은닉층
+out = ___(다)___(h @ W2 + b2)        # 출력층
+
+print(&quot;h.shape   :&quot;, h.shape)
+print(&quot;out.shape :&quot;, out.shape)
+print(&quot;예측 확률 :&quot;, np.round(out.ravel(), 3))
+</code></pre>
+<p>추가로, 이 모델 전체의 <strong>파라미터(가중치 + 편향) 개수</strong>를 계산식과 함께 쓰십시오.</p>
+<hr />
+<details class="solution"><summary>해답 및 해설 보기</summary><div class="solution__body"><h4 id="q1-해답">Q1 해답</h4>
+<p><strong>정답: 2번</strong></p>
+<p><strong>정답 코드 (실증 예제)</strong></p>
+<pre><code class="language-python">import numpy as np
+
+def relu(z):    return np.maximum(0, z)
+def sigmoid(z): return 1 / (1 + np.exp(-z))
+def softmax(z): return np.exp(z) / np.exp(z).sum()
+
+z = np.array([-2.0, 0.5, 3.0])
+print(&quot;relu   :&quot;, np.round(relu(z), 3),    &quot;-&gt; 최솟값&quot;, relu(z).min())
+print(&quot;sigmoid:&quot;, np.round(sigmoid(z), 3), &quot;-&gt; 합&quot;, round(float(sigmoid(z).sum()), 4))
+print(&quot;softmax:&quot;, np.round(softmax(z), 3), &quot;-&gt; 합&quot;, round(float(softmax(z).sum()), 6))
+</code></pre>
+<pre><code>relu   : [0.  0.5 3. ] -&gt; 최솟값 0.0
+sigmoid: [0.119 0.622 0.953] -&gt; 합 1.6942
+softmax: [0.006 0.075 0.918] -&gt; 합 1.0
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>세 함수는 "출력 범위"만 보면 바로 구분됩니다.</p>
+<ul>
+<li><code>relu</code>는 음수를 0으로 자르므로 <strong>0 이상</strong>이고 상한이 없습니다. 값을 왜곡 없이 통과시키므로 <strong>은닉층 기본값</strong>입니다.</li>
+<li><code>sigmoid</code>는 어떤 실수를 넣어도 <strong>0 ~ 1</strong> 사이 값 하나를 냅니다. 그래서 "1일 확률" 하나가 필요한 <strong>이진분류 출력층</strong>에 맞습니다. 2번이 이 조합입니다.</li>
+<li><code>softmax</code>는 K개 값을 받아 <strong>합이 1인</strong> 확률 분포로 만듭니다. "여러 클래스 중 하나"를 고르는 <strong>다중분류 출력층</strong> 자리입니다.</li>
+<li>활성화 함수를 쓰지 않으면 값의 범위 제한이 사라지므로 <strong>회귀 출력층</strong>에 씁니다.</li>
+</ul>
+<p>위 실행 결과에서 sigmoid 세 값의 합은 1.69로 1이 아니고, softmax는 정확히 1.0입니다. 이 한 줄이 두 함수를 가르는 결정적 차이입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>은닉층에 sigmoid를 쓰는 것</strong>(5번 유형). 오류는 나지 않지만 층을 쌓을수록 신호가 0~1로 계속 눌려 학습이 잘 진행되지 않습니다. 은닉층은 <code>relu</code>가 표준입니다.</li>
+<li><code>sigmoid</code>와 <code>softmax</code>를 "둘 다 확률이니 아무거나"로 취급하는 것. 값이 <strong>1개(sigmoid)냐 K개·합 1(softmax)이냐</strong>가 다르고, 이 차이가 출력층 노드 수를 결정합니다.</li>
+</ul>
+<hr />
+<h4 id="q2-해답">Q2 해답</h4>
+<p><strong>정답: 2번</strong></p>
+<p><strong>정답 코드 (실증 예제)</strong></p>
+<pre><code class="language-python">import numpy as np
+
+def softmax(z): return np.exp(z) / np.exp(z).sum()
+def sigmoid(z): return 1 / (1 + np.exp(-z))
+
+for raw in [np.array([-5.0]), np.array([0.0]), np.array([12.7])]:
+    print(f&quot;z={raw[0]:6.1f} -&gt; softmax={softmax(raw)}, sigmoid={np.round(sigmoid(raw), 4)}&quot;)
+</code></pre>
+<pre><code>z=  -5.0 -&gt; softmax=[1.], sigmoid=[0.0067]
+z=   0.0 -&gt; softmax=[1.], sigmoid=[0.5   ]
+z=  12.7 -&gt; softmax=[1.], sigmoid=[1.    ]
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>softmax는 <code>exp(z) / (모든 exp(z)의 합)</code>입니다. 값이 하나뿐이면 분자와 분모가 같은 수가 되어 결과는 <strong>언제나 1.0</strong>입니다. <code>z</code>가 −5든 12.7이든 출력이 바뀌지 않습니다.</p>
+<p>출력이 입력에 반응하지 않으므로, 순전파 결과가 정답과 아무 관계가 없고 역전파가 알려 줄 수정 방향도 사실상 사라집니다. 그래서 <strong>오류 메시지 없이 정확도만 제자리에 머무는</strong> 가장 찾기 어려운 실수가 됩니다.</p>
+<p>같은 <code>z</code> 값에 sigmoid를 씌우면 0.0067 / 0.5 / 1.0으로 입력에 따라 달라집니다. 이진분류 출력층은 이 성질이 필요합니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>이진분류에 <code>Dense(1, activation='softmax')</code></strong>. 문법 오류가 없어 실행은 됩니다. "이진분류 = sigmoid + 노드 1개 / 다중분류 = softmax + 노드 K개"를 한 쌍으로 외우십시오.</li>
+<li>반대로 다중분류 출력층에 sigmoid를 쓰는 것도 같은 계열의 실수입니다. 클래스별 확률의 합이 1이 되지 않아 "가장 확률 높은 클래스"를 고르는 근거가 흔들립니다.</li>
+</ul>
+<hr />
+<h4 id="q3-해답">Q3 해답</h4>
+<p><strong>정답: 4번 (400회)</strong></p>
+<p><strong>정답 코드 (실증 예제)</strong></p>
+<pre><code class="language-python">import numpy as np
+
+n_rows, batch_size, epochs = 2000, 50, 10
+steps_per_epoch = int(np.ceil(n_rows / batch_size))
+total_updates = steps_per_epoch * epochs
+
+print(&quot;1 epoch당 step 수:&quot;, steps_per_epoch)
+print(&quot;총 가중치 갱신 횟수:&quot;, total_updates)
+</code></pre>
+<pre><code>1 epoch당 step 수: 40
+총 가중치 갱신 횟수: 400
+</code></pre>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>가중치는 <strong>step마다 한 번</strong> 갱신됩니다. 그러므로 답은 <code>1 epoch당 step 수 × epochs</code>입니다.</p>
+<ul>
+<li>1 epoch당 step 수 = <code>ceil(전체 행 수 / batch_size)</code> = <code>ceil(2000 / 50)</code> = 40</li>
+<li>총 갱신 횟수 = 40 × 10 = <strong>400</strong></li>
+</ul>
+<p>용어를 다시 정리하면, <code>batch_size</code>는 "한 번에 몇 행을 넣는가", <code>epochs</code>는 "전체 데이터를 몇 번 반복하는가"입니다. step은 그 사이에서 자동으로 결정되는 값이며 우리가 직접 지정하지 않습니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>5번(20,000회)을 고르는 실수</strong> — "샘플 하나마다 가중치가 갱신된다"고 오해한 경우입니다. 갱신 단위는 샘플이 아니라 <strong>배치</strong>입니다.</li>
+<li><code>epochs</code>와 <code>batch_size</code>를 바꿔 넣는 실수. 예를 들어 <code>epochs=32, batch_size=50</code>을 의도했는데 값을 뒤집어 쓰면 오류는 나지 않지만 학습 시간이나 성능이 의도와 크게 달라집니다.</li>
+<li>나누어떨어지지 않을 때 소수점을 버리는 실수. 마지막 자투리 배치도 1 step이므로 <code>ceil</code>로 올림합니다.</li>
+</ul>
+<hr />
+<h4 id="q4-해답">Q4 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+
+x = np.array([1.0, -2.0, 4.0])
+w = np.array([0.5, 1.5, -0.25])
+b = 0.4
+
+z = np.dot(w, x) + b          # (가) 가중합 + 편향
+a = np.maximum(0, z)          # (나) relu 활성화
+
+print(f&quot;z = {z:.2f}&quot;)
+print(f&quot;a = {a:.2f}&quot;)
+
+# 편향을 4.0으로 바꾸면 z가 양수가 되어 relu가 값을 그대로 통과시킵니다
+b2 = 4.0
+z2 = np.dot(w, x) + b2
+print(f&quot;b=4.0일 때 z = {z2:.2f}, a = {np.maximum(0, z2):.2f}&quot;)
+</code></pre>
+<pre><code>z = -3.10
+a = 0.00
+b=4.0일 때 z = 0.50, a = 0.50
+</code></pre>
+<p><strong><code>a</code>의 값과 이유:</strong> <code>a = 0.00</code>입니다. 가중합 결과 <code>z = 0.5×1.0 + 1.5×(−2.0) + (−0.25)×4.0 + 0.4 = −3.1</code>로 <strong>음수</strong>이고, relu는 음수를 전부 0으로 잘라내기 때문입니다.</p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<p>뉴런 하나의 계산은 딱 두 줄입니다.</p>
+<ol>
+<li><code>np.dot(w, x) + b</code> — 입력마다 가중치를 곱해 모두 더한 뒤(내적) 편향 하나를 더합니다. <code>w</code>와 <code>x</code>가 같은 길이의 1차원 배열이므로 <code>np.dot</code>이 곧 가중합입니다. <code>(w * x).sum() + b</code>나 <code>w @ x + b</code>로 써도 결과는 같습니다.</li>
+<li><code>np.maximum(0, z)</code> — relu입니다. <code>max(0, z)</code>가 아니라 <code>np.maximum</code>을 쓰는 이유는, 뒤에서 <code>z</code>가 배열(층 전체 출력)이 되어도 <strong>원소별로</strong> 동작해야 하기 때문입니다.</li>
+</ol>
+<p>여기서 학습으로 값이 바뀌는 것은 <code>w</code>와 <code>b</code>뿐입니다. <code>x</code>(입력)는 데이터이고 바뀌지 않습니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><code>np.dot(w, x)</code>에 <strong>편향을 더하는 것을 빠뜨리는 것</strong>. 편향은 노드마다 하나씩 반드시 있으며, Ch04의 <code>model.summary()</code>에서 Param 수가 <code>(입력 수 × 노드 수) + 노드 수</code>인 이유가 바로 이 <code>+ b</code>입니다.</li>
+<li>relu를 <code>max(0, z)</code>로 쓰는 것. 파이썬 내장 <code>max</code>는 배열이 들어오면 "The truth value of an array..." 오류를 냅니다. 배열에는 <code>np.maximum</code>을 씁니다.</li>
+<li><code>z</code>가 음수인데 <code>a</code>도 음수로 답하는 것. relu의 출력은 <strong>절대 음수가 되지 않습니다</strong>.</li>
+</ul>
+<hr />
+<h4 id="q5-해답">Q5 해답</h4>
+<p><strong>정답 코드</strong></p>
+<pre><code class="language-python">import numpy as np
+
+def relu(z):
+    return np.maximum(0, z)
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+rng = np.random.default_rng(42)
+X = rng.normal(size=(6, 4))
+
+W1 = rng.normal(size=(4, 5))
+b1 = np.zeros(5)
+W2 = rng.normal(size=(5, 1))     # (가) (앞 층 노드 수, 뒤 층 노드 수)
+b2 = np.zeros(1)
+
+h   = relu(X @ W1 + b1)          # (나) 은닉층 -&gt; relu
+out = sigmoid(h @ W2 + b2)       # (다) 이진 출력층 -&gt; sigmoid
+
+print(&quot;h.shape   :&quot;, h.shape)
+print(&quot;out.shape :&quot;, out.shape)
+print(&quot;예측 확률 :&quot;, np.round(out.ravel(), 3))
+print(&quot;모두 0~1 사이인가?:&quot;, bool(((out &gt; 0) &amp; (out &lt; 1)).all()))
+</code></pre>
+<pre><code>h.shape   : (6, 5)
+out.shape : (6, 1)
+예측 확률 : [0.79  0.52  0.68  0.627 0.63  0.513]
+모두 0~1 사이인가?: True
+</code></pre>
+<p><strong>파라미터 개수:</strong> <code>(4 × 5 + 5) + (5 × 1 + 1) = 25 + 6 = 31</code> → <strong>31개</strong></p>
+<p><strong>왜 이렇게 푸는가</strong></p>
+<ul>
+<li><strong>(가) <code>(5, 1)</code></strong> — 가중치 행렬의 모양은 언제나 <strong>(앞 층의 노드 수, 뒤 층의 노드 수)</strong> 입니다. 은닉층 노드가 5개, 출력이 1개이므로 <code>(5, 1)</code>입니다. 이 규칙을 지켜야 <code>h @ W2</code>의 행렬 곱이 성립합니다(<code>(6,5) @ (5,1) → (6,1)</code>).</li>
+<li><strong>(나) <code>relu</code></strong> — 은닉층이므로 relu입니다. sigmoid를 쓰면 오류는 없지만 신호가 눌려 학습이 더뎌집니다.</li>
+<li><strong>(다) <code>sigmoid</code></strong> — 이진분류 출력층이므로 0~1 확률 하나를 내는 sigmoid입니다. 출력 확률 6개가 모두 0과 1 사이에 있는 것으로 확인됩니다.</li>
+</ul>
+<p>파라미터 개수는 층마다 <code>(앞 노드 수 × 뒤 노드 수) + 뒤 노드 수</code>입니다. 뒤에 더하는 항이 편향이며, Ch04의 <code>model.summary()</code>가 출력하는 Param # 와 정확히 같은 계산입니다.</p>
+<p><strong>자주 틀리는 지점</strong></p>
+<ul>
+<li><strong>가중치 행렬의 모양을 뒤집어 <code>(1, 5)</code>로 쓰는 것.</strong> <code>h @ W2</code>에서 곧바로 shape 불일치 오류가 납니다. "앞 → 뒤" 순서를 고정하십시오.</li>
+<li>편향의 크기를 앞 층 노드 수로 잡는 것. 편향은 <strong>뒤 층(자기 층)의 노드 수</strong>만큼 있습니다.</li>
+<li>파라미터를 셀 때 편향을 빼고 <code>4×5 + 5×1 = 25</code>로 답하는 것. 편향 6개를 더해 31개입니다.</li>
+</ul>
+<hr /></div></details>
+</section>
+
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch02.html"><span class="pager__dir">이전</span><span class="pager__label">Ch02</span><span class="pager__title">전제 지식 압축 정리 — 데이터 준비와 머신러닝</span></a><a class="pager__slot pager__slot--next" href="ch04.html"><span class="pager__dir">다음</span><span class="pager__label">Ch04</span><span class="pager__title">Keras로 모델 만들기</span></a></nav>
+</main>
+</body>
+</html>

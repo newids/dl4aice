@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" role="img" aria-label="정밀도와 재현율이 중요해지는 상황">
+  <title>정밀도와 재현율이 중요해지는 상황 — 스팸 필터는 정상 메일을 스팸으로 보내는 FP가 치명적이라 정밀도를, 질병 검진은 환자를 정상으로 놓치는 FN이 치명적이라 재현율을 중시한다.</title>
+  <defs>
+    <marker id="ch07pr-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="400" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">정밀도와 재현율이 중요해지는 상황</text>
+
+    <line x1="400" y1="66" x2="400" y2="344" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    <!-- ===== 왼쪽: 스팸 필터 ===== -->
+    <text x="208" y="88" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">스팸 필터</text>
+
+    <rect x="76" y="112" width="76" height="50" rx="6" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <path d="M76 118 L114 144 L152 118" fill="none" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="114" y="182" font-size="12" fill="#94a3b8" text-anchor="middle">정상 메일</text>
+
+    <text x="202" y="126" font-size="12" fill="#dc2626" text-anchor="middle">오분류</text>
+    <line x1="160" y1="137" x2="242" y2="137" stroke="#dc2626" stroke-width="2" marker-end="url(#ch07pr-arrow)"/>
+
+    <rect x="250" y="112" width="96" height="50" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="298" y="143" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">스팸함</text>
+
+    <text x="208" y="210" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">FP — 실제 0 을 1 로 잘못 예측</text>
+    <text x="208" y="238" font-size="14" fill="#1a2332" text-anchor="middle">중요한 메일을 잃습니다</text>
+
+    <rect x="56" y="266" width="304" height="64" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+    <text x="208" y="295" font-size="16" font-weight="700" fill="#2563eb" text-anchor="middle">정밀도 (precision) 중시</text>
+    <text x="208" y="317" font-size="13" fill="#1a2332" text-anchor="middle">TP / (TP + FP)</text>
+
+    <!-- ===== 오른쪽: 질병 검진 ===== -->
+    <text x="592" y="88" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">질병 검진</text>
+
+    <circle cx="478" cy="124" r="12" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <path d="M460 162 c0 -24 36 -24 36 0 z" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="478" y="182" font-size="12" fill="#94a3b8" text-anchor="middle">환자</text>
+
+    <text x="548" y="126" font-size="12" fill="#dc2626" text-anchor="middle">놓침</text>
+    <line x1="508" y1="137" x2="588" y2="137" stroke="#dc2626" stroke-width="2" marker-end="url(#ch07pr-arrow)"/>
+
+    <rect x="596" y="112" width="110" height="50" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="651" y="143" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">정상 판정</text>
+
+    <text x="592" y="210" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">FN — 실제 1 을 0 으로 놓침</text>
+    <text x="592" y="238" font-size="14" fill="#1a2332" text-anchor="middle">치료 시기를 놓칩니다</text>
+
+    <rect x="440" y="266" width="304" height="64" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2.5"/>
+    <text x="592" y="295" font-size="16" font-weight="700" fill="#f59e0b" text-anchor="middle">재현율 (recall) 중시</text>
+    <text x="592" y="317" font-size="13" fill="#1a2332" text-anchor="middle">TP / (TP + FN)</text>
+
+    <text x="32" y="372" font-size="12" fill="#94a3b8">두 지표는 대체로 상충합니다 — 임계값을 낮추면 재현율은 오르고 정밀도는 내려갑니다.</text>
+  </g>
+</svg>

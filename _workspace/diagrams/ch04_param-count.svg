@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 530" width="800" height="530" role="img" aria-label="파라미터 수가 계산되는 방식" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>파라미터 수가 계산되는 방식. 입력 4노드와 은닉 5노드의 연결에서 가중치 20개와 편향 5개가 나와 25가 되고, 이 값이 summary 표의 Param 열에 나타납니다.</title>
+  <defs>
+    <marker id="pc-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="530" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">파라미터 수 세는 법</text>
+
+  <!-- 연결 구조 -->
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="138" y1="102" x2="282" y2="76"/>
+    <line x1="138" y1="102" x2="282" y2="128"/>
+    <line x1="138" y1="102" x2="282" y2="180"/>
+    <line x1="138" y1="102" x2="282" y2="232"/>
+    <line x1="138" y1="102" x2="282" y2="284"/>
+    <line x1="138" y1="154" x2="282" y2="76"/>
+    <line x1="138" y1="154" x2="282" y2="128"/>
+    <line x1="138" y1="154" x2="282" y2="180"/>
+    <line x1="138" y1="154" x2="282" y2="232"/>
+    <line x1="138" y1="154" x2="282" y2="284"/>
+    <line x1="138" y1="206" x2="282" y2="76"/>
+    <line x1="138" y1="206" x2="282" y2="128"/>
+    <line x1="138" y1="206" x2="282" y2="180"/>
+    <line x1="138" y1="206" x2="282" y2="232"/>
+    <line x1="138" y1="206" x2="282" y2="284"/>
+    <line x1="138" y1="258" x2="282" y2="76"/>
+    <line x1="138" y1="258" x2="282" y2="128"/>
+    <line x1="138" y1="258" x2="282" y2="180"/>
+    <line x1="138" y1="258" x2="282" y2="232"/>
+    <line x1="138" y1="258" x2="282" y2="284"/>
+  </g>
+
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="120" cy="102" r="18"/>
+    <circle cx="120" cy="154" r="18"/>
+    <circle cx="120" cy="206" r="18"/>
+    <circle cx="120" cy="258" r="18"/>
+  </g>
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="300" cy="76" r="18"/>
+    <circle cx="300" cy="128" r="18"/>
+    <circle cx="300" cy="180" r="18"/>
+    <circle cx="300" cy="232" r="18"/>
+    <circle cx="300" cy="284" r="18"/>
+  </g>
+
+  <text x="120" y="322" font-size="12" fill="#94a3b8" text-anchor="middle">입력 4노드</text>
+  <text x="300" y="322" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="700">Dense(5) 5노드</text>
+
+  <line x1="326" y1="152" x2="412" y2="152" stroke="#2563eb" stroke-width="2" marker-end="url(#pc-p-e)"/>
+
+  <!-- 계산식 -->
+  <text x="420" y="86" font-size="12" fill="#94a3b8">첫 층 dense (Dense)의 파라미터</text>
+  <rect x="420" y="96" width="356" height="112" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="598" y="128" font-size="13" fill="#1a2332" text-anchor="middle">파라미터 수 = (앞 층 노드 x 이 층 노드) + 이 층 노드</text>
+  <text x="598" y="168" font-size="19" font-weight="700" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">(4 x 5) + 5 = 25</text>
+  <text x="598" y="194" font-size="12" fill="#94a3b8" text-anchor="middle">가중치 4 x 5 = 20개 + 편향 5개</text>
+
+  <!-- summary 표로 연결 -->
+  <path d="M700,214 V404 H654" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#pc-p-e)"/>
+
+  <!-- summary 표 -->
+  <rect x="120" y="346" width="560" height="130" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <g font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="12">
+    <text x="140" y="372" fill="#94a3b8">Layer (type)</text>
+    <text x="380" y="372" fill="#94a3b8">Output Shape</text>
+    <text x="640" y="372" fill="#94a3b8" text-anchor="end">Param #</text>
+
+    <rect x="612" y="389" width="34" height="20" rx="4" fill="#dbeafe"/>
+    <text x="140" y="404" fill="#1a2332">dense (Dense)</text>
+    <text x="380" y="404" fill="#1a2332">(None, 5)</text>
+    <text x="640" y="404" fill="#2563eb" font-weight="700" text-anchor="end">25</text>
+
+    <text x="140" y="430" fill="#1a2332">dense_1 (Dense)</text>
+    <text x="380" y="430" fill="#1a2332">(None, 1)</text>
+    <text x="640" y="430" fill="#1a2332" text-anchor="end">6</text>
+
+    <text x="140" y="464" fill="#1a2332" font-weight="700">Total params: 31</text>
+  </g>
+  <line x1="132" y1="382" x2="668" y2="382" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="132" y1="442" x2="668" y2="442" stroke="#94a3b8" stroke-width="1"/>
+
+  <text x="120" y="502" font-size="12" fill="#94a3b8">둘째 층도 같은 식으로 (5 x 1) + 1 = 6, 두 층을 더해 Total params 31</text>
+</svg>

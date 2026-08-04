@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 604" width="800" height="604" role="img" aria-label="교재 학습 경로와 챕터 의존 관계">
+  <title>교재 학습 경로와 챕터 의존 관계 — Part I 시험의 지도, Part II 딥러닝의 뼈대, Part III 학습과 개선, Part IV 평가와 실전 순서로 Ch01부터 Ch08까지 위에서 아래로 이어지고, 마지막에 모의고사 1회와 2회가 놓인다.</title>
+  <defs>
+    <marker id="ch01lp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="604" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">교재 학습 경로와 챕터 의존 관계</text>
+
+    <!-- 단계 간 화살표 -->
+    <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch01lp-arrow)">
+      <line x1="400" y1="150" x2="400" y2="170"/>
+      <line x1="400" y1="258" x2="400" y2="278"/>
+      <line x1="400" y1="366" x2="400" y2="386"/>
+    </g>
+
+    <!-- Part I -->
+    <rect x="48" y="64" width="704" height="86" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="68" y="100" font-size="14" font-weight="700" fill="#94a3b8">Part I</text>
+    <text x="68" y="120" font-size="12" fill="#94a3b8">시험의 지도</text>
+
+    <rect x="226" y="78" width="248" height="58" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="350" y="101" font-size="13" font-weight="700" fill="#94a3b8" text-anchor="middle">Ch01</text>
+    <text x="350" y="122" font-size="15" fill="#1a2332" text-anchor="middle">시험 구조</text>
+
+    <rect x="490" y="78" width="248" height="58" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="614" y="101" font-size="13" font-weight="700" fill="#94a3b8" text-anchor="middle">Ch02</text>
+    <text x="614" y="122" font-size="15" fill="#1a2332" text-anchor="middle">데이터 준비</text>
+
+    <!-- Part II -->
+    <rect x="48" y="172" width="704" height="86" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="68" y="208" font-size="14" font-weight="700" fill="#94a3b8">Part II</text>
+    <text x="68" y="228" font-size="12" fill="#94a3b8">딥러닝의 뼈대</text>
+
+    <rect x="226" y="186" width="248" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="350" y="209" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">Ch03</text>
+    <text x="350" y="230" font-size="15" fill="#1a2332" text-anchor="middle">딥러닝 개념</text>
+
+    <rect x="490" y="186" width="248" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="614" y="209" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">Ch04</text>
+    <text x="614" y="230" font-size="15" fill="#1a2332" text-anchor="middle">모델 구성</text>
+
+    <!-- Part III -->
+    <rect x="48" y="280" width="704" height="86" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="68" y="316" font-size="14" font-weight="700" fill="#94a3b8">Part III</text>
+    <text x="68" y="336" font-size="12" fill="#94a3b8">학습과 개선</text>
+
+    <rect x="226" y="294" width="248" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="350" y="317" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">Ch05</text>
+    <text x="350" y="338" font-size="15" fill="#1a2332" text-anchor="middle">컴파일·학습</text>
+
+    <rect x="490" y="294" width="248" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="614" y="317" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">Ch06</text>
+    <text x="614" y="338" font-size="15" fill="#1a2332" text-anchor="middle">과적합 대응</text>
+
+    <!-- Part IV -->
+    <rect x="48" y="388" width="704" height="86" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="68" y="424" font-size="14" font-weight="700" fill="#94a3b8">Part IV</text>
+    <text x="68" y="444" font-size="12" fill="#94a3b8">평가와 실전</text>
+
+    <rect x="226" y="402" width="248" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="350" y="425" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">Ch07</text>
+    <text x="350" y="446" font-size="15" fill="#1a2332" text-anchor="middle">평가·예측</text>
+
+    <rect x="490" y="402" width="248" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="614" y="425" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">Ch08</text>
+    <text x="614" y="446" font-size="15" fill="#1a2332" text-anchor="middle">완성 코드</text>
+
+    <!-- 모의고사로 이어지는 연결 -->
+    <g stroke="#94a3b8" stroke-width="2" fill="none">
+      <path d="M400 474 L400 484"/>
+      <path d="M240 484 L560 484"/>
+    </g>
+    <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch01lp-arrow)">
+      <line x1="240" y1="484" x2="240" y2="492"/>
+      <line x1="560" y1="484" x2="560" y2="492"/>
+    </g>
+
+    <rect x="100" y="494" width="280" height="60" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+    <text x="240" y="518" font-size="13" font-weight="700" fill="#f59e0b" text-anchor="middle">모의고사 1회</text>
+    <text x="240" y="539" font-size="15" fill="#1a2332" text-anchor="middle">이진분류</text>
+
+    <rect x="420" y="494" width="280" height="60" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+    <text x="560" y="518" font-size="13" font-weight="700" fill="#f59e0b" text-anchor="middle">모의고사 2회</text>
+    <text x="560" y="539" font-size="15" fill="#1a2332" text-anchor="middle">다중분류 + 회귀</text>
+
+    <text x="48" y="582" font-size="12" fill="#94a3b8">화살표 방향이 권장 학습 순서입니다.</text>
+  </g>
+</svg>

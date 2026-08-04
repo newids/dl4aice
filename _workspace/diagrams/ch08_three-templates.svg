@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 432" width="800" height="432" role="img" aria-label="유형별로 바뀌는 세 곳" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>유형별로 바뀌는 세 곳 — 이진분류, 다중분류, 회귀 세 유형에서 출력층과 loss와 평가지표 세 줄만 달라지고, 전처리부터 은닉층 구성과 콜백까지 나머지 코드는 모두 동일하다.</title>
+
+  <rect x="0" y="0" width="800" height="432" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">유형별로 바뀌는 세 곳</text>
+
+  <!-- ===== 열 머리 ===== -->
+  <rect x="24" y="64" width="76" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="62" y="89" font-size="11" font-weight="bold" text-anchor="middle" fill="#2563eb">교체 지점</text>
+
+  <rect x="108" y="64" width="210" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="213" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a2332">이진분류</text>
+
+  <rect x="326" y="64" width="270" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="461" y="90" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">다중분류 (K클래스, 정수 라벨)</text>
+
+  <rect x="604" y="64" width="172" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="690" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a2332">회귀</text>
+
+  <!-- ===== 1행: 출력층 ===== -->
+  <text x="62" y="155" font-size="13" font-weight="bold" text-anchor="middle" fill="#2563eb">출력층</text>
+
+  <rect x="108" y="116" width="210" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1,</text>
+  <text x="213" y="160" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation='sigmoid')</text>
+
+  <rect x="326" y="116" width="270" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(n_classes,</text>
+  <text x="461" y="160" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation='softmax')</text>
+  <text x="461" y="178" font-size="11" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">n_classes = len(np.unique(y_train))</text>
+
+  <rect x="604" y="116" width="172" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1)</text>
+  <text x="690" y="162" font-size="11" text-anchor="middle" fill="#94a3b8">활성화 없음</text>
+
+  <!-- ===== 2행: loss ===== -->
+  <text x="62" y="225" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss</text>
+
+  <rect x="108" y="192" width="210" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'binary_crossentropy'</text>
+
+  <rect x="326" y="192" width="270" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'sparse_categorical_crossentropy'</text>
+
+  <rect x="604" y="192" width="172" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'mse'</text>
+
+  <!-- ===== 3행: 평가지표 ===== -->
+  <text x="62" y="291" font-size="13" font-weight="bold" text-anchor="middle" fill="#2563eb">평가지표</text>
+
+  <rect x="108" y="256" width="210" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['accuracy']</text>
+  <text x="213" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">classification_report</text>
+
+  <rect x="326" y="256" width="270" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['accuracy']</text>
+  <text x="461" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">혼동 행렬은 클래스 수만큼 커집니다</text>
+
+  <rect x="604" y="256" width="172" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['mae']</text>
+  <text x="690" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">mse · mae · r2</text>
+
+  <!-- ===== 주석 ===== -->
+  <text x="24" y="340" font-size="12" fill="#94a3b8">표에 없는 한 곳 — 예측 변환(0.5 임계값 / argmax / flatten)은 평가 단계에서 함께 바뀝니다.</text>
+
+  <!-- ===== 공통 박스 ===== -->
+  <rect x="24" y="356" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="400" y="379" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">나머지는 세 유형 모두 동일</text>
+  <text x="400" y="398" font-size="12" text-anchor="middle" fill="#94a3b8">결측치 처리 · 인코딩 · 데이터 분리 · 스케일링 · 은닉층 구성 · Dropout · EarlyStopping · 학습 곡선</text>
+</svg>
