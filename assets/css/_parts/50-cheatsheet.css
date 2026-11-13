@@ -40,6 +40,10 @@
   line-height: 1.55;
   box-shadow: none;
 }
+.page-body .v2-cs-card pre.v2-code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 
 /* ---------- 표 ---------- */
 .page-body .v2-cs .table-scroll { margin: 0 0 1rem; }
@@ -61,7 +65,18 @@
   overflow-wrap: anywhere;
   font-size: 0.92em;
 }
+.page-body .v2-cs-table td code,
+.page-body .v2-cs-table th code {
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--v2-chip-fg);
+}
+:root[data-theme="dark"] .page-body .v2-cs-table td code,
+:root[data-theme="dark"] .page-body .v2-cs-table th code { background: none; color: var(--v2-chip-fg); }
+.page-body .v2-cs-table td:nth-child(5) code { white-space: nowrap; }
 .page-body .v2-cs-table--flow { min-width: 44rem; }
+.page-body .v2-cs-table--flow td:nth-child(5) code { white-space: normal; }
 .page-body .v2-cs-table--flow td[rowspan] {
   background: var(--v2-surface-2);
   font-weight: 700;
@@ -276,6 +291,9 @@
   .v2-cs-time { flex-wrap: wrap; }
   .page-body .v2-cs-time__seg { flex: 1 1 calc(50% - 0.35rem); }
   .page-body .v2-cs pre.v2-code { font-size: 12px; }
+  .page-body .v2-cs-table:not(.v2-cs-table--flow) td code,
+  .page-body .v2-cs-table:not(.v2-cs-table--flow) th code { white-space: nowrap; overflow-wrap: normal; }
+  .page-body .v2-cs-table--flow td code { overflow-wrap: normal; }
 }
 
 @media (max-width: 400px) {
@@ -309,12 +327,13 @@
     background: var(--v2-cs-print-bg);
     box-shadow: none;
   }
-  .page-body { display: block; }
+  .page-body { display: block; padding-right: 1pt; }
   .page-body > .v2-wide { width: auto; margin: 0; }
 
   .page-body h1 { font-size: 15pt; margin: 0 0 3pt; }
   .v2-cs-lead { font-size: 8pt; line-height: 1.35; margin: 0 0 5pt; color: var(--v2-cs-print-ink); }
   .page-body .v2-cs > h2 {
+    break-before: auto;
     font-size: 10.5pt;
     margin: 7pt 0 3pt;
     padding-top: 3pt;
@@ -331,6 +350,8 @@
 
   .page-body .v2-cs pre.v2-code,
   .page-body .v2-cs pre.v2-code code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
     font-size: 7.4pt;
     line-height: 1.35;
     color: var(--v2-cs-print-code-fg);
@@ -338,7 +359,7 @@
     border: 0.5pt solid var(--v2-cs-print-line);
     box-shadow: none;
   }
-  .page-body .v2-cs pre.v2-code { padding: 3pt 5pt; white-space: pre-wrap; overflow: visible; break-inside: avoid; }
+  .page-body .v2-cs pre.v2-code { padding: 3pt 5pt; overflow: visible; break-inside: avoid; }
   .page-body .v2-cs pre.v2-code code { border: 0; background: none; }
   .page-body .v2-cs code { color: var(--v2-cs-print-ink); background: none; border: 0; padding: 0; font-size: 0.94em; }
 

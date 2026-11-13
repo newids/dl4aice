@@ -434,11 +434,12 @@
         h("div", { class: "v2-cbt__scoreline" }, [
           "현재 예상 득점 ",
           h("strong", { class: "v2-cbt__score", text: "0" }),
-          h("span", { class: "v2-cbt__score-max", text: " / " + maxScore })
+          h("span", { class: "v2-cbt__score-max", text: " / " + maxScore }),
+          h("span", { class: "v2-cbt__passline", text: "합격선 " + passScore + "점" })
         ]),
         h("div", { class: "v2-cbt__meter", role: "progressbar", "aria-label": "예상 득점 (합격선 " + passScore + "점)", "aria-valuemin": "0", "aria-valuemax": String(maxScore), "aria-valuenow": "0" }, [
           h("div", { class: "v2-cbt__meter-fill" }),
-          h("div", { class: "v2-cbt__meter-line", style: "left:" + Math.min(100, (passScore / maxScore) * 100) + "%" }, h("span", { text: "합격 " + passScore })),
+          h("div", { class: "v2-cbt__meter-line", "aria-hidden": "true", style: "left:" + Math.min(100, (passScore / maxScore) * 100) + "%" }),
         ]),
         h("span", { class: "v2-sr-only", "aria-live": "polite" })
       ]);
@@ -960,7 +961,7 @@
       var list = h("ul", { class: "v2-cbt__bars" });
       rows.forEach(function (r) {
         list.appendChild(h("li", { class: "v2-cbt__bar-row" }, [
-          h("div", { class: "v2-cbt__bar-label" }, [h("span", { text: r.label }), h("span", { class: "v2-cbt__bar-val", text: r.earned + " / " + r.max + "점 (" + r.pct + "%)" })]),
+          h("div", { class: "v2-cbt__bar-label" }, [h("span", { text: r.label }), h("span", { class: "v2-cbt__bar-val", text: r.earned + " / " + r.max + "점 (" + r.pct + "%)" + (r.pct < 60 ? " · 취약" : "") })]),
           h("div", { class: "v2-cbt__track", role: "progressbar", "aria-label": r.label, "aria-valuemin": "0", "aria-valuemax": String(r.max), "aria-valuenow": String(r.earned), "aria-valuetext": r.earned + "점 / " + r.max + "점, " + r.pct + "퍼센트" },
             h("div", { class: "v2-cbt__fill v2-cbt__fill--p" + (r.pi % 4) + (r.pct < 60 ? " is-low" : ""), style: "width:" + r.pct + "%" }))
         ]));

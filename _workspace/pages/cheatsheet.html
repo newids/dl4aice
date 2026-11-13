@@ -59,8 +59,8 @@ model.compile(optimizer='adam',
 <p class="v2-cs-msg"><code>ValueError: Per-column arrays must each be 1-dimensional</code></p>
 <p class="v2-cs-cause"><strong>원인</strong> 위부터 순서대로: <code>Input(shape)</code> 숫자와 실제 열 수가 다름 / 정수 라벨(N,)에 <code>categorical_crossentropy</code> (원-핫이면 반대로 sparse 오류) / <code>predict</code> 결과 <code>(N,1)</code>을 그대로 표에 넣음.</p>
 <p class="v2-cs-fixlabel">10초 해결 코드</p>
-<pre class="v2-code"><code>model.add(Input(shape=(X_train_scaled.shape[1],)))   # 열 수 자동 계산
-loss='sparse_categorical_crossentropy'              # 정수 라벨이면
+<pre class="v2-code"><code>model.add(Input(shape=(X_train_scaled.shape[1],)))
+loss='sparse_categorical_crossentropy'   # 정수 라벨
 pd.DataFrame({'actual': y_test, 'pred': pred.flatten()})</code></pre>
 </article>
 
@@ -83,8 +83,8 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])</code></pre>
 <p class="v2-cs-msg"><code>ValueError: could not convert string to float: 'Yes'</code> (스케일러에 넣을 때)</p>
 <p class="v2-cs-cause"><strong>원인</strong> 범주형 열을 인코딩하지 않았습니다. 숫자 배열이어야 하는 자리에 문자열 열이 남아 있습니다.</p>
 <p class="v2-cs-fixlabel">10초 해결 코드</p>
-<pre class="v2-code"><code>print(df.select_dtypes(exclude='number').columns)   # 범인 찾기
-X = pd.get_dummies(X, dtype=int)                    # 0/1 열로 변환
+<pre class="v2-code"><code>print(df.select_dtypes(exclude='number').columns)
+X = pd.get_dummies(X, dtype=int)
 X = X.astype('float32')</code></pre>
 </article>
 
@@ -93,9 +93,9 @@ X = X.astype('float32')</code></pre>
 <p class="v2-cs-msg"><code>4/4 - 1s - 126ms/step - accuracy: 0.6100 - loss: nan</code></p>
 <p class="v2-cs-cause"><strong>원인</strong> 오류 없이 학습만 망가집니다. <code>y</code> 또는 <code>X</code>에 결측치(NaN)나 <code>inf</code>가 남았거나, 스케일링 없이 값이 매우 커서 발산한 경우입니다. 한 번 <code>nan</code>이 되면 이후 epoch에서도 회복되지 않습니다. 입력 <code>X</code>의 NaN은 <code>relu</code>에 가려 겉으로 안 드러나기도 하니 <code>y</code>까지 함께 확인하십시오.</p>
 <p class="v2-cs-fixlabel">10초 해결 코드</p>
-<pre class="v2-code"><code>print(df.isnull().sum())                  # 결측 위치 확인
-df = df.dropna()                          # 또는 fillna(중앙값)
-print(np.isfinite(X_train_scaled).all())  # False면 NaN/inf 잔존</code></pre>
+<pre class="v2-code"><code>print(df.isnull().sum())
+df = df.dropna()   # 또는 fillna(중앙값)
+print(np.isfinite(X_train_scaled).all())</code></pre>
 </article>
 
 <article class="v2-cs-card">
@@ -105,9 +105,9 @@ print(np.isfinite(X_train_scaled).all())  # False면 NaN/inf 잔존</code></pre>
 <p class="v2-cs-msg"><code>UserWarning: Early stopping conditioned on metric `val_acc` which is not available. Available metrics are: accuracy,loss,val_accuracy,val_loss</code></p>
 <p class="v2-cs-cause"><strong>원인</strong> <code>metrics=['accuracy']</code>로 컴파일하면 기록 이름은 <code>accuracy</code>/<code>val_accuracy</code>입니다(<code>acc</code> 아님). <code>val_</code>로 시작하는 값은 <code>validation_split</code>(또는 <code>validation_data</code>)이 있어야 생깁니다.</p>
 <p class="v2-cs-fixlabel">10초 해결 코드</p>
-<pre class="v2-code"><code>print(history.history.keys())             # 실제 이름 확인
+<pre class="v2-code"><code>print(history.history.keys())
 EarlyStopping(monitor='val_accuracy', mode='max', patience=5)
-model.fit(..., validation_split=0.2)      # val_* 가 생기게</code></pre>
+model.fit(..., validation_split=0.2)</code></pre>
 </article>
 
 </div>
