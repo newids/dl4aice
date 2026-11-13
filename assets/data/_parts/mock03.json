@@ -380,7 +380,7 @@
         }
       ],
       "expected_output": "TBD",
-      "explanation": "회귀는 분류와 달리 클래스 비율이 아니라 **값의 분포**를 봅니다. `describe()` 로 평균·표준편차·최소/최대를, `histplot` 으로 치우침(skew)과 이상값 유무를 확인합니다. 분류의 `countplot` 에 해당하는 회귀용 도구가 `histplot` 입니다.\n\n- `df.isnull().sum()` 으로 결측이 있는 컬럼을 미리 파악합니다. 이 데이터에서는 `temperature`(수치형)와 `shift`(범주형) 두 컬럼에 결측이 있습니다. 결측 처리는 Q4 입니다.\n- `bins` 가 너무 작으면 분포 모양이 뭉개지고 너무 크면 들쭉날쭉해집니다. 30 안팎이 무난합니다.\n\n**자주 틀리는 지점**\n\n- `countplot` 을 연속형 타깃에 쓰면 값마다 막대가 수백 개 생겨 알아볼 수 없습니다.\n- `df.isnull().sum` 처럼 괄호를 빼면 메서드 객체가 출력됩니다.\n- `x=` 에 컬럼 이름 문자열 대신 `df['energy_kwh']` 를 넣고 `data=df` 도 함께 주면 중복이라 오류가 날 수 있습니다. `data=df` 를 줬다면 `x` 는 컬럼명 문자열로 씁니다."
+      "explanation": "회귀는 분류와 달리 클래스 비율이 아니라 **값의 분포**를 봅니다. `describe()` 로 평균·표준편차·최소/최대를, `histplot` 으로 치우침(skew)과 이상값 유무를 확인합니다. 분류의 `countplot` 에 해당하는 회귀용 도구가 `histplot` 입니다.\n\n- `df.isnull().sum()` 으로 결측이 있는 컬럼을 미리 파악합니다. 이 데이터에서는 `temperature`(수치형)와 `shift`(범주형) 두 컬럼에 결측이 있습니다. 결측 처리는 Q4 입니다.\n- `bins` 가 너무 작으면 분포 모양이 뭉개지고 너무 크면 들쭉날쭉해집니다. 30 안팎이 무난합니다.\n\n**자주 틀리는 지점**\n\n- `countplot` 을 연속형 타깃에 쓰면 값마다 막대가 수백 개 생겨 알아볼 수 없습니다.\n- `df.isnull().sum` 처럼 괄호를 빼면 메서드 객체가 출력됩니다.\n- `data=df` 를 주었다면 `x` 에는 컬럼명 **문자열**을 씁니다. `x=df['energy_kwh']` 도 동작은 하지만 `data` 와 섞어 쓰는 습관은 헷갈리기 쉽습니다."
     },
     {
       "no": 3,
@@ -761,7 +761,7 @@
         }
       ],
       "expected_output": "TBD",
-      "explanation": "`line`(A/B/C)과 `shift`(day/evening/night)는 **순서가 없는 명목형**이므로 원-핫 인코딩이 맞습니다. `LabelEncoder` 로 0/1/2 를 주면 신경망과 선형 계열 모델이 \"C 는 A 의 두 배\" 같은 거짓 순서를 학습합니다.\n\n- `drop_first=True` 이면 `line_B`, `line_C`, `shift_evening`, `shift_night` 만 남고 기준 범주(`line_A`, `shift_day`)는 \"모두 0\" 으로 표현됩니다. 컬럼 수가 줄고 중복 정보가 사라집니다.\n- `dtype=int` 를 주지 않으면 최신 pandas 는 `True/False` 불리언 컬럼을 만듭니다. 불리언은 스케일러와 신경망에서 문제없이 동작하지만 `reindex(fill_value=0)` 와 섞일 때 자료형이 어색해져서 정수로 통일해 둡니다.\n- 이 설정은 Q14 의 신규 샘플 처리와 연결됩니다. 샘플 한 행에 `drop_first=True` 를 쓰면 유일한 범주가 \"첫 번째\" 라서 지워지므로, Q14 에서는 오히려 쓰지 않습니다.\n\n**자주 틀리는 지점**\n\n- `columns=` 를 생략하면 문자열 컬럼 전부를 변환하지만, 변환 결과가 `df` 에 다시 저장되지 않으면 이후 문항이 모두 문자열 컬럼 오류로 막힙니다.\n- 인코딩은 **분리 전**(Q7 이전)에 하는 것이 이 시험의 표준 흐름입니다. 분리 후 학습/테스트에서 각각 따로 인코딩하면 컬럼이 어긋납니다."
+      "explanation": "`line`(A/B/C)과 `shift`(day/evening/night)는 **순서가 없는 명목형**이므로 원-핫 인코딩이 맞습니다. `LabelEncoder` 로 0/1/2 를 주면 신경망과 선형 계열 모델이 \"C 는 A 의 두 배\" 같은 거짓 순서를 학습합니다.\n\n- `drop_first=True` 이면 `line_B`, `line_C`, `shift_evening`, `shift_night` 만 남고 기준 범주(`line_A`, `shift_day`)는 \"모두 0\" 으로 표현됩니다. 컬럼 수가 줄고 중복 정보가 사라집니다.\n- `dtype=int` 를 주지 않으면 최신 pandas 는 `True/False` 불리언 컬럼을 만듭니다. 불리언은 대체로 동작하지만, Q14 의 `reindex(fill_value=0)` 로 채운 0(정수)과 자료형이 섞이지 않도록 정수 0/1 로 통일해 둡니다.\n- 이 설정은 Q14 의 신규 샘플 처리와 연결됩니다. 샘플 한 행에 `drop_first=True` 를 쓰면 유일한 범주가 \"첫 번째\" 라서 지워지므로, Q14 에서는 오히려 쓰지 않습니다.\n\n**자주 틀리는 지점**\n\n- `columns=` 를 생략하면 문자열 컬럼 전부를 변환하지만, 변환 결과가 `df` 에 다시 저장되지 않으면 이후 문항이 모두 문자열 컬럼 오류로 막힙니다.\n- 인코딩은 **분리 전**(Q7 이전)에 하는 것이 이 시험의 표준 흐름입니다. 분리 후 학습/테스트에서 각각 따로 인코딩하면 컬럼이 어긋납니다."
     },
     {
       "no": 7,
@@ -1204,8 +1204,8 @@
       "points": 9,
       "minutes": 10,
       "prompt": "에너지 소비량을 예측하는 딥러닝 회귀 모델을 **Functional API** 로 만드시오.\n\n- 입력층은 `X_train_scaled` 의 특성 개수에 맞춰 `inputs` 에 만드시오.\n- 은닉층 2개(`relu`)와 `BatchNormalization`, `Dropout`(비율 0.05~0.5)을 포함하시오.\n- 출력층은 연속값 하나를 내므로 **노드 1개, 활성화 함수 없음**으로 `outputs` 에 만들고, `Model(inputs=..., outputs=...)` 로 `model` 을 완성하시오.\n- 옵티마이저 `adam`, 손실 함수는 회귀용으로, 평가지표는 MAE 로 컴파일하고 `model.summary()` 를 출력하시오.",
-      "skeleton_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(___,))\nx = Dense(64, activation=___)(inputs)\nx = BatchNormalization()(x)\nx = ___(0.2)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(___)(x)\n\nmodel = Model(inputs=___, outputs=___)\nmodel.compile(optimizer='adam', loss=___, metrics=[___])\nmodel.summary()\n",
-      "answer_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(1)(x)\n\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\nmodel.summary()\n",
+      "skeleton_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(___,))\nx = Dense(128, activation=___)(inputs)\nx = BatchNormalization()(x)\nx = ___(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(___)(x)\n\nmodel = Model(inputs=___, outputs=___)\nmodel.compile(optimizer='adam', loss=___, metrics=[___])\nmodel.summary()\n",
+      "answer_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(128, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(1)(x)\n\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\nmodel.summary()\n",
       "validation_rules": [
         {
           "type": "call",
@@ -1330,16 +1330,16 @@
       ],
       "negative_tests": [
         {
-          "code": "inputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(1, activation='sigmoid')(x)\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n",
+          "code": "inputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(1, activation='sigmoid')(x)\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n",
           "reason": "회귀 출력에 sigmoid(0~1로 눌림), 분류용 loss/accuracy"
         },
         {
-          "code": "inputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(2)(x)\nmodel = Model(inputs=outputs, outputs=inputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\n",
+          "code": "inputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(2)(x)\nmodel = Model(inputs=outputs, outputs=inputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\n",
           "reason": "출력 노드를 2 로 설정, Model 의 inputs/outputs 를 뒤바꿈"
         }
       ],
       "expected_output": "TBD",
-      "explanation": "**회귀 출력층 규칙: `Dense(1)`, 활성화 없음.** 에너지 사용량은 0~1 확률이 아니라 수백 kWh 의 연속값이므로 출력을 눌러 버리는 `sigmoid`/`softmax` 를 쓰면 안 됩니다. `Dense(1)` 은 기본이 선형 출력(`activation=None`)이라 어떤 실수값이든 낼 수 있습니다.\n\n- 손실은 `mse`(큰 오차에 더 큰 벌점), 지표는 `mae`(단위가 kWh 라 해석이 쉬움)를 씁니다. `accuracy` 는 \"맞았나/틀렸나\"를 세는 분류 지표라 회귀에는 의미가 없습니다.\n- Functional API 는 `Input` → 층을 **함수처럼 텐서에 호출**해 연결 → `Model(inputs, outputs)` 순서입니다. 입력 크기는 `Input(shape=(n,))` 로 주고 `Dense(input_shape=...)` 는 쓰지 않습니다.\n- `BatchNormalization` 은 층 출력의 분포를 안정시켜 학습을 빠르게 하고, `Dropout` 은 학습 중 일부 노드를 꺼서 과적합을 줄입니다.\n\n동치인 **Sequential** 코드(같은 모델)는 다음과 같습니다.\n\n```\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(BatchNormalization())\nmodel.add(Dropout(0.2))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dense(1))\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\n```\n\n**자주 틀리는 지점**\n\n- 이진분류 습관대로 `Dense(1, activation='sigmoid')` + `binary_crossentropy` 를 쓰면 예측이 0~1 에 갇혀 R² 가 크게 음수가 나옵니다.\n- `Model(inputs=outputs, outputs=inputs)` 처럼 인자를 바꾸거나, 마지막 텐서를 `outputs` 로 받지 않고 `Model(inputs, x)` 를 쓰는 식으로 변수가 어긋납니다.\n- 출력 노드를 2개 이상으로 두면 `y` 의 shape (N,) 와 맞지 않아 학습은 되더라도 예측이 `(N, 2)` 로 나옵니다."
+      "explanation": "**회귀 출력층 규칙: `Dense(1)`, 활성화 없음.** 에너지 사용량은 0~1 확률이 아니라 수백 kWh 의 연속값이므로 출력을 눌러 버리는 `sigmoid`/`softmax` 를 쓰면 안 됩니다. `Dense(1)` 은 기본이 선형 출력(`activation=None`)이라 어떤 실수값이든 낼 수 있습니다.\n\n- 손실은 `mse`(큰 오차에 더 큰 벌점), 지표는 `mae`(단위가 kWh 라 해석이 쉬움)를 씁니다. `accuracy` 는 \"맞았나/틀렸나\"를 세는 분류 지표라 회귀에는 의미가 없습니다.\n- Functional API 는 `Input` → 층을 **함수처럼 텐서에 호출**해 연결 → `Model(inputs, outputs)` 순서입니다. 입력 크기는 `Input(shape=(n,))` 로 주고 `Dense(input_shape=...)` 는 쓰지 않습니다.\n- `BatchNormalization` 은 층 출력의 분포를 안정시켜 학습을 빠르게 하고, `Dropout` 은 학습 중 일부 노드를 꺼서 과적합을 줄입니다.\n\n동치인 **Sequential** 코드(같은 모델)는 다음과 같습니다.\n\n```\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(128, activation='relu'))\nmodel.add(BatchNormalization())\nmodel.add(Dropout(0.2))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dense(1))\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\n```\n\n**자주 틀리는 지점**\n\n- 이진분류 습관대로 `Dense(1, activation='sigmoid')` + `binary_crossentropy` 를 쓰면 예측이 0~1 에 갇혀 R² 가 크게 음수가 나옵니다.\n- `Model(inputs=outputs, outputs=inputs)` 처럼 인자를 바꾸거나, 마지막 텐서를 `outputs` 로 받지 않고 `Model(inputs, x)` 를 쓰는 식으로 변수가 어긋납니다.\n- 출력 노드를 2개 이상으로 두면 `y` 의 shape (N,) 와 맞지 않아 학습은 되더라도 예측이 `(N, 2)` 로 나옵니다."
     },
     {
       "no": 12,
@@ -1540,7 +1540,7 @@
         }
       ],
       "expected_output": "TBD",
-      "explanation": "학습 곡선은 **train 곡선과 val 곡선의 간격**으로 읽습니다.\n\n- 두 곡선이 함께 내려가다 비슷한 값에서 평평해지면 정상 수렴입니다.\n- train 은 계속 내려가는데 val 이 올라가기 시작하면 과적합입니다. 그 지점이 EarlyStopping 이 멈추는 시점입니다.\n- 둘 다 높게 평평하면 모델이 단순하거나 학습이 부족한 것입니다.\n\n`history.history` 는 `{'loss': [...], 'mae': [...], 'val_loss': [...], 'val_mae': [...]}` 형태의 딕셔너리입니다. 키 이름은 compile 의 `metrics=['mae']` 에서 정해지며 검증 쪽에는 `val_` 접두사가 붙습니다. 분류 때의 `accuracy`/`val_accuracy` 를 복붙하면 `KeyError` 가 납니다.\n\n이 데이터에서는 BatchNormalization 의 영향으로 초기 몇 epoch 의 `val_loss` 가 학습 `loss` 보다 높게 시작할 수 있습니다. 후반으로 갈수록 두 곡선이 가까워지면 문제가 없습니다.\n\n**자주 틀리는 지점**\n\n- `val_mae` 줄에서 `history.history['mae']` 를 그대로 복사해 두 선이 완전히 겹침.\n- `plt.subplots(2, 1)` 로 행·열을 바꿔 오른쪽/왼쪽 배치가 어긋남(지시는 1행 2열)."
+      "explanation": "학습 곡선은 **train 곡선과 val 곡선의 간격**으로 읽습니다.\n\n- 두 곡선이 함께 내려가다 비슷한 값에서 평평해지면 정상 수렴입니다.\n- train 은 계속 내려가는데 val 이 올라가기 시작하면 과적합입니다. 그 지점이 EarlyStopping 이 멈추는 시점입니다.\n- 둘 다 높게 평평하면 모델이 단순하거나 학습이 부족한 것입니다.\n\n`history.history` 는 `{'loss': [...], 'mae': [...], 'val_loss': [...], 'val_mae': [...]}` 형태의 딕셔너리입니다. 키 이름은 compile 의 `metrics=['mae']` 에서 정해지며 검증 쪽에는 `val_` 접두사가 붙습니다. 분류 때의 `accuracy`/`val_accuracy` 를 복붙하면 `KeyError` 가 납니다.\n\n타깃이 수백 kWh 단위라 `loss`(MSE)의 초기값이 수십만으로 매우 크고, 처음 수~수십 epoch 동안 가파르게 내려갑니다. 그래서 그래프의 앞부분이 세로로 길게 찍히며, 뒤쪽의 미세한 차이를 보려면 첫 몇 epoch 를 잘라(`[5:]`) 그리기도 합니다. 또 학습 `loss` 는 Dropout 이 켜진 상태에서 계산되므로 `val_loss` 보다 높게 나올 수 있습니다.\n\n**자주 틀리는 지점**\n\n- `val_mae` 줄에서 `history.history['mae']` 를 그대로 복사해 두 선이 완전히 겹침.\n- `plt.subplots(2, 1)` 로 행·열을 바꿔 오른쪽/왼쪽 배치가 어긋남(지시는 1행 2열)."
     },
     {
       "no": 14,
