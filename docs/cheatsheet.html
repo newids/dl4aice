@@ -33,7 +33,7 @@
 </div>
 
 <div class="v2-cs-note">
-<p><strong>세 줄만 바뀐다.</strong> 유형이 바뀌어도 전처리, 은닉층, 콜백, <code>fit</code>은 그대로입니다. 바꿀 곳은 <strong>마지막 <code>Dense</code>, <code>loss</code>, <code>metrics</code></strong> 세 줄이고, 예측 후처리 한 줄이 따라옵니다. 출력층 <code>units</code>는 <code>len(np.unique(y_train))</code>로 계산하면 틀리지 않습니다.</p>
+<p><strong>세 줄만 바뀐다.</strong> 유형이 바뀌어도 전처리, 은닉층, 콜백, <code>fit</code>은 그대로입니다. 바꿀 곳은 <strong>마지막 <code>Dense</code>, <code>loss</code>, <code>metrics</code></strong> 세 줄이고, 예측 후처리 한 줄이 따라옵니다. <strong>다중분류(정수 라벨)</strong> 출력층 <code>units</code>는 <code>len(np.unique(y_train))</code>로 계산합니다(이진분류는 1, 회귀는 1).</p>
 </div>
 
 <div class="v2-cs-pair">
@@ -97,7 +97,7 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])</code></pre>
 <h3 class="v2-cs-card__title"><span class="v2-cs-card__no">3</span>DataFrame에 문자열이 남음 (object dtype)</h3>
 <p class="v2-cs-msg"><code>ValueError: Invalid dtype: str</code> (DataFrame을 <code>fit</code>에 직접 넣을 때)</p>
 <p class="v2-cs-msg"><code>ValueError: Invalid dtype: object</code> (<code>df.values</code>를 넣을 때)</p>
-<p class="v2-cs-msg"><code>ValueError: could not convert string to float: 'Yes'</code> (스케일러에 넣을 때)</p>
+<p class="v2-cs-msg"><code>ValueError: could not convert string to float: 'Yes'</code> (스케일러에 넣을 때. DataFrame을 <code>fit</code>에 넣을 때도 컬럼 순서에 따라 이 메시지로 표시될 수 있음)</p>
 <p class="v2-cs-cause"><strong>원인</strong> 범주형 열을 인코딩하지 않았습니다. 숫자 배열이어야 하는 자리에 문자열 열이 남아 있습니다.</p>
 <p class="v2-cs-fixlabel">10초 해결 코드</p>
 <pre class="v2-code"><code>print(df.select_dtypes(exclude='number').columns)
@@ -140,10 +140,10 @@ model.fit(..., validation_split=0.2)</code></pre>
 <tr><th scope="row">1</th><td rowspan="7">탐색·전처리</td><td>임포트, CSV 로드, shape/info 확인</td><td><code>df</code></td><td>첫 셀 임포트 블록, <code>pd.read_csv</code>, <code>df.shape</code>, <code>df.info()</code></td></tr>
 <tr><th scope="row">2</th><td>타깃 분포·결측 확인, 시각화 ①</td><td><code>df</code></td><td><code>value_counts()</code>, <code>isnull().sum()</code>, <code>sns.countplot</code> / <code>sns.histplot</code></td></tr>
 <tr><th scope="row">3</th><td>시각화 ② (분포 비교·상관)</td><td><code>df</code></td><td><code>sns.boxplot</code>, <code>sns.heatmap(df.corr(numeric_only=True), annot=True)</code>, <code>plt.show()</code></td></tr>
-<tr><th scope="row">4</th><td>결측치 처리</td><td><code>df</code></td><td><code>df.fillna(df[col].median())</code> / <code>dropna()</code></td></tr>
+<tr><th scope="row">4</th><td>결측치 처리</td><td><code>df</code></td><td><code>df[col] = df[col].fillna(df[col].median())</code> / <code>df = df.dropna()</code></td></tr>
 <tr><th scope="row">5</th><td>이상치 제거(IQR 등), 불필요 컬럼 제거</td><td><code>df</code></td><td><code>quantile(0.25)</code>, <code>quantile(0.75)</code>, 조건 필터, <code>df.drop(columns=[...])</code></td></tr>
 <tr><th scope="row">6</th><td>범주형 인코딩</td><td><code>df</code></td><td><code>pd.get_dummies(df, columns=[...], dtype=int)</code> / <code>LabelEncoder</code></td></tr>
-<tr><th scope="row">7</th><td>X·y 분리, 학습/테스트 분리, 스케일링</td><td><code>X</code>, <code>y</code>, <code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>, <code>scaler</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code></td><td><code>train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)</code>, <code>scaler.fit_transform(X_train)</code>, <code>scaler.transform(X_test)</code></td></tr>
+<tr><th scope="row">7</th><td>X·y 분리, 학습/테스트 분리, 스케일링</td><td><code>X</code>, <code>y</code>, <code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>, <code>scaler</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code></td><td><code>train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)</code> (<code>stratify</code>는 분류일 때만), <code>scaler.fit_transform(X_train)</code>, <code>scaler.transform(X_test)</code></td></tr>
 <tr><th scope="row">8</th><td rowspan="3">머신러닝</td><td>DecisionTree 학습·평가</td><td><code>dt_model</code>, <code>y_pred</code></td><td><code>DecisionTreeClassifier(random_state=42)</code>, <code>fit</code>, <code>predict</code>, <code>accuracy_score</code></td></tr>
 <tr><th scope="row">9</th><td>RandomForest 학습·평가</td><td><code>rf_model</code>, <code>y_pred</code></td><td><code>RandomForestClassifier(random_state=42)</code>, <code>fit</code>, <code>predict</code></td></tr>
 <tr><th scope="row">10</th><td>XGBoost 또는 LightGBM 학습·평가, 세 모델 비교</td><td><code>xgb_model</code> (또는 <code>lgbm_model</code>)</td><td><code>XGBClassifier(random_state=42)</code> / <code>LGBMClassifier</code>, 정확도 세 개 나란히 <code>print</code></td></tr>

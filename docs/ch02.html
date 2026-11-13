@@ -772,7 +772,7 @@ print(classification_report(y_test, y_pred))
 <hr />
 <h2 id="2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</h2>
 <p><strong>한 줄 요약</strong> — 문항 10번까지 정상이던 데이터가 11번에서 갑자기 오류를 내는 이유는 대개 세 가지(인덱스 어긋남, <code>bool</code>/<code>object</code> 타입, <code>(N,)</code>와 <code>(N, 1)</code>의 shape 차이)이고, 각각 10초 안에 진단할 수 있습니다.</p>
-<p>현재 실기 시험은 14문항으로 구성되며, 1~10번은 탐색·전처리·머신러닝, <strong>11~14번이 딥러닝</strong>(모델 설계와 학습, 그리고 새로운 "시뮬레이션 입력"의 예측)입니다. 문제는 sklearn 모델이 <strong>관대하다</strong>는 점입니다. <code>RandomForestClassifier</code>는 DataFrame이든 배열이든, <code>bool</code> 컬럼이 섞여 있든 별말 없이 학습합니다. 그래서 10번까지는 통과한 데이터가 Keras로 넘어가는 순간 거부당하고, 이 <strong>10번과 11번 사이의 인계 지점</strong>에서 가장 많은 점수를 잃습니다. 오류 메시지의 일반론은 Ch08 §8.5에서 다루므로, 여기서는 <strong>전처리 쪽에서 만들어지는 원인</strong> 세 가지만 다룹니다.</p>
+<p>현재 실기 시험은 14문항으로 구성되며(회차별 변동 가능, Ch01 참고), 1~10번은 탐색·전처리·머신러닝, <strong>11~14번이 딥러닝</strong>(모델 설계와 학습, 그리고 새로운 "시뮬레이션 입력"의 예측)입니다. 문제는 sklearn 모델이 <strong>관대하다</strong>는 점입니다. <code>RandomForestClassifier</code>는 DataFrame이든 배열이든, <code>bool</code> 컬럼이 섞여 있든 별말 없이 학습합니다. 그래서 10번까지는 통과한 데이터가 Keras로 넘어가는 순간 거부당하고, 이 <strong>10번과 11번 사이의 인계 지점</strong>에서 가장 많은 점수를 잃습니다. 오류 메시지의 일반론은 Ch08 §8.5에서 다루므로, 여기서는 <strong>전처리 쪽에서 만들어지는 원인</strong> 세 가지만 다룹니다.</p>
 <p>아래 코드는 이 절 전체의 출발점입니다. 앞 절과 같은 성격의 합성 데이터이며, 이후 블록은 이 <code>df</code>를 순서대로 이어받습니다.</p>
 <pre><code class="language-python"># 2.10 공용 준비 — 결측치가 섞인 합성 데이터 (시험에서는 read_csv 결과가 df)
 import numpy as np
@@ -817,7 +817,7 @@ mixed = pd.concat([num, scaled], axis=1)  # 인덱스 번호 기준으로 맞춰
 print(mixed.shape, mixed.isnull().sum().sum())
 </code></pre>
 <blockquote class="callout callout--note">
-<p>출력 요지: <code>950 1000 False</code> → <code>Found input variables with inconsistent numbers of samples: [950, 1000]</code> → <code>(997, 4) 188</code>. 마지막 줄이 <strong>무서운 부분</strong>입니다. 행이 950개여야 하는데 997개로 늘고 <code>NaN</code>이 188개 생겼는데도 오류는 없습니다. 이 상태로 학습하면 Keras에서는 <code>loss: nan</code>으로 나타납니다(Ch08 §8.5의 ③).</p>
+<p>출력 요지: <code>950 1000 False</code> → <code>Found input variables with inconsistent numbers of samples: [950, 1000]</code> → <code>(997, 4) 188</code>. 마지막 줄이 <strong>무서운 부분</strong>입니다. 행이 950개여야 하는데 997개로 늘고 <code>NaN</code>이 188개 생겼는데도 오류는 없습니다. 이 상태로 학습하면 Keras에서는 대개 <code>loss: nan</code>으로 나타납니다(<code>relu</code> 층에서는 가려질 수도 있습니다. Ch08 §8.5의 ③).</p>
 </blockquote>
 <pre><code class="language-python"># 해결 — 행을 지운 '직후' 인덱스를 새로 매기고, 같은 df에서 X와 y를 함께 만든다
 df = df.dropna().reset_index(drop=True)   # drop=True: 옛 인덱스를 컬럼으로 남기지 않음

@@ -264,7 +264,7 @@
               "type": "call",
               "callee": "sns.countplot",
               "label": "countplot: x=계약유형, hue=churn",
-              "hint": "막대를 계약 유형별로 나누는 것이 `x`, 막대 안을 이탈 여부로 다시 나누는 것이 `hue` 입니다. 컬럼명은 따옴표로 감싸세요.",
+              "hint": "막대를 계약 유형별로 나누는 것이 `x`, 막대 안을 이탈 여부로 다시 나누는 것이 `hue` 입니다. 컬럼은 이름 문자열 또는 `df[...]` 로 지정합니다.",
               "params": [
                 {
                   "kw": "data",
@@ -272,11 +272,17 @@
                 },
                 {
                   "kw": "x",
-                  "value": "'contract_type'"
+                  "value": [
+                    "'contract_type'",
+                    "df['contract_type']"
+                  ]
                 },
                 {
                   "kw": "hue",
-                  "value": "'churn'"
+                  "value": [
+                    "'churn'",
+                    "df['churn']"
+                  ]
                 }
               ]
             }
@@ -396,14 +402,19 @@
               "type": "call",
               "callee": ".fillna",
               "label": "중앙값으로 fillna",
-              "hint": "채울 값 자리에 **그 컬럼의** 중앙값을 구하는 식을 넣으세요. 평균(mean)이 아니라 중앙값입니다.",
+              "hint": "채울 값 자리에 **`total_fee` 컬럼 자신의** 중앙값을 구하는 식을 넣으세요. 평균(mean)이 아니라 중앙값이고, 다른 컬럼의 값이어도 안 됩니다.",
               "params": [
                 {
                   "kw": "value",
                   "pos": 0,
-                  "value": {
-                    "contains": ".median()"
-                  }
+                  "value": [
+                    {
+                      "contains": "df['total_fee'].median()"
+                    },
+                    {
+                      "contains": "df.total_fee.median()"
+                    }
+                  ]
                 }
               ]
             },
@@ -411,7 +422,9 @@
               "type": "token",
               "value": [
                 "df.isnull().sum().sum()",
-                "df.isna().sum().sum()"
+                "df.isna().sum().sum()",
+                "df.isnull().values.sum()",
+                "df.isna().values.sum()"
               ],
               "label": "남은 결측치 총개수 출력",
               "hint": "컬럼별 합계를 한 번 더 합산(`sum` 두 번)하면 전체 개수가 됩니다."
@@ -435,10 +448,14 @@
             {
               "code": "df['total_fee'] = df['total_fee'].fillna(df['total_fee'].median())\nprint('남은 결측치:', df.isnull().sum())\n",
               "reason": "총개수가 아닌 컬럼별 합계를 출력"
+            },
+            {
+              "code": "df['total_fee'] = df['total_fee'].fillna(df['monthly_fee'].median())\nprint('남은 결측치:', df.isnull().sum().sum())\n",
+              "reason": "다른 컬럼(monthly_fee)의 중앙값으로 대체 — 지시는 해당 컬럼 total_fee 의 중앙값"
             }
           ],
           "expected_output": "남은 결측치: 0",
-          "explanation": "`fillna` 는 **새 Series 를 반환**하므로 `df['total_fee'] = ...` 로 다시 대입해야 합니다. 재대입을 빠뜨리면 오류 없이 결측치 150건이 그대로 남습니다. 이것이 이 문항의 핵심 감점 포인트입니다.\n\n중앙값을 쓰라고 한 이유는 `total_fee` 가 가입 개월 수와 요금의 곱이라 오른쪽으로 길게 늘어진 분포이기 때문입니다. 이런 분포에서는 평균이 큰 값에 끌려가지만 중앙값은 덜 영향받습니다. 다만 시험에서는 방법을 지정하는 경우가 대부분이므로 지시된 함수를 정확히 쓰는 것이 우선입니다.\n\n마지막 `print` 의 값이 0 인지 반드시 확인합니다. 결측치가 남은 채 딥러닝 학습에 들어가면 에러 없이 `loss: nan` 이 나옵니다.\n\n자주 틀리는 지점\n\n- 재대입 누락, `dropna()` 로 행을 지워 버려 뒤 문항의 행 개수가 달라지는 것.\n- `df.fillna(df.median())` 처럼 데이터프레임 전체에 거는 것. 문자열 컬럼 때문에 오류가 납니다."
+          "explanation": "`fillna` 는 **새 Series 를 반환**하므로 `df['total_fee'] = ...` 로 다시 대입해야 합니다. 재대입을 빠뜨리면 오류 없이 결측치 150건이 그대로 남습니다. 이것이 이 문항의 핵심 감점 포인트입니다.\n\n중앙값을 쓰라고 한 이유는 `total_fee` 가 가입 개월 수와 요금의 곱이라 오른쪽으로 길게 늘어진 분포이기 때문입니다. 이런 분포에서는 평균이 큰 값에 끌려가지만 중앙값은 덜 영향받습니다. 다만 시험에서는 방법을 지정하는 경우가 대부분이므로 지시된 함수를 정확히 쓰는 것이 우선입니다.\n\n마지막 `print` 의 값이 0 인지 반드시 확인합니다. 결측치가 남은 채 딥러닝 학습에 들어가면 에러 없이 `loss: nan` 이 나옵니다.\n\n엄밀히는 대체값(중앙값)도 학습 데이터로만 구하는 것이 데이터 누수를 막는 원칙입니다. 다만 이 시험 흐름은 분리(Q7) 전에 전체 데이터로 처리하라고 지시하므로, 시험에서는 지시대로 전체 데이터에 적용합니다.\n\n자주 틀리는 지점\n\n- 재대입 누락, `dropna()` 로 행을 지워 버려 뒤 문항의 행 개수가 달라지는 것.\n- `df.fillna(df.median())` 처럼 데이터프레임 전체에 거는 것. 문자열 컬럼 때문에 오류가 납니다."
         },
         {
           "no": 5,
@@ -447,7 +464,7 @@
           "points": 6,
           "minutes": 6,
           "prompt": "`monthly_fee` 컬럼의 이상치를 **IQR 방식**으로 제거하시오.\n\n- 1사분위수 `q1`, 3사분위수 `q3`, 사분위 범위 `iqr` 을 구하시오.\n- 하한 `lower = q1 - 1.5 * iqr`, 상한 `upper = q3 + 1.5 * iqr` 을 벗어나는 행을 제거하여 `df` 에 다시 저장하시오.\n- 고객 식별 번호 `customer_id` 컬럼은 예측에 도움이 되지 않으므로 `df` 에서 제거하시오.\n- 처리 후 `df.shape` 를 출력하시오.",
-          "skeleton_code": "q1 = df['monthly_fee'].quantile(___)\nq3 = df['monthly_fee'].quantile(___)\niqr = ___\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\n\ndf = df[___]\ndf = df.drop(columns=[___])\nprint(df.shape)\n",
+          "skeleton_code": "q1 = df['monthly_fee'].quantile(___)\nq3 = df['monthly_fee'].quantile(___)\niqr = ___\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\n\ndf = df[(df['monthly_fee'] >= ___) & (df['monthly_fee'] <= ___)]\ndf = df.drop(columns=[___])\nprint(df.shape)\n",
           "answer_code": "q1 = df['monthly_fee'].quantile(0.25)\nq3 = df['monthly_fee'].quantile(0.75)\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\n\ndf = df[(df['monthly_fee'] >= lower) & (df['monthly_fee'] <= upper)]\ndf = df.drop(columns=['customer_id'])\nprint(df.shape)\n",
           "validation_rules": [
             {
@@ -495,7 +512,7 @@
               "type": "call",
               "callee": ".drop",
               "label": "customer_id 컬럼 제거",
-              "hint": "컬럼을 지울 때는 `columns=[...]`(또는 `axis=1`)가 필요합니다. 지울 컬럼명은 문자열 리스트로 줍니다.",
+              "hint": "컬럼을 지울 때는 `columns=[...]`가 필요합니다. 지울 컬럼명은 문자열 리스트로 줍니다.",
               "assign": "df",
               "params": [
                 {
@@ -654,7 +671,11 @@
                 },
                 {
                   "kw": "stratify",
-                  "value": "y"
+                  "value": [
+                    "y",
+                    "df['churn']",
+                    "df.churn"
+                  ]
                 }
               ]
             },
@@ -1029,7 +1050,7 @@
             }
           ],
           "expected_output": "          model  accuracy      f1\n0  DecisionTree    0.7453  0.5128\n1  RandomForest    0.7330  0.4882\n2       XGBoost    0.7453  0.5128",
-          "explanation": "세 모델 모두 같은 `fit` / `predict` 인터페이스를 따르기 때문에 한 표로 비교하기 쉽습니다. 비교표를 만드는 목적은 Q11 딥러닝 모델의 **기준선**을 확인하는 것입니다. 정형 데이터(표 데이터)에서는 트리 계열 모델이 딥러닝과 비슷하거나 더 좋은 경우가 흔하므로, 딥러닝이 이들보다 크게 낮다면 전처리나 모델 설정을 의심하라는 신호입니다.\n\n`f1_score` 는 기본이 클래스 1(이탈)에 대한 값이라 불균형 데이터에서 accuracy 보다 정보량이 많습니다. `eval_metric='logloss'` 는 최신 xgboost 에서 경고를 없애기 위한 인자입니다.\n\n자주 틀리는 지점\n\n- 비교표의 세 번째 칸에 다른 모델의 예측값을 복사해 넣는 것.\n- `learning_rate` 를 0.0001 처럼 너무 작게 잡아 100 트리 안에서 학습이 부족해지는 것, `max_depth` 를 크게 잡아 과적합하는 것.\n- `import` 를 빠뜨려 `NameError: XGBClassifier`. 시험 환경의 설치 여부는 문항 지시와 환경 안내에서 확인하세요."
+          "explanation": "세 모델 모두 같은 `fit` / `predict` 인터페이스를 따르기 때문에 한 표로 비교하기 쉽습니다. 비교표를 만드는 목적은 Q11 딥러닝 모델의 **기준선**을 확인하는 것입니다. 정형 데이터(표 데이터)에서는 트리 계열 모델이 딥러닝과 비슷하거나 더 좋은 경우가 흔하므로, 딥러닝이 이들보다 크게 낮다면 전처리나 모델 설정을 의심하라는 신호입니다.\n\n`f1_score` 는 기본이 클래스 1(이탈)에 대한 값이라 불균형 데이터에서 accuracy 보다 정보량이 많습니다. `eval_metric='logloss'` 는 최신 xgboost 에서 경고를 없애기 위한 인자입니다.\n\n표에서 DecisionTree 와 XGBoost 의 accuracy·f1 이 같게 나오는 것은 이 데이터에서 우연히 지표가 같아진 것입니다(두 모델의 예측이 서로 다른 행도 있습니다). 같은 예측을 복사해 넣은 실수로 오해하지 마십시오.\n\n자주 틀리는 지점\n\n- 비교표의 세 번째 칸에 다른 모델의 예측값을 복사해 넣는 것.\n- `learning_rate` 를 0.0001 처럼 너무 작게 잡아 100 트리 안에서 학습이 부족해지는 것, `max_depth` 를 크게 잡아 과적합하는 것.\n- `import` 를 빠뜨려 `NameError: XGBClassifier`. 시험 환경의 설치 여부는 문항 지시와 환경 안내에서 확인하세요."
         },
         {
           "no": 11,
@@ -1060,6 +1081,9 @@
                   "value": [
                     "(X_train_scaled.shape[1],)",
                     "(X_train_scaled.shape[-1],)",
+                    "(X_train.shape[1],)",
+                    "(X.shape[1],)",
+                    "X_train_scaled.shape[1:]",
                     "(10,)"
                   ]
                 }
@@ -1067,13 +1091,13 @@
             },
             {
               "type": "regex",
-              "pattern": "Dense\\(\\d+,activation='relu'\\)\\)[\\s\\S]*Dense\\(\\d+,activation='relu'\\)",
+              "pattern": "Dense\\((units=)?[1-9]\\d*,activation='relu'\\)\\)[\\s\\S]*Dense\\((units=)?[1-9]\\d*,activation='relu'\\)",
               "label": "은닉층 Dense 2개 (relu)",
               "hint": "은닉층은 `Dense(노드 수, activation='relu')` 입니다. 첫 은닉층의 노드 수 자리에는 양의 정수를 넣으세요."
             },
             {
               "type": "regex",
-              "pattern": "Dropout\\(0\\.(0[5-9]\\d*|[1-6]\\d*)\\)[\\s\\S]*Dropout\\(0\\.(0[5-9]\\d*|[1-6]\\d*)\\)",
+              "pattern": "Dropout\\((rate=)?0\\.(0[5-9]\\d*|[1-5]\\d*|60*)\\)[\\s\\S]*Dropout\\((rate=)?0\\.(0[5-9]\\d*|[1-5]\\d*|60*)\\)",
               "label": "Dropout 비율 0.05~0.6",
               "hint": "Dropout 의 인자는 **버릴 비율**(0~1 실수)입니다. 보통 0.2~0.5 를 씁니다."
             },
@@ -1104,7 +1128,7 @@
               "type": "call",
               "callee": "model.compile",
               "label": "compile: adam / binary_crossentropy / accuracy",
-              "hint": "이진분류의 손실 함수는 sigmoid 출력과 짝을 이루는 `binary_crossentropy` 입니다. metrics 는 리스트로 감싸 `accuracy` 를 지정하세요.",
+              "hint": "이진분류의 손실 함수는 sigmoid 출력과 짝을 이루는 `binary_crossentropy` 입니다. metrics 는 리스트로 감싸 `['accuracy']` 로 지정하세요. (`'acc'` 로 쓰면 Keras 3 의 history 키가 `acc` 가 되어 Q13 과 어긋납니다.)",
               "params": [
                 {
                   "kw": "optimizer",
@@ -1119,14 +1143,17 @@
                 {
                   "kw": "loss",
                   "pos": 1,
-                  "value": "'binary_crossentropy'"
+                  "value": [
+                    "'binary_crossentropy'",
+                    {
+                      "contains": "BinaryCrossentropy("
+                    }
+                  ]
                 },
                 {
                   "kw": "metrics",
                   "value": [
-                    "['accuracy']",
-                    "['acc']",
-                    "'accuracy'"
+                    "['accuracy']"
                   ]
                 }
               ]
@@ -1154,10 +1181,26 @@
             {
               "code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(2, activation='sigmoid'))\nmodel.summary()\n\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n",
               "reason": "이진분류 출력 노드를 2개로 지정"
+            },
+            {
+              "code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(1, activation='sigmoid'))\nmodel.summary()\n\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])\n",
+              "reason": "metrics=['acc'] — Keras 3 에서 history 키가 acc/val_acc 가 되어 Q13 의 accuracy/val_accuracy 와 어긋남 (지문은 accuracy 지정)"
+            },
+            {
+              "code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(1, activation='sigmoid'))\nmodel.summary()\n\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics='accuracy')\n",
+              "reason": "metrics 를 리스트로 감싸지 않음 — Keras 3 compile 에서 ValueError"
+            },
+            {
+              "code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dropout(0.65))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(1, activation='sigmoid'))\nmodel.summary()\n\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n",
+              "reason": "Dropout 비율이 허용 범위(0.05~0.6)를 벗어남"
+            },
+            {
+              "code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(0, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(1, activation='sigmoid'))\nmodel.summary()\n\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n",
+              "reason": "노드 수 0 인 은닉층"
             }
           ],
           "expected_output": "Model: \"sequential\"\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃\n┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n│ dense (Dense)                   │ (None, 64)             │           704 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dropout (Dropout)               │ (None, 64)             │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_1 (Dense)                 │ (None, 32)             │         2,080 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dropout_1 (Dropout)             │ (None, 32)             │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_2 (Dense)                 │ (None, 1)              │            33 │\n└─────────────────────────────────┴────────────────────────┴───────────────┘\n Total params: 2,817 (11.00 KB)\n Trainable params: 2,817 (11.00 KB)\n Non-trainable params: 0 (0.00 B)",
-          "explanation": "모델은 \"입력 → 은닉(relu) → Dropout → … → 출력\" 순서로 쌓습니다. 입력 특성 수는 `X_train_scaled.shape[1]` 로 자동 계산하면 앞 문항의 인코딩 결과가 바뀌어도 안전합니다. `Input(shape=(2100, 10))` 처럼 샘플 수를 넣는 것은 틀립니다.\n\n이진분류의 3종 세트는 **출력 노드 1개 + `sigmoid` + `binary_crossentropy`** 입니다. 출력층과 손실 함수는 항상 짝으로 움직이며, 한쪽만 바꾸면 에러 없이 학습이 망가지는 것이 가장 흔한 사고입니다. `Dropout` 은 은닉층 뒤에만 두고 출력층 뒤에는 두지 않습니다.\n\n같은 모델을 **Functional API** 로 쓰면 다음과 같습니다. 구성이 달라질 뿐 `compile` 이하는 동일합니다.\n\n- `inputs = Input(shape=(X_train_scaled.shape[1],))`\n- `x = Dense(64, activation='relu')(inputs)`\n- `x = Dropout(0.3)(x)`\n- `x = Dense(32, activation='relu')(x)`\n- `x = Dropout(0.3)(x)`\n- `outputs = Dense(1, activation='sigmoid')(x)`\n- `model = Model(inputs=inputs, outputs=outputs)` (`from tensorflow.keras.models import Model` 필요)\n\n자주 틀리는 지점\n\n- 출력층에 `softmax` 를 쓰는 것, 손실 함수를 `categorical_crossentropy` 로 쓰는 것.\n- `Dense(..., input_shape=...)` 구버전 표기. 이 교재는 `Input(shape=(n,))` 를 표준으로 합니다.\n- `compile()` 을 빠뜨리고 `fit` 을 부르는 것, 변수명을 `model` 이 아닌 이름으로 짓는 것(Q12 이후가 모두 `model` 을 씁니다).\n- 변수 `model` 이 ML 모델(`dt_model` 등)과 겹치지 않도록 앞 문항에서 이름을 분리해 두었습니다."
+          "explanation": "모델은 \"입력 → 은닉(relu) → Dropout → … → 출력\" 순서로 쌓습니다. 입력 특성 수는 `X_train_scaled.shape[1]` 로 자동 계산하면 앞 문항의 인코딩 결과가 바뀌어도 안전합니다. `Input(shape=(2087, 10))` 처럼 샘플 수를 넣는 것은 틀립니다.\n\n이진분류의 3종 세트는 **출력 노드 1개 + `sigmoid` + `binary_crossentropy`** 입니다. 출력층과 손실 함수는 항상 짝으로 움직이며, 한쪽만 바꾸면 에러 없이 학습이 망가지는 것이 가장 흔한 사고입니다. `Dropout` 은 은닉층 뒤에만 두고 출력층 뒤에는 두지 않습니다.\n\n같은 모델을 **Functional API** 로 쓰면 다음과 같습니다. 구성이 달라질 뿐 `compile` 이하는 동일합니다.\n\n- `inputs = Input(shape=(X_train_scaled.shape[1],))`\n- `x = Dense(64, activation='relu')(inputs)`\n- `x = Dropout(0.3)(x)`\n- `x = Dense(32, activation='relu')(x)`\n- `x = Dropout(0.3)(x)`\n- `outputs = Dense(1, activation='sigmoid')(x)`\n- `model = Model(inputs=inputs, outputs=outputs)` (`from tensorflow.keras.models import Model` 필요)\n\n자주 틀리는 지점\n\n- 출력층에 `softmax` 를 쓰는 것, 손실 함수를 `categorical_crossentropy` 로 쓰는 것.\n- `Dense(..., input_shape=...)` 구버전 표기. 이 교재는 `Input(shape=(n,))` 를 표준으로 합니다.\n- `compile()` 을 빠뜨리고 `fit` 을 부르는 것, 변수명을 `model` 이 아닌 이름으로 짓는 것(Q12 이후가 모두 `model` 을 씁니다).\n- 변수 `model` 이 ML 모델(`dt_model` 등)과 겹치지 않도록 앞 문항에서 이름을 분리해 두었습니다."
         },
         {
           "no": 12,
@@ -1382,17 +1425,36 @@
               ]
             },
             {
-              "type": "call",
-              "callee": "pd.DataFrame",
+              "type": "any",
               "label": "new_data 로 1행 데이터프레임 new_df 생성",
-              "hint": "딕셔너리의 값이 모두 스칼라이면 그대로 넣을 수 없습니다. 딕셔너리를 **리스트로 감싸** 1행 표로 만드세요.",
-              "assign": "new_df",
-              "params": [
+              "hint": "딕셔너리의 값이 모두 스칼라이면 그대로 넣을 수 없습니다. 딕셔너리를 리스트로 감싸거나 index 를 지정해 1행 표로 만드세요.",
+              "rules": [
                 {
-                  "kw": "data",
-                  "pos": 0,
-                  "value": [
-                    "[new_data]"
+                  "type": "call",
+                  "callee": "pd.DataFrame",
+                  "assign": "new_df",
+                  "params": [
+                    {
+                      "kw": "data",
+                      "pos": 0,
+                      "value": "[new_data]"
+                    }
+                  ]
+                },
+                {
+                  "type": "call",
+                  "callee": "pd.DataFrame",
+                  "assign": "new_df",
+                  "params": [
+                    {
+                      "kw": "data",
+                      "pos": 0,
+                      "value": "new_data"
+                    },
+                    {
+                      "kw": "index",
+                      "value": "*"
+                    }
                   ]
                 }
               ]
@@ -1455,7 +1517,7 @@
             },
             {
               "type": "regex",
-              "pattern": "print\\('예측 결과:',[^\\n]*new_pred[^\\n]*>=?0\\.5",
+              "pattern": "print\\('예측 결과:',(int\\([^\\n]*new_pred[^\\n]*>=?0\\.5|[^\\n]*new_pred[^\\n]*>=?0\\.5[^\\n]*astype\\(int\\)|1 if [^\\n]*new_pred[^\\n]*>=?0\\.5[^\\n]*else 0|np\\.where\\([^\\n]*new_pred[^\\n]*>=?0\\.5)",
               "label": "확률 → 0/1 최종 판정 출력",
               "hint": "`new_pred` 는 (1,1) 배열입니다. 확률 값 하나를 꺼내 임계값 0.5 와 비교해 0 또는 1 로 만들어 출력하세요."
             },
@@ -1481,15 +1543,19 @@
             },
             {
               "code": "test_loss, test_acc = model.evaluate(X_test_scaled, y_test, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled)\ny_pred = (pred > 0.5).astype(int)\nprint(classification_report(y_test, y_pred))\nprint(confusion_matrix(y_test, y_pred))\n\nnew_data = {'tenure_months': 5, 'monthly_fee': 89.5, 'total_fee': 440.0,\n            'contract_type': 'month', 'internet_service': 'fiber', 'support_calls': 4}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['contract_type', 'internet_service'], dtype=int)\nnew_df = new_df\nnew_scaled = scaler.transform(new_df)\nnew_pred = model.predict(new_scaled)\n\nprint('이탈 확률:', round(float(new_pred[0][0]), 4))\nprint('예측 결과:', int(new_pred[0][0] > 0.5))\n",
-              "reason": "reindex 를 건너뛰어 컬럼 수가 학습(10개)과 달라 shape 오류"
+              "reason": "reindex 를 건너뛰어 학습 때 본 컬럼이 빠짐 — scaler.transform 이 feature names 불일치 ValueError"
             },
             {
               "code": "test_loss, test_acc = model.evaluate(X_train_scaled, y_train, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled)\ny_pred = (pred > 0.5).astype(int)\nprint(classification_report(y_test, y_pred))\nprint(confusion_matrix(y_test, y_pred))\n\nnew_data = {'tenure_months': 5, 'monthly_fee': 89.5, 'total_fee': 440.0,\n            'contract_type': 'month', 'internet_service': 'fiber', 'support_calls': 4}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['contract_type', 'internet_service'], dtype=int)\nnew_df = new_df.reindex(columns=X.columns, fill_value=0)\nnew_scaled = scaler.transform(new_df)\nnew_pred = model.predict(new_scaled)\n\nprint('이탈 확률:', round(float(new_pred[0][0]), 4))\nprint('예측 결과:', int(new_pred[0][0] > 0.5))\n",
               "reason": "평가를 학습 데이터로 수행"
+            },
+            {
+              "code": "test_loss, test_acc = model.evaluate(X_test_scaled, y_test, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled)\ny_pred = (pred > 0.5).astype(int)\nprint(classification_report(y_test, y_pred))\nprint(confusion_matrix(y_test, y_pred))\n\nnew_data = {'tenure_months': 5, 'monthly_fee': 89.5, 'total_fee': 440.0,\n            'contract_type': 'month', 'internet_service': 'fiber', 'support_calls': 4}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['contract_type', 'internet_service'], dtype=int)\nnew_df = new_df.reindex(columns=X.columns, fill_value=0)\nnew_scaled = scaler.transform(new_df)\nnew_pred = model.predict(new_scaled)\n\nprint('이탈 확률:', round(float(new_pred[0][0]), 4))\nprint('예측 결과:', new_pred > 0.5)\n",
+              "reason": "불리언 [[True]] 를 그대로 출력 — 지문은 최종 판정 0 또는 1"
             }
           ],
           "expected_output": "test loss: 0.4967 / test accuracy: 0.7497\n\n              precision    recall  f1-score   support\n\n           0       0.79      0.89      0.83       630\n           1       0.61      0.43      0.50       265\n\n    accuracy                           0.75       895\n   macro avg       0.70      0.66      0.67       895\nweighted avg       0.73      0.75      0.73       895\n\n[[558  72]\n [152 113]]\n\n이탈 확률: 0.8273\n예측 결과: 1\n\n모의고사 답안 실행 검증: ALL PASS",
-          "explanation": "평가 쪽은 `evaluate`(loss, accuracy)와 `predict` → 임계값 0.5 → `y_pred` → `classification_report`/`confusion_matrix` 의 흐름입니다. `predict` 의 결과는 확률이고, 클래스로 바꾸려면 임계값 비교가 필요합니다(`argmax` 는 다중분류용). 평가 accuracy 가 약 70% 의 \"전부 유지\" 기준선보다 얼마나 높은지, 그리고 이탈(1) 클래스의 recall 이 어떤지를 함께 보는 습관을 들이세요.\n\n신규 샘플 예측은 **학습 때와 똑같은 전처리 사슬**을 타야 합니다. 순서는 ① 1행 `DataFrame`(딕셔너리를 `[ ]` 로 감쌈) → ② `get_dummies` → ③ `reindex(columns=X.columns, fill_value=0)` → ④ `scaler.transform` → ⑤ `model.predict` 입니다. 1행짜리 데이터는 `month`, `fiber` 더미만 만들어지므로 ③ 이 없으면 열 개수가 10개가 안 되어 shape 오류가 나고, 열 순서가 달라도 값이 엉뚱한 특성에 들어가 에러 없이 틀린 예측을 합니다. `X.columns` 로 맞추면 개수·순서가 동시에 해결됩니다.\n\n④ 에서는 반드시 `transform` 만 씁니다. 신규 샘플에 `fit_transform` 을 하면 샘플 1건의 평균으로 다시 학습하므로 모든 값이 0 이 되어 의미 없는 예측이 나옵니다. 판정은 `new_pred[0][0]` 이 0.5 보다 크면 1(이탈), 아니면 0(유지)입니다.\n\n자주 틀리는 지점\n\n- `pd.DataFrame(new_data)` 처럼 리스트로 감싸지 않아 `ValueError: If using all scalar values, you must pass an index`.\n- `get_dummies` 후 `reindex` 누락, 또는 `fill_value=0` 누락으로 NaN 발생.\n- 새 샘플에 `scaler.fit_transform`, 또는 새 `StandardScaler()` 를 만들어 사용.\n- 판정에서 `new_pred > 0.5` 만 출력해 `[[True]]` 가 나오는 것. 0/1 정수로 바꿔 출력하세요.\n- 예측 확률이 0.5 근처일 때 판정이 임계값에 민감하다는 점도 기억하세요. 이 데이터처럼 불균형하면 임계값을 조정하는 방법도 있지만, 시험에서는 지시된 0.5 를 따릅니다."
+          "explanation": "평가 쪽은 `evaluate`(loss, accuracy)와 `predict` → 임계값 0.5 → `y_pred` → `classification_report`/`confusion_matrix` 의 흐름입니다. `predict` 의 결과는 확률이고, 클래스로 바꾸려면 임계값 비교가 필요합니다(`argmax` 는 다중분류용). 평가 accuracy 가 약 70% 의 \"전부 유지\" 기준선보다 얼마나 높은지, 그리고 이탈(1) 클래스의 recall 이 어떤지를 함께 보는 습관을 들이세요.\n\n신규 샘플 예측은 **학습 때와 똑같은 전처리 사슬**을 타야 합니다. 순서는 ① 1행 `DataFrame`(딕셔너리를 `[ ]` 로 감싸거나 `index=[0]` 를 지정) → ② `get_dummies` → ③ `reindex(columns=X.columns, fill_value=0)` → ④ `scaler.transform` → ⑤ `model.predict` 입니다. 1행짜리 데이터는 `month`, `fiber` 더미만 만들어지므로 ③ 이 없으면 학습 때 본 컬럼이 빠져 `scaler.transform` 이 `ValueError`(feature names should match)를 냅니다. `scaler` 는 데이터프레임 `X_train` 으로 학습되어 컬럼 이름과 순서까지 기억하기 때문입니다. 넘파이 배열로 바꿔 넣으면 이 검사가 사라져 열 순서가 어긋나도 에러 없이 틀린 예측이 나오므로 더 위험합니다. `X.columns` 로 맞추면 개수·순서가 동시에 해결됩니다.\n\n④ 에서는 반드시 `transform` 만 씁니다. 신규 샘플에 `fit_transform` 을 하면 샘플 1건의 평균으로 다시 학습하므로 모든 값이 0 이 되어 의미 없는 예측이 나옵니다. 판정은 `new_pred[0][0]` 이 0.5 보다 크면 1(이탈), 아니면 0(유지)입니다.\n\n자주 틀리는 지점\n\n- `pd.DataFrame(new_data)` 처럼 리스트로 감싸지 않아 `ValueError: If using all scalar values, you must pass an index`.\n- `get_dummies` 후 `reindex` 누락, 또는 `fill_value=0` 누락으로 NaN 발생.\n- 새 샘플에 `scaler.fit_transform`, 또는 새 `StandardScaler()` 를 만들어 사용.\n- 판정에서 `new_pred > 0.5` 만 출력해 `[[True]]` 가 나오는 것. 0/1 정수로 바꿔 출력하세요.\n- 예측 확률이 0.5 근처일 때 판정이 임계값에 민감하다는 점도 기억하세요. 이 데이터처럼 불균형하면 임계값을 조정하는 방법도 있지만, 시험에서는 지시된 0.5 를 따릅니다."
         }
       ]
     },
@@ -1676,7 +1742,7 @@
             }
           ],
           "expected_output": "(4000, 10)\n<class 'pandas.DataFrame'>\nRangeIndex: 4000 entries, 0 to 3999\nData columns (total 10 columns):\n #   Column       Non-Null Count  Dtype  \n---  ------       --------------  -----  \n 0   temp         4000 non-null   float64\n 1   vibration    4000 non-null   float64\n 2   pressure     3840 non-null   float64\n 3   rpm          4000 non-null   float64\n 4   current      4000 non-null   float64\n 5   humidity     4000 non-null   float64\n 6   line_id      4000 non-null   str    \n 7   shift        4000 non-null   str    \n 8   rul_days     4000 non-null   float64\n 9   defect_type  4000 non-null   str    \ndtypes: float64(7), str(3)\nmemory usage: 312.6+ KB",
-          "explanation": "**왜 이렇게 푸는가**\n\n- 이 데이터에는 `pd.read_csv` 한 줄이면 충분합니다. 결과를 반드시 **지정된 변수명 `df`** 에 담아야 뒤 문항이 이어집니다.\n- `df.shape` 는 **속성**이라 괄호가 없고, `df.info()` 는 **메서드**라 괄호가 있습니다. `info()` 는 결과를 스스로 화면에 출력하므로 `print()` 로 한 번 더 감싸면 끝에 `None` 이 따라 찍힙니다.\n- `info()` 의 `Non-Null Count` 에서 `pressure` 만 개수가 모자란 것이 보입니다. 이 한 줄이 Q4(결측 처리)의 근거입니다. `line_id`, `shift`, `defect_type` 이 문자열이라는 점은 Q6(인코딩)의 근거입니다.\n- 이 회차의 **타깃 `defect_type` 은 정수가 아니라 문자열**(`normal`, `wear`, `overheat`)입니다. 딥러닝은 숫자만 다루므로 Q6 에서 `LabelEncoder` 로 정수로 바꿔야 한다는 예고입니다.\n\n**자주 틀리는 지점**\n\n- 별칭을 멋대로 바꾸는 것(`import pandas as pds`). 코드가 오류 없이 지나가다가 `pd.` 를 쓰는 순간 `NameError` 가 납니다.\n- `df.shape()` 처럼 속성에 괄호를 붙이는 것. 튜플은 호출할 수 없으므로 `TypeError` 가 납니다.\n- 파일명 철자·확장자 오타. 실제 시험에서는 경로가 주어지므로 지문의 파일명을 그대로 복사하십시오."
+          "explanation": "**왜 이렇게 푸는가**\n\n- 이 데이터에는 `pd.read_csv` 한 줄이면 충분합니다. 결과를 반드시 **지정된 변수명 `df`** 에 담아야 뒤 문항이 이어집니다.\n- `df.shape` 는 **속성**이라 괄호가 없고, `df.info()` 는 **메서드**라 괄호가 있습니다. `info()` 는 결과를 스스로 화면에 출력하므로 `print()` 로 한 번 더 감싸면 끝에 `None` 이 따라 찍힙니다.\n- `info()` 의 `Non-Null Count` 에서 `pressure` 만 개수가 모자란 것이 보입니다. 이 한 줄이 Q4(결측 처리)의 근거입니다. `line_id`, `shift`, `defect_type` 이 문자열이라는 점은 Q6(인코딩)의 근거입니다.\n- 이 회차의 **타깃 `defect_type` 은 정수가 아니라 문자열**(`normal`, `wear`, `overheat`)입니다. 딥러닝은 숫자만 다루므로 Q6 에서 `LabelEncoder` 로 정수로 바꿔야 한다는 예고입니다.\n\n출력 표기는 pandas 버전에 따라 다를 수 있습니다. pandas 3.x 에서는 `pandas.DataFrame` 과 Dtype `str`, pandas 2.x 에서는 `pandas.core.frame.DataFrame` 과 `object` 로 표시됩니다.\n\n**자주 틀리는 지점**\n\n- 별칭을 멋대로 바꾸는 것(`import pandas as pds`). 코드가 오류 없이 지나가다가 `pd.` 를 쓰는 순간 `NameError` 가 납니다.\n- `df.shape()` 처럼 속성에 괄호를 붙이는 것. 튜플은 호출할 수 없으므로 `TypeError` 가 납니다.\n- 파일명 철자·확장자 오타. 실제 시험에서는 경로가 주어지므로 지문의 파일명을 그대로 복사하십시오."
         },
         {
           "no": 2,
@@ -1684,7 +1750,7 @@
           "title": "탐색: 타깃 분포·결측 확인과 시각화",
           "points": 4,
           "minutes": 4,
-          "prompt": "타깃 컬럼 `defect_type` 과 결측치를 탐색하시오.\n\n1. `defect_type` 의 **클래스별 개수**를 출력하시오.\n2. 데이터프레임 `df` 의 **컬럼별 결측치 개수**를 출력하시오.\n3. `seaborn` 의 막대형 분포 그래프로 `defect_type` 의 **클래스별 개수를 시각화**하시오. x축은 `defect_type` 입니다.\n\n그래프와 숫자를 보고 클래스가 몇 개인지, 한쪽으로 치우쳐 있는지를 확인하십시오. (`train_test_split` 의 `stratify`, 평가지표 선택의 근거가 됩니다.)",
+          "prompt": "타깃 컬럼 `defect_type` 과 결측치를 탐색하시오.\n\n1. `defect_type` 의 **클래스별 개수**를 출력하시오.\n2. 데이터프레임 `df` 의 **컬럼별 결측치 개수**를 출력하시오.\n3. `seaborn` 의 `countplot` 으로 `defect_type` 의 **클래스별 개수를 시각화**하시오. x축은 `defect_type` 입니다.\n\n그래프와 숫자를 보고 클래스가 몇 개인지, 한쪽으로 치우쳐 있는지를 확인하십시오. (`train_test_split` 의 `stratify`, 평가지표 선택의 근거가 됩니다.)",
           "skeleton_code": "print(df['defect_type'].___())\nprint(df.___().sum())\n\nsns.___(data=df, x=___)\nplt.title('defect_type distribution')\nplt.show()",
           "answer_code": "print(df['defect_type'].value_counts())\nprint(df.isnull().sum())\n\nsns.countplot(data=df, x='defect_type')\nplt.title('defect_type distribution')\nplt.show()",
           "validation_rules": [
@@ -1733,7 +1799,7 @@
           "negative_tests": [
             {
               "code": "print(df['defect_type'].value_counts())\nprint(df.isnull().sum())\n\nsns.histplot(data=df, x='defect_type')\nplt.title('defect_type distribution')\nplt.show()",
-              "reason": "histplot 은 연속형 분포용 (문항은 클래스별 개수 막대 그래프)"
+              "reason": "지문이 지정한 countplot 이 아니라 histplot 을 사용 (histplot 은 연속형 분포용)"
             },
             {
               "code": "print(df['defect_type'].value_counts())\nprint(df.isnull())\n\nsns.countplot(data=df, x='defect_type')\nplt.title('defect_type distribution')\nplt.show()",
@@ -1994,7 +2060,7 @@
           "title": "범주형 변수 인코딩",
           "points": 7,
           "minutes": 6,
-          "prompt": "문자열로 된 컬럼들을 모델이 다룰 수 있는 숫자로 바꾸시오.\n\n1. 특성 컬럼 `line_id`, `shift` 를 **원-핫 인코딩**하여 `df` 에 다시 저장하시오. 더미 변수는 **0과 1의 정수**가 되도록 하시오.\n2. 타깃 `defect_type` 은 `LabelEncoder` 객체 `le` 를 만들어 **정수 라벨(0, 1, 2)** 로 변환하여 `df['defect_type']` 에 다시 저장하시오. (타깃에는 원-핫 인코딩을 하지 **않습니다**.)\n3. `le.classes_`(정수 → 클래스명 대응)와 `df.shape` 를 출력하시오.\n\n`le` 는 마지막 문항(Q14)에서 **예측 번호를 클래스 이름으로 되돌릴 때** 다시 사용합니다.",
+          "prompt": "문자열로 된 컬럼들을 모델이 다룰 수 있는 숫자로 바꾸시오.\n\n1. 특성 컬럼 `line_id`, `shift` 를 **원-핫 인코딩**하여 `df` 에 다시 저장하시오. 더미 변수는 **0과 1의 정수**가 되도록 하시오. (`drop_first` 는 쓰지 말고 모든 범주의 더미를 남기시오.)\n2. 타깃 `defect_type` 은 `LabelEncoder` 객체 `le` 를 만들어 **정수 라벨(0, 1, 2)** 로 변환하여 `df['defect_type']` 에 다시 저장하시오. (타깃에는 원-핫 인코딩을 하지 **않습니다**.)\n3. `le.classes_`(정수 → 클래스명 대응)와 `df.shape` 를 출력하시오.\n\n`le` 는 마지막 문항(Q14)에서 **예측 번호를 클래스 이름으로 되돌릴 때** 다시 사용합니다.",
           "skeleton_code": "from sklearn.preprocessing import LabelEncoder\n\ndf = pd.get_dummies(df, columns=[___, ___], dtype=___)\n\nle = ___()\ndf['defect_type'] = le.___(df['defect_type'])\n\nprint(le.classes_)\nprint(df.shape)",
           "answer_code": "from sklearn.preprocessing import LabelEncoder\n\ndf = pd.get_dummies(df, columns=['line_id', 'shift'], dtype=int)\n\nle = LabelEncoder()\ndf['defect_type'] = le.fit_transform(df['defect_type'])\n\nprint(le.classes_)\nprint(df.shape)",
           "validation_rules": [
@@ -2019,11 +2085,9 @@
                 },
                 {
                   "kw": "dtype",
-                  "value": [
-                    "int",
-                    "'int'",
-                    "np.int64"
-                  ]
+                  "value": {
+                    "re": "^(int|'int'|'int64'|'int32'|'int8'|'uint8'|np\\.int64|np\\.int32|np\\.int8|np\\.uint8)$"
+                  }
                 }
               ]
             },
@@ -2457,6 +2521,9 @@
                   "pos": 0,
                   "value": [
                     "(X_train_scaled.shape[1],)",
+                    "(X_train_scaled.shape[-1],)",
+                    "(X_train.shape[1],)",
+                    "(X.shape[1],)",
                     "(12,)"
                   ]
                 }
@@ -2492,7 +2559,8 @@
                   "pos": 0,
                   "value": [
                     "n_classes",
-                    "3"
+                    "3",
+                    "len(le.classes_)"
                   ]
                 },
                 {
@@ -2530,13 +2598,17 @@
                 },
                 {
                   "kw": "loss",
-                  "value": "'sparse_categorical_crossentropy'"
+                  "value": [
+                    "'sparse_categorical_crossentropy'",
+                    {
+                      "contains": "SparseCategoricalCrossentropy("
+                    }
+                  ]
                 },
                 {
                   "kw": "metrics",
                   "value": [
-                    "['accuracy']",
-                    "['acc']"
+                    "['accuracy']"
                   ]
                 }
               ]
@@ -2560,7 +2632,7 @@
             },
             {
               "code": "from tensorflow.keras.models import Model\nfrom tensorflow.keras.layers import Input, Dense, Dropout\n\ntf.keras.utils.set_random_seed(42)\nn_classes = len(le.classes_)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = Dropout(0.3)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(n_classes, activation='softmax')(x)\nmodel = Model(inputs=inputs, outputs=outputs)\n\nmodel.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])\nmodel.summary()",
-              "reason": "정수 라벨에 원-핫용 loss 사용 (Shapes (32, 1) and (32, 3) are incompatible)"
+              "reason": "정수 라벨에 원-핫용 loss 사용 (Keras 3: Arguments target and output must have the same rank / Keras 2: Shapes (32, 1) and (32, 3) are incompatible)"
             },
             {
               "code": "from tensorflow.keras.models import Model\nfrom tensorflow.keras.layers import Input, Dense, Dropout\n\ntf.keras.utils.set_random_seed(42)\nn_classes = len(le.classes_)\n\ninputs = Input(shape=(X_train_scaled.shape[0],))\nx = Dense(64, activation='relu')(inputs)\nx = Dropout(0.3)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(n_classes, activation='softmax')(x)\nmodel = Model(inputs=inputs, outputs=outputs)\n\nmodel.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])\nmodel.summary()",
@@ -2569,10 +2641,14 @@
             {
               "code": "from tensorflow.keras.models import Model\nfrom tensorflow.keras.layers import Input, Dense, Dropout\n\ntf.keras.utils.set_random_seed(42)\nn_classes = len(le.classes_)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = Dropout(0.3)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(n_classes, activation='softmax')(x)\nmodel = Model(inputs=inputs, outputs=x)\n\nmodel.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])\nmodel.summary()",
               "reason": "outputs 에 마지막 은닉층 x 를 넘겨 출력층이 모델에 포함되지 않음"
+            },
+            {
+              "code": "from tensorflow.keras.models import Model\nfrom tensorflow.keras.layers import Input, Dense, Dropout\n\ntf.keras.utils.set_random_seed(42)\nn_classes = len(le.classes_)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = Dropout(0.3)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(n_classes, activation='softmax')(x)\nmodel = Model(inputs=inputs, outputs=outputs)\n\nmodel.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['acc'])\nmodel.summary()",
+              "reason": "metrics=['acc'] — history 키가 acc/val_acc 가 되어 뒤 문항의 accuracy 키와 어긋남 (지문은 accuracy 지정)"
             }
           ],
           "expected_output": "Model: \"functional\"\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃\n┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n│ input_layer (InputLayer)        │ (None, 12)             │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense (Dense)                   │ (None, 64)             │           832 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dropout (Dropout)               │ (None, 64)             │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_1 (Dense)                 │ (None, 32)             │         2,080 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_2 (Dense)                 │ (None, 3)              │            99 │\n└─────────────────────────────────┴────────────────────────┴───────────────┘\n Total params: 3,011 (11.76 KB)\n Trainable params: 3,011 (11.76 KB)\n Non-trainable params: 0 (0.00 B)",
-          "explanation": "**왜 이렇게 푸는가**\n\n- **Functional API** 는 레이어를 함수처럼 호출해 텐서를 이어 붙입니다. 흐름은 `Input -> Dense(...)(앞 텐서) -> ... -> Model(inputs, outputs)` 입니다. 같은 변수 `x` 를 계속 덮어써 가며 층을 쌓는 것이 관용구입니다.\n- 출력층이 이 문항의 핵심입니다. 다중분류는 `Dense(클래스 수, activation='softmax')` 입니다. softmax 는 K개 출력을 합이 1 인 확률 분포로 바꿔 \"어느 클래스일 확률이 가장 큰가\"를 표현합니다.\n- 클래스 수를 `len(le.classes_)` 로 계산한 이유: 데이터가 바뀌어도 통하는 코드이기 때문입니다. 숫자 `3` 을 직접 써도 정답입니다.\n- **손실 함수는 라벨의 형태로 결정됩니다.** Q6 에서 `LabelEncoder` 로 타깃을 `0/1/2` 정수로 만들었으므로 `sparse_categorical_crossentropy` 입니다. 만약 `to_categorical(y)` 로 `[1,0,0]` 같은 **원-핫**을 만들었다면 `categorical_crossentropy` 를 써야 합니다. 출력층(`Dense(3, 'softmax')`)은 두 경우에 같고 바뀌는 것은 loss 이름뿐입니다.\n- `Input(shape=(X_train_scaled.shape[1],))` 는 샘플 수가 아닌 **특성 개수 12** 를 씁니다. `summary()` 의 `None` 이 샘플(배치) 자리입니다.\n- 파라미터 검산: 12×64+64 = 832, 64×32+32 = 2,080, 32×3+3 = 99. 합계 3,011 이고 `Dropout` 은 파라미터가 0 입니다.\n\n**같은 모델을 Sequential API 로 쓰면**\n\n```python\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dense(n_classes, activation='softmax'))\n```\n\n두 방식은 층 구성이 같고 `compile`, `fit` 이후는 완전히 같습니다. 단순히 한 줄로 쌓이는 구조는 Sequential 이 짧고, 입력이 여러 개이거나 층을 건너뛰는 연결은 Functional 이 필요합니다.\n\n**자주 틀리는 지점**\n\n- 이진분류 코드를 복사해 `Dense(1, 'sigmoid')` 를 두는 것. 오류 없이 학습되지만 3클래스 문제로는 성립하지 않습니다.\n- 정수 라벨에 `categorical_crossentropy` 를 쓰는 것. 학습이 시작되자마자 `Shapes (32, 1) and (32, 3) are incompatible` 오류가 납니다. 이 메시지를 보면 `sparse_` 를 붙이십시오.\n- `Model(inputs=inputs, outputs=x)` 처럼 마지막 은닉층을 출력으로 넘기는 것. 출력층이 모델에서 빠집니다.\n- `Dense(..., input_shape=...)` 구버전 표기. Keras 3 에서는 비권장이므로 `Input(shape=...)` 를 표준으로 쓰십시오."
+          "explanation": "**왜 이렇게 푸는가**\n\n- **Functional API** 는 레이어를 함수처럼 호출해 텐서를 이어 붙입니다. 흐름은 `Input -> Dense(...)(앞 텐서) -> ... -> Model(inputs, outputs)` 입니다. 같은 변수 `x` 를 계속 덮어써 가며 층을 쌓는 것이 관용구입니다.\n- 출력층이 이 문항의 핵심입니다. 다중분류는 `Dense(클래스 수, activation='softmax')` 입니다. softmax 는 K개 출력을 합이 1 인 확률 분포로 바꿔 \"어느 클래스일 확률이 가장 큰가\"를 표현합니다.\n- 클래스 수를 `len(le.classes_)` 로 계산한 이유: 데이터가 바뀌어도 통하는 코드이기 때문입니다. 숫자 `3` 을 직접 써도 정답입니다.\n- **손실 함수는 라벨의 형태로 결정됩니다.** Q6 에서 `LabelEncoder` 로 타깃을 `0/1/2` 정수로 만들었으므로 `sparse_categorical_crossentropy` 입니다. 만약 `to_categorical(y)` 로 `[1,0,0]` 같은 **원-핫**을 만들었다면 `categorical_crossentropy` 를 써야 합니다. 출력층(`Dense(3, 'softmax')`)은 두 경우에 같고 바뀌는 것은 loss 이름뿐입니다.\n- `Input(shape=(X_train_scaled.shape[1],))` 는 샘플 수가 아닌 **특성 개수 12** 를 씁니다. `summary()` 의 `None` 이 샘플(배치) 자리입니다.\n- 파라미터 검산: 12×64+64 = 832, 64×32+32 = 2,080, 32×3+3 = 99. 합계 3,011 이고 `Dropout` 은 파라미터가 0 입니다.\n\n**같은 모델을 Sequential API 로 쓰면**\n\n```python\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dense(n_classes, activation='softmax'))\n```\n\n두 방식은 층 구성이 같고 `compile`, `fit` 이후는 완전히 같습니다. 단순히 한 줄로 쌓이는 구조는 Sequential 이 짧고, 입력이 여러 개이거나 층을 건너뛰는 연결은 Functional 이 필요합니다.\n\n**자주 틀리는 지점**\n\n- 이진분류 코드를 복사해 `Dense(1, 'sigmoid')` 를 두는 것. 오류 없이 학습되지만 3클래스 문제로는 성립하지 않습니다.\n- 정수 라벨에 `categorical_crossentropy` 를 쓰는 것. Keras 3 에서는 `Arguments target and output must have the same rank`, Keras 2 에서는 `Shapes (32, 1) and (32, 3) are incompatible` 오류가 납니다. 둘 다 정수 라벨과 원-핫용 loss 가 맞지 않는다는 뜻이므로 `sparse_` 를 붙이십시오.\n- `Model(inputs=inputs, outputs=x)` 처럼 마지막 은닉층을 출력으로 넘기는 것. 출력층이 모델에서 빠집니다.\n- `Dense(..., input_shape=...)` 구버전 표기. Keras 3 에서는 비권장이므로 `Input(shape=...)` 를 표준으로 쓰십시오."
         },
         {
           "no": 12,
@@ -2889,7 +2965,7 @@
             }
           ],
           "expected_output": "test loss: 0.5147 / test accuracy: 0.7886\n              precision    recall  f1-score   support\n\n      normal       0.84      0.89      0.86       480\n    overheat       0.64      0.59      0.61       121\n        wear       0.72      0.67      0.70       189\n\n    accuracy                           0.79       790\n   macro avg       0.74      0.71      0.72       790\nweighted avg       0.78      0.79      0.79       790\n\n[[425  24  31]\n [ 32  71  18]\n [ 46  16 127]]\n클래스별 확률: {'normal': 0.081, 'overheat': 0.881, 'wear': 0.039}\n예측 클래스 이름: overheat",
-          "explanation": "**왜 이렇게 푸는가**\n\n- 평가는 `model.evaluate(X_test_scaled, y_test)` 입니다. 반환값이 `[loss, accuracy]` 두 개라서 변수 두 개로 받습니다(`acc = model.evaluate(...)` 로 받으면 리스트가 통째로 들어옵니다). 이 값이 Q8~Q10 의 accuracy 와 같은 **평가 데이터** 위에서 나온 점수이므로 직접 비교할 수 있습니다.\n- `pred` 의 shape 는 (N, 3) 입니다. softmax 가 샘플마다 **클래스 개수만큼의 확률**(합 1)을 내놓기 때문입니다. `np.argmax(pred, axis=1)` 은 **행마다** 가장 큰 확률의 위치(= 클래스 번호)를 고릅니다. 다중분류는 임계값 0.5 가 아니라 `argmax` 입니다.\n- 신규 샘플 예측의 핵심은 **학습 때와 똑같은 전처리 파이프라인**을 거치는 것입니다.\n  1. `pd.DataFrame([new_data])` 로 1행 데이터프레임을 만듭니다. (딕셔너리를 **리스트로 감싸야** 1행이 됩니다.)\n  2. 원-핫 인코딩을 같은 방식으로 합니다. 한 건이라 `line_id_L2`, `shift_B` 두 컬럼만 생깁니다.\n  3. `reindex(columns=X.columns, fill_value=0)` 로 학습 때의 12개 컬럼과 **순서·개수를 똑같이** 맞추고 없는 더미는 0 으로 채웁니다. 컬럼 순서가 다르면 값이 엉뚱한 특성에 들어갑니다.\n  4. `scaler.transform(new_df)` 로 변환합니다. `new_df` 는 데이터프레임이지만 `scaler` 는 넘파이 배열로 학습되어 있어 컬럼 **순서**가 맞아야 의미가 같습니다. 그래서 3번이 필수입니다.\n- `new_pred` 는 (1, 3) 확률 배열이고 `np.argmax(new_pred, axis=1)[0]` 이 클래스 **번호**입니다. 사용자에게 보여 줄 값은 번호가 아니라 이름이어야 하므로 `le.inverse_transform([번호])` 로 `normal`/`overheat`/`wear` 를 얻습니다. 번호와 이름의 대응은 알파벳 순이라 `0 = normal, 1 = overheat, 2 = wear` 입니다. 코드 곳곳에서 번호를 손으로 이름에 매핑하지 말고 `le` 를 쓰십시오.\n- 이 신규 샘플은 `temp` 84.0, `current` 14.2 로 Q3 의 평균표에서 `overheat` 의 특징(온도·전류 높음)에 해당합니다. 예측 확률에서 `overheat` 가 가장 크게 나오면 모델이 데이터의 규칙을 학습했다는 확인이 됩니다.\n\n**자주 틀리는 지점**\n\n- `scaler.fit_transform(new_df)`: 가장 흔한 오답입니다. 1행으로 다시 학습하면 모든 특성의 min = max 가 되어 값이 0 으로 무너지고, 학습 때의 스케일과 완전히 달라집니다. 신규 데이터에는 항상 `transform` 만.\n- `reindex` 의 `fill_value=0` 누락. 없는 더미 컬럼이 `NaN` 이 되어 예측이 `nan` 으로 나옵니다.\n- `reindex` 대신 `new_df` 에 `pd.get_dummies` 만 하고 바로 변환하는 것. 컬럼이 2개뿐이라 `scaler.transform` 이 `ValueError` (특성 개수 불일치)를 냅니다.\n- `axis` 를 빼거나 `0` 으로 쓰는 것. `np.argmax(pred)` 는 전체에서 위치 하나만 돌려주고 `axis=0` 은 열 방향이라 길이가 맞지 않습니다.\n- 예측 번호를 그대로 출력하고 끝내는 것. 문항은 클래스 **이름**을 요구했습니다."
+          "explanation": "**왜 이렇게 푸는가**\n\n- 평가는 `model.evaluate(X_test_scaled, y_test)` 입니다. 반환값이 `[loss, accuracy]` 두 개라서 변수 두 개로 받습니다(`acc = model.evaluate(...)` 로 받으면 리스트가 통째로 들어옵니다). 이 값이 Q8~Q10 의 accuracy 와 같은 **평가 데이터** 위에서 나온 점수이므로 직접 비교할 수 있습니다.\n- `pred` 의 shape 는 (N, 3) 입니다. softmax 가 샘플마다 **클래스 개수만큼의 확률**(합 1)을 내놓기 때문입니다. `np.argmax(pred, axis=1)` 은 **행마다** 가장 큰 확률의 위치(= 클래스 번호)를 고릅니다. 다중분류는 임계값 0.5 가 아니라 `argmax` 입니다.\n- 신규 샘플 예측의 핵심은 **학습 때와 똑같은 전처리 파이프라인**을 거치는 것입니다.\n  1. `pd.DataFrame([new_data])` 로 1행 데이터프레임을 만듭니다. (딕셔너리를 **리스트로 감싸야** 1행이 됩니다.)\n  2. 원-핫 인코딩을 같은 방식으로 합니다. 한 건이라 `line_id_L2`, `shift_B` 두 컬럼만 생깁니다.\n  3. `reindex(columns=X.columns, fill_value=0)` 로 학습 때의 12개 컬럼과 **순서·개수를 똑같이** 맞추고 없는 더미는 0 으로 채웁니다. 컬럼 순서가 다르면 값이 엉뚱한 특성에 들어갑니다.\n  4. `scaler.transform(new_df)` 로 변환합니다. `scaler` 는 데이터프레임 `X_train` 으로 학습되어 컬럼 이름과 순서를 기억합니다. 순서나 구성이 다르면 `ValueError: The feature names should match …` 가 나므로 3번이 필수입니다.\n- `new_pred` 는 (1, 3) 확률 배열이고 `np.argmax(new_pred, axis=1)[0]` 이 클래스 **번호**입니다. 사용자에게 보여 줄 값은 번호가 아니라 이름이어야 하므로 `le.inverse_transform([번호])` 로 `normal`/`overheat`/`wear` 를 얻습니다. 번호와 이름의 대응은 알파벳 순이라 `0 = normal, 1 = overheat, 2 = wear` 입니다. 코드 곳곳에서 번호를 손으로 이름에 매핑하지 말고 `le` 를 쓰십시오.\n- 이 신규 샘플은 `temp` 84.0, `current` 14.2 로 Q3 의 평균표에서 `overheat` 의 특징(온도·전류 높음)에 해당합니다. 예측 확률에서 `overheat` 가 가장 크게 나오면 모델이 데이터의 규칙을 학습했다는 확인이 됩니다.\n\n**자주 틀리는 지점**\n\n- `scaler.fit_transform(new_df)`: 가장 흔한 오답입니다. 1행으로 다시 학습하면 모든 특성의 min = max 가 되어 값이 0 으로 무너지고, 학습 때의 스케일과 완전히 달라집니다. 신규 데이터에는 항상 `transform` 만.\n- `reindex` 의 `fill_value=0` 누락. 없는 더미 컬럼이 `NaN` 이 되어 예측이 `nan` 으로 나옵니다.\n- `reindex` 대신 `new_df` 에 `pd.get_dummies` 만 하고 바로 변환하는 것. 더미가 2개만 생겨 컬럼이 8개뿐이므로 `scaler.transform` 이 `ValueError`(학습 때 본 컬럼이 없음)를 냅니다.\n- `axis` 를 빼거나 `0` 으로 쓰는 것. `np.argmax(pred)` 는 전체에서 위치 하나만 돌려주고 `axis=0` 은 열 방향이라 길이가 맞지 않습니다.\n- 예측 번호를 그대로 출력하고 끝내는 것. 문항은 클래스 **이름**을 요구했습니다."
         }
       ]
     },
@@ -3200,7 +3276,7 @@
             }
           ],
           "expected_output": "(2000, 9)\n<class 'pandas.DataFrame'>\nRangeIndex: 2000 entries, 0 to 1999\nData columns (total 9 columns):\n #   Column            Non-Null Count  Dtype  \n---  ------            --------------  -----  \n 0   record_id         2000 non-null   str    \n 1   line              2000 non-null   str    \n 2   shift             1940 non-null   str    \n 3   production_units  2000 non-null   int64  \n 4   machine_load      2000 non-null   float64\n 5   temperature       1940 non-null   float64\n 6   humidity          2000 non-null   float64\n 7   run_hours         2000 non-null   float64\n 8   energy_kwh        2000 non-null   float64\ndtypes: float64(5), int64(1), str(3)\nmemory usage: 140.8 KB",
-          "explanation": "이 문항은 이후 모든 문항의 출발점입니다. `df` 라는 변수명을 정확히 지켜야 뒤 문항이 이어집니다.\n\n- `import tensorflow as tf` 를 가장 먼저 두는 이유는 일부 로컬 환경에서 pandas 를 먼저 불러오면 학습 셀이 멈추는 문제를 피하기 위함입니다. 시험장에서는 신경 쓰지 않아도 되지만 습관으로 두면 안전합니다.\n- `df.shape` 는 **속성**이라 괄호가 없고, `df.info()` 는 **메서드**라 괄호가 있습니다.\n\n**자주 틀리는 지점**\n\n- `print(df.shape())` 처럼 속성에 괄호를 붙여 `TypeError` 가 납니다.\n- `df.info()` 는 스스로 출력하므로 `print(df.info())` 로 감싸면 마지막에 `None` 이 한 번 더 찍힙니다.\n- 파일 경로의 확장자(`.csv`)를 빠뜨립니다."
+          "explanation": "이 문항은 이후 모든 문항의 출발점입니다. `df` 라는 변수명을 정확히 지켜야 뒤 문항이 이어집니다.\n\n- `import tensorflow as tf` 를 가장 먼저 두는 이유는 일부 로컬 환경에서 pandas 를 먼저 불러오면 학습 셀이 멈추는 문제를 피하기 위함입니다. 시험장에서는 신경 쓰지 않아도 되지만 습관으로 두면 안전합니다.\n- `df.shape` 는 **속성**이라 괄호가 없고, `df.info()` 는 **메서드**라 괄호가 있습니다.\n\n출력 표기는 pandas 버전에 따라 다를 수 있습니다. pandas 3.x 에서는 `pandas.DataFrame` 과 Dtype `str`, pandas 2.x 에서는 `pandas.core.frame.DataFrame` 과 `object` 로 표시됩니다.\n\n**자주 틀리는 지점**\n\n- `print(df.shape())` 처럼 속성에 괄호를 붙여 `TypeError` 가 납니다.\n- `df.info()` 는 스스로 출력하므로 `print(df.info())` 로 감싸면 마지막에 `None` 이 한 번 더 찍힙니다.\n- 파일 경로의 확장자(`.csv`)를 빠뜨립니다."
         },
         {
           "no": 2,
@@ -3304,7 +3380,9 @@
                   "value": [
                     "'number'",
                     "np.number",
-                    "['number']"
+                    "['number']",
+                    "['int64','float64']",
+                    "['float64','int64']"
                   ]
                 }
               ]
@@ -3337,6 +3415,7 @@
               "hint": "첫 인자는 상관계수 행렬 `corr`, `annot` 은 불리언으로 칸 안 수치 표시를 켭니다.",
               "params": [
                 {
+                  "kw": "data",
                   "pos": 0,
                   "value": "corr"
                 },
@@ -3376,7 +3455,7 @@
               "type": "call",
               "callee": ".fillna",
               "label": "수치형 결측 대체 (temperature)",
-              "hint": "`temperature` 에 평균/중앙값 계산 결과를 채우세요. 이상값에 강한 쪽을 쓰는 문제입니다.",
+              "hint": "`temperature` 컬럼의 **중앙값**을 구하는 식을 넣으세요. 평균이 아닙니다.",
               "assign": "df['temperature']",
               "params": [
                 {
@@ -3384,10 +3463,10 @@
                   "pos": 0,
                   "value": [
                     {
-                      "contains": ".median()"
+                      "contains": "df['temperature'].median()"
                     },
                     {
-                      "contains": ".mean()"
+                      "contains": "df.temperature.median()"
                     }
                   ]
                 }
@@ -3450,6 +3529,14 @@
             {
               "code": "df = df.dropna()\nprint(df.isnull().sum())\n",
               "reason": "행 삭제 — 지시 위반"
+            },
+            {
+              "code": "df['temperature'] = df['temperature'].fillna(df['temperature'].mean())\ndf['shift'] = df['shift'].fillna(df['shift'].mode()[0])\n\nprint(df.isnull().sum())\n",
+              "reason": "지문은 중앙값 — 평균으로 대체"
+            },
+            {
+              "code": "df['temperature'] = df['temperature'].fillna(df['humidity'].median())\ndf['shift'] = df['shift'].fillna(df['shift'].mode()[0])\n\nprint(df.isnull().sum())\n",
+              "reason": "다른 컬럼(humidity)의 중앙값으로 대체 — temperature 자신의 중앙값이어야 함"
             }
           ],
           "expected_output": "record_id           0\nline                0\nshift               0\nproduction_units    0\nmachine_load        0\ntemperature         0\nhumidity            0\nrun_hours           0\nenergy_kwh          0\ndtype: int64",
@@ -3593,7 +3680,7 @@
             }
           ],
           "expected_output": "(1969, 8)",
-          "explanation": "IQR 규칙: 정상 범위를 `[Q1 - 1.5*IQR, Q3 + 1.5*IQR]` 로 보고 그 밖을 이상치로 봅니다. 평균·표준편차 기반 방법보다 극단값에 덜 흔들립니다. 이 데이터에서는 `production_units` 에 1500 이상의 값 12개가 섞여 있어 제거됩니다.\n\n- 필터는 `lower <= x <= upper` 인 행을 **남기는** 방식입니다. 두 조건을 `&` 로 연결하고 각 조건을 괄호로 감쌉니다. `and` 는 시리즈에서 오류가 납니다.\n- 행을 지운 뒤 `reset_index(drop=True)` 로 인덱스를 다시 매깁니다. 뒤에서 `X`, `y` 를 인덱스로 맞추는 일이 없도록 하는 안전 습관입니다.\n- `record_id` 는 행마다 다른 문자열이라 예측력이 없고, 남겨 두면 `get_dummies` 가 컬럼을 2천 개 가까이 만듭니다.\n\n**자주 틀리는 지점**\n\n- `q3 + 1.5*iqr` 와 `q1 - 1.5*iqr` 의 부호를 서로 바꿉니다.\n- 조건을 `|` 로 연결하면 거의 모든 행이 남아 이상치가 제거되지 않습니다.\n- 타깃 `energy_kwh` 를 실수로 `drop` 합니다. 식별자는 `record_id` 입니다."
+          "explanation": "IQR 규칙: 정상 범위를 `[Q1 - 1.5*IQR, Q3 + 1.5*IQR]` 로 보고 그 밖을 이상치로 봅니다. 평균·표준편차 기반 방법보다 극단값에 덜 흔들립니다. 이 데이터에서는 1500 이상의 센서 오류 값 12개와 함께 정상 분포의 양 끝 값 19개도 경계(약 288~713) 밖이라 함께 제거되어 31행이 줄어듭니다(2000 → 1969).\n\n- 필터는 `lower <= x <= upper` 인 행을 **남기는** 방식입니다. 두 조건을 `&` 로 연결하고 각 조건을 괄호로 감쌉니다. `and` 는 시리즈에서 오류가 납니다.\n- 행을 지운 뒤 `reset_index(drop=True)` 로 인덱스를 다시 매깁니다. 뒤에서 `X`, `y` 를 인덱스로 맞추는 일이 없도록 하는 안전 습관입니다.\n- `record_id` 는 행마다 다른 문자열이라 예측력이 없고, 남겨 두면 `get_dummies` 가 컬럼을 2천 개 가까이 만듭니다.\n\n**자주 틀리는 지점**\n\n- `q3 + 1.5*iqr` 와 `q1 - 1.5*iqr` 의 부호를 서로 바꿉니다.\n- 조건을 `|` 로 연결하면 거의 모든 행이 남아 이상치가 제거되지 않습니다.\n- 타깃 `energy_kwh` 를 실수로 `drop` 합니다. 식별자는 `record_id` 입니다."
         },
         {
           "no": 6,
@@ -3630,7 +3717,9 @@
                 },
                 {
                   "kw": "dtype",
-                  "value": "int"
+                  "value": {
+                    "re": "^(int|'int'|'int64'|'int32'|'int8'|'uint8'|np\\.int64|np\\.int32|np\\.int8|np\\.uint8)$"
+                  }
                 }
               ]
             },
@@ -3687,7 +3776,6 @@
                       "params": [
                         {
                           "kw": "columns",
-                          "pos": 0,
                           "value": "['energy_kwh']"
                         }
                       ]
@@ -3811,10 +3899,14 @@
             {
               "code": "X = df.drop(columns=['energy_kwh'])\ny = df['energy_kwh']\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\nX_train_scaled = X_scaled[:len(X_train)]\nX_test_scaled = scaler.transform(X_test)\n",
               "reason": "분할 전 전체 X 에 fit — 테스트 정보 누수"
+            },
+            {
+              "code": "from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\nX = df.drop(['energy_kwh'])\ny = df['energy_kwh']\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\nprint(X_train_scaled.shape, X_test_scaled.shape)\n",
+              "reason": "axis 없이 drop(['energy_kwh']) — 행 라벨로 해석되어 KeyError"
             }
           ],
           "expected_output": "(1575, 9) (394, 9)",
-          "explanation": "**stratify 를 쓰지 않는 이유.** `stratify` 는 \"클래스 비율을 학습/테스트에 똑같이 유지\"하는 옵션이라 범주형 타깃(분류)에만 의미가 있습니다. `energy_kwh` 는 연속값이라 같은 값이 거의 없어서 계층 분할을 시도하면 `ValueError`(각 클래스 최소 2개 필요)가 나거나 무의미합니다. 앞의 이진/다중분류 모의고사와 달라지는 첫 지점입니다.\n\n**스케일링 순서.** `scaler.fit_transform(X_train)` 으로 학습 데이터의 평균·표준편차를 배우고, 그 **같은 기준**으로 `scaler.transform(X_test)` 만 적용합니다. 테스트 통계를 섞으면 시험 문제를 미리 본 것과 같은 정보 누수가 됩니다. 이 `scaler` 는 Q14 의 신규 샘플에도 그대로 쓰므로 반드시 저장해 둡니다.\n\n- `StandardScaler` 를 고른 이유: 평균 0, 표준편차 1 로 맞춰 신경망 학습이 안정되고, 이 문제의 특성(생산량·부하율·온도 등)은 단위와 범위가 서로 다릅니다. `MinMaxScaler` 도 정답으로 인정되지만 이 모의고사는 `StandardScaler` 로 통일합니다.\n- 트리 계열(Q8~Q10)은 스케일에 둔감하므로 `X_train`/`X_test` 를 그대로 쓰고, 딥러닝(Q11~)은 `X_*_scaled` 를 씁니다.\n\n**자주 틀리는 지점**\n\n- 분할 전에 `X` 전체를 스케일링하는 방식(누수).\n- `X_test` 에 `fit_transform` 을 호출하는 방식(학습 기준과 달라져 예측이 어긋남).\n- `train_test_split` 의 반환 순서를 `X_train, X_test, y_train, y_test` 로 받아야 합니다. 순서를 바꾸면 조용히 엉뚱한 변수에 들어갑니다."
+          "explanation": "**stratify 를 쓰지 않는 이유.** `stratify` 는 \"클래스 비율을 학습/테스트에 똑같이 유지\"하는 옵션이라 범주형 타깃(분류)에만 의미가 있습니다. `energy_kwh` 는 연속값이라 같은 값이 거의 없어서 계층 분할을 시도하면 `ValueError`(각 클래스 최소 2개 필요)가 나거나 무의미합니다. 앞의 이진/다중분류 모의고사와 달라지는 첫 지점입니다.\n\n**스케일링 순서.** `scaler.fit_transform(X_train)` 으로 학습 데이터의 평균·표준편차를 배우고, 그 **같은 기준**으로 `scaler.transform(X_test)` 만 적용합니다. 테스트 통계를 섞으면 시험 문제를 미리 본 것과 같은 정보 누수가 됩니다. 이 `scaler` 는 Q14 의 신규 샘플에도 그대로 쓰므로 반드시 저장해 둡니다.\n\n- `StandardScaler` 를 고른 이유: 평균 0, 표준편차 1 로 맞춰 신경망 학습이 안정되고, 이 문제의 특성(생산량·부하율·온도 등)은 단위와 범위가 서로 다릅니다. `MinMaxScaler` 도 일반적으로 쓸 수 있지만, 이 문항은 `StandardScaler` 를 지정했으므로 다른 스케일러는 오답입니다.\n- 트리 계열(Q8~Q10)은 스케일에 둔감하므로 `X_train`/`X_test` 를 그대로 쓰고, 딥러닝(Q11~)은 `X_*_scaled` 를 씁니다.\n\n**자주 틀리는 지점**\n\n- 분할 전에 `X` 전체를 스케일링하는 방식(누수).\n- `X_test` 에 `fit_transform` 을 호출하는 방식(학습 기준과 달라져 예측이 어긋남).\n- `train_test_split` 의 반환 순서를 `X_train, X_test, y_train, y_test` 로 받아야 합니다. 순서를 바꾸면 조용히 엉뚱한 변수에 들어갑니다."
         },
         {
           "no": 8,
@@ -3900,7 +3992,7 @@
           "title": "RandomForest 회귀 모델",
           "points": 7,
           "minutes": 5,
-          "prompt": "랜덤 포레스트 회귀 모델을 학습하고 평가하시오.\n\n- `RandomForestRegressor` 를 트리 개수 50~1000, `max_depth=10`, `random_state=42` 로 만들어 `rf_model` 에 저장하시오.\n- 학습 후 테스트 데이터를 예측해 `rf_pred` 에 저장하고, MAE 를 `rf_mae`, R² 를 `rf_r2` 에 저장·출력하시오.\n- 모델이 학습한 **특성 중요도**를 `imp`(Series, 큰 값부터 정렬)에 저장하고 상위 5개를 출력하시오.",
+          "prompt": "랜덤 포레스트 회귀 모델을 학습하고 평가하시오.\n\n- `RandomForestRegressor` 를 트리 개수 50~1000, `max_depth=10`, `random_state=42` 로 만들어 `rf_model` 에 저장하시오.\n- 학습 데이터 `X_train`, `y_train` 으로 학습한 후(Q8 과 같이 스케일링하지 않은 데이터 사용) 테스트 데이터 `X_test` 를 예측해 `rf_pred` 에 저장하고, MAE 를 `rf_mae`, R² 를 `rf_r2` 에 저장·출력하시오.\n- 모델이 학습한 **특성 중요도**를 `imp`(Series, 큰 값부터 정렬)에 저장하고 상위 5개를 출력하시오.",
           "skeleton_code": "from sklearn.ensemble import RandomForestRegressor\n\nrf_model = RandomForestRegressor(n_estimators=___, max_depth=10, random_state=___)\nrf_model.fit(___, ___)\n\nrf_pred = rf_model.predict(___)\nrf_mae = mean_absolute_error(y_test, ___)\nrf_r2 = r2_score(___, rf_pred)\nprint('RandomForest MAE:', round(rf_mae, 2))\nprint('RandomForest R2 :', round(rf_r2, 4))\n\nimp = pd.Series(rf_model.___, index=X_train.columns).sort_values(ascending=False)\nprint(imp.head(5))\n",
           "answer_code": "from sklearn.ensemble import RandomForestRegressor\n\nrf_model = RandomForestRegressor(n_estimators=200, max_depth=10, random_state=42)\nrf_model.fit(X_train, y_train)\n\nrf_pred = rf_model.predict(X_test)\nrf_mae = mean_absolute_error(y_test, rf_pred)\nrf_r2 = r2_score(y_test, rf_pred)\nprint('RandomForest MAE:', round(rf_mae, 2))\nprint('RandomForest R2 :', round(rf_r2, 4))\n\nimp = pd.Series(rf_model.feature_importances_, index=X_train.columns).sort_values(ascending=False)\nprint(imp.head(5))\n",
           "validation_rules": [
@@ -3993,7 +4085,7 @@
           "title": "XGBoost 회귀와 세 모델 비교",
           "points": 8,
           "minutes": 6,
-          "prompt": "XGBoost 회귀 모델을 학습하고 세 모델의 성능을 한 표로 비교하시오.\n\n- `XGBRegressor` 를 `n_estimators` 100~1000, `learning_rate` 0.01~0.3, `random_state=42` 로 만들어 `xgb_model` 에 저장하시오.\n- 학습 후 테스트 예측 `xgb_pred`, MAE `xgb_mae`, R² `xgb_r2` 를 구하시오.\n- Q8~Q10 의 세 모델의 MAE 와 R² 를 담은 표 `result`(DataFrame)를 만들어 출력하시오.",
+          "prompt": "XGBoost 회귀 모델을 학습하고 세 모델의 성능을 한 표로 비교하시오.\n\n- `XGBRegressor` 를 `n_estimators` 100~1000, `learning_rate` 0.01~0.3, `random_state=42` 로 만들어 `xgb_model` 에 저장하시오.\n- `X_train`, `y_train` 으로 학습한 후(스케일링 전 데이터) `X_test` 에 대한 예측 `xgb_pred`, MAE `xgb_mae`, R² `xgb_r2` 를 구하시오.\n- Q8~Q10 의 세 모델의 MAE 와 R² 를 담은 표 `result`(DataFrame)를 만들어 출력하시오.",
           "skeleton_code": "from xgboost import XGBRegressor\n\nxgb_model = XGBRegressor(n_estimators=___, learning_rate=___, max_depth=4, random_state=42)\nxgb_model.fit(___, ___)\n\nxgb_pred = xgb_model.predict(___)\nxgb_mae = mean_absolute_error(y_test, ___)\nxgb_r2 = r2_score(y_test, xgb_pred)\n\nresult = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'MAE': [dt_mae, rf_mae, xgb_mae],\n    'R2': [dt_r2, rf_r2, ___]\n})\nprint(result.round(4))\n",
           "answer_code": "from xgboost import XGBRegressor\n\nxgb_model = XGBRegressor(n_estimators=300, learning_rate=0.05, max_depth=4, random_state=42)\nxgb_model.fit(X_train, y_train)\n\nxgb_pred = xgb_model.predict(X_test)\nxgb_mae = mean_absolute_error(y_test, xgb_pred)\nxgb_r2 = r2_score(y_test, xgb_pred)\n\nresult = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'MAE': [dt_mae, rf_mae, xgb_mae],\n    'R2': [dt_r2, rf_r2, xgb_r2]\n})\nprint(result.round(4))\n",
           "validation_rules": [
@@ -4098,7 +4190,7 @@
           "title": "딥러닝 회귀 모델 설계 (Functional API)와 compile",
           "points": 9,
           "minutes": 8,
-          "prompt": "에너지 소비량을 예측하는 딥러닝 회귀 모델을 **Functional API** 로 만드시오.\n\n- 입력층은 `X_train_scaled` 의 특성 개수에 맞춰 `inputs` 에 만드시오.\n- 은닉층 2개(`relu`)와 `BatchNormalization`, `Dropout`(비율 0.05~0.5)을 포함하시오.\n- 출력층은 연속값 하나를 내므로 **노드 1개, 활성화 함수 없음**으로 `outputs` 에 만들고, `Model(inputs=..., outputs=...)` 로 `model` 을 완성하시오.\n- 옵티마이저 `adam`, 손실 함수는 회귀용으로, 평가지표는 MAE 로 컴파일하고 `model.summary()` 를 출력하시오.",
+          "prompt": "에너지 소비량을 예측하는 딥러닝 회귀 모델을 **Functional API** 로 만드시오.\n\n- 입력층은 `X_train_scaled` 의 특성 개수에 맞춰 `inputs` 에 만드시오.\n- 은닉층 2개(`relu`)와 `BatchNormalization`, `Dropout`(비율 0.05~0.5)을 포함하시오.\n- 출력층은 연속값 하나를 내므로 **노드 1개, 활성화 함수 없음**으로 `outputs` 에 만들고, `Model(inputs=..., outputs=...)` 로 `model` 을 완성하시오.\n- 옵티마이저 `adam`, 손실 함수는 평균제곱오차(`mse`), 평가지표는 MAE(`metrics=['mae']`)로 컴파일하고 `model.summary()` 를 출력하시오.",
           "skeleton_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(___,))\nx = Dense(128, activation=___)(inputs)\nx = BatchNormalization()(x)\nx = ___(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(___)(x)\n\nmodel = Model(inputs=___, outputs=___)\nmodel.compile(optimizer='adam', loss=___, metrics=[___])\nmodel.summary()\n",
           "answer_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(128, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(1)(x)\n\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\nmodel.summary()\n",
           "validation_rules": [
@@ -4114,6 +4206,7 @@
                   "pos": 0,
                   "value": [
                     "(X_train_scaled.shape[1],)",
+                    "(X_train_scaled.shape[-1],)",
                     "(X_train.shape[1],)",
                     "(X.shape[1],)",
                     "(9,)"
@@ -4145,20 +4238,44 @@
               ]
             },
             {
-              "type": "call",
-              "callee": "Dense",
+              "type": "any",
               "label": "출력층: 노드 1개·활성화 없음",
-              "hint": "회귀 출력층은 값 하나(노드 수?)이고 `activation` 을 쓰지 않습니다(선형 출력).",
-              "assign": "outputs",
-              "params": [
+              "hint": "회귀 출력층은 값 하나(노드 수?)이고 `activation` 은 쓰지 않거나 `None`/`'linear'`(선형 출력)로 둡니다.",
+              "rules": [
                 {
-                  "kw": "units",
-                  "pos": 0,
-                  "value": "1"
+                  "type": "call",
+                  "callee": "Dense",
+                  "assign": "outputs",
+                  "params": [
+                    {
+                      "kw": "units",
+                      "pos": 0,
+                      "value": "1"
+                    },
+                    {
+                      "kw": "activation",
+                      "absent": true
+                    }
+                  ]
                 },
                 {
-                  "kw": "activation",
-                  "absent": true
+                  "type": "call",
+                  "callee": "Dense",
+                  "assign": "outputs",
+                  "params": [
+                    {
+                      "kw": "units",
+                      "pos": 0,
+                      "value": "1"
+                    },
+                    {
+                      "kw": "activation",
+                      "value": [
+                        "None",
+                        "'linear'"
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -4197,15 +4314,17 @@
                   "pos": 1,
                   "value": [
                     "'mse'",
-                    "'mean_squared_error'"
+                    "'mean_squared_error'",
+                    {
+                      "contains": "MeanSquaredError("
+                    }
                   ]
                 },
                 {
                   "kw": "metrics",
                   "pos": 2,
                   "value": [
-                    "['mae']",
-                    "['mean_absolute_error']"
+                    "['mae']"
                   ]
                 }
               ]
@@ -4231,6 +4350,14 @@
             {
               "code": "inputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(2)(x)\nmodel = Model(inputs=outputs, outputs=inputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\n",
               "reason": "출력 노드를 2 로 설정, Model 의 inputs/outputs 를 뒤바꿈"
+            },
+            {
+              "code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(128, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(1)(x)\n\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mean_absolute_error'])\nmodel.summary()\n",
+              "reason": "metrics=['mean_absolute_error'] — Keras 3 history 키가 mean_absolute_error 가 되어 Q13 의 mae/val_mae 와 어긋남 (지문은 mae 지정)"
+            },
+            {
+              "code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(128, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(1)(x)\n\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='mae', metrics=['mae'])\nmodel.summary()\n",
+              "reason": "지문이 지정한 평균제곱오차(mse)가 아니라 mae 를 손실로 사용"
             }
           ],
           "expected_output": "Model: \"functional\"\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃\n┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n│ input_layer (InputLayer)        │ (None, 9)              │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense (Dense)                   │ (None, 128)            │         1,280 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ batch_normalization             │ (None, 128)            │           512 │\n│ (BatchNormalization)            │                        │               │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dropout (Dropout)               │ (None, 128)            │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_1 (Dense)                 │ (None, 64)             │         8,256 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_2 (Dense)                 │ (None, 1)              │            65 │\n└─────────────────────────────────┴────────────────────────┴───────────────┘\n Total params: 10,113 (39.50 KB)\n Trainable params: 9,857 (38.50 KB)\n Non-trainable params: 256 (1.00 KB)",
@@ -4298,7 +4425,7 @@
               "type": "call",
               "callee": "model.fit",
               "label": "fit 설정",
-              "hint": "학습 입력은 **스케일링된** 학습 데이터, 검증 비율은 0.1~0.3, 결과는 `history` 에 담으세요.",
+              "hint": "학습 입력은 **스케일링된** 학습 데이터, 검증 비율은 학습의 20%(`0.2`), 결과는 `history` 에 담으세요.",
               "assign": "history",
               "params": [
                 {
@@ -4311,10 +4438,7 @@
                 },
                 {
                   "kw": "validation_split",
-                  "value": {
-                    "min": 0.1,
-                    "max": 0.3
-                  }
+                  "value": "0.2"
                 },
                 {
                   "kw": "epochs",
@@ -4353,9 +4477,13 @@
             {
               "code": "es = EarlyStopping(monitor='val_accuracy', patience=10, restore_best_weights=False)\nmc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=False)\nhistory = model.fit(X_train, y_train, validation_split=0.2, epochs=100, batch_size=32, callbacks=[es])\n",
               "reason": "회귀에서 val_accuracy 감시, 최적 가중치 복원/저장 옵션 끔, 스케일링 전 X_train 으로 학습, mc 누락"
+            },
+            {
+              "code": "from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\nes = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)\nmc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)\n\nhistory = model.fit(\n    X_train_scaled, y_train,\n    validation_split=0.3,\n    epochs=100,\n    batch_size=32,\n    callbacks=[es, mc],\n    verbose=1\n)\nprint('실제 학습한 epoch 수:', len(history.history['loss']))\n",
+              "reason": "검증 비율이 지문(학습의 20%)과 다름"
             }
           ],
-          "expected_output": "Epoch 1/100 - 1s 8ms/step - loss: 279010.8438 - mae: 525.1482 - val_loss: 287982.9688 - val_mae: 533.4730\nEpoch 2/100 - 0s 4ms/step - loss: 269355.3438 - mae: 516.0706 - val_loss: 281683.0625 - val_mae: 527.6844\n...\nEpoch 83/100 - 0s 4ms/step - loss: 1777.5421 - mae: 33.2846 - val_loss: 282.7444 - val_mae: 13.3445\nEpoch 84/100 - 0s 3ms/step - loss: 1774.6656 - mae: 33.4328 - val_loss: 318.2378 - val_mae: 14.0831\n실제 학습한 epoch 수: 84",
+          "expected_output": "(발췌: 에폭별 진행 막대는 생략하고 에폭마다 마지막 줄의 지표만 옮겼습니다.)\nEpoch 1/100\n40/40 ━━━━━━━━━━━━━━━━━━━━ 1s 8ms/step - loss: 279010.8438 - mae: 525.1482 - val_loss: 287982.9688 - val_mae: 533.4730\nEpoch 2/100\n40/40 ━━━━━━━━━━━━━━━━━━━━ 0s 4ms/step - loss: 269355.3438 - mae: 516.0706 - val_loss: 281683.0625 - val_mae: 527.6844\n...\nEpoch 83/100\n40/40 ━━━━━━━━━━━━━━━━━━━━ 0s 4ms/step - loss: 1777.5421 - mae: 33.2846 - val_loss: 282.7444 - val_mae: 13.3445\nEpoch 84/100\n40/40 ━━━━━━━━━━━━━━━━━━━━ 0s 3ms/step - loss: 1774.6656 - mae: 33.4328 - val_loss: 318.2378 - val_mae: 14.0831\n실제 학습한 epoch 수: 84",
           "explanation": "**EarlyStopping** 은 `val_loss` 가 `patience` 번 연속 나아지지 않으면 학습을 끊어 과적합과 시간 낭비를 막습니다. `restore_best_weights=True` 를 켜야 \"멈춘 시점\"이 아닌 **가장 좋았던 시점의 가중치**로 돌아갑니다. 이 옵션이 없으면 patience 만큼 더 나빠진 가중치가 남습니다.\n\n- **ModelCheckpoint** 는 `save_best_only=True` 일 때 `val_loss` 가 갱신될 때마다만 `best_model.keras` 를 덮어씁니다. 저장 형식은 `.keras` 가 표준입니다(구버전의 `.h5` 도 인정되나 이 교재는 `.keras`).\n- 회귀의 감시 지표는 `val_loss`(또는 `val_mae`)입니다. `val_accuracy` 는 회귀 모델에 존재하지 않아 경고만 뜨고 콜백이 동작하지 않습니다.\n- `epochs=100` 으로 크게 잡아도 EarlyStopping 이 알아서 멈추므로 시험 지시대로 크게 둡니다.\n\n**자주 틀리는 지점**\n\n- `callbacks=[es]` 처럼 하나만 넣어 `mc` 를 쓰지 않음.\n- 학습 입력을 `X_train`(스케일링 전)으로 써서 Q14 의 `scaler.transform` 입력과 분포가 달라짐.\n- 검증 데이터로 `X_test_scaled` 를 쓰면 테스트 데이터가 학습 과정에 개입합니다. 검증은 `validation_split` 으로 학습 데이터 안에서 떼어 씁니다."
         },
         {
@@ -4470,7 +4598,8 @@
               "hint": "`(N, 1)` 배열을 `(N,)` 로 펴는 메서드를 쓰세요.",
               "contains": [
                 ".flatten()",
-                ".ravel()"
+                ".ravel()",
+                ".squeeze()"
               ]
             },
             {

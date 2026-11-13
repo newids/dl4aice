@@ -54,7 +54,7 @@
      "loss": "'binary_crossentropy'",
      "metrics": "['accuracy']"
     },
-    "postprocess": "(pred > 0.5).astype(int)",
+    "postprocess": "(pred > 0.5).astype(int).ravel()",
     "pitfall": "출력 뉴런은 1개 + sigmoid. predict 결과는 (N, 1) 확률이므로 0.5 임계값으로 0/1 변환하고, 필요하면 ravel() 로 1차원으로 편다."
    },
    "code": {
@@ -89,7 +89,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
@@ -219,7 +219,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
@@ -324,7 +324,7 @@
    "id": "multiclass_onehot",
    "label": "다중분류(One-hot)",
    "short": "K개 확률 + 원-핫 라벨",
-   "label_format": "y 는 원-핫 (N, K) — to_categorical / get_dummies",
+   "label_format": "정수 y_train 을 to_categorical 로 원-핫 (N, K) 변환해 사용",
    "summary": {
     "input_shape": "Input(shape=(n_features,))",
     "output_layer": {
@@ -372,7 +372,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "n_classes = len(np.unique(y_train))",
@@ -502,7 +502,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "n_classes = len(np.unique(y_train))",
@@ -655,7 +655,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "n_classes = len(np.unique(y_train))",
@@ -785,7 +785,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "n_classes = len(np.unique(y_train))",
@@ -938,7 +938,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
@@ -1068,7 +1068,7 @@
      },
      {
       "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
-      "tag": null
+      "tag": "input"
      },
      {
       "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
