@@ -244,6 +244,8 @@ def tools_section(drill_total: int) -> str:
     cards = [
         ("cheatsheet.html", "시험장 직전 10분 치트시트",
          "유형별 출력층·손실·지표 비교표, 빈출 에러 5선, 문항별 변수명·임포트 요약을 한 장에."),
+        ("appendix.html", "부록 — 외워야 하는 코드 3단 분해",
+         "임포트부터 새 입력 예측까지 아홉 묶음을 흐름·줄·값 세 단계로 나눠 외웁니다."),
         ("mock01.html", "CBT 실전 모의고사 3회분",
          "14문항·90분 타이머·자동 저장·즉시 채점. 1회 이진분류, 2회 다중분류, 3회 회귀."),
         ("ch08.html#drills-ch08", f"챕터 실습 셀 {drill_total}문항",
@@ -265,7 +267,13 @@ def tools_section(drill_total: int) -> str:
 </section>"""
 
 
-# ---------------------------------------------------------------- 치트시트
-def cheatsheet_fragment() -> str | None:
-    path = PAGES / "cheatsheet.html"
+# ---------------------------------------------------------------- 부속 페이지
+EXTRA_PAGES = (
+    ("cheatsheet", "시험장 치트시트", "시험장 직전 10분 치트시트"),
+    ("appendix", "부록", "부록 — 외워야 하는 코드 3단 분해"),
+)
+
+
+def page_fragment(key: str) -> str | None:
+    path = PAGES / f"{key}.html"
     return path.read_text(encoding="utf-8") if path.exists() else None

@@ -26,3 +26,4 @@
 | 2026-11-13 | v2.0 인터랙티브 계층 추가 — 정본은 `assets/`(JS·CSS 조각·JSON), 빌드가 `book/`·`docs/`로 배포. 명세 `_workspace/v2/SPEC.md`, 검증 `python3 scripts/v2/verify_all.py` | assets/, scripts/ebook/v2.py, scripts/v2/, skills/ebook-assembly | 14문항 CBT 체제 반영 (WORK_ORDER v2.0) |
 | 2026-11-13 | 한쪽 가장자리 색 띠 장식 전면 금지 규칙 추가, 기존 스타일 53곳 제거 | CLAUDE.md, style.css, assets/css/_parts, skills/ebook-assembly, diagram-style | 사용자 지시 |
 | 2026-11-13 | 광고 카피식 문구 금지 규칙 추가. 교재 제목의 구호 삭제, 부제·콘셉트 문장과 소제목 3곳(2.7, 4.6, 7.4) 평서문으로 수정 | CLAUDE.md, 01_curriculum.md, chapters/ch02·04·07, skills/chapter-writing, exam-authoring | 사용자 지시 |
+| 2026-11-13 | 부록 `appendix.html`(외워야 하는 코드 3단 분해: 흐름·줄·값) 추가. 원고 정본은 `scripts/v2/appendix_memorize.py`, `--verify`로 실린 코드 실제 실행 | scripts/v2, _workspace/pages, assets/css/_parts/55-appendix.css | 사용자 요청 |

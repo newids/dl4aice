@@ -1,0 +1,175 @@
+/* ==========================================================================
+   55. 부록 — 외워야 하는 코드 3단 분해
+   한쪽 가장자리 색 띠는 쓰지 않는다. 단계 구분은 배지 색과 옅은 배경으로만 한다.
+   ========================================================================== */
+.page-body .v2-ap { margin: 0 auto 1.2rem; }
+.page-body .v2-ap > h2 { margin: 2.6rem 0 0.5rem; }
+.v2-ap-lead { font-size: 1.02rem; color: var(--v2-text-soft); }
+.v2-ap-where { margin: 0 0 1rem; font-size: 0.86rem; font-weight: 600; color: var(--muted); }
+
+.v2-ap-block {
+  margin: 0 0 0.9rem;
+  padding: 0.95rem 1.05rem 0.4rem;
+  background: var(--v2-surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+}
+.v2-ap-head { margin: 0 0 0.7rem; }
+
+.v2-ap-tier {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.16rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.v2-ap-tier--1 { color: var(--primary); background: var(--primary-soft); }
+.v2-ap-tier--2 { color: var(--success); background: var(--success-soft); }
+.v2-ap-tier--3 { color: var(--accent); background: var(--accent-soft); }
+:root:not([data-theme="dark"]) .v2-ap-tier--2 { color: #047857; }
+:root:not([data-theme="dark"]) .v2-ap-tier--3 { color: #92400e; }
+
+/* 1단: 순서 칩 */
+.page-body .v2-ap-flow {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.3rem;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  counter-reset: ap-step;
+}
+.page-body .v2-ap-flow li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--v2-surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  counter-increment: ap-step;
+}
+.page-body .v2-ap-flow li::before {
+  content: counter(ap-step);
+  display: inline-grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--v2-on-primary);
+  background: var(--primary);
+  border-radius: 50%;
+}
+.page-body .v2-ap-flow li + li { margin-left: 1.1rem; position: relative; }
+.page-body .v2-ap-flow li + li::after {
+  content: "→";
+  position: absolute;
+  left: -1.15rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+.v2-ap-chant {
+  margin: 0 0 0.7rem;
+  font-size: 0.88rem;
+  color: var(--v2-text-soft);
+}
+.v2-ap-sub { margin: 0.2rem 0 0.5rem; font-size: 0.86rem; font-weight: 700; color: var(--v2-text-soft); }
+.v2-ap-block .v2-cb,
+.v2-ap-block > pre { margin-bottom: 0.8rem; }
+
+/* 3단: 값 표 */
+.page-body .v2-ap-table { font-size: 0.9rem; }
+.page-body .v2-ap-table th[scope="row"] { font-weight: 700; white-space: nowrap; }
+.page-body .v2-ap-table td code { white-space: normal; overflow-wrap: anywhere; }
+.v2-ap-fixed,
+.v2-ap-note {
+  margin: 0 0 0.8rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--v2-text-soft);
+  background: var(--v2-surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+}
+
+/* 방법 안내 */
+.page-body .v2-ap-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+.page-body .v2-ap-steps li {
+  margin: 0;
+  padding: 0.85rem 0.95rem 0.2rem;
+  background: var(--v2-surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+}
+.page-body .v2-ap-steps p { margin: 0.55rem 0 0.7rem; font-size: 0.9rem; line-height: 1.65; }
+
+/* 가리고 떠올리기 */
+.v2-ap-recall {
+  margin: 0 0 0.6rem;
+  background: var(--v2-surface);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+}
+.v2-ap-recall > summary {
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--v2-text-soft);
+  cursor: pointer;
+}
+.v2-ap-recall > summary:hover { color: var(--primary); }
+.v2-ap-recall > summary:focus-visible { outline: 2px solid var(--v2-focus); outline-offset: 2px; }
+.page-body .v2-ap-recall ol { margin: 0 1rem 0.8rem 1.2rem; font-size: 0.92rem; }
+
+.v2-ap-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0; }
+.v2-ap-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--v2-surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.v2-ap-links a:hover { border-color: var(--primary); }
+
+@media (max-width: 768px) {
+  .page-body .v2-ap-steps { grid-template-columns: minmax(0, 1fr); }
+  .page-body .v2-ap-table th[scope="row"] { white-space: normal; }
+}
+
+@media print {
+  .v2-ap-block, .page-body .v2-ap-steps li { break-inside: avoid; border-color: #cbd5e1; }
+  .v2-ap-recall { border-style: solid; }
+  .v2-ap-recall > summary { display: none; }
+  .v2-ap-recall > ol { display: block; }
+  .v2-ap-links { display: none; }
+}
+
+/* 좁은 화면: 표가 가로로 밀리지 않도록 폭을 고정하고 값 칸에서 줄바꿈한다 */
+@media (max-width: 600px) {
+  .page-body .v2-ap-table { width: 100%; min-width: 0; table-layout: fixed; }
+  .page-body .v2-ap-table th:first-child { width: 34%; }
+  .page-body .v2-ap-table td, .page-body .v2-ap-table th { overflow-wrap: anywhere; }
+}

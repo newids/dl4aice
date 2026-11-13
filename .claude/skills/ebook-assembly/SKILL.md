@@ -62,7 +62,7 @@ HTML 빌드 위에 얹는 Vanilla JS 위젯 계층이다. 프레임워크·번�
 - **플레이스홀더 추가:** `<!-- WIDGET: arch | type=binary | api=sequential | focus=output,loss -->` → 유형×API 비교 위젯 마운트.
 - **확인 문제 자리(`<!-- EXAM: chNN -->`):** 실습 셀(`chapter_drills.json`) 마운트 + v1 지면판 문제·해설은 `<details class="v2-legacy">`로 접어 보존.
 - **모의고사 페이지:** `mock_exams_14q.json`에 해당 id가 있으면 CBT 엔진 마운트 + v1 지면판(`mock_exam_N.md`가 있을 때)을 접어 보존.
-- **부속 페이지:** `_workspace/pages/cheatsheet.html`(HTML 조각) → `cheatsheet.html`.
+- **부속 페이지:** `_workspace/pages/<키>.html`(HTML 조각) → `<키>.html`. 목록은 `scripts/ebook/v2.py`의 `EXTRA_PAGES`(현재 `cheatsheet`, `appendix`). 부록 조각은 손으로 고치지 않고 `python3 scripts/v2/appendix_memorize.py`로 생성한다(같은 파일의 `--verify`가 실린 코드를 실제 실행).
 - **docs 동기화:** 빌드가 끝나면 `book/`을 `docs/`(GitHub Pages)로 그대로 반영한다(`--no-docs`로 생략).
 - **자체 검증 추가분:** `src` 경로 존재·외부 스크립트 금지 검사가 내부 링크 검사에 포함된다. 전체 게이트는 `python3 scripts/v2/verify_all.py`.
 - 스키마·모듈 계약·CSS 규칙의 상세는 `_workspace/v2/SPEC.md`가 단일 기준이다.

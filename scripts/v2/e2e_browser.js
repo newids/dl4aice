@@ -19,7 +19,7 @@ const { chromium } = require("playwright");
 const ROOT = path.resolve(__dirname, "..", "..");
 const BASE = process.argv[2] || "file://" + path.join(ROOT, "book") + "/";
 const SHOTS = process.argv[3] || "";
-const PAGES = ["index", "ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07", "ch08", "mock01", "mock02", "mock03", "cheatsheet"];
+const PAGES = ["index", "ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07", "ch08", "mock01", "mock02", "mock03", "cheatsheet", "appendix"];
 const ARCH_PAGES = ["ch04", "ch05", "ch07", "ch08"];
 
 const drills = JSON.parse(fs.readFileSync(path.join(ROOT, "assets/data/chapter_drills.json"), "utf8")).items;

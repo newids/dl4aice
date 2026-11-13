@@ -65,6 +65,7 @@ def main() -> int:
         results.append(run("브라우저 통합 검증 (전 페이지·실습 셀·CBT·오픈북)", ["node", "scripts/v2/e2e_browser.js"]))
     if "--with-python" in sys.argv:
         results.append(run("모의고사 답안 파이프라인 실제 실행", [sys.executable, "scripts/v2/run_mock_answers.py"]))
+        results.append(run("부록 코드 실제 실행", [sys.executable, "scripts/v2/appendix_memorize.py", "--verify"]))
     failed = results.count(False)
     print(f'\n자체 검증 게이트: {"ALL PASS" if not failed else f"{failed}개 단계 실패"} ({len(results)}단계)')
     return 1 if failed else 0

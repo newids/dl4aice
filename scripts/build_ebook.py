@@ -26,7 +26,7 @@ CHAPTERS = WORKSPACE / "chapters"
 EXAMS = WORKSPACE / "exams"
 BOOK = ROOT / "book"
 DOCS = ROOT / "docs"
-EXTRA_PAGES = ("cheatsheet.html",)
+EXTRA_PAGES = ("cheatsheet.html", "appendix.html")
 ASSETS = ROOT / "scripts" / "assets"
 
 
@@ -136,13 +136,14 @@ def build(only: set[str] | None = None) -> dict:
     written.append("index.html")
     written.append("style.css")
 
-    fragment = v2.cheatsheet_fragment()
-    if fragment and (not only or "cheatsheet" in only):
-        (BOOK / "cheatsheet.html").write_text(
-            assemble.extra_page("cheatsheet", fragment, "시험장 치트시트", book_title, "시험장 직전 10분 치트시트"),
-            encoding="utf-8",
-        )
-        written.append("cheatsheet.html")
+    # 목차 밖 부속 페이지: (키, 머리표, 제목) — 원고는 _workspace/pages/<키>.html 조각
+    for key, eyebrow, title in v2.EXTRA_PAGES:
+        fragment = v2.page_fragment(key)
+        if fragment and (not only or key in only):
+            (BOOK / f"{key}.html").write_text(
+                assemble.extra_page(key, fragment, eyebrow, book_title, title), encoding="utf-8"
+            )
+            written.append(f"{key}.html")
     return {"written": written, "rows": rows, "infos": infos, "assets": assets}
 
 
@@ -200,7 +201,7 @@ def run_verification(rows: list[dict]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="AICE 교본 e-book 빌더")
-    parser.add_argument("--only", help="갱신할 페이지 키 (예: ch03,mock01,cheatsheet)")
+    parser.add_argument("--only", help="갱신할 페이지 키 (예: ch03,mock01,cheatsheet,appendix)")
     parser.add_argument("--no-docs", action="store_true", help="docs/(GitHub Pages) 동기화를 건너뛴다")
     args = parser.parse_args()
     only = {k.strip() for k in args.only.split(",")} if args.only else None
