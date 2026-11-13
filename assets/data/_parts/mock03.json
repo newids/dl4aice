@@ -304,7 +304,7 @@
           "reason": "파일 확장자 누락, shape 에 괄호를 붙임(속성이라 TypeError)"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "(2000, 9)\n<class 'pandas.DataFrame'>\nRangeIndex: 2000 entries, 0 to 1999\nData columns (total 9 columns):\n #   Column            Non-Null Count  Dtype  \n---  ------            --------------  -----  \n 0   record_id         2000 non-null   str    \n 1   line              2000 non-null   str    \n 2   shift             1940 non-null   str    \n 3   production_units  2000 non-null   int64  \n 4   machine_load      2000 non-null   float64\n 5   temperature       1940 non-null   float64\n 6   humidity          2000 non-null   float64\n 7   run_hours         2000 non-null   float64\n 8   energy_kwh        2000 non-null   float64\ndtypes: float64(5), int64(1), str(3)\nmemory usage: 140.8 KB",
       "explanation": "이 문항은 이후 모든 문항의 출발점입니다. `df` 라는 변수명을 정확히 지켜야 뒤 문항이 이어집니다.\n\n- `import tensorflow as tf` 를 가장 먼저 두는 이유는 일부 로컬 환경에서 pandas 를 먼저 불러오면 학습 셀이 멈추는 문제를 피하기 위함입니다. 시험장에서는 신경 쓰지 않아도 되지만 습관으로 두면 안전합니다.\n- `df.shape` 는 **속성**이라 괄호가 없고, `df.info()` 는 **메서드**라 괄호가 있습니다.\n\n**자주 틀리는 지점**\n\n- `print(df.shape())` 처럼 속성에 괄호를 붙여 `TypeError` 가 납니다.\n- `df.info()` 는 스스로 출력하므로 `print(df.info())` 로 감싸면 마지막에 `None` 이 한 번 더 찍힙니다.\n- 파일 경로의 확장자(`.csv`)를 빠뜨립니다."
     },
     {
@@ -379,7 +379,7 @@
           "reason": "isnull().sum 괄호 누락, 타깃이 아닌 컬럼을 그림, kde 미적용"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "count    2000.000000\nmean      530.065850\nstd        59.713798\nmin       348.400000\n25%       489.350000\n50%       529.550000\n75%       570.425000\nmax       732.000000\nName: energy_kwh, dtype: float64\nrecord_id            0\nline                 0\nshift               60\nproduction_units     0\nmachine_load         0\ntemperature         60\nhumidity             0\nrun_hours            0\nenergy_kwh           0\ndtype: int64\n\n[그래프] energy_kwh 의 히스토그램(30구간)과 KDE 곡선. 평균 약 530 kWh 를 중심으로 좌우가 거의 대칭인 종 모양 분포이며 350~730 범위.",
       "explanation": "회귀는 분류와 달리 클래스 비율이 아니라 **값의 분포**를 봅니다. `describe()` 로 평균·표준편차·최소/최대를, `histplot` 으로 치우침(skew)과 이상값 유무를 확인합니다. 분류의 `countplot` 에 해당하는 회귀용 도구가 `histplot` 입니다.\n\n- `df.isnull().sum()` 으로 결측이 있는 컬럼을 미리 파악합니다. 이 데이터에서는 `temperature`(수치형)와 `shift`(범주형) 두 컬럼에 결측이 있습니다. 결측 처리는 Q4 입니다.\n- `bins` 가 너무 작으면 분포 모양이 뭉개지고 너무 크면 들쭉날쭉해집니다. 30 안팎이 무난합니다.\n\n**자주 틀리는 지점**\n\n- `countplot` 을 연속형 타깃에 쓰면 값마다 막대가 수백 개 생겨 알아볼 수 없습니다.\n- `df.isnull().sum` 처럼 괄호를 빼면 메서드 객체가 출력됩니다.\n- `data=df` 를 주었다면 `x` 에는 컬럼명 **문자열**을 씁니다. `x=df['energy_kwh']` 도 동작은 하지만 `data` 와 섞어 쓰는 습관은 헷갈리기 쉽습니다."
     },
     {
@@ -464,7 +464,7 @@
           "reason": "수치형이 아닌 object 를 고름, 문자열 컬럼이 섞인 df 전체에 corr 호출, annot 끔"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "[그래프] 수치형 6개 컬럼(production_units, machine_load, temperature, humidity, run_hours, energy_kwh)의 상관 heatmap(coolwarm, 칸마다 소수 둘째 자리 수치). energy_kwh 행에서 machine_load, production_units, run_hours 가 양의 상관, humidity·temperature 는 0 에 가까움.\n\nenergy_kwh          1.000000\nmachine_load        0.503387\nproduction_units    0.350264\nrun_hours           0.330152\nhumidity            0.011456\ntemperature        -0.015876\nName: energy_kwh, dtype: float64",
       "explanation": "상관계수는 **수치형 컬럼에서만** 계산됩니다. `line`, `shift`, `record_id` 같은 문자열 컬럼이 섞인 `df.corr()` 는 최신 pandas 에서 `ValueError` 를 냅니다. 그래서 `select_dtypes(include='number')` 로 먼저 걸러 냅니다.\n\n- `annot=True` 로 칸마다 수치를 적으면 색만 보는 것보다 정확합니다. 타깃과 상관이 큰 변수(`production_units`, `run_hours`, `machine_load`)와 거의 0 인 변수(`humidity`)를 구분해 두면 변수 중요도 해석에 도움이 됩니다.\n- 상관계수는 **직선 관계**만 측정합니다. `temperature` 처럼 \"적정 온도에서 멀수록 전력이 늘어나는\" 곡선(U자) 관계는 상관계수가 작게 나와도 실제로는 영향이 클 수 있습니다. 그래서 상관이 낮다는 이유만으로 변수를 버리지 않습니다.\n\n**자주 틀리는 지점**\n\n- `include='object'` 는 문자열 컬럼을 고르는 것이라 정반대입니다.\n- `sns.heatmap(df, ...)` 처럼 원본을 넣으면 상관 행렬이 아니라 값 자체가 그려집니다. 반드시 `corr` 를 넣습니다."
     },
     {
@@ -557,7 +557,7 @@
           "reason": "행 삭제 — 지시 위반"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "record_id           0\nline                0\nshift               0\nproduction_units    0\nmachine_load        0\ntemperature         0\nhumidity            0\nrun_hours           0\nenergy_kwh          0\ndtype: int64",
       "explanation": "수치형은 **중앙값**(이상값 영향이 작음), 범주형은 **최빈값**으로 채우는 것이 가장 흔한 패턴입니다. 이 시점에는 아직 `production_units` 이상값이 남아 있으므로, 평균보다 중앙값이 더 안전합니다.\n\n- `df['shift'].mode()` 는 값이 하나여도 Series 를 돌려줍니다. `[0]` 으로 첫 값을 꺼내 문자열 하나를 `fillna` 에 줍니다.\n- 결측 처리는 인코딩(Q6)보다 **먼저** 해야 합니다. `get_dummies` 는 NaN 을 별도 범주로 만들지 않아 정보가 조용히 사라집니다.\n\n**자주 틀리는 지점**\n\n- `dropna()` 로 행을 지우면 데이터의 약 6% 를 잃습니다. 지시가 \"채우시오\"인지 \"삭제하시오\"인지 읽습니다.\n- 문자열 컬럼에 `.mean()`/`.median()` 을 쓰면 오류가 납니다.\n- `df['temperature'].fillna(...)` 만 호출하고 `df['temperature'] =` 로 되돌려 저장하지 않으면 원본은 그대로입니다."
     },
     {
@@ -697,7 +697,7 @@
           "reason": "경계 부호 반대, | 로 연결해 필터가 무력화됨, record_id 대신 타깃을 제거"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "(1969, 8)",
       "explanation": "IQR 규칙: 정상 범위를 `[Q1 - 1.5*IQR, Q3 + 1.5*IQR]` 로 보고 그 밖을 이상치로 봅니다. 평균·표준편차 기반 방법보다 극단값에 덜 흔들립니다. 이 데이터에서는 `production_units` 에 1500 이상의 값 12개가 섞여 있어 제거됩니다.\n\n- 필터는 `lower <= x <= upper` 인 행을 **남기는** 방식입니다. 두 조건을 `&` 로 연결하고 각 조건을 괄호로 감쌉니다. `and` 는 시리즈에서 오류가 납니다.\n- 행을 지운 뒤 `reset_index(drop=True)` 로 인덱스를 다시 매깁니다. 뒤에서 `X`, `y` 를 인덱스로 맞추는 일이 없도록 하는 안전 습관입니다.\n- `record_id` 는 행마다 다른 문자열이라 예측력이 없고, 남겨 두면 `get_dummies` 가 컬럼을 2천 개 가까이 만듭니다.\n\n**자주 틀리는 지점**\n\n- `q3 + 1.5*iqr` 와 `q1 - 1.5*iqr` 의 부호를 서로 바꿉니다.\n- 조건을 `|` 로 연결하면 거의 모든 행이 남아 이상치가 제거되지 않습니다.\n- 타깃 `energy_kwh` 를 실수로 `drop` 합니다. 식별자는 `record_id` 입니다."
     },
     {
@@ -760,7 +760,7 @@
           "reason": "columns 미지정, drop_first 미적용"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "['production_units', 'machine_load', 'temperature', 'humidity', 'run_hours', 'energy_kwh', 'line_B', 'line_C', 'shift_evening', 'shift_night']",
       "explanation": "`line`(A/B/C)과 `shift`(day/evening/night)는 **순서가 없는 명목형**이므로 원-핫 인코딩이 맞습니다. `LabelEncoder` 로 0/1/2 를 주면 신경망과 선형 계열 모델이 \"C 는 A 의 두 배\" 같은 거짓 순서를 학습합니다.\n\n- `drop_first=True` 이면 `line_B`, `line_C`, `shift_evening`, `shift_night` 만 남고 기준 범주(`line_A`, `shift_day`)는 \"모두 0\" 으로 표현됩니다. 컬럼 수가 줄고 중복 정보가 사라집니다.\n- `dtype=int` 를 주지 않으면 최신 pandas 는 `True/False` 불리언 컬럼을 만듭니다. 불리언은 대체로 동작하지만, Q14 의 `reindex(fill_value=0)` 로 채운 0(정수)과 자료형이 섞이지 않도록 정수 0/1 로 통일해 둡니다.\n- 이 설정은 Q14 의 신규 샘플 처리와 연결됩니다. 샘플 한 행에 `drop_first=True` 를 쓰면 유일한 범주가 \"첫 번째\" 라서 지워지므로, Q14 에서는 오히려 쓰지 않습니다.\n\n**자주 틀리는 지점**\n\n- `columns=` 를 생략하면 문자열 컬럼 전부를 변환하지만, 변환 결과가 `df` 에 다시 저장되지 않으면 이후 문항이 모두 문자열 컬럼 오류로 막힙니다.\n- 인코딩은 **분리 전**(Q7 이전)에 하는 것이 이 시험의 표준 흐름입니다. 분리 후 학습/테스트에서 각각 따로 인코딩하면 컬럼이 어긋납니다."
     },
     {
@@ -918,7 +918,7 @@
           "reason": "분할 전 전체 X 에 fit — 테스트 정보 누수"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "(1575, 9) (394, 9)",
       "explanation": "**stratify 를 쓰지 않는 이유.** `stratify` 는 \"클래스 비율을 학습/테스트에 똑같이 유지\"하는 옵션이라 범주형 타깃(분류)에만 의미가 있습니다. `energy_kwh` 는 연속값이라 같은 값이 거의 없어서 계층 분할을 시도하면 `ValueError`(각 클래스 최소 2개 필요)가 나거나 무의미합니다. 앞의 이진/다중분류 모의고사와 달라지는 첫 지점입니다.\n\n**스케일링 순서.** `scaler.fit_transform(X_train)` 으로 학습 데이터의 평균·표준편차를 배우고, 그 **같은 기준**으로 `scaler.transform(X_test)` 만 적용합니다. 테스트 통계를 섞으면 시험 문제를 미리 본 것과 같은 정보 누수가 됩니다. 이 `scaler` 는 Q14 의 신규 샘플에도 그대로 쓰므로 반드시 저장해 둡니다.\n\n- `StandardScaler` 를 고른 이유: 평균 0, 표준편차 1 로 맞춰 신경망 학습이 안정되고, 이 문제의 특성(생산량·부하율·온도 등)은 단위와 범위가 서로 다릅니다. `MinMaxScaler` 도 정답으로 인정되지만 이 모의고사는 `StandardScaler` 로 통일합니다.\n- 트리 계열(Q8~Q10)은 스케일에 둔감하므로 `X_train`/`X_test` 를 그대로 쓰고, 딥러닝(Q11~)은 `X_*_scaled` 를 씁니다.\n\n**자주 틀리는 지점**\n\n- 분할 전에 `X` 전체를 스케일링하는 방식(누수).\n- `X_test` 에 `fit_transform` 을 호출하는 방식(학습 기준과 달라져 예측이 어긋남).\n- `train_test_split` 의 반환 순서를 `X_train, X_test, y_train, y_test` 로 받아야 합니다. 순서를 바꾸면 조용히 엉뚱한 변수에 들어갑니다."
     },
     {
@@ -996,7 +996,7 @@
           "reason": "회귀에 Classifier 사용, r2_score 인자 순서 뒤바뀜"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "DecisionTree MAE: 23.08\nDecisionTree R2 : 0.7844",
       "explanation": "회귀 문제에는 모델 이름 끝이 **Regressor** 인 클래스를 씁니다(`DecisionTreeRegressor`). `Classifier` 는 연속값 타깃을 받으면 `Unknown label type` 오류를 냅니다.\n\n- 트리는 값의 대소 비교로 분기하므로 스케일링이 필요 없습니다. 그래서 `X_train`/`X_test` 를 씁니다.\n- `max_depth` 를 제한하는 이유: 제한이 없으면 학습 데이터를 거의 외워 과적합합니다(학습 R² 는 1.0 에 가깝고 테스트는 낮음).\n- 회귀 지표: **MAE**(평균 절대 오차, 단위가 kWh 라 직관적), **R²**(1 에 가까울수록 설명력이 높음, 평균으로만 예측하면 0).\n\n**자주 틀리는 지점**\n\n- `r2_score(예측, 정답)` 처럼 인자 순서를 뒤집으면 값이 달라집니다(항상 `정답, 예측` 순서).\n- 정확도(`accuracy_score`)를 회귀에 쓰면 오류입니다."
     },
     {
@@ -1089,7 +1089,7 @@
           "reason": "학습은 scaled, 예측은 원본(입력 불일치), 속성 이름 오타(feature_importances_ 의 s, 밑줄 누락)"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "RandomForest MAE: 16.09\nRandomForest R2 : 0.8949\nproduction_units    0.427466\nmachine_load        0.305905\nrun_hours           0.125187\nline_B              0.050902\ntemperature         0.042969\ndtype: float64",
       "explanation": "랜덤 포레스트는 여러 트리를 **독립적으로** 학습해 평균 내는 배깅 앙상블입니다. 한 개의 트리보다 분산이 작아 안정적입니다.\n\n- `feature_importances_` 는 학습이 끝난 뒤 생기는 속성이라 괄호가 없고 끝에 밑줄이 붙습니다. 이 데이터에서는 `production_units`, `run_hours`, `machine_load` 가 상위에 올라옵니다(Q3 상관 결과와 비교해 보세요).\n- 학습과 예측에 쓰는 데이터는 **반드시 같은 종류**(둘 다 원본 또는 둘 다 스케일링본)여야 합니다. 모델은 학습 때의 특성 분포를 기준으로 분기 값을 정하기 때문입니다.\n\n**자주 틀리는 지점**\n\n- `fit` 은 `X_train_scaled`, `predict` 는 `X_test` 처럼 섞어 쓰면 결과가 엉망이 됩니다.\n- `n_estimators` 를 키우면 보통 좋아지지만 학습 시간이 비례해 늘어납니다. 시험에서는 100~200 이면 충분합니다."
     },
     {
@@ -1194,7 +1194,7 @@
           "reason": "MAE 계산에 rf_pred 사용(복붙 실수), R2 열에 xgb 대신 rf_r2"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "          model      MAE      R2\n0  DecisionTree  23.0777  0.7844\n1  RandomForest  16.0901  0.8949\n2       XGBoost  12.3715  0.9382",
       "explanation": "XGBoost 는 앞 트리의 **오차(잔차)를 다음 트리가 보정**해 가는 부스팅 앙상블입니다. 랜덤 포레스트가 평행하게 평균 내는 것과 달리 순차적으로 정밀해집니다. `XGBRegressor` 는 회귀용, `XGBClassifier` 는 분류용입니다.\n\n- `learning_rate` 를 작게 하면 트리 한 개의 기여가 작아져 일반화가 좋아지지만 `n_estimators` 를 늘려야 합니다. (0.05, 300) 은 무난한 조합입니다.\n- 비교표를 만들 때는 **MAE 는 낮을수록, R² 는 높을수록** 좋습니다. 세 지표를 같은 열에 같은 모델 순서로 맞춰야 표가 의미가 있습니다. 이 데이터는 비선형 관계(부하율의 곡선 효과, 온도의 U자 효과)가 있어 단일 트리보다 앙상블이 낫고, 딥러닝(Q11~)도 같은 수준을 노립니다.\n\n**자주 틀리는 지점**\n\n- 앞 모델의 변수를 복사해 붙이면서 `rf_pred` 를 그대로 남겨 두는 실수. 모델마다 예측 변수가 다릅니다.\n- 이 환경의 XGBoost 는 `XGBRegressor(random_state=42)` 형태를 지원합니다. 시험 환경에 `xgboost` 가 없다면 `GradientBoostingRegressor`/`LightGBM` 이 대체 문제로 나올 수 있으니 패턴(생성 → fit → predict → 지표)을 익혀 두세요."
     },
     {
@@ -1338,7 +1338,7 @@
           "reason": "출력 노드를 2 로 설정, Model 의 inputs/outputs 를 뒤바꿈"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "Model: \"functional\"\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃\n┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n│ input_layer (InputLayer)        │ (None, 9)              │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense (Dense)                   │ (None, 128)            │         1,280 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ batch_normalization             │ (None, 128)            │           512 │\n│ (BatchNormalization)            │                        │               │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dropout (Dropout)               │ (None, 128)            │             0 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_1 (Dense)                 │ (None, 64)             │         8,256 │\n├─────────────────────────────────┼────────────────────────┼───────────────┤\n│ dense_2 (Dense)                 │ (None, 1)              │            65 │\n└─────────────────────────────────┴────────────────────────┴───────────────┘\n Total params: 10,113 (39.50 KB)\n Trainable params: 9,857 (38.50 KB)\n Non-trainable params: 256 (1.00 KB)",
       "explanation": "**회귀 출력층 규칙: `Dense(1)`, 활성화 없음.** 에너지 사용량은 0~1 확률이 아니라 수백 kWh 의 연속값이므로 출력을 눌러 버리는 `sigmoid`/`softmax` 를 쓰면 안 됩니다. `Dense(1)` 은 기본이 선형 출력(`activation=None`)이라 어떤 실수값이든 낼 수 있습니다.\n\n- 손실은 `mse`(큰 오차에 더 큰 벌점), 지표는 `mae`(단위가 kWh 라 해석이 쉬움)를 씁니다. `accuracy` 는 \"맞았나/틀렸나\"를 세는 분류 지표라 회귀에는 의미가 없습니다.\n- Functional API 는 `Input` → 층을 **함수처럼 텐서에 호출**해 연결 → `Model(inputs, outputs)` 순서입니다. 입력 크기는 `Input(shape=(n,))` 로 주고 `Dense(input_shape=...)` 는 쓰지 않습니다.\n- `BatchNormalization` 은 층 출력의 분포를 안정시켜 학습을 빠르게 하고, `Dropout` 은 학습 중 일부 노드를 꺼서 과적합을 줄입니다.\n\n동치인 **Sequential** 코드(같은 모델)는 다음과 같습니다.\n\n```\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(128, activation='relu'))\nmodel.add(BatchNormalization())\nmodel.add(Dropout(0.2))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dense(1))\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\n```\n\n**자주 틀리는 지점**\n\n- 이진분류 습관대로 `Dense(1, activation='sigmoid')` + `binary_crossentropy` 를 쓰면 예측이 0~1 에 갇혀 R² 가 크게 음수가 나옵니다.\n- `Model(inputs=outputs, outputs=inputs)` 처럼 인자를 바꾸거나, 마지막 텐서를 `outputs` 로 받지 않고 `Model(inputs, x)` 를 쓰는 식으로 변수가 어긋납니다.\n- 출력 노드를 2개 이상으로 두면 `y` 의 shape (N,) 와 맞지 않아 학습은 되더라도 예측이 `(N, 2)` 로 나옵니다."
     },
     {
@@ -1460,7 +1460,7 @@
           "reason": "회귀에서 val_accuracy 감시, 최적 가중치 복원/저장 옵션 끔, 스케일링 전 X_train 으로 학습, mc 누락"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "Epoch 1/100 - 1s 8ms/step - loss: 279010.8438 - mae: 525.1482 - val_loss: 287982.9688 - val_mae: 533.4730\nEpoch 2/100 - 0s 4ms/step - loss: 269355.3438 - mae: 516.0706 - val_loss: 281683.0625 - val_mae: 527.6844\n...\nEpoch 83/100 - 0s 4ms/step - loss: 1777.5421 - mae: 33.2846 - val_loss: 282.7444 - val_mae: 13.3445\nEpoch 84/100 - 0s 3ms/step - loss: 1774.6656 - mae: 33.4328 - val_loss: 318.2378 - val_mae: 14.0831\n실제 학습한 epoch 수: 84",
       "explanation": "**EarlyStopping** 은 `val_loss` 가 `patience` 번 연속 나아지지 않으면 학습을 끊어 과적합과 시간 낭비를 막습니다. `restore_best_weights=True` 를 켜야 \"멈춘 시점\"이 아닌 **가장 좋았던 시점의 가중치**로 돌아갑니다. 이 옵션이 없으면 patience 만큼 더 나빠진 가중치가 남습니다.\n\n- **ModelCheckpoint** 는 `save_best_only=True` 일 때 `val_loss` 가 갱신될 때마다만 `best_model.keras` 를 덮어씁니다. 저장 형식은 `.keras` 가 표준입니다(구버전의 `.h5` 도 인정되나 이 교재는 `.keras`).\n- 회귀의 감시 지표는 `val_loss`(또는 `val_mae`)입니다. `val_accuracy` 는 회귀 모델에 존재하지 않아 경고만 뜨고 콜백이 동작하지 않습니다.\n- `epochs=100` 으로 크게 잡아도 EarlyStopping 이 알아서 멈추므로 시험 지시대로 크게 둡니다.\n\n**자주 틀리는 지점**\n\n- `callbacks=[es]` 처럼 하나만 넣어 `mc` 를 쓰지 않음.\n- 학습 입력을 `X_train`(스케일링 전)으로 써서 Q14 의 `scaler.transform` 입력과 분포가 달라짐.\n- 검증 데이터로 `X_test_scaled` 를 쓰면 테스트 데이터가 학습 과정에 개입합니다. 검증은 `validation_split` 으로 학습 데이터 안에서 떼어 씁니다."
     },
     {
@@ -1539,7 +1539,7 @@
           "reason": "회귀 모델에 없는 accuracy 키, val_mae 자리에 mae 를 그려 검증 곡선이 빠짐"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "[그래프] 1행 2열. 왼쪽: loss·val_loss(MSE)가 약 28만에서 시작해 수십 epoch 안에 급강하한 뒤 완만히 감소하며 최종 loss 약 1,800, val_loss 약 300 수준. 오른쪽: mae·val_mae 가 약 525 에서 시작해 최종 약 33(학습, Dropout 적용 상태)과 약 13~14(검증)까지 감소. val 곡선이 상승 전환하지 않아 심한 과적합 징후는 없음.",
       "explanation": "학습 곡선은 **train 곡선과 val 곡선의 간격**으로 읽습니다.\n\n- 두 곡선이 함께 내려가다 비슷한 값에서 평평해지면 정상 수렴입니다.\n- train 은 계속 내려가는데 val 이 올라가기 시작하면 과적합입니다. 그 지점이 EarlyStopping 이 멈추는 시점입니다.\n- 둘 다 높게 평평하면 모델이 단순하거나 학습이 부족한 것입니다.\n\n`history.history` 는 `{'loss': [...], 'mae': [...], 'val_loss': [...], 'val_mae': [...]}` 형태의 딕셔너리입니다. 키 이름은 compile 의 `metrics=['mae']` 에서 정해지며 검증 쪽에는 `val_` 접두사가 붙습니다. 분류 때의 `accuracy`/`val_accuracy` 를 복붙하면 `KeyError` 가 납니다.\n\n타깃이 수백 kWh 단위라 `loss`(MSE)의 초기값이 수십만으로 매우 크고, 처음 수~수십 epoch 동안 가파르게 내려갑니다. 그래서 그래프의 앞부분이 세로로 길게 찍히며, 뒤쪽의 미세한 차이를 보려면 첫 몇 epoch 를 잘라(`[5:]`) 그리기도 합니다. 또 학습 `loss` 는 Dropout 이 켜진 상태에서 계산되므로 `val_loss` 보다 높게 나올 수 있습니다.\n\n**자주 틀리는 지점**\n\n- `val_mae` 줄에서 `history.history['mae']` 를 그대로 복사해 두 선이 완전히 겹침.\n- `plt.subplots(2, 1)` 로 행·열을 바꿔 오른쪽/왼쪽 배치가 어긋남(지시는 1행 2열)."
     },
     {
@@ -1663,7 +1663,7 @@
           "reason": "한 행에 drop_first=True — 입력한 line_B, shift_night 가 지워져 기준 범주(A, day) 조건으로 잘못 예측"
         }
       ],
-      "expected_output": "TBD",
+      "expected_output": "Test MSE: 267.10, Test MAE: 13.06\nMAE: 13.06 / RMSE: 16.34 / R2: 0.9314\n예측 에너지 소비량: 587.4 kWh",
       "explanation": "**(1) 평가 지표.**\n\n- `model.evaluate(X_test_scaled, y_test)` 는 compile 때 정한 `[loss, mae]` 를 돌려줍니다(loss 는 MSE).\n- `model.predict` 의 결과 `pred` 는 `(N, 1)` 모양이라 `flatten()` 으로 `(N,)` 로 펴서 sklearn 지표에 넣습니다.\n- RMSE 는 MSE 의 제곱근(`np.sqrt(mean_squared_error(...))`)이라 MAE 와 같은 단위(kWh)로 읽을 수 있고 큰 오차에 더 민감합니다. 구버전에서 쓰던 `squared=False` 옵션은 최신 scikit-learn 에서 제거되어 오류가 나므로 `np.sqrt` 로 쓰는 편이 안전합니다.\n- R² 는 1 에 가까울수록 좋고, 평균으로만 예측하면 0 입니다. 분류의 정확도 대신 회귀에서는 MAE/RMSE/R² 를 보고합니다.\n\n**(2) 신규 샘플 전처리: 학습 때와 똑같이.** 순서는 항상 `DataFrame 만들기 → 인코딩 → reindex(columns=X.columns, fill_value=0) → scaler.transform → predict` 입니다.\n\n- `reindex` 가 하는 일: 한 행짜리 샘플에는 `line_B`, `shift_night` 같은 컬럼만 생기므로 학습 때의 컬럼 목록(`X.columns`)에 맞추고 없는 더미는 0 으로 채웁니다. 학습 때 버린 기준 범주 `line_A`, `shift_day` 컬럼은 `X.columns` 에 없으므로 자동으로 제외되어 순서까지 학습 입력과 같아집니다.\n- 이 때문에 **한 행에는 `drop_first=True` 를 쓰지 않습니다.** 한 행에서는 `line_B` 하나뿐인 범주가 \"첫 번째\"로 간주되어 지워지고 모델은 이를 라인 A(기준)로 오해합니다. 이 함정은 에러 없이 틀린 예측을 만듭니다.\n- 스케일러는 **학습 데이터 기준**의 평균·표준편차를 이미 갖고 있습니다. 새 샘플에 `fit_transform` 을 하면 한 행으로 평균/분산을 다시 계산해 모든 특성이 0 이 되므로 예측이 무의미해집니다. 항상 `scaler.transform` 만 씁니다.\n- 예측 `new_pred` 는 `(1, 1)` 배열이라 `new_pred[0][0]` 으로 값을 꺼냅니다. 회귀이므로 `argmax` 나 0.5 임계값 변환은 하지 않습니다.\n\n**자주 틀리는 지점**\n\n- `new_data` 에 타깃(`energy_kwh`)이나 `record_id` 를 넣거나 특성 순서를 학습과 다르게 두는 실수(`reindex` 가 막아 줍니다).\n- `scaler.fit_transform(new_df)`, 스케일링 없이 `model.predict(new_df)`, 학습 때 쓴 변환과 다른 스케일러 사용.\n- 평가를 `X_test`(스케일링 전)로 하면 학습 입력과 분포가 달라 MAE 가 크게 나옵니다."
     }
   ]
