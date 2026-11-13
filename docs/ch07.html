@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ch07. 평가와 예측 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
-<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<title>Ch07. 평가와 예측 — AICE Associate 딥러닝 실전 교본</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본" />
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="assets/css/v2-widgets.css" />
 <script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
-<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part IV. 평가와 실전 · Chapter 7</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#7-1-evaluate와-predict-돌려주는-것이-다릅니다">7.1 evaluate와 predict — 돌려주는 것이 다릅니다</a></li><li><a href="#7-2-확률을-클래스로-임계값과-argmax">7.2 확률을 클래스로 — 임계값과 argmax</a></li><li><a href="#7-3-혼동-행렬-어디에서-틀렸는지를-봅니다">7.3 혼동 행렬 — 어디에서 틀렸는지를 봅니다</a></li><li><a href="#7-4-정밀도와-재현율-무엇을-더-두려워하는가">7.4 정밀도와 재현율 — 무엇을 더 두려워하는가</a></li><li><a href="#7-5-classification-report-읽는-순서가-있습니다">7.5 classification_report — 읽는 순서가 있습니다</a></li><li><a href="#7-6-회귀-지표-mse-mae-r2">7.6 회귀 지표 — mse, mae, r2</a></li><li><a href="#7-7-학습-곡선으로-평가-결과를-뒷받침합니다">7.7 학습 곡선으로 평가 결과를 뒷받침합니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch07">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch07-확인-문제-평가와-예측">Ch07 확인 문제 — 평가와 예측</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#7-1-evaluate와-predict-돌려주는-것이-다릅니다">7.1 evaluate와 predict — 돌려주는 것이 다릅니다</a></li><li><a href="#7-2-확률을-클래스로-임계값과-argmax">7.2 확률을 클래스로 — 임계값과 argmax</a></li><li><a href="#7-3-혼동-행렬-어디에서-틀렸는지를-봅니다">7.3 혼동 행렬 — 어디에서 틀렸는지를 봅니다</a></li><li><a href="#7-4-정밀도와-재현율-어떤-오류를-더-줄여야-하는가">7.4 정밀도와 재현율 — 어떤 오류를 더 줄여야 하는가</a></li><li><a href="#7-5-classification-report-읽는-순서가-있습니다">7.5 classification_report — 읽는 순서가 있습니다</a></li><li><a href="#7-6-회귀-지표-mse-mae-r2">7.6 회귀 지표 — mse, mae, r2</a></li><li><a href="#7-7-학습-곡선으로-평가-결과를-뒷받침합니다">7.7 학습 곡선으로 평가 결과를 뒷받침합니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch07">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch07-확인-문제-평가와-예측">Ch07 확인 문제 — 평가와 예측</a></li></ol></nav>
 <article class="page-body">
 <h1>평가와 예측</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>evaluate와 predict의 반환값 차이를 알고 목적에 맞게 쓸 수 있다</li><li>확률 예측값을 임계값·argmax로 클래스 라벨로 변환할 수 있다</li><li>혼동 행렬과 classification_report, 회귀 지표를 해석할 수 있다</li></ul></aside>
@@ -458,7 +458,7 @@ TN: 63 / FP: 1 / FN: 4 / TP: 103
 <code>confusion_matrix(y_pred, y_test)</code>처럼 <strong>인자 순서를 바꾸면</strong> 행렬이 전치되어 FP와 FN이 뒤바뀝니다. 오류 메시지가 나지 않아 알아채기 어렵습니다. sklearn 평가 함수는 예외 없이 <strong>정답이 먼저, 예측이 나중</strong>입니다.</p>
 </blockquote>
 <hr />
-<h2 id="7-4-정밀도와-재현율-무엇을-더-두려워하는가">7.4 정밀도와 재현율 — 무엇을 더 두려워하는가</h2>
+<h2 id="7-4-정밀도와-재현율-어떤-오류를-더-줄여야-하는가">7.4 정밀도와 재현율 — 어떤 오류를 더 줄여야 하는가</h2>
 <figure class="diagram" id="fig-ch07_precision-recall"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" role="img" aria-label="정밀도와 재현율이 중요해지는 상황">
   <title>정밀도와 재현율이 중요해지는 상황 — 스팸 필터는 정상 메일을 스팸으로 보내는 FP가 치명적이라 정밀도를, 질병 검진은 환자를 정상으로 놓치는 FN이 치명적이라 재현율을 중시한다.</title>
   <defs>
