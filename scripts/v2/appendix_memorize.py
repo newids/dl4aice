@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import html
+import json
 import os
 import subprocess
 import sys
@@ -22,6 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 OUT = ROOT / "_workspace" / "pages" / "appendix.html"
+DATA = ROOT / "assets" / "data" / "appendix_units.json"
 
 # 검증 전용 준비 코드(부록에는 싣지 않는다): 시험에서 read_csv 로 받는 df 를 대신한다.
 SETUP = """
@@ -296,6 +298,170 @@ print(new_pred[0][0], int(new_pred[0][0] > 0.5))""",
     },
 ]
 
+
+# ---------------------------------------------------------------------------
+# 기억을 돕는 장치 (묶음 id → 내용)
+#   why   순서에 이유를 붙여 외운다(뜻이 있는 순서는 덜 잊는다)
+#   task  "보지 않고 써 보기" 연습의 조건 — 채점 규칙이 요구하는 값은 모두 여기에 적는다
+#   rules 정적 채점 규칙(assets/js/grader-core.js 문법, _workspace/v2/SPEC.md §2)
+# ---------------------------------------------------------------------------
+def _tok(value, label, hint):
+    return {"type": "token", "value": value, "label": label, "hint": hint}
+
+
+def _re(pattern, label, hint):
+    return {"type": "regex", "pattern": pattern, "label": label, "hint": hint}
+
+
+def _call(callee, label, hint, assign=None, params=None):
+    rule = {"type": "call", "callee": callee, "label": label, "hint": hint}
+    if assign:
+        rule["assign"] = assign
+    if params:
+        rule["params"] = params
+    return rule
+
+
+PRACTICE = {
+    "ap-import": {
+        "why": "뒤에서 쓰는 순서대로 가져옵니다. 데이터를 다루는 도구, 그리는 도구, 나누고 맞추는 도구, 마지막에 신경망 도구입니다. 텐서플로를 첫 줄에 두면 일부 환경에서 학습 셀이 멈추는 문제를 피할 수 있습니다.",
+        "task": "위 2단 코드와 같은 열두 줄을 씁니다. 별칭은 `tf`, `np`, `pd`, `plt`, `sns`입니다.",
+        "rules": [
+            _tok("import tensorflow as tf", "텐서플로", "첫 줄은 텐서플로이고 별칭은 tf 입니다."),
+            _tok("import numpy as np", "넘파이", "별칭 np 를 확인하세요."),
+            _tok("import pandas as pd", "판다스", "별칭 pd 를 확인하세요."),
+            _tok("import matplotlib.pyplot as plt", "맷플롯립", "matplotlib 뒤에 .pyplot 이 붙고 별칭은 plt 입니다."),
+            _tok("import seaborn as sns", "시본", "별칭 sns 를 확인하세요."),
+            _tok("from sklearn.model_selection import train_test_split", "분리 함수", "train_test_split 은 sklearn.model_selection 에 있습니다."),
+            _re(r"from sklearn\.preprocessing import [^\n]*StandardScaler", "스케일러", "스케일러는 sklearn.preprocessing 에 있습니다."),
+            _re(r"from sklearn\.ensemble import [^\n]*RandomForestClassifier", "머신러닝 모델", "랜덤 포레스트는 sklearn.ensemble 에 있습니다."),
+            _re(r"from sklearn\.metrics import [^\n]*accuracy_score", "지표", "지표 함수는 sklearn.metrics 에 있습니다."),
+            _re(r"from tensorflow\.keras\.models import [^\n]*Sequential", "케라스 모델", "Sequential 과 Model 은 tensorflow.keras.models 에 있습니다."),
+            _re(r"from tensorflow\.keras\.layers import [^\n]*Dense", "케라스 층", "Input, Dense, Dropout 은 tensorflow.keras.layers 에 있습니다."),
+            _re(r"from tensorflow\.keras\.callbacks import [^\n]*EarlyStopping", "케라스 콜백", "콜백은 tensorflow.keras.callbacks 에 있습니다."),
+        ],
+    },
+    "ap-prep": {
+        "why": "빈 값이 있으면 분위수 계산이 흔들리므로 결측치를 먼저 채웁니다. 행을 지우면 인덱스에 구멍이 생기니 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.",
+        "task": "`age`의 결측치를 중앙값으로 채우고, `monthly_fee`의 IQR 1.5배 범위 밖 행을 지운 뒤 인덱스를 다시 매기고, `contract`를 정수 0/1로 원-핫 인코딩합니다. 분위수 변수는 `q1`, `q3`, `iqr`입니다.",
+        "rules": [
+            _call(".fillna", "결측치를 중앙값으로", "age 컬럼의 중앙값을 구해 채우세요.", params=[{"pos": 0, "kw": "value", "value": {"contains": [".median()"]}}]),
+            {"type": "assign", "var": "df['age']", "label": "채운 결과 다시 대입", "hint": "fillna 결과를 df['age'] 에 다시 넣어야 반영됩니다."},
+            _tok([".quantile(0.25)", ".quantile(q=0.25)"], "Q1", "1사분위수는 quantile(0.25) 입니다."),
+            _tok([".quantile(0.75)", ".quantile(q=0.75)"], "Q3", "3사분위수는 quantile(0.75) 입니다."),
+            {"type": "assign", "var": "iqr", "contains": ["q3 - q1"], "label": "IQR", "hint": "IQR 은 q3 에서 q1 을 뺀 값입니다."},
+            _tok(["1.5 * iqr", "iqr * 1.5"], "경계 1.5배", "하한과 상한에 1.5 * iqr 을 씁니다."),
+            _call(".reset_index", "인덱스 다시 매기기", "행을 지운 뒤 reset_index(drop=True) 를 붙이세요.", params=[{"kw": "drop", "value": "True"}]),
+            _call("pd.get_dummies", "원-핫 인코딩", "columns 에 contract, dtype 에 int 를 주세요.", assign="df", params=[{"kw": "columns", "value": "['contract']"}, {"kw": "dtype", "value": ["int", "'int'", "'int64'", "np.int64"]}]),
+        ],
+    },
+    "ap-split": {
+        "why": "정답을 떼어 내야 나눌 수 있고, 나눈 뒤에야 학습 데이터만으로 기준을 잡을 수 있습니다. 평가 데이터로 기준을 잡으면 시험 문제를 미리 본 것과 같습니다.",
+        "task": "타깃은 `churn`입니다. 8:2로 나누고 `random_state=42`, 층화 추출을 씁니다. `StandardScaler`를 `scaler`에 담고 결과를 `X_train_scaled`, `X_test_scaled`에 저장합니다.",
+        "rules": [
+            _call(".drop", "특성 X", "타깃 컬럼을 뺀 나머지가 X 입니다.", assign="X", params=[{"kw": "columns", "value": ["['churn']", "'churn'"]}]),
+            {"type": "assign", "var": "y", "contains": ["df['churn']", "df.churn"], "label": "타깃 y", "hint": "y 는 churn 컬럼입니다."},
+            _call("train_test_split", "분리", "변수 네 개의 순서와 test_size, random_state, stratify 를 확인하세요.", assign="X_train, X_test, y_train, y_test",
+                  params=[{"kw": "test_size", "value": "0.2"}, {"kw": "random_state", "value": "42"}, {"kw": "stratify", "value": "y"}]),
+            _call("StandardScaler", "스케일러 만들기", "StandardScaler() 를 scaler 에 담으세요.", assign="scaler"),
+            _call("scaler.fit_transform", "학습 데이터에 fit_transform", "학습 데이터에는 fit_transform 을 씁니다.", assign="X_train_scaled", params=[{"pos": 0, "value": "X_train"}]),
+            _call("scaler.transform", "평가 데이터에 transform", "평가 데이터에는 transform 만 씁니다.", assign="X_test_scaled", params=[{"pos": 0, "value": "X_test"}]),
+            {"type": "forbid", "value": ["fit_transform(X_test)", "fit(X_test)"], "label": "평가 데이터로 기준을 잡지 않기", "hint": "평가 데이터에 fit 을 쓰면 데이터 누수입니다."},
+        ],
+    },
+    "ap-ml": {
+        "why": "모델이 있어야 학습시킬 수 있고, 학습한 뒤에야 예측할 수 있으며, 예측이 있어야 정답과 비교할 수 있습니다.",
+        "task": "랜덤 포레스트 분류 모델을 `n_estimators=100`, `random_state=42`로 만들어 `rf_model`에 담고, `X_train`으로 학습해 `X_test`의 예측을 `rf_pred`에 저장한 뒤 정확도를 출력합니다.",
+        "rules": [
+            _call("RandomForestClassifier", "모델 만들기", "n_estimators 와 random_state 를 확인하세요.", assign="rf_model", params=[{"kw": "n_estimators", "value": "100"}, {"kw": "random_state", "value": "42"}]),
+            _call("rf_model.fit", "학습", "fit 에는 학습 X, 학습 y 순서로 넣습니다.", params=[{"pos": 0, "value": "X_train"}, {"pos": 1, "value": "y_train"}]),
+            _call("rf_model.predict", "예측", "평가 X 를 넣고 rf_pred 에 담으세요.", assign="rf_pred", params=[{"pos": 0, "value": "X_test"}]),
+            _call("accuracy_score", "정확도", "첫 인자가 정답, 둘째가 예측입니다.", params=[{"pos": 0, "kw": "y_true", "value": "y_test"}, {"pos": 1, "kw": "y_pred", "value": "rf_pred"}]),
+            _tok("print(", "출력", "결과는 print 로 화면에 남깁니다."),
+        ],
+    },
+    "ap-model": {
+        "why": "데이터가 지나가는 순서 그대로입니다. 들어오는 모양을 먼저 알리고, 가운데에서 특징을 뽑고, 마지막 층이 문제 유형에 맞는 답의 모양을 만듭니다.",
+        "task": "Sequential 방식으로 씁니다. 입력은 `X_train_scaled`의 특성 수, 은닉층은 64와 32(`relu`), 그 사이에 `Dropout(0.3)`, 출력층은 이진분류입니다. 변수는 `model`입니다.",
+        "rules": [
+            _call("Sequential", "빈 모델", "Sequential() 을 model 에 담으세요.", assign="model"),
+            _call("Input", "입력", "shape 은 (특성 수,) 이며 쉼표가 필요합니다.", params=[{"kw": "shape", "value": ["(X_train_scaled.shape[1],)", "(X_train_scaled.shape[-1],)", "X_train_scaled.shape[1:]"]}]),
+            _call("Dense", "은닉층 64", "노드 64, 활성화 relu 입니다.", params=[{"pos": 0, "kw": "units", "value": "64"}, {"kw": "activation", "value": "'relu'"}]),
+            _call("Dropout", "Dropout", "비율은 0.3 입니다.", params=[{"pos": 0, "kw": "rate", "value": "0.3"}]),
+            _call("Dense", "은닉층 32", "노드 32, 활성화 relu 입니다.", params=[{"pos": 0, "kw": "units", "value": "32"}, {"kw": "activation", "value": "'relu'"}]),
+            _call("Dense", "출력층", "이진분류는 노드 1개와 sigmoid 입니다.", params=[{"pos": 0, "kw": "units", "value": "1"}, {"kw": "activation", "value": "'sigmoid'"}]),
+            {"type": "forbid", "value": "input_shape", "label": "input_shape 쓰지 않기", "hint": "입력은 Input(shape=…) 으로 정의합니다."},
+        ],
+    },
+    "ap-fit": {
+        "why": "학습 방법을 정해야(compile) 학습을 시작할 수 있습니다. 콜백은 학습 도중에 불리므로 fit 보다 먼저 만들어 두어야 합니다.",
+        "task": "`adam`, 이진분류 손실, 정확도로 컴파일합니다. `es`는 `val_loss`를 보고 5번 참으며 가장 좋은 가중치로 되돌립니다. `mc`는 `best_model.keras`에 가장 좋은 모델만 저장합니다. 검증 20%, 50 에포크, 배치 32로 학습해 `history`에 담습니다.",
+        "rules": [
+            _call("model.compile", "컴파일", "optimizer, loss, metrics 세 인자를 확인하세요.", params=[
+                {"kw": "optimizer", "value": "'adam'"}, {"kw": "loss", "value": "'binary_crossentropy'"}, {"kw": "metrics", "value": "['accuracy']"}]),
+            _call("EarlyStopping", "조기 종료", "monitor, patience, restore_best_weights 를 확인하세요.", assign="es", params=[
+                {"kw": "monitor", "value": "'val_loss'"}, {"kw": "patience", "value": "5"}, {"kw": "restore_best_weights", "value": "True"}]),
+            _call("ModelCheckpoint", "최적 모델 저장", "파일 이름, monitor, save_best_only 를 확인하세요.", assign="mc", params=[
+                {"pos": 0, "kw": "filepath", "value": "'best_model.keras'"}, {"kw": "monitor", "value": "'val_loss'"}, {"kw": "save_best_only", "value": "True"}]),
+            _call("model.fit", "학습", "validation_split, epochs, batch_size, callbacks 를 확인하세요.", assign="history", params=[
+                {"pos": 0, "kw": "x", "value": "X_train_scaled"}, {"pos": 1, "kw": "y", "value": "y_train"},
+                {"kw": "validation_split", "value": "0.2"}, {"kw": "epochs", "value": "50"}, {"kw": "batch_size", "value": "32"},
+                {"kw": "callbacks", "value": ["[es, mc]", "[mc, es]"]}]),
+        ],
+    },
+    "ap-curve": {
+        "why": "그릴 선을 먼저 올리고, 그 선이 무엇인지 알려 주는 축 이름과 범례를 붙인 다음, 마지막에 화면에 내보냅니다.",
+        "task": "학습 손실과 검증 손실을 한 그래프에 그립니다. 선마다 `label`을 주고, x축 `epoch`, y축 `loss`, 범례를 붙여 출력합니다.",
+        "rules": [
+            _tok("history.history['loss']", "학습 손실", "history 를 두 번 쓰고 키는 'loss' 입니다."),
+            _tok("history.history['val_loss']", "검증 손실", "검증 쪽 키는 앞에 val_ 이 붙습니다."),
+            _re(r"plt\.plot\([^\n]*label=", "선 이름", "plot 에 label 을 주어야 범례에 나옵니다."),
+            _call("plt.xlabel", "x축 이름", "x축은 'epoch' 입니다.", params=[{"pos": 0, "value": "'epoch'"}]),
+            _call("plt.ylabel", "y축 이름", "y축은 'loss' 입니다.", params=[{"pos": 0, "value": "'loss'"}]),
+            _tok("plt.legend()", "범례", "plt.legend() 가 있어야 label 이 보입니다."),
+            _tok("plt.show()", "출력", "마지막 줄은 plt.show() 입니다."),
+        ],
+    },
+    "ap-eval": {
+        "why": "먼저 전체 점수를 확인하고, 그다음 한 건씩의 예측을 받아 정답과 같은 모양으로 바꾼 뒤, 클래스별로 어디에서 틀렸는지 봅니다.",
+        "task": "테스트 데이터로 평가해 `loss`, `acc`에 받고, 예측 확률을 `pred`에, 0.5 기준으로 바꾼 1차원 결과를 `y_pred`에 저장한 뒤 분류 리포트와 혼동 행렬을 출력합니다.",
+        "rules": [
+            _call("model.evaluate", "평가", "평가 X, 평가 y 순서이며 결과를 loss, acc 로 받습니다.", assign="loss, acc", params=[{"pos": 0, "kw": "x", "value": "X_test_scaled"}, {"pos": 1, "kw": "y", "value": "y_test"}]),
+            _call("model.predict", "예측", "평가 X 를 넣고 pred 에 담으세요.", assign="pred", params=[{"pos": 0, "kw": "x", "value": "X_test_scaled"}]),
+            {"type": "assign", "var": "y_pred", "contains": ["pred > 0.5"], "label": "0.5 기준으로 변환", "hint": "확률이 0.5 보다 큰지 비교합니다."},
+            _re(r"y_pred=[^\n]*\.astype\((int|'int\d*'|np\.int\d+)\)", "정수로 바꾸기", "비교 결과에 .astype(int) 를 붙입니다."),
+            _re(r"y_pred=[^\n]*(\.flatten\(\)|\.ravel\(\)|\.reshape\(-1\)|\.squeeze\(\))", "1차원으로 펴기", "(N, 1) 을 (N,) 으로 펴는 메서드를 붙입니다."),
+            _call("classification_report", "분류 리포트", "정답, 예측 순서입니다.", params=[{"pos": 0, "kw": "y_true", "value": "y_test"}, {"pos": 1, "kw": "y_pred", "value": "y_pred"}]),
+            _call("confusion_matrix", "혼동 행렬", "정답, 예측 순서입니다.", params=[{"pos": 0, "kw": "y_true", "value": "y_test"}, {"pos": 1, "kw": "y_pred", "value": "y_pred"}]),
+        ],
+    },
+    "ap-new": {
+        "why": "새 입력도 학습 데이터가 지나온 길을 똑같이 지나가야 합니다. 표로 만들고, 같은 방법으로 인코딩하고, 같은 컬럼 구성으로 맞추고, 같은 스케일러를 거친 뒤에야 모델에 넣을 수 있습니다.",
+        "task": "`new_data`를 1행 표 `new_df`로 만들고, `contract`를 정수 원-핫 인코딩한 뒤 컬럼을 `X.columns`에 맞춥니다. `scaler`로 변환해 `new_scaled`, 예측을 `new_pred`에 저장하고 확률을 출력합니다.",
+        "keep": "new_data = {'age': 35, 'monthly_fee': 70.0, 'contract': 'month'}\n",
+        "rules": [
+            {"type": "any", "label": "1행 표 만들기", "hint": "딕셔너리를 대괄호로 감싸 DataFrame 에 넣습니다.", "rules": [
+                _call("pd.DataFrame", "", "", assign="new_df", params=[{"pos": 0, "kw": "data", "value": "[new_data]"}]),
+                _call("pd.DataFrame", "", "", assign="new_df", params=[{"pos": 0, "kw": "data", "value": "new_data"}, {"kw": "index", "value": "*"}]),
+            ]},
+            _call("pd.get_dummies", "같은 인코딩", "학습 때와 같은 columns 를 줍니다.", assign="new_df", params=[{"kw": "columns", "value": "['contract']"}]),
+            _call(".reindex", "컬럼 맞추기", "columns 는 X.columns, 없는 컬럼은 0 으로 채웁니다.", assign="new_df", params=[{"kw": "columns", "value": "X.columns"}, {"kw": "fill_value", "value": "0"}]),
+            _call("scaler.transform", "같은 스케일러로 변환", "이미 학습된 scaler 로 transform 만 합니다.", assign="new_scaled", params=[{"pos": 0, "value": "new_df"}]),
+            _call("model.predict", "예측", "변환한 값을 넣고 new_pred 에 담으세요.", assign="new_pred", params=[{"pos": 0, "kw": "x", "value": "new_scaled"}]),
+            {"type": "forbid", "value": ["fit_transform(new_df)", "scaler.fit(new_df)"], "label": "새 입력에 fit 쓰지 않기", "hint": "새 입력에는 fit 을 쓰지 않습니다."},
+            _tok("print(", "출력", "결과는 print 로 화면에 남깁니다."),
+        ],
+    },
+}
+
+CIRCLED = "①②③④⑤⑥⑦⑧⑨"
+for _unit in UNITS:
+    _extra = PRACTICE[_unit["id"]]
+    _unit.update(_extra)
+    _unit["skeleton"] = _extra.get("keep", "") + "\n".join(
+        f"# {CIRCLED[i]} {step}" for i, step in enumerate(_unit["flow"])
+    ) + "\n"
+
 INTRO = """<h1>부록 — 외워야 하는 코드 3단 분해</h1>
 <p class="v2-ap-lead">시험은 제한적 오픈북이지만, 아래 아홉 묶음은 찾아보지 않고 바로 써야 시간이 남습니다. 긴 코드를 통째로 외우지 않고 세 단계로 나눠 외웁니다.</p>
 
@@ -306,7 +472,14 @@ INTRO = """<h1>부록 — 외워야 하는 코드 3단 분해</h1>
 <li><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span><p>순서의 낱말 하나를 코드 한두 줄로 바꿉니다. 주석의 번호가 1단의 순서와 같습니다.</p></li>
 <li><span class="v2-ap-tier v2-ap-tier--3">3단 값</span><p>문제마다 바뀌는 자리와 넣을 값을 따로 외웁니다. 나머지는 손대지 않는 고정 부분입니다.</p></li>
 </ol>
-<p class="v2-ap-note">연습 순서: 1단을 말한다 → 코드를 가리고 2단을 쓴다 → 문제 유형을 바꿔 3단 값만 갈아 끼운다. 각 묶음 끝의 <strong>가리고 떠올리기</strong> 질문으로 확인합니다.</p>
+<p class="v2-ap-note">읽기만 해서는 잘 외워지지 않습니다. 묶음마다 아래 순서로 직접 꺼내 보십시오.</p>
+<ol class="v2-ap-howto">
+<li><strong>순서의 이유를 읽는다.</strong> 왜 이 순서인지 알면 낱말 순서를 덜 잊습니다.</li>
+<li><strong>가리고 떠올린다.</strong> 2단 코드 위의 <em>값 가리기</em>는 이름과 값만, <em>줄 가리기</em>는 주석만 남기고 가립니다. 가린 자리를 누르면 하나씩 열립니다. 열기 전에 먼저 답을 말해 보십시오.</li>
+<li><strong>보지 않고 써 본다.</strong> 1단 흐름만 주석으로 남은 셀에 코드를 쓰고 Shift+Enter로 확인합니다. 따옴표 종류와 띄어쓰기는 보지 않고, 변수 이름과 핵심 값을 봅니다.</li>
+<li><strong>간격을 두고 다시 한다.</strong> 통과하면 다음 복습 날짜가 1일, 3일, 7일, 14일, 30일로 늘어납니다. 아래 복습 일정에서 오늘 할 묶음을 확인하십시오.</li>
+</ol>
+<div class="v2-ap-review" data-ap-review aria-live="polite"></div>
 <div class="table-scroll" role="region" tabindex="0" aria-label="전체 흐름과 묶음 대응표">
 <table class="v2-ap-table">
 <thead><tr><th>묶음</th><th>문항</th><th>1단 흐름</th></tr></thead>
@@ -350,7 +523,7 @@ def render_unit(unit: dict) -> str:
     second = ""
     if unit.get("code2"):
         second = f'<p class="v2-ap-sub">{html.escape(unit["code2_title"])}</p>\n{code_block(unit["code2"])}\n'
-    return f"""<section class="v2-ap v2-wide" aria-labelledby="{unit["id"]}">
+    return f"""<section class="v2-ap v2-wide" data-ap-unit="{unit["id"]}" aria-labelledby="{unit["id"]}">
 <h2 id="{unit["id"]}">{html.escape(unit["title"])}</h2>
 <p class="v2-ap-where">쓰는 곳: {html.escape(unit["where"])}</p>
 
@@ -358,9 +531,10 @@ def render_unit(unit: dict) -> str:
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow">{flow}</ol>
 <p class="v2-ap-chant">앞 글자로 줄이면: {html.escape(unit["chant"])}</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> {html.escape(unit["why"])}</p>
 </div>
 
-<div class="v2-ap-block">
+<div class="v2-ap-block" data-ap-code>
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
 {code_block(unit["code"])}
 {second}</div>
@@ -377,9 +551,11 @@ def render_unit(unit: dict) -> str:
 </div>
 
 <details class="v2-ap-recall">
-<summary>가리고 떠올리기</summary>
+<summary>말로 확인하는 질문</summary>
 <ol>{recall}</ol>
 </details>
+
+<div class="v2-ap-practice" data-ap-practice="{unit["id"]}"></div>
 </section>
 """
 
@@ -419,12 +595,59 @@ def verify() -> int:
     return 0 if ok else 1
 
 
+def practice_data() -> dict:
+    return {
+        "version": "2.0",
+        "intervals_days": [1, 3, 7, 14, 30],
+        "units": [
+            {
+                "id": u["id"],
+                "title": u["title"],
+                "task": u["task"],
+                "skeleton": u["skeleton"],
+                "answer_code": u.get("keep", "") + u["code"] if u["id"] != "ap-new" else u["code"],
+                "rules": u["rules"],
+            }
+            for u in UNITS
+        ],
+    }
+
+
+def verify_rules() -> int:
+    """연습 채점 규칙: 2단 코드는 통과하고, 주석만 있는 뼈대는 통과하지 않아야 한다."""
+    script = """
+const g = require(process.argv[1]);
+const d = JSON.parse(require('fs').readFileSync(process.argv[2], 'utf8'));
+let bad = 0;
+for (const u of d.units) {
+  const base = g.grade(u.answer_code, u.rules);
+  const fails = [];
+  if (!base.pass) fails.push('모범 코드 불통과: ' + base.results.filter(r => !r.ok).map(r => r.label).join(', '));
+  const v = g.variants(u.answer_code);
+  for (const k of Object.keys(v)) if (!g.grade(v[k], u.rules).pass) fails.push('변형 ' + k + ' 불통과');
+  if (g.grade(u.skeleton, u.rules).pass) fails.push('뼈대가 통과함');
+  if (fails.length) { bad++; console.log('  FAIL ' + u.id + ': ' + fails.join(' / ')); }
+}
+console.log('부록 연습 채점 규칙: ' + (bad ? bad + '개 묶음 실패' : d.units.length + '/' + d.units.length + ' 묶음 통과'));
+process.exit(bad ? 1 : 0);
+"""
+    proc = subprocess.run(
+        ["node", "-e", script, str(ROOT / "assets" / "js" / "grader-core.js"), str(DATA)],
+        capture_output=True, text=True,
+    )
+    print(proc.stdout.strip() or proc.stderr.strip()[-600:])
+    return proc.returncode
+
+
 def main() -> int:
     if "--verify" in sys.argv:
-        return verify()
+        return verify() or verify_rules()
+    if "--verify-rules" in sys.argv:
+        return verify_rules()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(render(), encoding="utf-8")
-    print(f"생성: {OUT.relative_to(ROOT)} ({len(UNITS)}개 묶음)")
+    DATA.write_text(json.dumps(practice_data(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"생성: {OUT.relative_to(ROOT)}, {DATA.relative_to(ROOT)} ({len(UNITS)}개 묶음)")
     return 0
 
 

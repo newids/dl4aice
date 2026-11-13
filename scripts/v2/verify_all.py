@@ -55,6 +55,7 @@ def check_syntax() -> bool:
 def main() -> int:
     results = [check_syntax()]
     results.append(run("채점기 단위 테스트 (모범 답안·변형·오답)", ["node", "scripts/v2/test_grader.js"]))
+    results.append(run("부록 연습 채점 규칙", [sys.executable, "scripts/v2/appendix_memorize.py", "--verify-rules"]))
     results.append(run("금지 장식 검사 (한쪽 가장자리 색 띠)", [sys.executable, "scripts/v2/check_no_edge_stripes.py"]))
     results.append(run("빌드 + 내부 링크·스크립트·도해·목차 검증", [sys.executable, "scripts/build_ebook.py"]))
     for target in ("book", "docs"):

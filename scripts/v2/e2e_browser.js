@@ -177,6 +177,50 @@ async function shot(page, name, opts) {
   await page.waitForTimeout(150);
   if (await page.locator("[role=dialog]").isVisible().catch(() => false)) bad("오픈북 모달이 Esc 로 닫히지 않음");
 
+  /* 5) 부록: 가리기, 직접 써 보기, 복습 일정 */
+  const units = JSON.parse(fs.readFileSync(path.join(ROOT, "assets/data/appendix_units.json"), "utf8")).units;
+  const ap = await ctx.newPage();
+  watch(ap, errs);
+  await ap.goto(BASE + "appendix.html");
+  await ap.waitForSelector("[data-ap-practice] .v2-cell textarea");
+  const firstCode = ap.locator("[data-ap-code]").first();
+  await firstCode.getByRole("button", { name: "값 가리기" }).click();
+  const hidden = await firstCode.locator("[data-ap-hide]").count();
+  if (hidden < 5) bad("부록 값 가리기: 가린 곳 " + hidden + "개");
+  await firstCode.locator("[data-ap-hide]").first().click();
+  if ((await firstCode.locator("[data-ap-hide].is-open").count()) !== 1) bad("부록 가린 곳이 눌러도 열리지 않음");
+  await firstCode.getByRole("button", { name: "줄 가리기" }).click();
+  if ((await firstCode.locator(".v2-cb__line[data-ap-hide]").count()) < 5) bad("부록 줄 가리기 동작 안 함");
+  await firstCode.getByRole("button", { name: "전체 보기" }).click();
+  if ((await firstCode.locator("[data-ap-hide]").count()) !== 0) bad("부록 전체 보기로 돌아가지 않음");
+  const cells = await ap.$$("[data-ap-practice] .v2-cell textarea");
+  if (cells.length !== units.length) bad("부록 연습 셀 " + cells.length + "/" + units.length);
+  await cells[0].focus();
+  await ap.keyboard.press("Shift+Enter"); /* 주석만 있는 뼈대 → 통과하면 안 됨 */
+  await ap.waitForTimeout(80);
+  const early = await ap.evaluate(() => !!JSON.parse(localStorage.getItem("dl4aice.v2.appendix") || "{}")["ap-import"]);
+  if (early) bad("부록 뼈대가 통과 처리됨");
+  for (let i = 0; i < units.length; i++) {
+    await cells[i].fill(units[i].answer_code.replace(/'/g, '"'));
+    await cells[i].focus();
+    await ap.keyboard.press("Shift+Enter");
+    await ap.waitForTimeout(60);
+  }
+  const apState = await ap.evaluate(() => JSON.parse(localStorage.getItem("dl4aice.v2.appendix") || "{}"));
+  units.forEach((u) => {
+    if (!(apState[u.id] && apState[u.id].level === 1)) bad("부록 " + u.id + " 모범 코드가 브라우저에서 통과하지 못함");
+  });
+  const reviewText = await ap.locator("[data-ap-review]").innerText();
+  if (!reviewText.includes(units.length + " / " + units.length) || !/1일 뒤/.test(reviewText)) {
+    bad("부록 복습 일정이 갱신되지 않음: " + reviewText.slice(0, 80));
+  }
+  console.log("  부록 연습 " + Object.keys(apState).length + "/" + units.length + " 묶음 통과, 값 가리기 " + hidden + "곳");
+  await shot(ap, "appendix-review.png");
+  await firstCode.getByRole("button", { name: "값 가리기" }).click();
+  await firstCode.scrollIntoViewIfNeeded();
+  await shot(ap, "appendix-mask.png");
+  await ap.close();
+
   if (errs.length) bad("E2E 콘솔 에러: " + Array.from(new Set(errs)).join(" | "));
   await browser.close();
   console.log(failures ? `\n브라우저 통합 검증: ${failures}건 실패` : "\n브라우저 통합 검증: ALL PASS");

@@ -49,9 +49,14 @@ def _nav_items(rows: list[dict], infos: dict) -> dict:
                 "title": infos.get(row["key"], {}).get("title", row["title"]),
             }
         )
+    keys = [row["key"] for row in rows]
+    for key, eyebrow, title, _, _ in v2.EXTRA_PAGES:
+        if v2.page_fragment(key):
+            order.append({"href": f"{key}.html", "label": eyebrow, "title": title})
+            keys.append(key)
     nav = {}
-    for i, row in enumerate(rows, start=1):
-        nav[row["key"]] = (order[i - 1], order[i + 1] if i + 1 < len(order) else None)
+    for i, key in enumerate(keys, start=1):
+        nav[key] = (order[i - 1], order[i + 1] if i + 1 < len(order) else None)
     return nav
 
 
@@ -137,11 +142,12 @@ def build(only: set[str] | None = None) -> dict:
     written.append("style.css")
 
     # 목차 밖 부속 페이지: (키, 머리표, 제목) — 원고는 _workspace/pages/<키>.html 조각
-    for key, eyebrow, title in v2.EXTRA_PAGES:
+    for key, eyebrow, title, kind, _ in v2.EXTRA_PAGES:
         fragment = v2.page_fragment(key)
         if fragment and (not only or key in only):
             (BOOK / f"{key}.html").write_text(
-                assemble.extra_page(key, fragment, eyebrow, book_title, title), encoding="utf-8"
+                assemble.extra_page(key, fragment, eyebrow, book_title, title, kind, nav.get(key)),
+                encoding="utf-8",
             )
             written.append(f"{key}.html")
     return {"written": written, "rows": rows, "infos": infos, "assets": assets}
