@@ -13,7 +13,7 @@
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part III. 학습과 개선 · Chapter 5</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#1-compile이-정하는-세-가지">1. compile이 정하는 세 가지</a></li><li><a href="#2-손실-함수-선택-이-교재의-정본">2. 손실 함수 선택 — 이 교재의 정본</a></li><li><a href="#3-optimizer와-학습률">3. optimizer와 학습률</a></li><li><a href="#4-fit-epochs-batch-size-step">4. fit — epochs, batch_size, step</a></li><li><a href="#5-검증-데이터를-떼어내는-두-가지-방법">5. 검증 데이터를 떼어내는 두 가지 방법</a></li><li><a href="#6-history-학습이-어떻게-진행됐는지-읽기">6. history — 학습이 어떻게 진행됐는지 읽기</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch05-확인-문제-컴파일과-학습">Ch05 확인 문제 — 컴파일과 학습</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#1-compile이-정하는-세-가지">1. compile이 정하는 세 가지</a></li><li><a href="#2-손실-함수-선택-이-교재의-정본">2. 손실 함수 선택 — 이 교재의 정본</a></li><li><a href="#3-optimizer와-학습률">3. optimizer와 학습률</a></li><li><a href="#4-fit-epochs-batch-size-step">4. fit — epochs, batch_size, step</a></li><li><a href="#5-검증-데이터를-떼어내는-두-가지-방법">5. 검증 데이터를 떼어내는 두 가지 방법</a></li><li><a href="#6-history-학습이-어떻게-진행됐는지-읽기">6. history — 학습이 어떻게 진행됐는지 읽기</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch05">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch05-확인-문제-컴파일과-학습">Ch05 확인 문제 — 컴파일과 학습</a></li></ol></nav>
 <article class="page-body">
 <h1>컴파일과 학습</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>문제 유형과 라벨 형태에 맞는 손실 함수를 선택할 수 있다</li><li>fit의 epochs·batch_size·validation 인자를 의도에 맞게 설정할 수 있다</li><li>history로 학습 곡선을 그리고 학습 진행 상태를 읽을 수 있다</li></ul></aside>
@@ -798,7 +798,9 @@ model.compile(optimizer='adam',
 </tr>
 </tbody>
 </table></div>
-<section class="exam" id="exam-ch05">
+<section class="v2-drills" id="drills-ch05" data-v2-drills data-chapter="5" aria-label="Ch05 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 6문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch05">
 <h2 id="ch05-확인-문제-컴파일과-학습">Ch05 확인 문제 — 컴파일과 학습</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
@@ -1407,7 +1409,7 @@ sigmoid 잔존 — 마지막 val_mae = 186.05
 <li>오류를 하나만 찾고 넘어가는 것. <code>loss='accuracy'</code>는 실행이 멈추니 금방 보이지만, 출력층의 <code>sigmoid</code>는 조용히 살아남습니다. <strong>실행이 되기 시작했다고 해서 다 고친 것이 아닙니다.</strong></li>
 </ul>
 <hr /></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch04.html"><span class="pager__dir">이전</span><span class="pager__label">Ch04</span><span class="pager__title">Keras로 모델 만들기</span></a><a class="pager__slot pager__slot--next" href="ch06.html"><span class="pager__dir">다음</span><span class="pager__label">Ch06</span><span class="pager__title">과적합 진단과 대응</span></a></nav>

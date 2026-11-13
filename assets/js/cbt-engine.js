@@ -289,7 +289,7 @@
 
       var wrap = h("div", { class: "v2-cbt__intro" });
       wrap.appendChild(h("p", { class: "v2-cbt__eyebrow", text: "CBT 실전 모의고사" }));
-      wrap.appendChild(h("h2", { class: "v2-cbt__title", text: exam.title || "실전 모의고사" }));
+      wrap.appendChild(h("h2", { class: "v2-cbt__title", text: "시험 안내" }));
       if (exam.scenario) wrap.appendChild(h("div", { class: "v2-cbt__scenario", html: D.richText(exam.scenario) }));
 
       var facts = [

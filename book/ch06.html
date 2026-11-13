@@ -13,7 +13,7 @@
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part III. 학습과 개선 · Chapter 6</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#6-1-과적합은-외운-것과-이해한-것의-차이입니다">6.1 과적합은 &quot;외운 것&quot;과 &quot;이해한 것&quot;의 차이입니다</a></li><li><a href="#6-2-학습-곡선-두-선이-벌어지는-지점을-찾습니다">6.2 학습 곡선 — 두 선이 벌어지는 지점을 찾습니다</a></li><li><a href="#6-3-dropout-학습할-때만-끄고-예측할-때는-켭니다">6.3 Dropout — 학습할 때만 끄고, 예측할 때는 켭니다</a></li><li><a href="#6-4-earlystopping-가장-좋았던-지점에서-멈추고-되돌립니다">6.4 EarlyStopping — 가장 좋았던 지점에서 멈추고 되돌립니다</a></li><li><a href="#6-5-modelcheckpoint-좋았던-순간을-파일로-남깁니다">6.5 ModelCheckpoint — 좋았던 순간을 파일로 남깁니다</a></li><li><a href="#6-6-과적합-대응-수단을-고르는-순서">6.6 과적합 대응 수단을 고르는 순서</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch06-확인-문제-과적합-진단과-대응">Ch06 확인 문제 — 과적합 진단과 대응</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#6-1-과적합은-외운-것과-이해한-것의-차이입니다">6.1 과적합은 &quot;외운 것&quot;과 &quot;이해한 것&quot;의 차이입니다</a></li><li><a href="#6-2-학습-곡선-두-선이-벌어지는-지점을-찾습니다">6.2 학습 곡선 — 두 선이 벌어지는 지점을 찾습니다</a></li><li><a href="#6-3-dropout-학습할-때만-끄고-예측할-때는-켭니다">6.3 Dropout — 학습할 때만 끄고, 예측할 때는 켭니다</a></li><li><a href="#6-4-earlystopping-가장-좋았던-지점에서-멈추고-되돌립니다">6.4 EarlyStopping — 가장 좋았던 지점에서 멈추고 되돌립니다</a></li><li><a href="#6-5-modelcheckpoint-좋았던-순간을-파일로-남깁니다">6.5 ModelCheckpoint — 좋았던 순간을 파일로 남깁니다</a></li><li><a href="#6-6-과적합-대응-수단을-고르는-순서">6.6 과적합 대응 수단을 고르는 순서</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch06">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch06-확인-문제-과적합-진단과-대응">Ch06 확인 문제 — 과적합 진단과 대응</a></li></ol></nav>
 <article class="page-body">
 <h1>과적합 진단과 대응</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>학습 곡선을 보고 과적합·과소적합·정상 학습을 판별할 수 있다</li><li>Dropout이 학습과 추론에서 다르게 동작한다는 점을 설명할 수 있다</li><li>EarlyStopping·ModelCheckpoint를 시험 표준 인자로 적용할 수 있다</li></ul></aside>
@@ -1017,7 +1017,9 @@ print(f'평가 데이터 — loss: {loss:.4f}, accuracy: {acc:.4f}')
 </tr>
 </tbody>
 </table></div>
-<section class="exam" id="exam-ch06">
+<section class="v2-drills" id="drills-ch06" data-v2-drills data-chapter="6" aria-label="Ch06 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 5문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch06">
 <h2 id="ch06-확인-문제-과적합-진단과-대응">Ch06 확인 문제 — 과적합 진단과 대응</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
@@ -1532,7 +1534,7 @@ restore_best_weights=True  중단= 11 best시점 val_loss=0.5587 마지막 val_l
 <li><strong>콜백 객체를 만든 줄만 보고 넘어가는 것</strong> — 답안을 검토할 때는 <code>es = EarlyStopping(...)</code> 줄과 <code>model.fit(...)</code> 줄을 <strong>반드시 짝지어</strong> 확인하십시오. 만든 콜백이 <code>callbacks=[...]</code> 안에 모두 들어 있는지가 채점 포인트입니다.</li>
 </ul>
 <hr /></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch05.html"><span class="pager__dir">이전</span><span class="pager__label">Ch05</span><span class="pager__title">컴파일과 학습</span></a><a class="pager__slot pager__slot--next" href="ch07.html"><span class="pager__dir">다음</span><span class="pager__label">Ch07</span><span class="pager__title">평가와 예측</span></a></nav>

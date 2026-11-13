@@ -52,3 +52,18 @@ Python 스크립트(`scripts/build_ebook.py`)로 빌드한다. markdown 변환�
 ## EPUB 변환 (요청 시에만)
 
 HTML 빌드가 정본이다. EPUB 요청 시 `pandoc` 존재를 확인하고 있으면 변환, 없으면 HTML 산출 후 변환 불가 사유를 보고한다.
+
+## v2 인터랙티브 계층 (2026-11-13 추가)
+
+HTML 빌드 위에 얹는 Vanilla JS 위젯 계층이다. 프레임워크·번들러·외부 CDN은 여전히 금지이며 빌드 시간 0초를 유지한다.
+
+- **정본 위치:** 리포 루트 `assets/` — `js/*.js`(위젯), `css/_parts/*.css`(조각 → 빌드가 `css/v2-widgets.css`로 합본), `data/*.json`(학습 데이터). `book/`·`docs/`의 `assets/`는 빌드 산출물이므로 직접 고치지 않는다.
+- **데이터 로딩:** 빌드가 JSON마다 `assets/data/<name>.js` 래퍼를 만들어 `file://` 열람에서도 동작한다. 모듈은 `DL4AICE.data(name)`만 쓴다.
+- **플레이스홀더 추가:** `<!-- WIDGET: arch | type=binary | api=sequential | focus=output,loss -->` → 유형×API 비교 위젯 마운트.
+- **확인 문제 자리(`<!-- EXAM: chNN -->`):** 실습 셀(`chapter_drills.json`) 마운트 + v1 지면판 문제·해설은 `<details class="v2-legacy">`로 접어 보존.
+- **모의고사 페이지:** `mock_exams_14q.json`에 해당 id가 있으면 CBT 엔진 마운트 + v1 지면판(`mock_exam_N.md`가 있을 때)을 접어 보존.
+- **부속 페이지:** `_workspace/pages/cheatsheet.html`(HTML 조각) → `cheatsheet.html`.
+- **docs 동기화:** 빌드가 끝나면 `book/`을 `docs/`(GitHub Pages)로 그대로 반영한다(`--no-docs`로 생략).
+- **자체 검증 추가분:** `src` 경로 존재·외부 스크립트 금지 검사가 내부 링크 검사에 포함된다. 전체 게이트는 `python3 scripts/v2/verify_all.py`.
+- 스키마·모듈 계약·CSS 규칙의 상세는 `_workspace/v2/SPEC.md`가 단일 기준이다.
+

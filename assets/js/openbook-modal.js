@@ -108,17 +108,17 @@
   function scoreText(p, q, rawTokens) {
     var best = null;
     var i;
-    /* 이름: 일치 > 접두 > 부분 */
+    /* 이름: 일치 > 접두 > (키워드 일치) > 부분. 이름 중간 부분 일치는 우연이 많아 키워드 일치보다 낮게 둔다. */
     if (p.full === q) best = better(best, 1000, "name");
     for (i = 0; i < p.tokens.length; i++) if (p.tokens[i] === q) best = better(best, 960, "name");
-    if (p.full.indexOf(q) === 0) best = better(best, 900 - Math.min(50, p.full.length - q.length), "name");
+    if (p.full.indexOf(q) === 0) best = better(best, 900 - Math.min(50, Math.floor((p.full.length - q.length) / 4)), "name");
     for (i = 0; i < p.tokens.length; i++) {
-      if (p.tokens[i].indexOf(q) === 0) best = better(best, 850 - Math.min(50, p.tokens[i].length - q.length), "name");
+      if (p.tokens[i].indexOf(q) === 0) best = better(best, 850 - Math.min(50, Math.floor((p.tokens[i].length - q.length) / 4)), "name");
     }
     var at = p.full.indexOf(q);
-    if (at > 0) best = better(best, 700 - Math.min(50, at), "name");
+    if (at > 0) best = better(best, 580 - Math.min(50, at), "name");
     at = p.withNote.indexOf(q);
-    if (at >= 0) best = better(best, 650 - Math.min(50, at), "name");
+    if (at >= 0) best = better(best, 540 - Math.min(50, at), "name");
     if (q.length < 2) return best;
     /* 키워드 */
     p.kws.forEach(function (k) {
@@ -134,7 +134,7 @@
       if (all) best = better(best, 320, "tokens");
     }
     if (q.length >= 4 && p.par.indexOf(q) >= 0) best = better(best, 300, "param");
-    if (!best && q.length >= 3) {
+    if (!best && q.length >= 4) {
       var span = subsequenceSpan(p.full, q);
       if (span > 0 && span <= q.length * 3 + 2) best = better(best, 200 - (span - q.length), "fuzzy");
     }
@@ -174,7 +174,7 @@
     var at = kept.indexOf(q);
     if (at >= 0) {
       ranges.push([idx[at], idx[at + q.length - 1] + 1]);
-    } else if (q.length >= 3) {
+    } else if (q.length >= 4) {
       var pos = -1;
       var marks = [];
       for (var j = 0; j < q.length; j++) {
@@ -325,14 +325,14 @@
     var stat = readStat();
     ui.stat.textContent = stat.count
       ? "내 기록  찾은 횟수 " + stat.count + "회 · 평균 " + fmt(stat.total / stat.count) + "초 · 최고 " + fmt(stat.best) + "초"
-      : "내 기록  아직 없습니다. 스니펫이나 import 를 복사하면 기록됩니다.";
+      : "내 기록  아직 없음";
   }
 
   /* ---------- 복사 ---------- */
   function copyText(text, label, entry, button) {
     D.copy(text).then(function (ok) {
       if (ok) {
-        D.toast(label + "을(를) 복사했습니다.", { type: "ok", timeout: 2200 });
+        D.toast(label + " 복사했습니다.", { type: "ok", timeout: 2200 });
         if (entry) timerFound(entry.id);
         if (button) {
           var original = button.getAttribute("data-label") || button.textContent;
@@ -379,10 +379,10 @@
         impBox = el("p", { class: "v2-ob__soft", text: "사용 방법: " + imp.replace(/^\s*\(|\)\s*$/g, "") });
       } else {
         impBox = el("div", { class: "v2-ob__row" }, [
-          el("pre", { class: "v2-code v2-ob__code" }, [el("code", { html: D.highlight(imp) })]),
+          el("pre", { class: "v2-code v2-ob__code v2-ob__code--wrap" }, [el("code", { html: D.highlight(imp) })]),
           el("button", {
             type: "button", class: "v2-btn v2-btn--sm", "data-act": "copy-import", text: "import 복사",
-            onclick: function (ev) { copyText(imp, "import 문", entry, ev.currentTarget); }
+            onclick: function (ev) { copyText(imp, "import 문을", entry, ev.currentTarget); }
           })
         ]);
       }
@@ -406,7 +406,7 @@
         el("button", {
           type: "button", class: "v2-btn v2-btn--primary v2-btn--sm", "data-act": "copy-snippet", text: "코드 복사",
           "aria-keyshortcuts": modKey === "⌘" ? "Meta+Enter" : "Control+Enter",
-          onclick: function (ev) { copyText(entry.snippet, "예제 코드", entry, ev.currentTarget); }
+          onclick: function (ev) { copyText(entry.snippet, "예제 코드를", entry, ev.currentTarget); }
         })
       ]))
     );
@@ -524,15 +524,10 @@
 
   function scrollIntoList(node) {
     var box = ui.list;
-    var top = node.offsetTop;
-    var bottom = top + node.offsetHeight;
-    var parent = node.offsetParent;
-    /* 그룹 래퍼 안에 있으면 offsetTop 이 래퍼 기준이므로 getBoundingClientRect 로 계산 */
     var nr = node.getBoundingClientRect();
     var br = box.getBoundingClientRect();
     if (nr.top < br.top) box.scrollTop -= br.top - nr.top + 4;
     else if (nr.bottom > br.bottom) box.scrollTop += nr.bottom - br.bottom + 4;
-    void top; void bottom; void parent;
   }
 
   function move(delta) {
@@ -557,14 +552,14 @@
     var entry = currentEntry();
     if (!entry) return;
     var btn = ui.detail.querySelector('[data-act="copy-snippet"]');
-    copyText(entry.snippet, "예제 코드", entry, btn);
+    copyText(entry.snippet, "예제 코드를", entry, btn);
   }
 
   /* ---------- 카테고리 칩 ---------- */
   function renderChips() {
     ui.chips.textContent = "";
     var items = [{ id: "", label: "전체" }].concat(state.categoryList);
-    items.forEach(function (c, i) {
+    items.forEach(function (c) {
       ui.chips.appendChild(
         el("button", {
           type: "button", class: "v2-ob__chip", "data-cat": c.id, text: c.label,
@@ -572,7 +567,6 @@
           tabindex: c.id === state.category ? "0" : "-1"
         })
       );
-      void i;
     });
   }
 
@@ -771,8 +765,8 @@
       el("span", { class: "v2-ob__timer-bar", "aria-hidden": "true" }, [ui.fill]),
       ui.timeText,
       ui.result,
-      ui.note,
-      ui.reset
+      ui.reset,
+      ui.note
     ]);
 
     ui.input = el("input", {
@@ -860,13 +854,13 @@
   }
 
   function init() {
-    if (D.openbook && D.openbook._ready) return;
+    if (state.inited) return;
+    state.inited = true;
     build();
     document.addEventListener("keydown", onDocKey);
   }
 
   D.openbook = {
-    _ready: true,
     open: open,
     close: close,
     isOpen: function () { return state.open; },

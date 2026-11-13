@@ -13,7 +13,7 @@
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part IV. 평가와 실전 · Chapter 7</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#7-1-evaluate와-predict-돌려주는-것이-다릅니다">7.1 evaluate와 predict — 돌려주는 것이 다릅니다</a></li><li><a href="#7-2-확률을-클래스로-임계값과-argmax">7.2 확률을 클래스로 — 임계값과 argmax</a></li><li><a href="#7-3-혼동-행렬-어디에서-틀렸는지를-봅니다">7.3 혼동 행렬 — 어디에서 틀렸는지를 봅니다</a></li><li><a href="#7-4-정밀도와-재현율-무엇을-더-두려워하는가">7.4 정밀도와 재현율 — 무엇을 더 두려워하는가</a></li><li><a href="#7-5-classification-report-읽는-순서가-있습니다">7.5 classification_report — 읽는 순서가 있습니다</a></li><li><a href="#7-6-회귀-지표-mse-mae-r2">7.6 회귀 지표 — mse, mae, r2</a></li><li><a href="#7-7-학습-곡선으로-평가-결과를-뒷받침합니다">7.7 학습 곡선으로 평가 결과를 뒷받침합니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch07-확인-문제-평가와-예측">Ch07 확인 문제 — 평가와 예측</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#7-1-evaluate와-predict-돌려주는-것이-다릅니다">7.1 evaluate와 predict — 돌려주는 것이 다릅니다</a></li><li><a href="#7-2-확률을-클래스로-임계값과-argmax">7.2 확률을 클래스로 — 임계값과 argmax</a></li><li><a href="#7-3-혼동-행렬-어디에서-틀렸는지를-봅니다">7.3 혼동 행렬 — 어디에서 틀렸는지를 봅니다</a></li><li><a href="#7-4-정밀도와-재현율-무엇을-더-두려워하는가">7.4 정밀도와 재현율 — 무엇을 더 두려워하는가</a></li><li><a href="#7-5-classification-report-읽는-순서가-있습니다">7.5 classification_report — 읽는 순서가 있습니다</a></li><li><a href="#7-6-회귀-지표-mse-mae-r2">7.6 회귀 지표 — mse, mae, r2</a></li><li><a href="#7-7-학습-곡선으로-평가-결과를-뒷받침합니다">7.7 학습 곡선으로 평가 결과를 뒷받침합니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch07">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch07-확인-문제-평가와-예측">Ch07 확인 문제 — 평가와 예측</a></li></ol></nav>
 <article class="page-body">
 <h1>평가와 예측</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>evaluate와 predict의 반환값 차이를 알고 목적에 맞게 쓸 수 있다</li><li>확률 예측값을 임계값·argmax로 클래스 라벨로 변환할 수 있다</li><li>혼동 행렬과 classification_report, 회귀 지표를 해석할 수 있다</li></ul></aside>
@@ -1036,7 +1036,9 @@ print('r2 :', r2_score(y_test, y_pred))
 </tbody>
 </table></div>
 <p><strong>평가 문항 3종 세트:</strong> <code>evaluate</code> 점수 + <code>classification_report</code> + <code>confusion_matrix</code>를 모두 <code>print()</code>로 남깁니다.</p>
-<section class="exam" id="exam-ch07">
+<section class="v2-drills" id="drills-ch07" data-v2-drills data-chapter="7" aria-label="Ch07 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 5문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch07">
 <h2 id="ch07-확인-문제-평가와-예측">Ch07 확인 문제 — 평가와 예측</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
@@ -1550,7 +1552,7 @@ weighted avg       0.98      0.98      0.98       171
 <li><strong>"행렬을 눈으로 보고 이상하면 알아채겠지"라고 믿는 것.</strong> FP와 FN이 우연히 같은 값이 되면 뒤바뀐 행렬이 정상과 <strong>완전히 동일하게</strong> 출력됩니다. 눈으로 검증할 수 없는 실수이므로, 애초에 <code>(y_test, y_pred)</code> 순서를 손이 기억하게 만드는 수밖에 없습니다.</li>
 </ul>
 <hr /></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch06.html"><span class="pager__dir">이전</span><span class="pager__label">Ch06</span><span class="pager__title">과적합 진단과 대응</span></a><a class="pager__slot pager__slot--next" href="ch08.html"><span class="pager__dir">다음</span><span class="pager__label">Ch08</span><span class="pager__title">문제 유형별 완성 코드와 시험장 전략</span></a></nav>

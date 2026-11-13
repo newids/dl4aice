@@ -18,7 +18,7 @@
   - `progress.markDrill(questionId, passed)`, `progress.isDrillDone(questionId)`, `progress.chapterStats(questionIds)`, `progress.recordMock(mockId, score, detail)`, `progress.mock(mockId)`, `progress.read()`; 변경 시 `document` 에 `dl4aice:progress` 이벤트
   - `toast(message, { type: "ok"|"err"|"info", title, timeout, html })`
   - `highlight(pythonCode)` → 이스케이프된 HTML (`.v2-tok-kw/.v2-tok-str/.v2-tok-num/.v2-tok-com/.v2-tok-fn/.v2-tok-blank`)
-  - `richText(text)` → 지문용 미니 마크업(`` `code` ``, `**굵게**`, 빈 줄=문단, `- ` 목록) HTML
+  - `richText(text)` → 지문용 미니 마크업(`` `code` ``, `**굵게**`, 빈 줄=문단, `- ` 목록, ```` ``` ```` 코드 펜스) HTML
   - `escapeHtml(text)`, `el(tag, attrs, children)`, `copy(text)` → Promise<boolean>, `ready(fn)`, `theme.toggle()`
 - `assets/js/grader-core.js` → `window.DL4AICE.grader` (Node 에서는 `require`)
   - `grade(code, rules)` → `{ pass, passed, total, blanks, empty, results: [{ ok, label, hint, detail }], normalized }`
@@ -196,6 +196,9 @@
 
 - `node scripts/v2/test_grader.js <json>` — 스키마 필수 필드, 모범 답안 100% 통과(원본 + 따옴표/공백/키워드 순서 변형 4종), skeleton·negative_tests 오답 판정을 문항별로 검사.
 - `python3 scripts/v2/run_mock_answers.py <json> [examId]` — 모의고사 답안 파이프라인 실제 실행.
+- `node scripts/v2/e2e_browser.js` — 빌드된 전 페이지를 Chromium 으로 열어 위젯 마운트·콘솔 에러·가로 넘침, 실습 셀 42문항·CBT 3회분·대시보드·오픈북을 통합 검증.
+- `python3 scripts/v2/baseline_inventory.py --check book` — v1 도해 46개·h2 앵커 보존 검사(기준선 `_workspace/qa/v2_baseline.json`).
+- `python3 scripts/v2/verify_all.py [--with-python]` — 위 전부를 한 번에 돌리는 자체 검증 게이트.
 
 ## 7. 페이지 마운트 지점 (빌드가 HTML 에 심는다)
 
@@ -211,7 +214,7 @@ localStorage 키(접두사 `dl4aice.v2.` 는 `DL4AICE.store` 가 붙인다): `pr
 
 ## 8. CSS 규칙
 
-- 각 모듈은 자기 스타일을 `assets/css/_parts/<모듈>.css` 에 쓴다(리더가 `v2-widgets.css` 하나로 합친다). 접두사: `.v2-arch*`, `.v2-cell*`/`.v2-drills*`, `.v2-cbt*`, `.v2-ob*`.
+- 각 모듈은 자기 스타일을 `assets/css/_parts/<모듈>.css` 에 쓴다. 빌드(`scripts/ebook/v2.py`)가 파일명 순서로 이어 붙여 `assets/css/v2-widgets.css` 하나로 만든다 — **`v2-widgets.css` 를 직접 고치지 말고 `_parts/` 를 고친다.** 접두사: `.v2-arch*`, `.v2-cell*`/`.v2-drills*`, `.v2-cbt*`, `.v2-ob*`.
 - **색은 반드시 CSS 변수만** 사용한다(다크 모드가 변수 재정의로 동작). 사용할 변수 — 기존: `--ink --primary --primary-soft --accent --accent-soft --success --success-soft --danger --danger-soft --muted --line --line-soft --paper --backdrop --code-bg --code-fg --radius --radius-sm --shadow-sm --shadow-md --font-sans --font-mono --duration --ease`; v2 추가: `--v2-surface`(카드 배경) `--v2-surface-2`(한 단계 들어간 배경) `--v2-text-soft`(본문 보조 글자) `--v2-focus`(포커스 링).
 - 공용 클래스(이미 `_parts/00-base.css` 에 정의, 재정의 금지): `.v2-btn`, `.v2-btn--primary`, `.v2-btn--ghost`, `.v2-btn--danger`, `.v2-btn--sm`, `.v2-badge`, `.v2-badge--ok/--warn/--err/--info`, `.v2-tabs` + `.v2-tab`(`aria-selected="true"`), `.v2-code`(다크 코드 블록 `<pre>`), `.v2-kbd`, `.v2-sr-only`, `.v2-toast*`, `.v2-tok-*`.
 - 위젯 루트는 본문 그리드 안(`.page-body > *` 는 폭 760px 칼럼)에 놓인다. 더 넓게 쓰려면 루트에 `v2-wide` 클래스를 붙인다(최대 880px).

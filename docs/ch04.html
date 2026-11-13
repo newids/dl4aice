@@ -6,12 +6,14 @@
 <title>Ch04. Keras로 모델 만들기 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part II. 딥러닝의 뼈대 · Chapter 4</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#4-1-모델-만들기는-전체-4단계-중-첫-단계입니다">4.1 모델 만들기는 전체 4단계 중 첫 단계입니다</a></li><li><a href="#4-2-sequential-코드-한-줄이-층-하나입니다">4.2 Sequential — 코드 한 줄이 층 하나입니다</a></li><li><a href="#4-3-입력-shape-샘플-수는-넣지-않습니다">4.3 입력 shape — 샘플 수는 넣지 않습니다</a></li><li><a href="#4-4-출력층-문제-유형이-units와-activation을-결정합니다">4.4 출력층 — 문제 유형이 units와 activation을 결정합니다</a></li><li><a href="#4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</a></li><li><a href="#4-6-dropout과-batchnormalization-위치가-전부입니다">4.6 Dropout과 BatchNormalization — 위치가 전부입니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch04-확인-문제-keras로-모델-만들기">Ch04 확인 문제 — Keras로 모델 만들기</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#4-1-모델-만들기는-전체-4단계-중-첫-단계입니다">4.1 모델 만들기는 전체 4단계 중 첫 단계입니다</a></li><li><a href="#4-2-sequential-코드-한-줄이-층-하나입니다">4.2 Sequential — 코드 한 줄이 층 하나입니다</a></li><li><a href="#4-3-입력-shape-샘플-수는-넣지-않습니다">4.3 입력 shape — 샘플 수는 넣지 않습니다</a></li><li><a href="#4-4-출력층-문제-유형이-units와-activation을-결정합니다">4.4 출력층 — 문제 유형이 units와 activation을 결정합니다</a></li><li><a href="#4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</a></li><li><a href="#4-6-dropout과-batchnormalization-위치가-전부입니다">4.6 Dropout과 BatchNormalization — 위치가 전부입니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch04">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch04-확인-문제-keras로-모델-만들기">Ch04 확인 문제 — Keras로 모델 만들기</a></li></ol></nav>
 <article class="page-body">
 <h1>Keras로 모델 만들기</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>Sequential과 Dense로 은닉층 2개 이상의 모델을 작성할 수 있다</li><li>입력 shape와 출력층(units·activation)을 문제 유형에 맞게 정할 수 있다</li><li>Dropout·BatchNormalization을 올바른 위치에 넣고 summary()로 확인할 수 있다</li></ul></aside>
@@ -405,6 +407,13 @@ print(n_class)                              # 3
 회귀 문제에 <code>Dense(1, activation='sigmoid')</code>를 쓰는 실수가 자주 나옵니다. sigmoid는 출력을 0~1로 눌러 버리므로, 집값이나 잔여 수명 같은 값은 영원히 맞힐 수 없습니다. <strong>회귀 출력층에는 활성화 함수를 쓰지 않습니다.</strong></p>
 </blockquote>
 <hr />
+<h3 id="직접-바꿔-보기-문제-유형과-api에-따라-달라지는-줄">직접 바꿔 보기 — 문제 유형과 API에 따라 달라지는 줄</h3>
+<p>같은 모델을 <code>Sequential</code> 방식과 함수형(Functional) 방식(<code>Input</code> → <code>Dense</code> → <code>Model</code>)으로 나란히 볼 수 있습니다. 문제 유형 탭을 바꾸면 <strong>출력층</strong>이, API 탭을 바꾸면 <strong>모델을 조립하는 줄</strong>이 강조됩니다. 시험 지시문이 어느 방식을 요구하든 바뀌는 줄은 정해져 있습니다.</p>
+<div class="v2-arch" data-v2-arch data-default-type="binary" data-default-api="sequential" data-focus="output,api"></div>
+<noscript><p class="v2-noscript">문제 유형·API 비교 위젯은 자바스크립트를 켜야 보입니다. 같은 내용은 Ch08의 템플릿 A·B·C에 정리되어 있습니다.</p></noscript>
+<blockquote class="callout callout--pin">
+<p>📌 <strong>시험 포인트</strong> — 함수형 API는 "층을 함수처럼 호출해 앞 층의 출력에 연결한다"는 점만 다릅니다. <code>inputs = Input(shape=(n,))</code>로 시작해 <code>x = Dense(64, activation='relu')(inputs)</code>처럼 잇고, 마지막에 <code>model = Model(inputs=inputs, outputs=outputs)</code>로 묶습니다. 출력층의 <code>units</code>와 <code>activation</code>을 고르는 규칙은 두 방식이 완전히 같습니다.</p>
+</blockquote>
 <h2 id="4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</h2>
 <figure class="diagram" id="fig-ch04_param-count"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 530" width="800" height="530" role="img" aria-label="파라미터 수가 계산되는 방식" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>파라미터 수가 계산되는 방식. 입력 4노드와 은닉 5노드의 연결에서 가중치 20개와 편향 5개가 나와 25가 되고, 이 값이 summary 표의 Param 열에 나타납니다.</title>
@@ -733,7 +742,9 @@ Non-trainable params: 128
 </tbody>
 </table></div>
 <p>파라미터 수 계산식: <code>(앞 층 노드 수 × 이 층 노드 수) + 이 층 노드 수</code></p>
-<section class="exam" id="exam-ch04">
+<section class="v2-drills" id="drills-ch04" data-v2-drills data-chapter="4" aria-label="Ch04 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 6문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch04">
 <h2 id="ch04-확인-문제-keras로-모델-만들기">Ch04 확인 문제 — Keras로 모델 만들기</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
@@ -1135,10 +1146,18 @@ Total params: 3,556
 <li>오류를 하나만 찾고 넘어가는 것. 실기에서는 한 셀 안에 실수가 겹치는 경우가 흔하므로, 구성 코드는 <strong>위에서 아래로 층 순서를 소리 내어 읽듯</strong> 검토하십시오.</li>
 </ul>
 <hr /></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch03.html"><span class="pager__dir">이전</span><span class="pager__label">Ch03</span><span class="pager__title">딥러닝은 어떻게 배우는가</span></a><a class="pager__slot pager__slot--next" href="ch05.html"><span class="pager__dir">다음</span><span class="pager__label">Ch05</span><span class="pager__title">컴파일과 학습</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/data/arch_patterns.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/arch-switcher.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>
