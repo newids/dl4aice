@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>부록 — 외워야 하는 코드 3단 분해 — AICE Associate 딥러닝 실전 교본</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본" />
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body class="page-extra page-appendix">
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
+<main class="page">
+<div class="opener"><p class="opener__eyebrow">부록 A</p></div>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#ap-how">3단 분해로 외우는 방법</a></li><li><a href="#ap-import">A. 첫 셀 임포트</a></li><li><a href="#ap-prep">B. 결측치 · 이상치 · 인코딩</a></li><li><a href="#ap-split">C. 분리와 스케일링</a></li><li><a href="#ap-ml">D. 머신러닝 모델 3줄</a></li><li><a href="#ap-model">E. 딥러닝 모델 구성</a></li><li><a href="#ap-fit">F. 컴파일 · 콜백 · 학습</a></li><li><a href="#ap-curve">G. 학습 곡선</a></li><li><a href="#ap-eval">H. 평가와 예측값 변환</a></li><li><a href="#ap-new">I. 새 입력 한 건 예측</a></li><li><a href="#ap-types">문제 유형이 바뀔 때 고치는 네 곳</a></li></ol></nav>
+<article class="page-body page-body--appendix">
+<h1>부록 — 외워야 하는 코드 3단 분해</h1>
+<p class="v2-ap-lead">시험은 제한적 오픈북이지만, 아래 아홉 묶음은 찾아보지 않고 바로 써야 시간이 남습니다. 긴 코드를 통째로 외우지 않고 세 단계로 나눠 외웁니다.</p>
+
+<section class="v2-ap v2-wide" aria-labelledby="ap-how">
+<h2 id="ap-how">3단 분해로 외우는 방법</h2>
+<ol class="v2-ap-steps">
+<li><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span><p>블록 전체를 낱말 네다섯 개의 순서로 줄입니다. 먼저 이 순서만 소리 내어 말할 수 있게 합니다.</p></li>
+<li><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span><p>순서의 낱말 하나를 코드 한두 줄로 바꿉니다. 주석의 번호가 1단의 순서와 같습니다.</p></li>
+<li><span class="v2-ap-tier v2-ap-tier--3">3단 값</span><p>문제마다 바뀌는 자리와 넣을 값을 따로 외웁니다. 나머지는 손대지 않는 고정 부분입니다.</p></li>
+</ol>
+<p class="v2-ap-note">읽기만 해서는 잘 외워지지 않습니다. 묶음마다 아래 순서로 직접 꺼내 보십시오.</p>
+<ol class="v2-ap-howto">
+<li><strong>순서의 이유를 읽는다.</strong> 왜 이 순서인지 알면 낱말 순서를 덜 잊습니다.</li>
+<li><strong>가리고 떠올린다.</strong> 2단 코드 위의 <em>값 가리기</em>는 이름과 값만, <em>줄 가리기</em>는 주석만 남기고 가립니다. 가린 자리를 누르면 하나씩 열립니다. 열기 전에 먼저 답을 말해 보십시오.</li>
+<li><strong>보지 않고 써 본다.</strong> 1단 흐름만 주석으로 남은 셀에 코드를 쓰고 Shift+Enter로 확인합니다. 따옴표 종류와 띄어쓰기는 보지 않고, 변수 이름과 핵심 값을 봅니다.</li>
+<li><strong>간격을 두고 다시 한다.</strong> 통과하면 다음 복습 날짜가 1일, 3일, 7일, 14일, 30일로 늘어납니다. 아래 복습 일정에서 오늘 할 묶음을 확인하십시오.</li>
+</ol>
+<div class="v2-ap-review" data-ap-review aria-live="polite"></div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="전체 흐름과 묶음 대응표">
+<table class="v2-ap-table">
+<thead><tr><th>묶음</th><th>문항</th><th>1단 흐름</th></tr></thead>
+<tbody>
+<tr><th scope="row"><a href="#ap-import">A. 첫 셀 임포트</a></th><td>문항 1</td><td>텐서플로 → 넘파이·판다스 → 그래프 둘 → 사이킷런 넷 → 케라스 셋</td></tr>
+<tr><th scope="row"><a href="#ap-prep">B. 결측치 · 이상치 · 인코딩</a></th><td>문항 4~6</td><td>결측치 채우기 → IQR 경계 구하기 → 범위 안의 행만 남기기 → 인덱스 다시 매기기 → 원-핫 인코딩</td></tr>
+<tr><th scope="row"><a href="#ap-split">C. 분리와 스케일링</a></th><td>문항 7</td><td>X·y 나누기 → 학습·평가 분리 → 스케일러 만들기 → 학습 데이터에 fit_transform → 평가 데이터에 transform</td></tr>
+<tr><th scope="row"><a href="#ap-ml">D. 머신러닝 모델 3줄</a></th><td>문항 8~10</td><td>모델 만들기 → fit → predict → 지표 출력</td></tr>
+<tr><th scope="row"><a href="#ap-model">E. 딥러닝 모델 구성</a></th><td>문항 11</td><td>입력 → 은닉층 → Dropout → 은닉층 → 출력층</td></tr>
+<tr><th scope="row"><a href="#ap-fit">F. 컴파일 · 콜백 · 학습</a></th><td>문항 11~12</td><td>compile → EarlyStopping → ModelCheckpoint → fit</td></tr>
+<tr><th scope="row"><a href="#ap-curve">G. 학습 곡선</a></th><td>문항 13</td><td>loss 선 → val_loss 선 → 축 이름 → 범례 → show</td></tr>
+<tr><th scope="row"><a href="#ap-eval">H. 평가와 예측값 변환</a></th><td>문항 14 앞부분</td><td>evaluate → predict → 클래스로 변환 → 지표 출력</td></tr>
+<tr><th scope="row"><a href="#ap-new">I. 새 입력 한 건 예측</a></th><td>문항 14 뒷부분</td><td>표로 만들기 → 같은 인코딩 → 컬럼 맞추기 → 같은 스케일러로 변환 → 예측</td></tr>
+</tbody>
+</table>
+</div>
+<p class="v2-ap-note">전체 순서도 한 줄로 외웁니다: <strong>임포트 → 결·이·인 → 분·스 → 머신러닝 → 구·컴·학 → 곡선 → 평·예</strong> (결측치·이상치·인코딩 / 분리·스케일링 / 구성·컴파일·학습 / 평가·예측).</p>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-import" aria-labelledby="ap-import">
+<h2 id="ap-import">A. 첫 셀 임포트</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 1</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>텐서플로</li><li>넘파이·판다스</li><li>그래프 둘</li><li>사이킷런 넷</li><li>케라스 셋</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 텐 → 넘·판 → 맷·시 → 분리·스케일·모델·지표 → 모델·층·콜백</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 뒤에서 쓰는 순서대로 가져옵니다. 데이터를 다루는 도구, 그리는 도구, 나누고 맞추는 도구, 마지막에 신경망 도구입니다. 텐서플로를 첫 줄에 두면 일부 환경에서 학습 셀이 멈추는 문제를 피할 수 있습니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python">import tensorflow as tf
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="A. 첫 셀 임포트 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">스케일러</th><td><code>StandardScaler</code> / <code>MinMaxScaler</code> — 지문이 정한 것</td></tr><tr><th scope="row">머신러닝 모델</th><td>분류 <code>…Classifier</code>, 회귀 <code>…Regressor</code>. 트리는 <code>sklearn.tree</code>, 랜덤 포레스트는 <code>sklearn.ensemble</code></td></tr><tr><th scope="row">지표</th><td>분류 <code>accuracy_score</code>·<code>classification_report</code>, 회귀 <code>mean_absolute_error</code>·<code>r2_score</code></td></tr><tr><th scope="row">층</th><td><code>BatchNormalization</code>이 지문에 있으면 <code>layers</code> 줄에 추가</td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> 별칭 <code>tf</code>, <code>np</code>, <code>pd</code>, <code>plt</code>, <code>sns</code>와 케라스 세 줄(<code>models</code>, <code>layers</code>, <code>callbacks</code>)의 경로는 바뀌지 않습니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li><code>train_test_split</code>은 <code>sklearn</code>의 어느 모듈에 있습니까?</li><li><code>EarlyStopping</code>을 가져오는 줄을 처음부터 끝까지 쓰십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-import"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-prep" aria-labelledby="ap-prep">
+<h2 id="ap-prep">B. 결측치 · 이상치 · 인코딩</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 4~6</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>결측치 채우기</li><li>IQR 경계 구하기</li><li>범위 안의 행만 남기기</li><li>인덱스 다시 매기기</li><li>원-핫 인코딩</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 결 → 이 → 인 (채우고, 자르고, 숫자로 바꾼다)</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 빈 값이 있으면 분위수 계산이 흔들리므로 결측치를 먼저 채웁니다. 행을 지우면 인덱스에 구멍이 생기니 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python"># ① 결측치: 그 컬럼의 중앙값으로 채우고 다시 대입
+df[&#x27;age&#x27;] = df[&#x27;age&#x27;].fillna(df[&#x27;age&#x27;].median())
+
+# ② 이상치: Q1, Q3, IQR 을 구한 뒤 경계 안의 행만 남김
+q1 = df[&#x27;monthly_fee&#x27;].quantile(0.25)
+q3 = df[&#x27;monthly_fee&#x27;].quantile(0.75)
+iqr = q3 - q1
+df = df[(df[&#x27;monthly_fee&#x27;] &gt;= q1 - 1.5 * iqr) &amp; (df[&#x27;monthly_fee&#x27;] &lt;= q3 + 1.5 * iqr)]
+df = df.reset_index(drop=True)
+
+# ③ 인코딩: 문자열 컬럼을 0/1 컬럼으로
+df = pd.get_dummies(df, columns=[&#x27;contract&#x27;], dtype=int)
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="B. 결측치 · 이상치 · 인코딩 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">채우는 값</th><td>수치형 <code>.median()</code> 또는 <code>.mean()</code>, 범주형 <code>.mode()[0]</code></td></tr><tr><th scope="row">결측 행 삭제</th><td>지문이 삭제를 요구하면 <code>df = df.dropna()</code></td></tr><tr><th scope="row">IQR 배수</th><td><code>1.5</code> — 지문에 다른 값이 없으면 고정</td></tr><tr><th scope="row">인코딩 대상</th><td><code>columns=[…]</code>에 문자열 컬럼 이름</td></tr><tr><th scope="row">타깃이 문자열일 때</th><td><code>LabelEncoder().fit_transform(df['target'])</code></td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> <code>fillna</code> 결과는 반드시 다시 대입합니다. 행을 지운 뒤에는 <code>reset_index(drop=True)</code>를 붙입니다. <code>dtype=int</code>를 주면 <code>True/False</code>가 아니라 0/1이 됩니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li>IQR 하한과 상한을 구하는 식을 쓰십시오.</li><li>조건 두 개를 묶을 때 쓰는 연산자와 괄호의 위치를 말하십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-prep"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-split" aria-labelledby="ap-split">
+<h2 id="ap-split">C. 분리와 스케일링</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 7</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>X·y 나누기</li><li>학습·평가 분리</li><li>스케일러 만들기</li><li>학습 데이터에 fit_transform</li><li>평가 데이터에 transform</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 나누고 → 쪼개고 → 만들고 → 맞추고 → 따르고</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 정답을 떼어 내야 나눌 수 있고, 나눈 뒤에야 학습 데이터만으로 기준을 잡을 수 있습니다. 평가 데이터로 기준을 잡으면 시험 문제를 미리 본 것과 같습니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python"># ① 특성과 타깃
+X = df.drop(columns=[&#x27;churn&#x27;])
+y = df[&#x27;churn&#x27;]
+
+# ② 분리: 변수 네 개의 순서는 X_train, X_test, y_train, y_test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y)
+
+# ③ 스케일링: 학습 데이터로만 기준을 잡고, 평가 데이터는 변환만
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="C. 분리와 스케일링 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">타깃 컬럼</th><td><code>'churn'</code> 자리에 지문의 타깃 이름</td></tr><tr><th scope="row"><code>test_size</code></th><td>8:2면 <code>0.2</code>, 7:3이면 <code>0.3</code></td></tr><tr><th scope="row"><code>stratify</code></th><td>분류는 <code>stratify=y</code>, 회귀는 쓰지 않음</td></tr><tr><th scope="row">스케일러</th><td><code>StandardScaler()</code> / <code>MinMaxScaler()</code></td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> <code>random_state=42</code>, 반환 변수 네 개의 순서, <code>fit_transform</code>은 학습 데이터에만 쓴다는 점은 바뀌지 않습니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li><code>train_test_split</code>이 돌려주는 네 변수를 순서대로 쓰십시오.</li><li>평가 데이터에 <code>fit_transform</code>을 쓰면 안 되는 이유를 한 문장으로 말하십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-split"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-ml" aria-labelledby="ap-ml">
+<h2 id="ap-ml">D. 머신러닝 모델 3줄</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 8~10</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>모델 만들기</li><li>fit</li><li>predict</li><li>지표 출력</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 만들고 → 학습 → 예측 → 점수</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 모델이 있어야 학습시킬 수 있고, 학습한 뒤에야 예측할 수 있으며, 예측이 있어야 정답과 비교할 수 있습니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python">rf_model = RandomForestClassifier(n_estimators=100, random_state=42)   # ① 만들기
+rf_model.fit(X_train, y_train)                                         # ② 학습
+rf_pred = rf_model.predict(X_test)                                     # ③ 예측
+print(accuracy_score(y_test, rf_pred))                                 # ④ 점수
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="D. 머신러닝 모델 3줄 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">모델 클래스</th><td><code>DecisionTreeClassifier(max_depth=5, random_state=42)</code>, <code>RandomForestClassifier(…)</code>, <code>XGBClassifier(…)</code>, <code>LGBMClassifier(…)</code></td></tr><tr><th scope="row">회귀</th><td>이름 끝을 <code>Regressor</code>로, 지표를 <code>mean_absolute_error</code>·<code>r2_score</code>로</td></tr><tr><th scope="row">변수 이름</th><td><code>dt_model</code>, <code>rf_model</code>, <code>xgb_model</code> — 지문이 정한 이름</td></tr><tr><th scope="row">입력 데이터</th><td>지문이 스케일링한 데이터를 쓰라고 하면 <code>X_train_scaled</code>, <code>X_test_scaled</code></td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> 어떤 모델이든 <code>fit(학습 X, 학습 y)</code> → <code>predict(평가 X)</code> → <code>지표(y_test, 예측)</code> 순서입니다. 지표 함수의 첫 인자는 정답입니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li><code>accuracy_score</code>에 넣는 두 인자의 순서를 말하십시오.</li><li>랜덤 포레스트 분류 모델을 만드는 한 줄을 쓰십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-ml"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-model" aria-labelledby="ap-model">
+<h2 id="ap-model">E. 딥러닝 모델 구성</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 11</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>입력</li><li>은닉층</li><li>Dropout</li><li>은닉층</li><li>출력층</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 입 → 은 → 드 → 은 → 출</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 데이터가 지나가는 순서 그대로입니다. 들어오는 모양을 먼저 알리고, 가운데에서 특징을 뽑고, 마지막 층이 문제 유형에 맞는 답의 모양을 만듭니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python"># Sequential 방식: 빈 모델에 층을 순서대로 add
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))   # ① 입력: 특성 개수
+model.add(Dense(64, activation=&#x27;relu&#x27;))              # ② 은닉층
+model.add(Dropout(0.3))                              # ③ Dropout
+model.add(Dense(32, activation=&#x27;relu&#x27;))              # ④ 은닉층
+model.add(Dense(1, activation=&#x27;sigmoid&#x27;))            # ⑤ 출력층
+</code></pre>
+<p class="v2-ap-sub">같은 모델을 함수형(Functional) 방식으로</p>
+<pre><code class="language-python">inputs = Input(shape=(X_train_scaled.shape[1],))     # ① 입력
+x = Dense(64, activation=&#x27;relu&#x27;)(inputs)             # ② 앞 층의 결과를 괄호로 넘김
+x = Dropout(0.3)(x)                                  # ③
+x = Dense(32, activation=&#x27;relu&#x27;)(x)                  # ④
+outputs = Dense(1, activation=&#x27;sigmoid&#x27;)(x)          # ⑤ 출력층
+model = Model(inputs=inputs, outputs=outputs)        # ⑥ 처음과 끝을 묶음
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="E. 딥러닝 모델 구성 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">출력층 — 이진분류</th><td><code>Dense(1, activation='sigmoid')</code></td></tr><tr><th scope="row">출력층 — 다중분류</th><td><code>Dense(클래스 수, activation='softmax')</code></td></tr><tr><th scope="row">출력층 — 회귀</th><td><code>Dense(1)</code> — 활성화 함수 없음</td></tr><tr><th scope="row">은닉층 노드 수, Dropout 비율</th><td>지문의 숫자 그대로</td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> 입력은 <code>Input(shape=(특성 수,))</code>이며 쉼표를 빼면 안 됩니다. 은닉층 활성화 함수는 <code>'relu'</code>입니다. 문제 유형이 바뀌어도 고치는 곳은 출력층 한 줄입니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li>3개 클래스 분류의 출력층 한 줄을 쓰십시오.</li><li>함수형 방식에서 마지막에 <code>Model</code>로 묶는 줄을 쓰십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-model"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-fit" aria-labelledby="ap-fit">
+<h2 id="ap-fit">F. 컴파일 · 콜백 · 학습</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 11~12</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>compile</li><li>EarlyStopping</li><li>ModelCheckpoint</li><li>fit</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 컴 → 얼 → 체 → 핏 / compile 안은 옵·로·메(optimizer, loss, metrics)</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 학습 방법을 정해야(compile) 학습을 시작할 수 있습니다. 콜백은 학습 도중에 불리므로 fit 보다 먼저 만들어 두어야 합니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python"># ① 컴파일: optimizer, loss, metrics
+model.compile(optimizer=&#x27;adam&#x27;, loss=&#x27;binary_crossentropy&#x27;, metrics=[&#x27;accuracy&#x27;])
+
+# ② 조기 종료: 무엇을 볼지, 몇 번 참을지, 가장 좋았던 가중치로 되돌릴지
+es = EarlyStopping(monitor=&#x27;val_loss&#x27;, patience=5, restore_best_weights=True)
+
+# ③ 최적 모델 저장: 파일 이름, 무엇을 볼지, 좋아졌을 때만 저장
+mc = ModelCheckpoint(&#x27;best_model.keras&#x27;, monitor=&#x27;val_loss&#x27;, save_best_only=True)
+
+# ④ 학습: 데이터, 검증, 횟수, 묶음 크기, 콜백
+history = model.fit(X_train_scaled, y_train,
+                    validation_split=0.2, epochs=50, batch_size=32,
+                    callbacks=[es, mc])
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="F. 컴파일 · 콜백 · 학습 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row"><code>loss</code> — 이진분류</th><td><code>'binary_crossentropy'</code></td></tr><tr><th scope="row"><code>loss</code> — 다중분류</th><td>정수 라벨 <code>'sparse_categorical_crossentropy'</code>, 원-핫 라벨 <code>'categorical_crossentropy'</code></td></tr><tr><th scope="row"><code>loss</code> — 회귀</th><td><code>'mse'</code>, 지표는 <code>metrics=['mae']</code></td></tr><tr><th scope="row"><code>patience</code>, <code>epochs</code>, <code>batch_size</code></th><td>지문의 숫자 그대로</td></tr><tr><th scope="row">검증 데이터</th><td><code>validation_split=0.2</code> 또는 <code>validation_data=(X_val, y_val)</code></td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> <code>monitor='val_loss'</code>, <code>restore_best_weights=True</code>, <code>save_best_only=True</code>, 저장 확장자 <code>.keras</code>, <code>metrics</code>와 <code>callbacks</code>는 대괄호 리스트라는 점은 바뀌지 않습니다. 분류 지표 이름은 <code>'accuracy'</code>로 풀어 씁니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li><code>EarlyStopping</code>의 인자 세 개를 이름과 값으로 쓰십시오.</li><li>정수 라벨 다중분류의 <code>loss</code> 문자열을 철자까지 쓰십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-fit"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-curve" aria-labelledby="ap-curve">
+<h2 id="ap-curve">G. 학습 곡선</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 13</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>loss 선</li><li>val_loss 선</li><li>축 이름</li><li>범례</li><li>show</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 선 둘 → 축 → 범례 → 보여 주기</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 그릴 선을 먼저 올리고, 그 선이 무엇인지 알려 주는 축 이름과 범례를 붙인 다음, 마지막에 화면에 내보냅니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python">plt.plot(history.history[&#x27;loss&#x27;], label=&#x27;loss&#x27;)           # ① 학습 손실
+plt.plot(history.history[&#x27;val_loss&#x27;], label=&#x27;val_loss&#x27;)   # ② 검증 손실
+plt.xlabel(&#x27;epoch&#x27;)                                       # ③ 축 이름
+plt.ylabel(&#x27;loss&#x27;)
+plt.legend()                                              # ④ 범례
+plt.show()                                                # ⑤ 출력
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="G. 학습 곡선 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">정확도 곡선</th><td><code>'accuracy'</code>, <code>'val_accuracy'</code></td></tr><tr><th scope="row">회귀 지표 곡선</th><td><code>'mae'</code>, <code>'val_mae'</code></td></tr><tr><th scope="row">제목</th><td>지문이 요구하면 <code>plt.title('…')</code></td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> <code>history.history</code>처럼 <code>history</code>를 두 번 씁니다. 키 이름은 <code>compile</code>의 <code>metrics</code>에 적은 문자열과 같고, 검증 쪽은 앞에 <code>val_</code>이 붙습니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li>검증 정확도를 꺼내는 식을 쓰십시오.</li><li><code>label</code>을 줬는데 범례가 보이지 않는다면 빠진 줄은 무엇입니까?</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-curve"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-eval" aria-labelledby="ap-eval">
+<h2 id="ap-eval">H. 평가와 예측값 변환</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 14 앞부분</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>evaluate</li><li>predict</li><li>클래스로 변환</li><li>지표 출력</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 평가 → 예측 → 변환 → 보고</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 먼저 전체 점수를 확인하고, 그다음 한 건씩의 예측을 받아 정답과 같은 모양으로 바꾼 뒤, 클래스별로 어디에서 틀렸는지 봅니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python">loss, acc = model.evaluate(X_test_scaled, y_test)      # ① 손실과 지표
+pred = model.predict(X_test_scaled)                    # ② 확률 (N, 1)
+y_pred = (pred &gt; 0.5).astype(int).flatten()            # ③ 0/1 로 바꾸고 1차원으로
+print(classification_report(y_test, y_pred))           # ④ 클래스별 성능
+print(confusion_matrix(y_test, y_pred))
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="H. 평가와 예측값 변환 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">변환 — 이진분류</th><td><code>(pred &gt; 0.5).astype(int).flatten()</code></td></tr><tr><th scope="row">변환 — 다중분류</th><td><code>np.argmax(pred, axis=1)</code></td></tr><tr><th scope="row">변환 — 회귀</th><td><code>pred.flatten()</code>, 지표는 <code>mean_absolute_error</code>·<code>r2_score</code></td></tr><tr><th scope="row">클래스 이름으로 되돌리기</th><td><code>le.inverse_transform(y_pred)</code></td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> <code>evaluate</code>는 <code>[손실, 지표]</code> 순서로 돌려줍니다. <code>predict</code>의 결과는 확률이거나 값이므로, 정답과 비교하기 전에 반드시 변환합니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li>다중분류에서 확률을 클래스 번호로 바꾸는 한 줄을 쓰십시오.</li><li><code>(N, 1)</code> 모양을 <code>(N,)</code>으로 바꾸는 메서드 이름을 말하십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-eval"></div>
+</section>
+
+<section class="v2-ap v2-wide" data-ap-unit="ap-new" aria-labelledby="ap-new">
+<h2 id="ap-new">I. 새 입력 한 건 예측</h2>
+<p class="v2-ap-where">쓰는 곳: 문항 14 뒷부분</p>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
+<ol class="v2-ap-flow"><li>표로 만들기</li><li>같은 인코딩</li><li>컬럼 맞추기</li><li>같은 스케일러로 변환</li><li>예측</li></ol>
+<p class="v2-ap-chant">앞 글자로 줄이면: 표 → 인 → 맞 → 변 → 예</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 새 입력도 학습 데이터가 지나온 길을 똑같이 지나가야 합니다. 표로 만들고, 같은 방법으로 인코딩하고, 같은 컬럼 구성으로 맞추고, 같은 스케일러를 거친 뒤에야 모델에 넣을 수 있습니다.</p>
+</div>
+
+<div class="v2-ap-block" data-ap-code>
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span></p>
+<pre><code class="language-python">new_data = {&#x27;age&#x27;: 35, &#x27;monthly_fee&#x27;: 70.0, &#x27;contract&#x27;: &#x27;month&#x27;}
+
+new_df = pd.DataFrame([new_data])                                   # ① 딕셔너리를 대괄호로 감싸 1행 표로
+new_df = pd.get_dummies(new_df, columns=[&#x27;contract&#x27;], dtype=int)    # ② 학습 때와 같은 인코딩
+new_df = new_df.reindex(columns=X.columns, fill_value=0)            # ③ 학습 때의 컬럼 구성과 순서로
+new_scaled = scaler.transform(new_df)                               # ④ 이미 학습된 스케일러로 변환만
+new_pred = model.predict(new_scaled)                                # ⑤ 예측
+print(new_pred[0][0], int(new_pred[0][0] &gt; 0.5))
+</code></pre>
+</div>
+
+<div class="v2-ap-block">
+<p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="I. 새 입력 한 건 예측 — 바뀌는 자리와 값">
+<table class="v2-ap-table">
+<thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
+<tbody><tr><th scope="row">입력 값</th><td>지문이 준 딕셔너리 그대로</td></tr><tr><th scope="row">인코딩 컬럼</th><td>학습 데이터에 썼던 <code>columns=[…]</code>와 같게</td></tr><tr><th scope="row">결과 해석 — 이진분류</th><td>확률과 <code>&gt; 0.5</code> 판정</td></tr><tr><th scope="row">결과 해석 — 다중분류</th><td><code>np.argmax(new_pred, axis=1)</code> 뒤 <code>le.inverse_transform</code></td></tr><tr><th scope="row">결과 해석 — 회귀</th><td><code>new_pred[0][0]</code> 값 그대로</td></tr></tbody>
+</table>
+</div>
+<p class="v2-ap-fixed"><strong>고정</strong> <code>reindex(columns=X.columns, fill_value=0)</code>과 <code>scaler.transform</code>은 그대로 씁니다. 새 입력에는 <code>fit</code>이나 <code>fit_transform</code>을 쓰지 않습니다.</p>
+</div>
+
+<details class="v2-ap-recall">
+<summary>말로 확인하는 질문</summary>
+<ol><li>1행짜리 표에 <code>get_dummies</code>를 쓰면 컬럼이 모자라는 이유를 말하십시오.</li><li>컬럼을 학습 때와 같게 맞추는 한 줄을 쓰십시오.</li></ol>
+</details>
+
+<div class="v2-ap-practice" data-ap-practice="ap-new"></div>
+</section>
+
+<section class="v2-ap v2-wide" aria-labelledby="ap-types">
+<h2 id="ap-types">문제 유형이 바뀔 때 고치는 네 곳</h2>
+<p>아홉 묶음 가운데 문제 유형에 따라 값이 달라지는 자리는 네 곳뿐입니다. 이 표를 3단 값의 요약으로 외웁니다.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="문제 유형별로 바뀌는 네 곳">
+<table class="v2-ap-table">
+<thead><tr><th>유형</th><th>출력층 (E)</th><th><code>loss</code> (F)</th><th><code>metrics</code> (F)</th><th>예측값 변환 (H)</th></tr></thead>
+<tbody>
+<tr><th scope="row">이진분류</th><td><code>Dense(1, activation='sigmoid')</code></td><td><code>'binary_crossentropy'</code></td><td><code>['accuracy']</code></td><td><code>(pred &gt; 0.5).astype(int).flatten()</code></td></tr>
+<tr><th scope="row">다중분류 (정수 라벨)</th><td><code>Dense(K, activation='softmax')</code></td><td><code>'sparse_categorical_crossentropy'</code></td><td><code>['accuracy']</code></td><td><code>np.argmax(pred, axis=1)</code></td></tr>
+<tr><th scope="row">다중분류 (원-핫 라벨)</th><td><code>Dense(K, activation='softmax')</code></td><td><code>'categorical_crossentropy'</code></td><td><code>['accuracy']</code></td><td><code>np.argmax(pred, axis=1)</code></td></tr>
+<tr><th scope="row">회귀</th><td><code>Dense(1)</code></td><td><code>'mse'</code></td><td><code>['mae']</code></td><td><code>pred.flatten()</code></td></tr>
+</tbody>
+</table>
+</div>
+<p class="v2-ap-note">문항 수와 배점, 지문이 요구하는 세부 값은 회차마다 달라질 수 있습니다. 응시 전 KT AICE 공식 공지를 확인하십시오.</p>
+<p class="v2-ap-links"><a href="cheatsheet.html">시험장 치트시트</a><a href="ch08.html">Ch08 유형별 완성 코드</a><a href="mock01.html">모의고사 1회</a><a href="index.html">목차</a></p>
+</section>
+
+</article>
+<nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="mock03.html"><span class="pager__dir">이전</span><span class="pager__label">모의고사 3회</span><span class="pager__title">실전 모의고사 3회 — 회귀: 스마트팩토리 전력 에너지 소비량 예측</span></a><a class="pager__slot pager__slot--next" href="cheatsheet.html"><span class="pager__dir">다음</span><span class="pager__label">부록 B</span><span class="pager__title">시험장 직전 10분 치트시트</span></a></nav>
+</main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/appendix_units.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/motion.js"></script>
+<script defer src="assets/js/code-blocks.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/appendix.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
+</body>
+</html>

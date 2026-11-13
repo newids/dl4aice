@@ -63,7 +63,22 @@ def _toc(rows: list[dict], infos: dict) -> str:
             )
             current = part
         out.append(_entry(row, infos.get(row["key"], {})))
-    out.append("</ol></section></section>")
+    out.append("</ol></section>")
+    extras = [page for page in v2.EXTRA_PAGES if v2.page_fragment(page[0])]
+    if extras:
+        out.append('<section class="part"><h3 class="part__title">부록</h3><ol class="entries">')
+        for key, eyebrow, title, _, desc in extras:
+            out.append(
+                f"""<li class="entry entry--extra">
+<a class="entry__link" href="{key}.html">
+<span class="entry__num">{html.escape(eyebrow)}</span>
+<span class="entry__title">{html.escape(title)}</span>
+</a>
+<p class="entry__role">{html.escape(desc)}</p>
+</li>"""
+            )
+        out.append("</ol></section>")
+    out.append("</section>")
     return "\n".join(out)
 
 

@@ -55,6 +55,7 @@ def check_syntax() -> bool:
 def main() -> int:
     results = [check_syntax()]
     results.append(run("채점기 단위 테스트 (모범 답안·변형·오답)", ["node", "scripts/v2/test_grader.js"]))
+    results.append(run("부록 연습 채점 규칙", [sys.executable, "scripts/v2/appendix_memorize.py", "--verify-rules"]))
     results.append(run("금지 장식 검사 (한쪽 가장자리 색 띠)", [sys.executable, "scripts/v2/check_no_edge_stripes.py"]))
     results.append(run("빌드 + 내부 링크·스크립트·도해·목차 검증", [sys.executable, "scripts/build_ebook.py"]))
     for target in ("book", "docs"):
@@ -65,6 +66,7 @@ def main() -> int:
         results.append(run("브라우저 통합 검증 (전 페이지·실습 셀·CBT·오픈북)", ["node", "scripts/v2/e2e_browser.js"]))
     if "--with-python" in sys.argv:
         results.append(run("모의고사 답안 파이프라인 실제 실행", [sys.executable, "scripts/v2/run_mock_answers.py"]))
+        results.append(run("부록 코드 실제 실행", [sys.executable, "scripts/v2/appendix_memorize.py", "--verify"]))
     failed = results.count(False)
     print(f'\n자체 검증 게이트: {"ALL PASS" if not failed else f"{failed}개 단계 실패"} ({len(results)}단계)')
     return 1 if failed else 0

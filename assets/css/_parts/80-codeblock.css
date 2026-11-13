@@ -133,3 +133,9 @@
   .v2-cb__line::before { color: #94a3b8 !important; border-color: #e2e8f0 !important; }
   .v2-cb [class^="v2-tok-"] { color: inherit; font-style: normal; }
 }
+
+/* 외워 쓸 코드이므로 >= 나 != 가 합자 기호로 바뀌어 보이지 않게 한다 */
+.page-body pre, .page-body code, .v2-code, .v2-cell textarea, .v2-arch__src {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}

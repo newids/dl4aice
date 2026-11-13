@@ -128,7 +128,9 @@ def mock_page(item, meta, body_md, nav, book_title, exam: dict | None = None) ->
     )
 
 
-def extra_page(key: str, fragment: str, eyebrow: str, book_title: str, title: str) -> str:
+def extra_page(
+    key: str, fragment: str, eyebrow: str, book_title: str, title: str, kind: str = "plain", nav=None
+) -> str:
     """목차 밖 부속 페이지(치트시트 등): HTML 조각을 사이트 셸로 감싼다."""
     headings = htmlpost.collect_headings(fragment)
     body = f"""{pages.masthead(book_title)}
@@ -138,7 +140,7 @@ def extra_page(key: str, fragment: str, eyebrow: str, book_title: str, title: st
 <article class="page-body page-body--{key}">
 {fragment}
 </article>
-{pages.pager({"href": "index.html", "label": "표지", "title": "전체 목차"}, None)}
+{pages.pager(*(nav or ({"href": "index.html", "label": "표지", "title": "전체 목차"}, None)))}
 </main>"""
     return pages.shell(
         title=f"{title} — {book_title}",
@@ -146,7 +148,7 @@ def extra_page(key: str, fragment: str, eyebrow: str, book_title: str, title: st
         body=body,
         page_class=f"page-extra page-{key}",
         head_extra=v2.head_extra(),
-        scripts=v2.scripts("plain"),
+        scripts=v2.scripts(kind),
     )
 
 
