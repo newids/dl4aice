@@ -226,8 +226,17 @@
           "type": "call",
           "callee": "pd.get_dummies",
           "label": "분리 전 원-핫 인코딩",
-          "hint": "범주형을 0/1 컬럼으로 바꾸는 pandas 함수를 쓰고 결과는 `df_enc` 에 담으세요.",
-          "assign": "df_enc"
+          "hint": "범주형을 0/1 컬럼으로 바꾸는 pandas 함수를 쓰고 결과는 `df_enc` 에 담으세요. 0/1 정수가 되도록 `dtype` 도 지정합니다.",
+          "assign": "df_enc",
+          "params": [
+            {
+              "kw": "dtype",
+              "value": [
+                "int",
+                "'int'"
+              ]
+            }
+          ]
         },
         {
           "type": "call",
@@ -1249,6 +1258,12 @@
           "value": "units=2",
           "label": "노드 2개 금지",
           "hint": "출력 노드 수는 클래스 수와 같아야 합니다."
+        },
+        {
+          "type": "forbid",
+          "pattern": "softmax'\\)\\)\\nmodel\\.add\\(Dropout",
+          "label": "출력층 뒤 Dropout 금지",
+          "hint": "출력층(`softmax`) 다음 줄에 `Dropout` 이 남아 있으면 안 됩니다. 마지막 층은 항상 출력 `Dense` 입니다."
         }
       ],
       "negative_tests": [
