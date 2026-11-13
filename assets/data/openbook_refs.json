@@ -1,0 +1,2239 @@
+{
+  "version": "2.0",
+  "categories": [
+    {
+      "id": "pandas-explore",
+      "label": "Pandas 탐색"
+    },
+    {
+      "id": "pandas-prep",
+      "label": "Pandas 전처리"
+    },
+    {
+      "id": "numpy",
+      "label": "NumPy"
+    },
+    {
+      "id": "viz",
+      "label": "시각화"
+    },
+    {
+      "id": "sklearn-split",
+      "label": "분리·스케일링"
+    },
+    {
+      "id": "sklearn-model",
+      "label": "머신러닝 모델"
+    },
+    {
+      "id": "sklearn-metric",
+      "label": "평가지표"
+    },
+    {
+      "id": "keras-build",
+      "label": "Keras 모델 구성"
+    },
+    {
+      "id": "keras-train",
+      "label": "Keras 학습·평가"
+    },
+    {
+      "id": "keras-util",
+      "label": "Keras 유틸"
+    }
+  ],
+  "entries": [
+    {
+      "id": "pandas-read_csv",
+      "category": "pandas-explore",
+      "name": "read_csv",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "pd.read_csv(filepath_or_buffer, sep=',', header='infer', names=None, index_col=None, usecols=None, ..., encoding=None)",
+      "summary": "CSV 파일을 읽어 DataFrame 으로 만든다.",
+      "params": [
+        {
+          "name": "filepath_or_buffer",
+          "desc": "파일 경로 문자열. 예: 'data.csv'"
+        },
+        {
+          "name": "sep",
+          "desc": "구분자. 탭이면 sep='\\t'"
+        },
+        {
+          "name": "index_col",
+          "desc": "인덱스로 쓸 열. 예: index_col=0"
+        },
+        {
+          "name": "encoding",
+          "desc": "한글 깨짐 시 encoding='cp949' 또는 'utf-8'"
+        }
+      ],
+      "snippet": "df = pd.read_csv('data.csv')\nprint(df.shape)\ndf.head()",
+      "pitfall": "한글이 깨지면 encoding='cp949' 를 시도한다. 'Unnamed: 0' 열이 생기면 index_col=0 으로 읽는다.",
+      "keywords": [
+        "csv",
+        "불러오기",
+        "데이터 로드",
+        "파일 읽기",
+        "read csv",
+        "데이터 읽기",
+        "로딩",
+        "리드시에스브이",
+        "데이터프레임 만들기"
+      ]
+    },
+    {
+      "id": "pandas-info",
+      "category": "pandas-explore",
+      "name": "info",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.info(verbose=None, buf=None, max_cols=None, memory_usage=None, show_counts=None)",
+      "summary": "열별 자료형과 결측이 아닌 값의 개수를 한눈에 확인한다.",
+      "params": [
+        {
+          "name": "verbose",
+          "desc": "True 면 모든 열을 상세 출력"
+        },
+        {
+          "name": "show_counts",
+          "desc": "True 면 non-null 개수를 항상 표시"
+        }
+      ],
+      "snippet": "df.info()",
+      "pitfall": "info() 는 출력만 하고 None 을 반환한다. print(df.info()) 로 감싸면 끝에 None 이 찍힌다.",
+      "keywords": [
+        "정보",
+        "자료형",
+        "dtype",
+        "데이터 타입",
+        "컬럼 정보",
+        "결측 개수",
+        "non-null",
+        "인포",
+        "데이터 요약"
+      ]
+    },
+    {
+      "id": "pandas-describe",
+      "category": "pandas-explore",
+      "name": "describe",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.describe(percentiles=None, include=None, exclude=None)",
+      "summary": "수치형 열의 개수·평균·표준편차·최소·사분위수·최대를 요약한다.",
+      "params": [
+        {
+          "name": "include",
+          "desc": "include='all' 이면 범주형 열도 요약, include='object' 는 문자열 열만"
+        },
+        {
+          "name": "percentiles",
+          "desc": "보고 싶은 분위수 리스트. 예: [0.05, 0.95]"
+        }
+      ],
+      "snippet": "df.describe()\ndf.describe(include='all')",
+      "pitfall": "기본값은 수치형 열만 보여 준다. 범주형까지 보려면 include='all'.",
+      "keywords": [
+        "기술통계",
+        "통계 요약",
+        "평균",
+        "표준편차",
+        "사분위수",
+        "요약통계",
+        "summary statistics",
+        "디스크라이브",
+        "최대 최소"
+      ]
+    },
+    {
+      "id": "pandas-value_counts",
+      "category": "pandas-explore",
+      "name": "value_counts",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df['col'].value_counts(normalize=False, sort=True, ascending=False, bins=None, dropna=True)",
+      "summary": "한 열의 값별 개수(빈도)를 센다. 타깃 클래스 분포 확인에 쓴다.",
+      "params": [
+        {
+          "name": "normalize",
+          "desc": "True 면 개수 대신 비율"
+        },
+        {
+          "name": "dropna",
+          "desc": "False 면 결측(NaN) 개수도 함께 센다"
+        },
+        {
+          "name": "sort",
+          "desc": "빈도순 정렬 여부"
+        }
+      ],
+      "snippet": "print(df['churn'].value_counts())\nprint(df['churn'].value_counts(normalize=True))",
+      "pitfall": "Series 메서드다. DataFrame 전체가 아니라 열 하나(df['col'])에 붙인다.",
+      "keywords": [
+        "빈도",
+        "개수 세기",
+        "클래스 분포",
+        "타깃 분포",
+        "불균형",
+        "카운트",
+        "범주 개수",
+        "valuecounts",
+        "도수"
+      ]
+    },
+    {
+      "id": "pandas-isnull_sum",
+      "category": "pandas-explore",
+      "name": "isnull().sum()",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.isnull().sum()   # 별칭: df.isna().sum()",
+      "summary": "열별 결측치(NaN) 개수를 센다.",
+      "params": [
+        {
+          "name": "isnull()",
+          "desc": "각 칸이 결측이면 True 인 같은 크기의 표를 만든다"
+        },
+        {
+          "name": "sum()",
+          "desc": "True 를 1 로 세어 열별 합계를 낸다 (axis=1 이면 행별)"
+        }
+      ],
+      "snippet": "print(df.isnull().sum())\nprint(df.isnull().sum().sum())   # 전체 결측 개수",
+      "pitfall": "df.isnull() 만 쓰면 True/False 표가 나올 뿐이다. 개수를 보려면 .sum() 까지 붙인다.",
+      "keywords": [
+        "결측치",
+        "결측",
+        "누락",
+        "널",
+        "na",
+        "missing",
+        "nan",
+        "isna",
+        "빈칸",
+        "결측치 확인",
+        "이즈널"
+      ]
+    },
+    {
+      "id": "pandas-corr",
+      "category": "pandas-explore",
+      "name": "corr",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.corr(method='pearson', min_periods=1, numeric_only=False)",
+      "summary": "수치형 열 사이의 상관계수 행렬을 만든다(-1~1).",
+      "params": [
+        {
+          "name": "numeric_only",
+          "desc": "True 면 문자열 열을 제외하고 계산 (문자열 열이 있으면 필수)"
+        },
+        {
+          "name": "method",
+          "desc": "'pearson'(기본), 'spearman', 'kendall'"
+        }
+      ],
+      "snippet": "corr = df.corr(numeric_only=True)\nprint(corr['churn'].sort_values(ascending=False))",
+      "pitfall": "문자열(object/str) 열이 섞여 있으면 numeric_only=True 가 없을 때 오류가 난다.",
+      "keywords": [
+        "상관계수",
+        "상관관계",
+        "상관",
+        "correlation",
+        "상관 행렬",
+        "코릴레이션",
+        "피어슨",
+        "히트맵 데이터"
+      ]
+    },
+    {
+      "id": "pandas-groupby",
+      "category": "pandas-explore",
+      "name": "groupby",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.groupby(by=None, level=None, as_index=True, sort=True, group_keys=True, observed=True, dropna=True)",
+      "summary": "범주별로 묶어 평균·개수 같은 집계를 낸다.",
+      "params": [
+        {
+          "name": "by",
+          "desc": "묶을 열 이름 또는 열 리스트"
+        },
+        {
+          "name": "as_index",
+          "desc": "False 면 그룹 열이 인덱스가 아닌 일반 열로 남는다"
+        }
+      ],
+      "snippet": "print(df.groupby('gender')['churn'].mean())\nprint(df.groupby('grade')['income'].agg(['mean', 'count']))",
+      "pitfall": "groupby 뒤에 집계 함수(mean, sum, count, agg)를 붙이지 않으면 그룹 객체만 반환된다.",
+      "keywords": [
+        "그룹",
+        "그룹별",
+        "집계",
+        "범주별 평균",
+        "group by",
+        "그룹바이",
+        "묶기",
+        "agg",
+        "피벗"
+      ]
+    },
+    {
+      "id": "pandas-DataFrame",
+      "category": "pandas-explore",
+      "name": "DataFrame",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "pd.DataFrame(data=None, index=None, columns=None, dtype=None, copy=None)",
+      "summary": "딕셔너리·리스트로 DataFrame 을 만든다. 신규 입력 샘플(Simulation Input)을 만들 때 쓴다.",
+      "params": [
+        {
+          "name": "data",
+          "desc": "{'열이름': [값, ...]} 형태의 딕셔너리, 또는 2차원 리스트"
+        },
+        {
+          "name": "columns",
+          "desc": "열 이름 리스트 (리스트로 만들 때 지정)"
+        }
+      ],
+      "snippet": "new_data = pd.DataFrame({\n    'age': [35],\n    'income': [310.5],\n    'gender': ['M'],\n    'grade': ['B'],\n})\nprint(new_data)",
+      "pitfall": "딕셔너리 값은 반드시 리스트로 감싼다. 값이 스칼라 하나면 index 를 지정하지 않는 한 오류가 난다. 열 순서는 학습 때와 같게 맞춘다.",
+      "keywords": [
+        "데이터프레임 만들기",
+        "딕셔너리",
+        "새 데이터",
+        "신규 샘플",
+        "simulation input",
+        "시뮬레이션",
+        "새로운 입력",
+        "데이터 생성",
+        "dict"
+      ]
+    },
+    {
+      "id": "pandas-dropna",
+      "category": "pandas-prep",
+      "name": "dropna",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.dropna(axis=0, how='any', thresh=None, subset=None, inplace=False, ignore_index=False)",
+      "summary": "결측치가 있는 행(또는 열)을 삭제한다.",
+      "params": [
+        {
+          "name": "subset",
+          "desc": "결측을 검사할 열 목록. 예: subset=['age']"
+        },
+        {
+          "name": "how",
+          "desc": "'any' 하나라도 결측이면 삭제, 'all' 전부 결측일 때만"
+        },
+        {
+          "name": "axis",
+          "desc": "0 행 삭제(기본), 1 열 삭제"
+        }
+      ],
+      "snippet": "df_clean = df.dropna(subset=['age'])\nprint(df.shape, df_clean.shape)",
+      "pitfall": "dropna() 는 원본을 바꾸지 않고 새 DataFrame 을 반환한다. 결과를 변수에 다시 대입해야 반영된다.",
+      "keywords": [
+        "결측치 삭제",
+        "결측 제거",
+        "널 제거",
+        "행 삭제",
+        "na 삭제",
+        "결측치 처리",
+        "drop na",
+        "드롭엔에이",
+        "누락값 제거"
+      ]
+    },
+    {
+      "id": "pandas-fillna",
+      "category": "pandas-prep",
+      "name": "fillna",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.fillna(value, axis=None, inplace=False, limit=None)",
+      "summary": "결측치를 지정한 값(평균·중앙값·최빈값 등)으로 채운다.",
+      "params": [
+        {
+          "name": "value",
+          "desc": "채울 값, 또는 {'열이름': 값} 딕셔너리"
+        },
+        {
+          "name": "inplace",
+          "desc": "True 면 원본 수정(권장하지 않음). 결과를 대입하는 방식이 안전"
+        }
+      ],
+      "snippet": "df['age'] = df['age'].fillna(df['age'].median())\ndf['income'] = df['income'].fillna(df['income'].mean())\nprint(df.isnull().sum())",
+      "pitfall": "df['age'].fillna(값, inplace=True) 는 최신 pandas 에서 원본에 반영되지 않는다. df['age'] = df['age'].fillna(값) 로 쓴다. 최빈값은 .mode()[0].",
+      "keywords": [
+        "결측치 채우기",
+        "결측 대체",
+        "평균으로 채우기",
+        "중앙값",
+        "대치",
+        "imputation",
+        "na 채우기",
+        "필나",
+        "결측치 처리",
+        "보간",
+        "최빈값"
+      ],
+      "top": true
+    },
+    {
+      "id": "pandas-drop",
+      "category": "pandas-prep",
+      "name": "drop",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.drop(labels=None, axis=0, index=None, columns=None, level=None, inplace=False, errors='raise')",
+      "summary": "불필요한 열(또는 행)을 제거한다. X, y 분리에도 쓴다.",
+      "params": [
+        {
+          "name": "columns",
+          "desc": "삭제할 열 이름 또는 리스트. 예: columns=['id']"
+        },
+        {
+          "name": "axis",
+          "desc": "1 이면 열 삭제 (labels 와 함께 사용)"
+        }
+      ],
+      "snippet": "df = df.drop(columns=['gender'])\nX = df.drop(columns=['churn'])\ny = df['churn']",
+      "pitfall": "axis=1 을 빠뜨리면 '행 이름'으로 찾아 KeyError 가 난다. columns= 로 쓰면 axis 가 필요 없다.",
+      "keywords": [
+        "삭제",
+        "열 삭제",
+        "컬럼 제거",
+        "불필요 컬럼",
+        "x y 분리",
+        "특성 분리",
+        "컬럼 삭제",
+        "드롭",
+        "제거",
+        "feature target"
+      ]
+    },
+    {
+      "id": "pandas-drop_duplicates",
+      "category": "pandas-prep",
+      "name": "drop_duplicates",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.drop_duplicates(subset=None, keep='first', inplace=False, ignore_index=False)",
+      "summary": "중복된 행을 제거한다.",
+      "params": [
+        {
+          "name": "subset",
+          "desc": "중복 판단에 쓸 열 목록 (기본은 전체 열)"
+        },
+        {
+          "name": "keep",
+          "desc": "'first'(기본) 첫 행 유지, 'last', False 는 모두 삭제"
+        }
+      ],
+      "snippet": "print(df.duplicated().sum())\ndf = df.drop_duplicates().reset_index(drop=True)",
+      "pitfall": "삭제 후 인덱스가 비므로 reset_index(drop=True) 를 함께 쓰면 편하다.",
+      "keywords": [
+        "중복",
+        "중복 제거",
+        "중복값",
+        "duplicate",
+        "duplicated",
+        "드롭 듀플리케이츠",
+        "중복행"
+      ]
+    },
+    {
+      "id": "pandas-astype",
+      "category": "pandas-prep",
+      "name": "astype",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df['col'].astype(dtype, copy=None, errors='raise')",
+      "summary": "열의 자료형을 바꾼다(int, float, str, 'category' 등).",
+      "params": [
+        {
+          "name": "dtype",
+          "desc": "'int', 'float', 'str', 'category', 또는 {'열': dtype} 딕셔너리"
+        },
+        {
+          "name": "errors",
+          "desc": "'ignore' 는 변환 실패 시 원본 유지"
+        }
+      ],
+      "snippet": "df['age'] = df['age'].fillna(0).astype(int)\nprint(df['age'].dtype)",
+      "pitfall": "결측(NaN)이 있는 열을 int 로 바꾸면 오류가 난다. 먼저 결측을 처리한다.",
+      "keywords": [
+        "자료형 변환",
+        "형변환",
+        "타입 변환",
+        "타입",
+        "dtype 변경",
+        "정수로",
+        "실수로",
+        "에스타입",
+        "type cast"
+      ]
+    },
+    {
+      "id": "pandas-get_dummies",
+      "category": "pandas-prep",
+      "name": "get_dummies",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "pd.get_dummies(data, prefix=None, prefix_sep='_', dummy_na=False, columns=None, sparse=False, drop_first=False, dtype=None)",
+      "summary": "범주형 열을 원-핫(0/1) 열들로 바꾼다.",
+      "params": [
+        {
+          "name": "columns",
+          "desc": "변환할 열 목록. 지정하지 않으면 문자열 열 전부"
+        },
+        {
+          "name": "drop_first",
+          "desc": "True 면 첫 범주 열을 버려 다중공선성 방지"
+        },
+        {
+          "name": "dtype",
+          "desc": "dtype=int 로 0/1 정수로 받는다 (기본은 True/False)"
+        }
+      ],
+      "snippet": "df_encoded = pd.get_dummies(df, columns=['gender', 'grade'], dtype=int)\nprint(df_encoded.columns.tolist())",
+      "pitfall": "최신 pandas 는 True/False(bool) 열을 만든다. 모델에 넣기 전 dtype=int 를 주거나 .astype(int) 한다. 신규 샘플은 reindex 로 열을 맞춘다.",
+      "keywords": [
+        "원핫",
+        "원-핫 인코딩",
+        "원핫인코딩",
+        "더미",
+        "더미 변수",
+        "범주형 인코딩",
+        "one hot",
+        "onehot",
+        "dummy",
+        "겟더미",
+        "겟 더미스",
+        "카테고리 변환",
+        "문자 숫자 변환",
+        "인코딩"
+      ],
+      "top": true
+    },
+    {
+      "id": "pandas-replace",
+      "category": "pandas-prep",
+      "name": "replace",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df['col'].replace(to_replace=None, value=<no_default>, inplace=False, regex=False)",
+      "summary": "특정 값을 다른 값으로 바꾼다. 딕셔너리로 여러 값을 한 번에 바꿀 수 있다.",
+      "params": [
+        {
+          "name": "to_replace",
+          "desc": "바꿀 값 또는 {'원래값': 새값} 딕셔너리"
+        },
+        {
+          "name": "regex",
+          "desc": "True 면 문자열 패턴(정규식)으로 치환"
+        }
+      ],
+      "snippet": "df['gender'] = df['gender'].replace({'M': 0, 'F': 1})\nprint(df['gender'].value_counts())",
+      "pitfall": "정확히 일치하는 값만 바뀐다. 사전에 없는 값은 그대로 남는다(map 은 NaN).",
+      "keywords": [
+        "값 바꾸기",
+        "치환",
+        "대체",
+        "라벨 변환",
+        "문자 숫자",
+        "리플레이스",
+        "replace",
+        "변경",
+        "이진 변환"
+      ]
+    },
+    {
+      "id": "pandas-map",
+      "category": "pandas-prep",
+      "name": "map",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df['col'].map(arg, na_action=None)",
+      "summary": "딕셔너리나 함수로 열의 값을 하나씩 매핑한다. 라벨을 숫자로 바꿀 때 쓴다.",
+      "params": [
+        {
+          "name": "arg",
+          "desc": "{'원래값': 새값} 딕셔너리 또는 함수"
+        },
+        {
+          "name": "na_action",
+          "desc": "'ignore' 면 NaN 은 함수에 넣지 않음"
+        }
+      ],
+      "snippet": "df['gender'] = df['gender'].map({'M': 0, 'F': 1})\nprint(df['gender'].unique())",
+      "pitfall": "딕셔너리에 없는 값은 NaN 이 된다. 키 철자를 확인한다.",
+      "keywords": [
+        "매핑",
+        "값 변환",
+        "라벨 숫자로",
+        "딕셔너리 변환",
+        "맵",
+        "apply",
+        "범주 숫자 변환",
+        "mapping"
+      ]
+    },
+    {
+      "id": "pandas-iqr_filter",
+      "category": "pandas-prep",
+      "name": "quantile (IQR 이상치 제거)",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df['col'].quantile(q=0.5, interpolation='linear')   # IQR = Q3 - Q1",
+      "summary": "사분위수로 IQR 을 구해 이상치 범위를 벗어난 행을 제거한다.",
+      "params": [
+        {
+          "name": "q",
+          "desc": "분위수. 0.25(Q1), 0.75(Q3)"
+        },
+        {
+          "name": "하한/상한",
+          "desc": "Q1 - 1.5*IQR  ~  Q3 + 1.5*IQR"
+        }
+      ],
+      "snippet": "q1 = df['income'].quantile(0.25)\nq3 = df['income'].quantile(0.75)\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\ndf = df[(df['income'] >= lower) & (df['income'] <= upper)]\nprint(df.shape)",
+      "pitfall": "조건을 묶을 때 and/or 가 아니라 &, | 를 쓰고 각 조건을 괄호로 감싼다.",
+      "keywords": [
+        "이상치",
+        "이상값",
+        "아웃라이어",
+        "outlier",
+        "사분위수",
+        "iqr",
+        "사분위",
+        "분위수",
+        "이상치 제거",
+        "퀀타일",
+        "박스플롯 기준",
+        "범위 필터"
+      ]
+    },
+    {
+      "id": "pandas-reindex",
+      "category": "pandas-prep",
+      "name": "reindex",
+      "module": "pandas",
+      "import": "import pandas as pd",
+      "signature": "df.reindex(labels=None, index=None, columns=None, axis=None, method=None, copy=None, level=None, fill_value=nan, limit=None, tolerance=None)",
+      "summary": "열 구성을 학습 데이터와 똑같이 맞춘다. 신규 샘플에 get_dummies 한 뒤 빠진 열은 0 으로 채운다.",
+      "params": [
+        {
+          "name": "columns",
+          "desc": "맞출 열 목록. 보통 X.columns (학습 때의 열 순서)"
+        },
+        {
+          "name": "fill_value",
+          "desc": "없는 열을 채울 값. 원-핫 열이면 0"
+        }
+      ],
+      "snippet": "new_data = pd.DataFrame({'age': [35], 'income': [310.5], 'gender': ['M'], 'grade': ['B']})\nnew_encoded = pd.get_dummies(new_data, dtype=int)\nnew_encoded = new_encoded.reindex(columns=X.columns, fill_value=0)\nnew_scaled = scaler.transform(new_encoded)\nprint(new_scaled.shape)",
+      "pitfall": "신규 샘플은 scaler.fit_transform 이 아니라 transform 만 쓴다. reindex 없이 get_dummies 만 하면 열 개수·순서가 달라 예측이 틀린다.",
+      "keywords": [
+        "열 맞추기",
+        "컬럼 정렬",
+        "열 정렬",
+        "신규 샘플 전처리",
+        "fill_value",
+        "리인덱스",
+        "컬럼 맞추기",
+        "simulation",
+        "학습 열 맞추기",
+        "추론 전처리"
+      ],
+      "top": true
+    },
+    {
+      "id": "numpy-argmax",
+      "category": "numpy",
+      "name": "argmax",
+      "module": "numpy",
+      "import": "import numpy as np",
+      "signature": "np.argmax(a, axis=None, out=None, keepdims=<no value>)",
+      "summary": "가장 큰 값의 위치(인덱스)를 구한다. softmax 확률에서 예측 클래스를 뽑을 때 쓴다.",
+      "params": [
+        {
+          "name": "axis",
+          "desc": "axis=1 이면 행마다(샘플마다) 최대 위치. 다중분류 예측에는 axis=1"
+        },
+        {
+          "name": "a",
+          "desc": "확률 배열 (샘플 수, 클래스 수)"
+        }
+      ],
+      "snippet": "pred = np.array([[0.1, 0.7, 0.2], [0.8, 0.1, 0.1]])   # model.predict 결과 예시\ny_pred = np.argmax(pred, axis=1)\nprint(y_pred)",
+      "pitfall": "axis 를 빼면 배열 전체에서 위치 하나만 나온다. 이진분류(시그모이드 1개)에는 argmax 가 아니라 (pred > 0.5) 를 쓴다.",
+      "keywords": [
+        "최대값 위치",
+        "예측 클래스",
+        "클래스 변환",
+        "softmax 후처리",
+        "인덱스",
+        "아그맥스",
+        "argmax",
+        "가장 큰 값",
+        "확률에서 클래스",
+        "다중분류 예측"
+      ]
+    },
+    {
+      "id": "numpy-where",
+      "category": "numpy",
+      "name": "where",
+      "module": "numpy",
+      "import": "import numpy as np",
+      "signature": "np.where(condition, x, y)",
+      "summary": "조건에 따라 값을 고르는 벡터화 if-else. 확률을 0/1 로 바꾸거나 조건부 값 대체에 쓴다.",
+      "params": [
+        {
+          "name": "condition",
+          "desc": "True/False 배열을 만드는 조건식"
+        },
+        {
+          "name": "x, y",
+          "desc": "True 일 때 값, False 일 때 값"
+        }
+      ],
+      "snippet": "pred = np.array([[0.2], [0.9], [0.55]])\ny_pred = np.where(pred > 0.5, 1, 0).ravel()\nprint(y_pred)",
+      "pitfall": "x, y 를 생략하면 조건을 만족하는 위치(인덱스) 튜플을 반환한다.",
+      "keywords": [
+        "조건",
+        "조건부",
+        "임계값",
+        "0.5 기준",
+        "이진 변환",
+        "웨어",
+        "where",
+        "if else",
+        "확률 변환",
+        "조건 선택"
+      ]
+    },
+    {
+      "id": "numpy-reshape",
+      "category": "numpy",
+      "name": "reshape",
+      "module": "numpy",
+      "import": "import numpy as np",
+      "signature": "arr.reshape(shape)   # 또는 np.reshape(a, shape)",
+      "summary": "배열의 모양을 바꾼다. -1 은 나머지 크기를 자동 계산한다.",
+      "params": [
+        {
+          "name": "-1",
+          "desc": "그 축의 크기를 자동 계산. 예: reshape(-1, 1) 은 열벡터"
+        },
+        {
+          "name": "shape",
+          "desc": "총 원소 수가 같아야 함"
+        }
+      ],
+      "snippet": "arr = np.arange(6)\ncol = arr.reshape(-1, 1)\nprint(col.shape)\ngrid = arr.reshape(2, 3)\nprint(grid.shape)",
+      "pitfall": "원소 개수가 맞지 않으면 ValueError. 1차원 y 를 2차원으로 바꿀 때 reshape(-1, 1).",
+      "keywords": [
+        "모양 변경",
+        "차원 변경",
+        "shape",
+        "리쉐이프",
+        "2차원",
+        "열벡터",
+        "차원 맞추기",
+        "배열 모양"
+      ]
+    },
+    {
+      "id": "numpy-flatten",
+      "category": "numpy",
+      "name": "flatten / ravel",
+      "module": "numpy",
+      "import": "import numpy as np",
+      "signature": "arr.flatten(order='C')   # 또는 arr.ravel(order='C')",
+      "summary": "다차원 배열을 1차원으로 편다. model.predict 결과 (N,1) 을 (N,) 로 만들 때 쓴다.",
+      "params": [
+        {
+          "name": "flatten()",
+          "desc": "항상 복사본을 반환"
+        },
+        {
+          "name": "ravel()",
+          "desc": "가능하면 뷰(복사 없음)를 반환"
+        }
+      ],
+      "snippet": "pred = np.array([[0.2], [0.9], [0.55]])\ny_pred = (pred > 0.5).astype(int).flatten()\nprint(y_pred.shape)",
+      "pitfall": "predict 결과는 (N, 1) 모양이라 그대로 지표 함수에 넣으면 경고가 날 수 있다. flatten() 으로 (N,) 로 만든다.",
+      "keywords": [
+        "1차원",
+        "펴기",
+        "평탄화",
+        "플래튼",
+        "라벨 shape",
+        "차원 줄이기",
+        "ravel",
+        "squeeze"
+      ]
+    },
+    {
+      "id": "numpy-astype",
+      "category": "numpy",
+      "name": "astype (ndarray)",
+      "module": "numpy",
+      "import": "import numpy as np",
+      "signature": "arr.astype(dtype, order='K', casting='unsafe', subok=True, copy=True)",
+      "summary": "배열의 자료형을 바꾼다. 불리언 예측을 0/1 정수로 만들 때 쓴다.",
+      "params": [
+        {
+          "name": "dtype",
+          "desc": "int, float, 'int32' 등"
+        }
+      ],
+      "snippet": "pred = np.array([[0.2], [0.9]])\ny_pred = (pred > 0.5).astype(int)\nprint(y_pred.ravel())",
+      "pitfall": "(pred > 0.5) 만 쓰면 True/False 배열이다. 지표 계산 전에 astype(int) 로 맞춘다.",
+      "keywords": [
+        "형변환",
+        "정수 변환",
+        "불리언",
+        "bool",
+        "int 변환",
+        "타입 바꾸기",
+        "에스타입",
+        "0과 1로"
+      ]
+    },
+    {
+      "id": "sns-countplot",
+      "category": "viz",
+      "name": "sns.countplot",
+      "module": "seaborn",
+      "import": "import seaborn as sns\nimport matplotlib.pyplot as plt",
+      "signature": "sns.countplot(data=None, x=None, y=None, hue=None, order=None, hue_order=None, orient=None, color=None, palette=None, saturation=0.75, fill=True, ..., ax=None)",
+      "summary": "범주형 열의 값별 개수를 막대그래프로 그린다. 타깃 분포 확인에 쓴다.",
+      "params": [
+        {
+          "name": "x",
+          "desc": "센 대상 열 이름. 예: x='churn'"
+        },
+        {
+          "name": "hue",
+          "desc": "색으로 나눌 두 번째 범주 열"
+        },
+        {
+          "name": "data",
+          "desc": "DataFrame"
+        }
+      ],
+      "snippet": "plt.figure(figsize=(5, 4))\nsns.countplot(data=df, x='churn')\nplt.title('churn distribution')\nplt.show()",
+      "pitfall": "countplot 은 y 값을 따로 받지 않는다(개수를 직접 센다). 수치 분포는 histplot.",
+      "keywords": [
+        "막대그래프",
+        "카운트플롯",
+        "개수 그래프",
+        "범주 분포",
+        "클래스 분포",
+        "시각화",
+        "count plot",
+        "타깃 분포",
+        "빈도 그래프"
+      ]
+    },
+    {
+      "id": "sns-histplot",
+      "category": "viz",
+      "name": "sns.histplot",
+      "module": "seaborn",
+      "import": "import seaborn as sns\nimport matplotlib.pyplot as plt",
+      "signature": "sns.histplot(data=None, x=None, y=None, hue=None, weights=None, stat='count', bins='auto', binwidth=None, binrange=None, discrete=None, cumulative=False, multiple='layer', element='bars', fill=True, kde=False, ..., ax=None)",
+      "summary": "수치형 열의 분포를 히스토그램으로 그린다.",
+      "params": [
+        {
+          "name": "bins",
+          "desc": "구간 수. 예: bins=20"
+        },
+        {
+          "name": "kde",
+          "desc": "True 면 밀도 곡선을 함께"
+        },
+        {
+          "name": "hue",
+          "desc": "범주별로 색을 나눠 겹쳐 그림"
+        }
+      ],
+      "snippet": "plt.figure(figsize=(6, 4))\nsns.histplot(data=df, x='income', bins=20, kde=True)\nplt.show()",
+      "pitfall": "범주형 열에는 countplot 을 쓴다. 결측이 있어도 그려지지만 NaN 은 제외된다.",
+      "keywords": [
+        "히스토그램",
+        "분포",
+        "분포도",
+        "히스토",
+        "histogram",
+        "dist",
+        "distplot",
+        "데이터 분포",
+        "정규성",
+        "히스트플롯"
+      ]
+    },
+    {
+      "id": "sns-boxplot",
+      "category": "viz",
+      "name": "sns.boxplot",
+      "module": "seaborn",
+      "import": "import seaborn as sns\nimport matplotlib.pyplot as plt",
+      "signature": "sns.boxplot(data=None, x=None, y=None, hue=None, order=None, hue_order=None, orient=None, color=None, palette=None, saturation=0.75, fill=True, dodge='auto', width=0.8, whis=1.5, ..., ax=None)",
+      "summary": "사분위수 상자그림. 이상치를 점으로 보여 준다.",
+      "params": [
+        {
+          "name": "y",
+          "desc": "수치 열. 예: y='income'"
+        },
+        {
+          "name": "x",
+          "desc": "그룹을 나눌 범주 열 (선택)"
+        },
+        {
+          "name": "whis",
+          "desc": "수염 길이 계수. 기본 1.5 (IQR 기준)"
+        }
+      ],
+      "snippet": "plt.figure(figsize=(5, 4))\nsns.boxplot(data=df, x='churn', y='income')\nplt.show()",
+      "pitfall": "열 하나만 그릴 때는 sns.boxplot(y=df['income']) 또는 data=df, y='income'.",
+      "keywords": [
+        "박스플롯",
+        "상자그림",
+        "이상치 시각화",
+        "박스 플롯",
+        "boxplot",
+        "box plot",
+        "사분위 그래프",
+        "outlier plot",
+        "이상치 확인"
+      ]
+    },
+    {
+      "id": "sns-heatmap",
+      "category": "viz",
+      "name": "sns.heatmap",
+      "module": "seaborn",
+      "import": "import seaborn as sns\nimport matplotlib.pyplot as plt",
+      "signature": "sns.heatmap(data, vmin=None, vmax=None, cmap=None, center=None, robust=False, annot=None, fmt='.2g', annot_kws=None, linewidths=0, linecolor='white', cbar=True, square=False, ..., ax=None)",
+      "summary": "행렬을 색으로 표현한다. 상관계수 행렬·혼동행렬 시각화에 쓴다.",
+      "params": [
+        {
+          "name": "annot",
+          "desc": "True 면 칸에 숫자 표시"
+        },
+        {
+          "name": "fmt",
+          "desc": "숫자 형식. 혼동행렬은 fmt='d', 상관은 '.2f'"
+        },
+        {
+          "name": "cmap",
+          "desc": "색상표. 예: 'coolwarm', 'Blues'"
+        }
+      ],
+      "snippet": "plt.figure(figsize=(6, 5))\nsns.heatmap(df.corr(numeric_only=True), annot=True, fmt='.2f', cmap='coolwarm')\nplt.show()",
+      "pitfall": "문자열 열이 있는 df 를 그대로 corr() 하면 오류. numeric_only=True. 혼동행렬 숫자는 fmt='d'.",
+      "keywords": [
+        "히트맵",
+        "상관 히트맵",
+        "상관도 그래프",
+        "열지도",
+        "heat map",
+        "annot",
+        "혼동행렬 시각화",
+        "상관관계 시각화",
+        "히트 맵"
+      ]
+    },
+    {
+      "id": "sns-scatterplot",
+      "category": "viz",
+      "name": "sns.scatterplot",
+      "module": "seaborn",
+      "import": "import seaborn as sns\nimport matplotlib.pyplot as plt",
+      "signature": "sns.scatterplot(data=None, x=None, y=None, hue=None, size=None, style=None, palette=None, hue_order=None, ..., alpha=None, ax=None)",
+      "summary": "두 수치 변수의 관계를 산점도로 그린다.",
+      "params": [
+        {
+          "name": "x, y",
+          "desc": "가로·세로 열 이름"
+        },
+        {
+          "name": "hue",
+          "desc": "범주별로 색 구분. 예: hue='churn'"
+        },
+        {
+          "name": "alpha",
+          "desc": "점 투명도(겹침이 많을 때 0.5)"
+        }
+      ],
+      "snippet": "plt.figure(figsize=(6, 4))\nsns.scatterplot(data=df, x='age', y='income', hue='churn')\nplt.show()",
+      "pitfall": "x, y 는 열 이름 문자열이다. data= 를 빠뜨리고 문자열을 주면 오류가 난다.",
+      "keywords": [
+        "산점도",
+        "스캐터",
+        "scatter",
+        "관계 그래프",
+        "두 변수",
+        "점 그래프",
+        "스캐터플롯",
+        "상관 그래프"
+      ]
+    },
+    {
+      "id": "plt-plot",
+      "category": "viz",
+      "name": "plt.plot (학습 곡선)",
+      "module": "matplotlib",
+      "import": "import matplotlib.pyplot as plt",
+      "signature": "plt.plot(x, y, fmt, label=None, color=None, linestyle=None, marker=None, ...)",
+      "summary": "선 그래프. history.history 의 loss / val_loss 로 학습 곡선을 그려 과적합을 진단한다.",
+      "params": [
+        {
+          "name": "label",
+          "desc": "범례 이름. plt.legend() 와 함께 사용"
+        },
+        {
+          "name": "history.history",
+          "desc": "dict. 키: 'loss', 'val_loss', 'accuracy', 'val_accuracy'"
+        }
+      ],
+      "snippet": "plt.figure(figsize=(7, 4))\nplt.plot(history.history['loss'], label='train loss')\nplt.plot(history.history['val_loss'], label='val loss')\nplt.xlabel('epoch')\nplt.ylabel('loss')\nplt.legend()\nplt.show()",
+      "pitfall": "metrics=['accuracy'] 로 compile 했을 때만 'accuracy'/'val_accuracy' 키가 있다. validation_split 이 없으면 val_* 키가 없어 KeyError.",
+      "keywords": [
+        "학습 곡선",
+        "러닝커브",
+        "loss 그래프",
+        "손실 그래프",
+        "에포크 그래프",
+        "history 시각화",
+        "과적합 확인",
+        "plot",
+        "선그래프",
+        "learning curve",
+        "플롯",
+        "정확도 그래프"
+      ]
+    },
+    {
+      "id": "sklearn-train_test_split",
+      "category": "sklearn-split",
+      "name": "train_test_split",
+      "module": "sklearn.model_selection",
+      "import": "from sklearn.model_selection import train_test_split",
+      "signature": "train_test_split(*arrays, test_size=None, train_size=None, random_state=None, shuffle=True, stratify=None)",
+      "summary": "데이터를 학습용과 평가용으로 나눈다.",
+      "params": [
+        {
+          "name": "test_size",
+          "desc": "평가 비율. 0.2 = 20%"
+        },
+        {
+          "name": "random_state",
+          "desc": "재현성을 위한 시드. 시험에서는 보통 42"
+        },
+        {
+          "name": "stratify",
+          "desc": "분류에서 클래스 비율 유지: stratify=y"
+        }
+      ],
+      "snippet": "X_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y)\nprint(X_train.shape, X_test.shape)",
+      "pitfall": "반환 순서는 X_train, X_test, y_train, y_test 이다. y_train 과 X_test 의 자리를 바꿔 받는 실수가 잦다. 회귀에는 stratify 를 쓰지 않는다.",
+      "keywords": [
+        "분리",
+        "데이터 분리",
+        "split",
+        "학습 평가 분리",
+        "훈련 테스트",
+        "트레인 테스트",
+        "학습용 평가용",
+        "7:3",
+        "8:2",
+        "데이터 나누기",
+        "traintestsplit",
+        "검증 분리"
+      ],
+      "top": true
+    },
+    {
+      "id": "sklearn-StandardScaler",
+      "category": "sklearn-split",
+      "name": "StandardScaler",
+      "module": "sklearn.preprocessing",
+      "import": "from sklearn.preprocessing import StandardScaler",
+      "signature": "StandardScaler(copy=True, with_mean=True, with_std=True)",
+      "summary": "평균 0, 표준편차 1 로 맞추는 표준화(스케일링). 학습 데이터로만 fit 한다.",
+      "params": [
+        {
+          "name": "fit_transform(X_train)",
+          "desc": "학습 데이터에서 평균·표준편차를 배우고 변환"
+        },
+        {
+          "name": "transform(X_test)",
+          "desc": "배운 값으로 변환만 (fit 금지)"
+        }
+      ],
+      "snippet": "scaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)",
+      "pitfall": "X_test 와 신규 샘플에 fit_transform 을 쓰면 데이터 누수/오답이다. 반드시 transform. 결과는 NumPy 배열이다.",
+      "keywords": [
+        "스케일링",
+        "표준화",
+        "정규화",
+        "스케일러",
+        "standard scaler",
+        "스탠다드",
+        "스탠다드스케일러",
+        "평균 0 분산 1",
+        "z-score",
+        "피처 스케일링",
+        "fit_transform"
+      ],
+      "top": true
+    },
+    {
+      "id": "sklearn-MinMaxScaler",
+      "category": "sklearn-split",
+      "name": "MinMaxScaler",
+      "module": "sklearn.preprocessing",
+      "import": "from sklearn.preprocessing import MinMaxScaler",
+      "signature": "MinMaxScaler(feature_range=(0, 1), copy=True, clip=False)",
+      "summary": "값을 0~1 범위로 맞추는 정규화(스케일링).",
+      "params": [
+        {
+          "name": "feature_range",
+          "desc": "결과 범위. 기본 (0, 1)"
+        },
+        {
+          "name": "clip",
+          "desc": "True 면 transform 결과를 범위 안으로 자름"
+        }
+      ],
+      "snippet": "scaler = MinMaxScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)",
+      "pitfall": "StandardScaler 와 같은 규칙: fit 은 학습 데이터에만. 평가 데이터에서 범위를 벗어난 값은 0~1 밖으로 나올 수 있다.",
+      "keywords": [
+        "스케일링",
+        "정규화",
+        "민맥스",
+        "민맥스스케일러",
+        "0 1 범위",
+        "min max",
+        "minmax",
+        "최소최대",
+        "최대최소 정규화",
+        "스케일러"
+      ]
+    },
+    {
+      "id": "sklearn-LabelEncoder",
+      "category": "sklearn-split",
+      "name": "LabelEncoder",
+      "module": "sklearn.preprocessing",
+      "import": "from sklearn.preprocessing import LabelEncoder",
+      "signature": "LabelEncoder()",
+      "summary": "문자열 라벨(타깃 y)을 0, 1, 2 ... 정수로 바꾼다. 다중분류 타깃 인코딩에 쓴다.",
+      "params": [
+        {
+          "name": "fit_transform(y)",
+          "desc": "라벨을 배우고 정수로 변환"
+        },
+        {
+          "name": "classes_",
+          "desc": "정수 번호에 해당하는 원래 라벨 배열"
+        },
+        {
+          "name": "inverse_transform",
+          "desc": "정수를 원래 라벨로 되돌림"
+        }
+      ],
+      "snippet": "le = LabelEncoder()\ny_encoded = le.fit_transform(df['grade'])\nprint(le.classes_)\nprint(le.inverse_transform([0, 1]))",
+      "pitfall": "입력 특성 X 가 아닌 타깃 y 용이다. 특성 인코딩은 get_dummies. 예측 결과의 정수를 라벨로 되돌리려면 inverse_transform.",
+      "keywords": [
+        "라벨 인코딩",
+        "라벨인코더",
+        "레이블 인코딩",
+        "문자 숫자",
+        "범주 정수",
+        "label encoding",
+        "타깃 인코딩",
+        "클래스 이름",
+        "ordinal"
+      ]
+    },
+    {
+      "id": "sklearn-DecisionTreeClassifier",
+      "category": "sklearn-model",
+      "name": "DecisionTreeClassifier",
+      "module": "sklearn.tree",
+      "import": "from sklearn.tree import DecisionTreeClassifier",
+      "signature": "DecisionTreeClassifier(criterion='gini', splitter='best', max_depth=None, min_samples_split=2, min_samples_leaf=1, ..., random_state=None)",
+      "summary": "결정트리 분류 모델.",
+      "params": [
+        {
+          "name": "max_depth",
+          "desc": "트리 최대 깊이. 과적합 제어"
+        },
+        {
+          "name": "random_state",
+          "desc": "결과 재현용 시드"
+        }
+      ],
+      "snippet": "dt_model = DecisionTreeClassifier(max_depth=5, random_state=42)\ndt_model.fit(X_train, y_train)\ny_pred = dt_model.predict(X_test)\nprint(dt_model.score(X_test, y_test))",
+      "pitfall": "트리 계열은 스케일링이 필요 없다. fit 에 넣을 X, y 는 학습 데이터(X_train, y_train)다.",
+      "keywords": [
+        "결정트리",
+        "의사결정나무",
+        "디시전트리",
+        "트리",
+        "decision tree",
+        "분류 모델",
+        "의사 결정 나무",
+        "dtc",
+        "머신러닝 분류"
+      ]
+    },
+    {
+      "id": "sklearn-DecisionTreeRegressor",
+      "category": "sklearn-model",
+      "name": "DecisionTreeRegressor",
+      "module": "sklearn.tree",
+      "import": "from sklearn.tree import DecisionTreeRegressor",
+      "signature": "DecisionTreeRegressor(criterion='squared_error', splitter='best', max_depth=None, min_samples_split=2, min_samples_leaf=1, ..., random_state=None)",
+      "summary": "결정트리 회귀 모델.",
+      "params": [
+        {
+          "name": "max_depth",
+          "desc": "트리 최대 깊이"
+        },
+        {
+          "name": "criterion",
+          "desc": "기본 'squared_error'"
+        }
+      ],
+      "snippet": "dt_model = DecisionTreeRegressor(max_depth=5, random_state=42)\ndt_model.fit(X_train, y_train)\ny_pred = dt_model.predict(X_test)\nprint(y_pred[:3])",
+      "pitfall": "분류용 DecisionTreeClassifier 와 이름이 비슷하다. 연속값 타깃이면 Regressor.",
+      "keywords": [
+        "결정트리 회귀",
+        "의사결정나무 회귀",
+        "회귀 트리",
+        "디시전트리 리그레서",
+        "decision tree regressor",
+        "회귀 모델",
+        "regression"
+      ]
+    },
+    {
+      "id": "sklearn-RandomForestClassifier",
+      "category": "sklearn-model",
+      "name": "RandomForestClassifier",
+      "module": "sklearn.ensemble",
+      "import": "from sklearn.ensemble import RandomForestClassifier",
+      "signature": "RandomForestClassifier(n_estimators=100, criterion='gini', max_depth=None, min_samples_split=2, min_samples_leaf=1, ..., n_jobs=None, random_state=None)",
+      "summary": "여러 결정트리를 앙상블하는 랜덤포레스트 분류 모델.",
+      "params": [
+        {
+          "name": "n_estimators",
+          "desc": "트리 개수 (기본 100)"
+        },
+        {
+          "name": "max_depth",
+          "desc": "트리 최대 깊이"
+        },
+        {
+          "name": "random_state",
+          "desc": "재현용 시드"
+        }
+      ],
+      "snippet": "rf_model = RandomForestClassifier(n_estimators=100, random_state=42)\nrf_model.fit(X_train, y_train)\ny_pred = rf_model.predict(X_test)\nprint(rf_model.feature_importances_.round(3))",
+      "pitfall": "feature_importances_ 로 변수 중요도를 볼 수 있다. 스케일링은 필요 없다.",
+      "keywords": [
+        "랜덤포레스트",
+        "랜덤 포레스트",
+        "랜포",
+        "앙상블",
+        "random forest",
+        "rfc",
+        "배깅",
+        "분류 앙상블"
+      ]
+    },
+    {
+      "id": "sklearn-RandomForestRegressor",
+      "category": "sklearn-model",
+      "name": "RandomForestRegressor",
+      "module": "sklearn.ensemble",
+      "import": "from sklearn.ensemble import RandomForestRegressor",
+      "signature": "RandomForestRegressor(n_estimators=100, criterion='squared_error', max_depth=None, min_samples_split=2, min_samples_leaf=1, ..., n_jobs=None, random_state=None)",
+      "summary": "랜덤포레스트 회귀 모델.",
+      "params": [
+        {
+          "name": "n_estimators",
+          "desc": "트리 개수"
+        },
+        {
+          "name": "random_state",
+          "desc": "재현용 시드"
+        }
+      ],
+      "snippet": "rf_model = RandomForestRegressor(n_estimators=100, random_state=42)\nrf_model.fit(X_train, y_train)\ny_pred = rf_model.predict(X_test)\nprint(y_pred[:3])",
+      "pitfall": "연속값 타깃에는 Regressor, 클래스 타깃에는 Classifier. 평가는 accuracy 가 아니라 mse/mae/r2.",
+      "keywords": [
+        "랜덤포레스트 회귀",
+        "랜덤 포레스트 회귀",
+        "random forest regressor",
+        "회귀 앙상블",
+        "rfr",
+        "리그레서"
+      ]
+    },
+    {
+      "id": "xgboost-XGBClassifier",
+      "category": "sklearn-model",
+      "name": "XGBClassifier",
+      "module": "xgboost",
+      "import": "from xgboost import XGBClassifier",
+      "signature": "XGBClassifier(n_estimators=None, max_depth=None, learning_rate=None, subsample=None, colsample_bytree=None, random_state=None, eval_metric=None, ...)",
+      "summary": "XGBoost 그래디언트 부스팅 분류 모델 (sklearn 호환 API).",
+      "params": [
+        {
+          "name": "n_estimators",
+          "desc": "부스팅 라운드 수"
+        },
+        {
+          "name": "learning_rate",
+          "desc": "학습률. 작을수록 천천히 학습"
+        },
+        {
+          "name": "eval_metric",
+          "desc": "예: 'logloss'"
+        }
+      ],
+      "snippet": "xgb_model = XGBClassifier(n_estimators=100, max_depth=3, learning_rate=0.1, random_state=42)\nxgb_model.fit(X_train, y_train)\ny_pred = xgb_model.predict(X_test)\nprint(y_pred[:5])",
+      "pitfall": "다중분류 라벨은 0부터 시작하는 정수여야 한다. 문자열 라벨은 LabelEncoder 로 먼저 변환.",
+      "keywords": [
+        "엑스지부스트",
+        "xgboost",
+        "xgb",
+        "부스팅",
+        "그래디언트 부스팅",
+        "gradient boosting",
+        "엑스지비",
+        "xg boost",
+        "앙상블"
+      ]
+    },
+    {
+      "id": "xgboost-XGBRegressor",
+      "category": "sklearn-model",
+      "name": "XGBRegressor",
+      "module": "xgboost",
+      "import": "from xgboost import XGBRegressor",
+      "signature": "XGBRegressor(n_estimators=None, max_depth=None, learning_rate=None, subsample=None, colsample_bytree=None, random_state=None, ...)",
+      "summary": "XGBoost 회귀 모델.",
+      "params": [
+        {
+          "name": "n_estimators",
+          "desc": "부스팅 라운드 수"
+        },
+        {
+          "name": "learning_rate",
+          "desc": "학습률"
+        }
+      ],
+      "snippet": "xgb_model = XGBRegressor(n_estimators=100, max_depth=3, learning_rate=0.1, random_state=42)\nxgb_model.fit(X_train, y_train)\ny_pred = xgb_model.predict(X_test)\nprint(y_pred[:3])",
+      "pitfall": "회귀용이므로 평가는 mean_squared_error, r2_score 등을 쓴다.",
+      "keywords": [
+        "엑스지부스트 회귀",
+        "xgboost regressor",
+        "xgb regressor",
+        "부스팅 회귀",
+        "엑스지비 리그레서",
+        "회귀"
+      ]
+    },
+    {
+      "id": "lightgbm-LGBMClassifier",
+      "category": "sklearn-model",
+      "name": "LGBMClassifier",
+      "module": "lightgbm",
+      "import": "from lightgbm import LGBMClassifier",
+      "signature": "LGBMClassifier(boosting_type='gbdt', num_leaves=31, max_depth=-1, learning_rate=0.1, n_estimators=100, ..., random_state=None, n_jobs=None, verbose=...)",
+      "summary": "LightGBM 그래디언트 부스팅 분류 모델.",
+      "params": [
+        {
+          "name": "num_leaves",
+          "desc": "트리 잎 개수 (기본 31)"
+        },
+        {
+          "name": "n_estimators",
+          "desc": "부스팅 라운드 수"
+        },
+        {
+          "name": "verbose",
+          "desc": "verbose=-1 로 경고 로그 숨김"
+        }
+      ],
+      "snippet": "lgbm_model = LGBMClassifier(n_estimators=100, learning_rate=0.1, random_state=42, verbose=-1)\nlgbm_model.fit(X_train, y_train)\ny_pred = lgbm_model.predict(X_test)\nprint(y_pred[:5])",
+      "pitfall": "클래스 이름은 LGBMClassifier (소문자 lgbm 아님, 대문자 LGBM). 데이터가 작으면 경고가 많이 나오므로 verbose=-1.",
+      "keywords": [
+        "라이트지비엠",
+        "라이트gbm",
+        "lightgbm",
+        "lgbm",
+        "엘지비엠",
+        "light gbm",
+        "부스팅",
+        "라이트 지비엠",
+        "앙상블"
+      ]
+    },
+    {
+      "id": "sklearn-accuracy_score",
+      "category": "sklearn-metric",
+      "name": "accuracy_score",
+      "module": "sklearn.metrics",
+      "import": "from sklearn.metrics import accuracy_score",
+      "signature": "accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)",
+      "summary": "정확도: 전체 중 맞춘 비율.",
+      "params": [
+        {
+          "name": "y_true",
+          "desc": "실제 값 (y_test)"
+        },
+        {
+          "name": "y_pred",
+          "desc": "예측 클래스 (확률 아님)"
+        }
+      ],
+      "snippet": "acc = accuracy_score(y_test, y_pred)\nprint(f'accuracy: {acc:.4f}')",
+      "pitfall": "인자 순서는 (정답, 예측). 확률(0.73 같은 값)을 그대로 넣으면 오류가 난다. 먼저 0/1 로 변환.",
+      "keywords": [
+        "정확도",
+        "accuracy",
+        "정확률",
+        "맞춘 비율",
+        "분류 평가",
+        "어큐러시",
+        "성능 평가",
+        "어큐러시 스코어"
+      ]
+    },
+    {
+      "id": "sklearn-precision_recall_f1",
+      "category": "sklearn-metric",
+      "name": "precision_score · recall_score · f1_score",
+      "module": "sklearn.metrics",
+      "import": "from sklearn.metrics import precision_score, recall_score, f1_score",
+      "signature": "precision_score(y_true, y_pred, labels=None, pos_label=1, average='binary', sample_weight=None, zero_division='warn')   # recall_score, f1_score 도 같은 형태",
+      "summary": "정밀도·재현율·F1 점수. 이진 분류는 기본 average='binary'.",
+      "params": [
+        {
+          "name": "average",
+          "desc": "다중분류는 'macro' 또는 'weighted' 필수"
+        },
+        {
+          "name": "pos_label",
+          "desc": "양성 클래스 값 (기본 1)"
+        },
+        {
+          "name": "zero_division",
+          "desc": "0 으로 나눌 때 값. 경고 방지는 0"
+        }
+      ],
+      "snippet": "precision = precision_score(y_test, y_pred)\nrecall = recall_score(y_test, y_pred)\nf1 = f1_score(y_test, y_pred)\nprint(precision, recall, f1)\nprint(f1_score(y_test, y_pred, average='macro'))",
+      "pitfall": "다중분류에서 average 를 안 주면 오류가 난다. 정밀도=예측한 양성 중 정답, 재현율=실제 양성 중 찾아낸 비율.",
+      "keywords": [
+        "정밀도",
+        "재현율",
+        "f1",
+        "에프원",
+        "프리시전",
+        "리콜",
+        "precision",
+        "recall",
+        "f1 score",
+        "f1-score",
+        "조화평균",
+        "민감도",
+        "평가지표"
+      ]
+    },
+    {
+      "id": "sklearn-classification_report",
+      "category": "sklearn-metric",
+      "name": "classification_report",
+      "module": "sklearn.metrics",
+      "import": "from sklearn.metrics import classification_report",
+      "signature": "classification_report(y_true, y_pred, labels=None, target_names=None, sample_weight=None, digits=2, output_dict=False, zero_division='warn')",
+      "summary": "클래스별 정밀도·재현율·F1·support 를 표로 한 번에 출력한다.",
+      "params": [
+        {
+          "name": "target_names",
+          "desc": "클래스 이름 리스트. 예: le.classes_"
+        },
+        {
+          "name": "digits",
+          "desc": "소수점 자리 수"
+        },
+        {
+          "name": "output_dict",
+          "desc": "True 면 딕셔너리로 반환"
+        }
+      ],
+      "snippet": "print(classification_report(y_test, y_pred))",
+      "pitfall": "반환값은 문자열이므로 print 로 감싸야 표로 보인다. 인자 순서는 (정답, 예측).",
+      "keywords": [
+        "분류 리포트",
+        "분류 보고서",
+        "리포트",
+        "클래스별 성능",
+        "classification report",
+        "클래시피케이션 리포트",
+        "정밀도 재현율 한번에",
+        "종합 평가"
+      ]
+    },
+    {
+      "id": "sklearn-confusion_matrix",
+      "category": "sklearn-metric",
+      "name": "confusion_matrix",
+      "module": "sklearn.metrics",
+      "import": "from sklearn.metrics import confusion_matrix",
+      "signature": "confusion_matrix(y_true, y_pred, labels=None, sample_weight=None, normalize=None)",
+      "summary": "혼동행렬. 행=실제, 열=예측 개수.",
+      "params": [
+        {
+          "name": "normalize",
+          "desc": "'true' 면 행 기준 비율"
+        },
+        {
+          "name": "labels",
+          "desc": "행·열 순서를 지정할 라벨 리스트"
+        }
+      ],
+      "snippet": "cm = confusion_matrix(y_test, y_pred)\nprint(cm)",
+      "pitfall": "행이 실제값, 열이 예측값이다(이진: [[TN, FP], [FN, TP]]). 시각화는 sns.heatmap(cm, annot=True, fmt='d').",
+      "keywords": [
+        "혼동행렬",
+        "오차행렬",
+        "혼동 행렬",
+        "컨퓨전",
+        "confusion",
+        "tp fp",
+        "오분류",
+        "컨퓨전 매트릭스",
+        "cm"
+      ]
+    },
+    {
+      "id": "sklearn-mean_squared_error",
+      "category": "sklearn-metric",
+      "name": "mean_squared_error",
+      "module": "sklearn.metrics",
+      "import": "from sklearn.metrics import mean_squared_error",
+      "signature": "mean_squared_error(y_true, y_pred, sample_weight=None, multioutput='uniform_average')",
+      "summary": "평균제곱오차(MSE). RMSE 는 np.sqrt 로 구한다.",
+      "params": [
+        {
+          "name": "y_true",
+          "desc": "실제 값"
+        },
+        {
+          "name": "y_pred",
+          "desc": "예측 값"
+        }
+      ],
+      "snippet": "mse = mean_squared_error(y_test, y_pred)\nrmse = np.sqrt(mse)\nprint(mse, rmse)",
+      "pitfall": "squared=False 인자는 최신 scikit-learn 에서 제거됐다. RMSE 는 np.sqrt(mse) 로 구한다.",
+      "keywords": [
+        "평균제곱오차",
+        "엠에스이",
+        "mse",
+        "rmse",
+        "회귀 오차",
+        "제곱 오차",
+        "mean squared error",
+        "회귀 평가"
+      ]
+    },
+    {
+      "id": "sklearn-mean_absolute_error",
+      "category": "sklearn-metric",
+      "name": "mean_absolute_error",
+      "module": "sklearn.metrics",
+      "import": "from sklearn.metrics import mean_absolute_error",
+      "signature": "mean_absolute_error(y_true, y_pred, sample_weight=None, multioutput='uniform_average')",
+      "summary": "평균절대오차(MAE).",
+      "params": [
+        {
+          "name": "y_true",
+          "desc": "실제 값"
+        },
+        {
+          "name": "y_pred",
+          "desc": "예측 값"
+        }
+      ],
+      "snippet": "mae = mean_absolute_error(y_test, y_pred)\nprint(mae)",
+      "pitfall": "(정답, 예측) 순서. 절대값 평균이라 이상치 영향이 MSE 보다 작다.",
+      "keywords": [
+        "평균절대오차",
+        "엠에이이",
+        "mae",
+        "절대 오차",
+        "회귀 오차",
+        "mean absolute error",
+        "회귀 평가"
+      ]
+    },
+    {
+      "id": "sklearn-r2_score",
+      "category": "sklearn-metric",
+      "name": "r2_score",
+      "module": "sklearn.metrics",
+      "import": "from sklearn.metrics import r2_score",
+      "signature": "r2_score(y_true, y_pred, sample_weight=None, multioutput='uniform_average', force_finite=True)",
+      "summary": "결정계수 R². 1 에 가까울수록 설명력이 높다.",
+      "params": [
+        {
+          "name": "y_true",
+          "desc": "실제 값"
+        },
+        {
+          "name": "y_pred",
+          "desc": "예측 값"
+        }
+      ],
+      "snippet": "r2 = r2_score(y_test, y_pred)\nprint(f'R2: {r2:.4f}')",
+      "pitfall": "모델이 평균 예측보다 나쁘면 음수가 나올 수 있다.",
+      "keywords": [
+        "결정계수",
+        "알제곱",
+        "r2",
+        "r제곱",
+        "설명력",
+        "r squared",
+        "회귀 평가",
+        "알투"
+      ]
+    },
+    {
+      "id": "keras-Sequential",
+      "category": "keras-build",
+      "name": "Sequential",
+      "module": "tensorflow.keras.models",
+      "import": "from tensorflow.keras.models import Sequential",
+      "signature": "Sequential(layers=None, name=None)",
+      "summary": "층을 순서대로 쌓는 모델. model.add 로 층을 추가한다.",
+      "params": [
+        {
+          "name": "add(layer)",
+          "desc": "층을 맨 뒤에 추가. 첫 층은 Input(shape=(n,))"
+        },
+        {
+          "name": "layers",
+          "desc": "리스트로 한 번에 전달 가능"
+        }
+      ],
+      "snippet": "from tensorflow.keras.layers import Input, Dense\nmodel = Sequential()\nmodel.add(Input(shape=(X_train.shape[1],)))\nmodel.add(Dense(16, activation='relu'))\nmodel.add(Dense(1, activation='sigmoid'))\nmodel.summary()",
+      "pitfall": "입력은 model.add(Input(shape=(n,))) 로 쓴다. Dense(input_shape=...) 는 Keras 3 에서 권장되지 않는다.",
+      "keywords": [
+        "시퀀셜",
+        "순차 모델",
+        "모델 만들기",
+        "레이어 쌓기",
+        "sequential",
+        "model add",
+        "딥러닝 모델",
+        "신경망 모델",
+        "순차형"
+      ]
+    },
+    {
+      "id": "keras-Model",
+      "category": "keras-build",
+      "name": "Model (Functional API)",
+      "module": "tensorflow.keras.models",
+      "import": "from tensorflow.keras.models import Model",
+      "signature": "Model(inputs, outputs, name=None)",
+      "summary": "Functional API 모델. 입력 텐서에서 층을 함수처럼 이어 붙이고 Model(inputs, outputs) 로 묶는다.",
+      "params": [
+        {
+          "name": "inputs",
+          "desc": "Input(...) 이 만든 입력 텐서"
+        },
+        {
+          "name": "outputs",
+          "desc": "마지막 층의 출력 텐서"
+        }
+      ],
+      "snippet": "from tensorflow.keras.layers import Input, Dense\ninputs = Input(shape=(X_train.shape[1],))\nx = Dense(16, activation='relu')(inputs)\nx = Dense(8, activation='relu')(x)\noutputs = Dense(1, activation='sigmoid')(x)\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.summary()",
+      "pitfall": "층 뒤에 (이전 텐서) 를 붙여 호출한다: Dense(8)(x). 괄호 없이 Dense(8) 만 쓰면 층 객체일 뿐 연결되지 않는다.",
+      "keywords": [
+        "함수형 api",
+        "펑셔널",
+        "펑셔널 api",
+        "functional",
+        "모델 클래스",
+        "inputs outputs",
+        "다중 입력",
+        "functional api",
+        "모델 연결"
+      ]
+    },
+    {
+      "id": "keras-Input",
+      "category": "keras-build",
+      "name": "Input",
+      "module": "tensorflow.keras.layers",
+      "import": "from tensorflow.keras.layers import Input",
+      "signature": "Input(shape=None, batch_size=None, dtype=None, sparse=None, batch_shape=None, name=None, tensor=None)",
+      "summary": "모델의 입력 형태를 정의한다. shape 는 샘플 하나의 모양(배치 제외).",
+      "params": [
+        {
+          "name": "shape",
+          "desc": "특성 개수 n 이면 shape=(n,). 끝의 쉼표 필수"
+        },
+        {
+          "name": "name",
+          "desc": "입력 이름(선택)"
+        }
+      ],
+      "snippet": "inputs = Input(shape=(X_train.shape[1],))\nprint(inputs.shape)",
+      "pitfall": "shape=(n) 은 튜플이 아니라 숫자다. shape=(n,) 처럼 쉼표를 붙인다. 행(샘플) 수는 넣지 않는다.",
+      "keywords": [
+        "입력층",
+        "인풋",
+        "입력 shape",
+        "input shape",
+        "입력 정의",
+        "입력 차원",
+        "인풋 레이어",
+        "shape",
+        "입력 크기",
+        "input_shape"
+      ]
+    },
+    {
+      "id": "keras-Dense",
+      "category": "keras-build",
+      "name": "Dense",
+      "module": "tensorflow.keras.layers",
+      "import": "from tensorflow.keras.layers import Dense",
+      "signature": "Dense(units, activation=None, use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros', ..., kernel_regularizer=None)",
+      "summary": "완전연결(전결합) 층. 유닛 수와 활성화 함수를 지정한다.",
+      "params": [
+        {
+          "name": "units",
+          "desc": "출력 뉴런 수. 이진분류 1, 다중분류 클래스 수, 회귀 1"
+        },
+        {
+          "name": "activation",
+          "desc": "은닉층 'relu', 이진 출력 'sigmoid', 다중 출력 'softmax', 회귀 출력은 생략"
+        }
+      ],
+      "snippet": "model = Sequential([\n    Input(shape=(X_train.shape[1],)),\n    Dense(32, activation='relu'),\n    Dense(16, activation='relu'),\n    Dense(3, activation='softmax'),   # 다중분류: 클래스 수 3\n])\nmodel.summary()",
+      "pitfall": "출력층 규칙: 이진 Dense(1,'sigmoid') / 다중 Dense(K,'softmax') / 회귀 Dense(1) (활성화 없음). 회귀 출력에 relu 를 붙이지 않는다.",
+      "keywords": [
+        "덴스",
+        "완전연결",
+        "은닉층",
+        "출력층",
+        "활성화 함수",
+        "relu",
+        "sigmoid",
+        "softmax",
+        "시그모이드",
+        "소프트맥스",
+        "렐루",
+        "레이어",
+        "뉴런",
+        "유닛",
+        "fully connected",
+        "dense layer"
+      ],
+      "top": true
+    },
+    {
+      "id": "keras-Dropout",
+      "category": "keras-build",
+      "name": "Dropout",
+      "module": "tensorflow.keras.layers",
+      "import": "from tensorflow.keras.layers import Dropout",
+      "signature": "Dropout(rate, noise_shape=None, seed=None)",
+      "summary": "학습 중 일부 뉴런을 무작위로 꺼서 과적합을 줄이는 층.",
+      "params": [
+        {
+          "name": "rate",
+          "desc": "끌 비율. 0.2~0.5 가 일반적 (0.3 = 30% 끔)"
+        }
+      ],
+      "snippet": "model = Sequential([\n    Input(shape=(X_train.shape[1],)),\n    Dense(32, activation='relu'),\n    Dropout(0.3),\n    Dense(16, activation='relu'),\n    Dropout(0.2),\n    Dense(1, activation='sigmoid'),\n])\nmodel.summary()",
+      "pitfall": "rate 는 '유지할 비율'이 아니라 '끌 비율'이다. 출력층 뒤에는 넣지 않는다. 예측 시에는 자동으로 꺼진다.",
+      "keywords": [
+        "드롭아웃",
+        "드랍아웃",
+        "드롭 아웃",
+        "과적합 방지",
+        "과적합",
+        "오버피팅",
+        "dropout",
+        "정규화",
+        "rate",
+        "dropout layer"
+      ]
+    },
+    {
+      "id": "keras-BatchNormalization",
+      "category": "keras-build",
+      "name": "BatchNormalization",
+      "module": "tensorflow.keras.layers",
+      "import": "from tensorflow.keras.layers import BatchNormalization",
+      "signature": "BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True, ...)",
+      "summary": "층 출력을 미니배치 단위로 정규화해 학습을 안정시키는 층.",
+      "params": [
+        {
+          "name": "momentum",
+          "desc": "이동 평균 계수. 기본 0.99"
+        }
+      ],
+      "snippet": "model = Sequential([\n    Input(shape=(X_train.shape[1],)),\n    Dense(32),\n    BatchNormalization(),\n    Dense(1, activation='sigmoid'),\n])\nmodel.summary()",
+      "pitfall": "보통 Dense 뒤에 둔다. 활성화 함수 위치(전/후)는 정답이 없으니 지시문을 따른다. 출력층 뒤에는 넣지 않는다.",
+      "keywords": [
+        "배치정규화",
+        "배치 정규화",
+        "배치놈",
+        "배치노름",
+        "batch norm",
+        "batchnorm",
+        "batch normalization",
+        "정규화 층",
+        "학습 안정화"
+      ]
+    },
+    {
+      "id": "keras-compile",
+      "category": "keras-train",
+      "name": "model.compile",
+      "module": "tensorflow.keras.Model",
+      "import": "(model 은 Sequential 또는 Model)",
+      "signature": "model.compile(optimizer='rmsprop', loss=None, loss_weights=None, metrics=None, weighted_metrics=None, run_eagerly=False, steps_per_execution=1, jit_compile='auto')",
+      "summary": "학습 방식(옵티마이저·손실함수·평가지표)을 설정한다. fit 전에 반드시 호출.",
+      "params": [
+        {
+          "name": "loss",
+          "desc": "이진 'binary_crossentropy' / 다중 정수라벨 'sparse_categorical_crossentropy' / 다중 원-핫 'categorical_crossentropy' / 회귀 'mse'"
+        },
+        {
+          "name": "optimizer",
+          "desc": "보통 'adam'"
+        },
+        {
+          "name": "metrics",
+          "desc": "분류 ['accuracy'], 회귀 ['mae']"
+        }
+      ],
+      "snippet": "model.compile(optimizer='adam',\n              loss='binary_crossentropy',\n              metrics=['accuracy'])",
+      "pitfall": "라벨 형태와 loss 짝을 맞춘다: 정수 라벨 → sparse_categorical, 원-핫 라벨 → categorical. metrics 는 리스트로 쓴다.",
+      "keywords": [
+        "컴파일",
+        "손실함수",
+        "옵티마이저",
+        "loss",
+        "optimizer",
+        "adam",
+        "아담",
+        "metrics",
+        "binary_crossentropy",
+        "크로스엔트로피",
+        "학습 설정",
+        "손실 함수 선택",
+        "compile"
+      ],
+      "top": true
+    },
+    {
+      "id": "keras-fit",
+      "category": "keras-train",
+      "name": "model.fit",
+      "module": "tensorflow.keras.Model",
+      "import": "(model 은 Sequential 또는 Model)",
+      "signature": "model.fit(x=None, y=None, batch_size=None, epochs=1, verbose='auto', callbacks=None, validation_split=0.0, validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0, ...)",
+      "summary": "모델을 학습시키고 history 객체를 반환한다.",
+      "params": [
+        {
+          "name": "epochs",
+          "desc": "전체 데이터 반복 횟수"
+        },
+        {
+          "name": "batch_size",
+          "desc": "한 번에 학습할 샘플 수 (기본 32)"
+        },
+        {
+          "name": "validation_split",
+          "desc": "학습 데이터의 일부를 검증용으로 분리. 예: 0.2"
+        },
+        {
+          "name": "callbacks",
+          "desc": "콜백 리스트. 예: [es, mc]"
+        }
+      ],
+      "snippet": "history = model.fit(\n    X_train_scaled, y_train,\n    epochs=50,\n    batch_size=32,\n    validation_split=0.2,\n    callbacks=[es],\n    verbose=1)",
+      "pitfall": "callbacks 는 리스트로 전달한다(callbacks=es 는 오류). 반환값을 history 에 받아야 학습 곡선을 그릴 수 있다. 평가용 X_test 를 학습에 넣지 않는다.",
+      "keywords": [
+        "학습",
+        "훈련",
+        "피팅",
+        "모델 학습",
+        "에포크",
+        "epochs",
+        "batch size",
+        "배치",
+        "validation",
+        "검증 데이터",
+        "fit",
+        "핏",
+        "트레이닝",
+        "history 반환"
+      ],
+      "top": true
+    },
+    {
+      "id": "keras-evaluate",
+      "category": "keras-train",
+      "name": "model.evaluate",
+      "module": "tensorflow.keras.Model",
+      "import": "(model 은 Sequential 또는 Model)",
+      "signature": "model.evaluate(x=None, y=None, batch_size=None, verbose='auto', sample_weight=None, steps=None, callbacks=None, return_dict=False)",
+      "summary": "테스트 데이터로 손실과 지표를 계산한다. 반환값은 [loss, metric...].",
+      "params": [
+        {
+          "name": "return_dict",
+          "desc": "True 면 {'loss':..., 'accuracy':...} 딕셔너리로 반환"
+        },
+        {
+          "name": "verbose",
+          "desc": "0 이면 진행 막대 숨김"
+        }
+      ],
+      "snippet": "loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)\nprint(f'test loss: {loss:.4f}, test accuracy: {acc:.4f}')",
+      "pitfall": "반환값 개수는 compile 의 metrics 개수에 달려 있다 (loss 1개 + metrics). metrics 가 없으면 loss 하나만 반환된다.",
+      "keywords": [
+        "평가",
+        "모델 평가",
+        "테스트 성능",
+        "evaluate",
+        "이밸류에이트",
+        "테스트 데이터 평가",
+        "성능 확인",
+        "loss accuracy",
+        "점수"
+      ]
+    },
+    {
+      "id": "keras-predict",
+      "category": "keras-train",
+      "name": "model.predict",
+      "module": "tensorflow.keras.Model",
+      "import": "(model 은 Sequential 또는 Model)",
+      "signature": "model.predict(x, batch_size=None, verbose='auto', steps=None, callbacks=None)",
+      "summary": "입력에 대한 예측값(이진: 확률, 다중: 클래스별 확률, 회귀: 값)을 반환한다.",
+      "params": [
+        {
+          "name": "반환 shape",
+          "desc": "이진/회귀 (N, 1), 다중분류 (N, 클래스 수)"
+        },
+        {
+          "name": "후처리",
+          "desc": "이진 (pred > 0.5).astype(int) / 다중 np.argmax(pred, axis=1)"
+        }
+      ],
+      "snippet": "pred = model.predict(X_test_scaled, verbose=0)\ny_pred = (pred > 0.5).astype(int).flatten()\nprint(pred[:3].ravel(), y_pred[:3])",
+      "pitfall": "predict 는 클래스가 아니라 확률(또는 값)을 준다. 후처리를 해야 accuracy_score 등에 넣을 수 있다. 신규 샘플은 학습 때와 같은 스케일링 후 입력한다.",
+      "keywords": [
+        "예측",
+        "추론",
+        "predict",
+        "프레딕트",
+        "확률 예측",
+        "후처리",
+        "새 데이터 예측",
+        "inference",
+        "pred",
+        "모델 예측"
+      ],
+      "top": true
+    },
+    {
+      "id": "keras-summary",
+      "category": "keras-train",
+      "name": "model.summary",
+      "module": "tensorflow.keras.Model",
+      "import": "(model 은 Sequential 또는 Model)",
+      "signature": "model.summary(line_length=None, positions=None, print_fn=None, expand_nested=False, show_trainable=False, layer_range=None)",
+      "summary": "층 구조, 출력 shape, 파라미터 수를 표로 출력한다.",
+      "params": [
+        {
+          "name": "출력 항목",
+          "desc": "Layer, Output Shape, Param #"
+        },
+        {
+          "name": "파라미터 수",
+          "desc": "Dense 의 파라미터 = 입력수 x 유닛수 + 유닛수"
+        }
+      ],
+      "snippet": "model.summary()",
+      "pitfall": "출력만 하고 None 을 반환한다. 모델을 만든 뒤(입력 shape 가 정해진 뒤)에 호출해야 파라미터 수가 보인다.",
+      "keywords": [
+        "모델 구조",
+        "서머리",
+        "요약",
+        "파라미터 수",
+        "summary",
+        "구조 확인",
+        "모델 요약",
+        "layer 확인",
+        "params"
+      ]
+    },
+    {
+      "id": "keras-EarlyStopping",
+      "category": "keras-train",
+      "name": "EarlyStopping",
+      "module": "tensorflow.keras.callbacks",
+      "import": "from tensorflow.keras.callbacks import EarlyStopping",
+      "signature": "EarlyStopping(monitor='val_loss', min_delta=0, patience=0, verbose=0, mode='auto', baseline=None, restore_best_weights=False, start_from_epoch=0)",
+      "summary": "검증 성능이 개선되지 않으면 학습을 일찍 멈추는 콜백(조기 종료).",
+      "params": [
+        {
+          "name": "monitor",
+          "desc": "감시 지표. 기본 'val_loss'"
+        },
+        {
+          "name": "patience",
+          "desc": "개선이 없어도 기다릴 epoch 수. 예: 5"
+        },
+        {
+          "name": "restore_best_weights",
+          "desc": "True 면 가장 좋았던 epoch 의 가중치로 복원"
+        }
+      ],
+      "snippet": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)\nhistory = model.fit(X_train_scaled, y_train, epochs=100,\n                    validation_split=0.2, callbacks=[es])",
+      "pitfall": "monitor='val_loss' 를 쓰려면 fit 에 validation_split(또는 validation_data)이 있어야 한다. callbacks=[es] 처럼 리스트로 전달.",
+      "keywords": [
+        "조기 종료",
+        "조기종료",
+        "얼리스타핑",
+        "얼리스탑",
+        "얼리 스탑핑",
+        "early stopping",
+        "early stop",
+        "콜백",
+        "callback",
+        "patience",
+        "과적합 방지",
+        "학습 중단",
+        "earlystopping"
+      ],
+      "top": true
+    },
+    {
+      "id": "keras-ModelCheckpoint",
+      "category": "keras-train",
+      "name": "ModelCheckpoint",
+      "module": "tensorflow.keras.callbacks",
+      "import": "from tensorflow.keras.callbacks import ModelCheckpoint",
+      "signature": "ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', save_freq='epoch', initial_value_threshold=None)",
+      "summary": "학습 중 성능이 가장 좋은 모델을 파일로 저장하는 콜백.",
+      "params": [
+        {
+          "name": "filepath",
+          "desc": "저장 경로. Keras 3 는 '.keras' 로 끝나야 함"
+        },
+        {
+          "name": "save_best_only",
+          "desc": "True 면 monitor 가 개선될 때만 저장"
+        },
+        {
+          "name": "monitor",
+          "desc": "기본 'val_loss'"
+        }
+      ],
+      "snippet": "mc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)\nhistory = model.fit(X_train_scaled, y_train, epochs=20,\n                    validation_split=0.2, callbacks=[mc])",
+      "pitfall": "Keras 3 에서 파일명이 .keras 또는 .weights.h5 로 끝나지 않으면 오류. monitor 가 val_* 이면 검증 데이터 필요. 콜백은 리스트로.",
+      "keywords": [
+        "체크포인트",
+        "모델 저장 콜백",
+        "최적 모델 저장",
+        "베스트 모델",
+        "ModelCheckpoint",
+        "모델체크포인트",
+        "save best only",
+        "콜백",
+        "callback",
+        "저장",
+        "best model"
+      ]
+    },
+    {
+      "id": "keras-load_model",
+      "category": "keras-util",
+      "name": "load_model",
+      "module": "tensorflow.keras.models",
+      "import": "from tensorflow.keras.models import load_model",
+      "signature": "load_model(filepath, custom_objects=None, compile=True, safe_mode=True)",
+      "summary": "저장된 모델 파일을 불러온다.",
+      "params": [
+        {
+          "name": "filepath",
+          "desc": "'.keras' 파일 경로"
+        },
+        {
+          "name": "compile",
+          "desc": "False 면 옵티마이저 상태 없이 구조·가중치만 로드"
+        }
+      ],
+      "snippet": "model.save('my_model.keras')\nloaded = load_model('my_model.keras')\nloaded.summary()",
+      "pitfall": "저장과 로드의 확장자를 맞춘다(.keras 표준, .h5 는 구형). 불러온 모델에도 학습 때와 같은 스케일링을 적용해 predict 한다.",
+      "keywords": [
+        "모델 불러오기",
+        "모델 로드",
+        "로드",
+        "load model",
+        "로드모델",
+        "저장된 모델",
+        "가중치 불러오기",
+        "불러오기"
+      ]
+    },
+    {
+      "id": "keras-save",
+      "category": "keras-util",
+      "name": "model.save",
+      "module": "tensorflow.keras.Model",
+      "import": "(model 은 Sequential 또는 Model)",
+      "signature": "model.save(filepath, overwrite=True, zipped=None)",
+      "summary": "모델 구조와 가중치를 한 파일로 저장한다.",
+      "params": [
+        {
+          "name": "filepath",
+          "desc": "'.keras' 로 끝나는 경로"
+        },
+        {
+          "name": "overwrite",
+          "desc": "기존 파일 덮어쓰기 여부"
+        }
+      ],
+      "snippet": "model.save('my_model.keras')\nprint('saved')",
+      "pitfall": "Keras 3 는 확장자가 .keras 여야 한다. 구형 .h5 는 참고용 형식이다.",
+      "keywords": [
+        "모델 저장",
+        "저장",
+        "세이브",
+        "save",
+        "keras 파일",
+        "모델 파일",
+        "h5",
+        "내보내기"
+      ]
+    },
+    {
+      "id": "keras-to_categorical",
+      "category": "keras-util",
+      "name": "to_categorical",
+      "module": "tensorflow.keras.utils",
+      "import": "from tensorflow.keras.utils import to_categorical",
+      "signature": "to_categorical(x, num_classes=None)",
+      "summary": "정수 라벨을 원-핫 벡터로 바꾼다. categorical_crossentropy 와 짝.",
+      "params": [
+        {
+          "name": "num_classes",
+          "desc": "클래스 수. 지정하지 않으면 최댓값+1"
+        },
+        {
+          "name": "x",
+          "desc": "0부터 시작하는 정수 라벨"
+        }
+      ],
+      "snippet": "y_train_oh = to_categorical(y_train, num_classes=2)\ny_test_oh = to_categorical(y_test, num_classes=2)\nprint(y_train_oh.shape)",
+      "pitfall": "원-핫으로 바꿨다면 loss 는 categorical_crossentropy. 정수 라벨을 그대로 쓰면 sparse_categorical_crossentropy. 문자열 라벨은 LabelEncoder 먼저.",
+      "keywords": [
+        "원핫 라벨",
+        "원핫인코딩",
+        "원-핫",
+        "투카테고리컬",
+        "to categorical",
+        "라벨 원핫",
+        "categorical",
+        "다중분류 라벨",
+        "원핫 벡터"
+      ]
+    },
+    {
+      "id": "keras-history",
+      "category": "keras-util",
+      "name": "history.history",
+      "module": "tensorflow.keras.callbacks.History",
+      "import": "(history = model.fit(...) 의 반환값)",
+      "signature": "history.history  # dict: {'loss': [...], 'val_loss': [...], 'accuracy': [...], ...}",
+      "summary": "fit 이 반환한 학습 기록 딕셔너리. epoch 별 loss, 지표, val_* 값이 들어 있다.",
+      "params": [
+        {
+          "name": "history.history.keys()",
+          "desc": "사용 가능한 키 확인"
+        },
+        {
+          "name": "history.epoch",
+          "desc": "진행한 epoch 번호 리스트"
+        }
+      ],
+      "snippet": "print(history.history.keys())\nbest_epoch = int(np.argmin(history.history['val_loss'])) + 1\nprint(best_epoch, len(history.history['loss']))",
+      "pitfall": "history 자체가 아니라 history.history 가 딕셔너리다. EarlyStopping 이 작동하면 epochs 보다 기록 길이가 짧다.",
+      "keywords": [
+        "학습 기록",
+        "히스토리",
+        "학습 이력",
+        "history",
+        "loss 기록",
+        "val_loss",
+        "에포크별",
+        "곡선 데이터",
+        "keys"
+      ]
+    },
+    {
+      "id": "keras-set_random_seed",
+      "category": "keras-util",
+      "name": "set_random_seed",
+      "module": "tensorflow.keras.utils",
+      "import": "import tensorflow as tf",
+      "signature": "tf.keras.utils.set_random_seed(seed)",
+      "summary": "Python, NumPy, TensorFlow 난수 시드를 한 번에 고정해 학습 결과를 재현한다.",
+      "params": [
+        {
+          "name": "seed",
+          "desc": "정수. 시험에서는 보통 42"
+        }
+      ],
+      "snippet": "tf.keras.utils.set_random_seed(42)\nprint('seed fixed')",
+      "pitfall": "모델을 만들기 '전에' 호출해야 가중치 초기화가 고정된다. train_test_split 의 random_state 는 별도로 지정한다.",
+      "keywords": [
+        "시드",
+        "랜덤 시드",
+        "재현성",
+        "난수 고정",
+        "seed",
+        "random seed",
+        "시드 고정",
+        "random_state",
+        "재현"
+      ]
+    }
+  ]
+}
