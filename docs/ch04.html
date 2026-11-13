@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ch04. Keras로 모델 만들기 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
-<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<title>Ch04. Keras로 모델 만들기 — AICE Associate 딥러닝 실전 교본</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본" />
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="assets/css/v2-widgets.css" />
 <script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
-<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part II. 딥러닝의 뼈대 · Chapter 4</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#4-1-모델-만들기는-전체-4단계-중-첫-단계입니다">4.1 모델 만들기는 전체 4단계 중 첫 단계입니다</a></li><li><a href="#4-2-sequential-코드-한-줄이-층-하나입니다">4.2 Sequential — 코드 한 줄이 층 하나입니다</a></li><li><a href="#4-3-입력-shape-샘플-수는-넣지-않습니다">4.3 입력 shape — 샘플 수는 넣지 않습니다</a></li><li><a href="#4-4-출력층-문제-유형이-units와-activation을-결정합니다">4.4 출력층 — 문제 유형이 units와 activation을 결정합니다</a></li><li><a href="#4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</a></li><li><a href="#4-6-dropout과-batchnormalization-위치가-전부입니다">4.6 Dropout과 BatchNormalization — 위치가 전부입니다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch04">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch04-확인-문제-keras로-모델-만들기">Ch04 확인 문제 — Keras로 모델 만들기</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#4-1-모델-만들기는-전체-4단계-중-첫-단계입니다">4.1 모델 만들기는 전체 4단계 중 첫 단계입니다</a></li><li><a href="#4-2-sequential-코드-한-줄이-층-하나입니다">4.2 Sequential — 코드 한 줄이 층 하나입니다</a></li><li><a href="#4-3-입력-shape-샘플-수는-넣지-않습니다">4.3 입력 shape — 샘플 수는 넣지 않습니다</a></li><li><a href="#4-4-출력층-문제-유형이-units와-activation을-결정합니다">4.4 출력층 — 문제 유형이 units와 activation을 결정합니다</a></li><li><a href="#4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</a></li><li><a href="#4-6-dropout과-batchnormalization-어디에-놓는가">4.6 Dropout과 BatchNormalization — 어디에 놓는가</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch04">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch04-확인-문제-keras로-모델-만들기">Ch04 확인 문제 — Keras로 모델 만들기</a></li></ol></nav>
 <article class="page-body">
 <h1>Keras로 모델 만들기</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>Sequential과 Dense로 은닉층 2개 이상의 모델을 작성할 수 있다</li><li>입력 shape와 출력층(units·activation)을 문제 유형에 맞게 정할 수 있다</li><li>Dropout·BatchNormalization을 올바른 위치에 넣고 summary()로 확인할 수 있다</li></ul></aside>
@@ -532,7 +532,7 @@ Non-trainable params: 0
 <p>앞부분은 가중치, 뒤에 더하는 것은 노드마다 하나씩 있는 편향입니다. 첫 층은 <code>(4 × 5) + 5 = 25</code>, 둘째 층은 <code>(5 × 1) + 1 = 6</code>이 되어 합이 31입니다. Ch03의 <code>ch03_neuron</code>에서 뉴런 하나가 <code>w1*x1 + ... + b</code>를 계산했던 그 <code>w</code>와 <code>b</code>의 총 개수입니다.</p>
 <p>Total params가 0이거나 <code>summary()</code>가 "모델이 아직 build되지 않았다"는 메시지를 낸다면, <code>Input</code>을 빠뜨렸다는 신호입니다. 입력 크기를 모르면 Keras가 가중치 행렬 크기를 정할 수 없기 때문입니다.</p>
 <hr />
-<h2 id="4-6-dropout과-batchnormalization-위치가-전부입니다">4.6 Dropout과 BatchNormalization — 위치가 전부입니다</h2>
+<h2 id="4-6-dropout과-batchnormalization-어디에-놓는가">4.6 Dropout과 BatchNormalization — 어디에 놓는가</h2>
 <figure class="diagram" id="fig-ch04_dropout-bn-position"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 630" width="800" height="630" role="img" aria-label="Dropout과 BatchNormalization을 넣는 위치" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>Dropout과 BatchNormalization을 넣는 위치. 은닉층 Dense 뒤에 BatchNormalization, 그 뒤에 Dropout을 두며 출력층 뒤에는 넣지 않습니다.</title>
   <defs>

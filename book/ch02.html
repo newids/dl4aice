@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ch02. 전제 지식 압축 정리 — 데이터 준비와 머신러닝 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
-<meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
+<title>Ch02. 전제 지식 압축 정리 — 데이터 준비와 머신러닝 — AICE Associate 딥러닝 실전 교본</title>
+<meta name="description" content="AICE Associate 딥러닝 실전 교본" />
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="assets/css/v2-widgets.css" />
 <script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
-<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
+<header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part I. 시험의 지도 · Chapter 2</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</a></li><li><a href="#2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</a></li><li><a href="#2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</a></li><li><a href="#2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</a></li><li><a href="#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</a></li><li><a href="#2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</a></li><li><a href="#2-7-분리와-데이터-누수-순서가-곧-점수다">2.7 분리와 데이터 누수 — 순서가 곧 점수다</a></li><li><a href="#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</a></li><li><a href="#2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</a></li><li><a href="#2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch02">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</a></li><li><a href="#2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</a></li><li><a href="#2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</a></li><li><a href="#2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</a></li><li><a href="#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</a></li><li><a href="#2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</a></li><li><a href="#2-7-분리와-데이터-누수-분리한-뒤에-스케일링한다">2.7 분리와 데이터 누수 — 분리한 뒤에 스케일링한다</a></li><li><a href="#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</a></li><li><a href="#2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</a></li><li><a href="#2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch02">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</a></li></ol></nav>
 <article class="page-body">
 <h1>전제 지식 압축 정리 — 데이터 준비와 머신러닝</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>결측치·이상치·인코딩·스케일링을 상황에 맞는 함수로 처리할 수 있다</li><li>데이터 누수 없이 학습/평가(테스트) 데이터를 분리하는 순서를 지킬 수 있다</li><li>머신러닝의 3줄 패턴과 딥러닝의 4단계 패턴의 차이를 설명할 수 있다</li></ul></aside>
@@ -441,7 +441,7 @@ print(df_enc.head(3))
 <p>문항이 특정 스케일러를 지정하면 그것을 씁니다. 지정이 없으면 <code>StandardScaler</code>가 무난합니다.</p>
 <p>참고로 트리 계열 머신러닝 모델(예: <code>RandomForestClassifier</code>)은 분기 기준으로 값의 순서만 보기 때문에 스케일링이 성능에 거의 영향을 주지 않습니다. 그래도 파이프라인을 하나로 통일해 두면 딥러닝 문항으로 넘어갈 때 다시 손댈 일이 없습니다.</p>
 <hr />
-<h2 id="2-7-분리와-데이터-누수-순서가-곧-점수다">2.7 분리와 데이터 누수 — 순서가 곧 점수다</h2>
+<h2 id="2-7-분리와-데이터-누수-분리한-뒤에-스케일링한다">2.7 분리와 데이터 누수 — 분리한 뒤에 스케일링한다</h2>
 <figure class="diagram" id="fig-ch02_split-leakage"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 430" width="800" height="430" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>스케일러 fit 시점과 데이터 누수 — 전체 데이터에 fit하면 누수가 생기고, 먼저 분리한 뒤 학습 데이터에만 fit_transform, 평가 데이터에는 transform만 해야 한다</title>
   <defs>

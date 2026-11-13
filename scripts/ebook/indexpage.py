@@ -14,11 +14,11 @@ def _stat(value: str, label: str) -> str:
 def _cover(meta: dict, stats: list[tuple[str, str]]) -> str:
     title = meta.get("제목", "").strip("『』")
     main, _, tagline = title.partition(" — ")
+    tagline_html = f'<p class="cover__tagline">{html.escape(tagline)}</p>\n' if tagline else ""
     return f"""<section class="cover" aria-labelledby="book-title">
 <p class="cover__kicker">{html.escape(meta.get("부제", ""))}</p>
 <h1 class="cover__title" id="book-title">{html.escape(main)}</h1>
-<p class="cover__tagline">{html.escape(tagline)}</p>
-<p class="cover__concept">{html.escape(meta.get("콘셉트 한 줄", ""))}</p>
+{tagline_html}<p class="cover__concept">{html.escape(meta.get("콘셉트 한 줄", ""))}</p>
 <p class="cover__reader"><span>대상 독자</span>{html.escape(meta.get("대상 독자", ""))}</p>
 <div class="cover__stats">{''.join(_stat(v, l) for v, l in stats)}</div>
 </section>"""
