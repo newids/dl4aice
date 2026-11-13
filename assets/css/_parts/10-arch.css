@@ -42,8 +42,8 @@
   line-height: 1.5;
   color: var(--v2-text-soft);
   background: var(--v2-surface-2);
-  border-left: 3px solid var(--primary);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--line));
+  border-radius: var(--radius-sm);
 }
 
 .v2-arch__panel { margin-top: var(--v2-arch-gap); min-width: 0; }
@@ -62,7 +62,7 @@
   padding: 0.5rem 0.65rem 0.6rem;
   background: var(--v2-surface-2);
   border: 1px solid var(--line-soft);
-  border-top: 3px solid var(--t, var(--line));
+  border-color: color-mix(in srgb, var(--t, var(--line)) 45%, var(--line));
   border-radius: var(--radius-sm);
 }
 .v2-arch__cardlabel {
@@ -85,7 +85,7 @@
 }
 .v2-arch__card.is-changed {
   border-color: var(--accent);
-  border-top-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
   animation: v2-arch-card 2.5s var(--ease) 1;
 }
 .v2-arch__mark {
@@ -106,8 +106,8 @@
   line-height: 1.6;
   color: var(--ink);
   background: var(--accent-soft);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: var(--radius-sm);
 }
 .v2-arch__pitfall strong { color: var(--ink); }
 
@@ -176,7 +176,6 @@
   gap: 0.9rem;
   min-height: 1.62em;
   padding: 0 0.9rem 0 3rem;
-  border-left: 3px solid transparent;
   transition: opacity var(--duration) var(--ease);
 }
 .v2-arch__line::before {
@@ -191,7 +190,6 @@
 }
 .v2-arch__src { flex: 1 1 auto; white-space: pre; }
 .v2-arch__line.has-tag {
-  border-left-color: var(--t);
   background: color-mix(in srgb, var(--t) 17%, transparent);
 }
 .v2-arch__side {
@@ -226,8 +224,8 @@
   font-size: 0.9rem;
   color: var(--ink);
   background: var(--danger-soft);
-  border-left: 3px solid var(--danger);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--line));
+  border-radius: var(--radius-sm);
 }
 
 @keyframes v2-arch-line {

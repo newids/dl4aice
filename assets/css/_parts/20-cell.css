@@ -130,7 +130,7 @@
   font-weight: 600;
   color: var(--v2-text-soft);
   background: var(--accent-soft);
-  border-left: 3px solid var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
   border-radius: 4px;
 }
 
@@ -210,7 +210,7 @@
   padding: 1.4rem 1.2rem 1.2rem;
   background: var(--v2-surface-2);
   border: 1px solid var(--line);
-  border-top: 4px solid var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
   border-radius: var(--radius);
   min-width: 0;
 }

@@ -220,4 +220,5 @@ localStorage 키(접두사 `dl4aice.v2.` 는 `DL4AICE.store` 가 붙인다): `pr
 - 위젯 루트는 본문 그리드 안(`.page-body > *` 는 폭 760px 칼럼)에 놓인다. 더 넓게 쓰려면 루트에 `v2-wide` 클래스를 붙인다(최대 880px).
 - 반응형: 320 / 768 / 1024px. 터치 타깃 44px 이상. `:focus-visible` 표시. `prefers-reduced-motion` 존중. 인쇄(`@media print`)에서는 플로팅 UI 숨김.
 - 접근성: 탭은 `role="tablist"/"tab"/"tabpanel"` + 좌우 화살표 키, 모달은 `role="dialog" aria-modal="true"` + 포커스 트랩 + Esc 닫기, 상태 변화는 `aria-live`.
+- **한쪽 가장자리 색 띠 금지(예외 없음):** `border-left`/`border-top`을 굵게 색칠하는 방식, `box-shadow: inset`이나 `::before`/`::after`로 만든 색 띠, 한쪽만 각진 `border-radius: 0 r r 0` 모두 해당한다. 구분이 필요하면 전체 테두리 색(1px), 옅은 배경 틴트, 배지·아이콘·제목 색으로 표현한다.
 - 문구는 한국어, 이모지 사용 금지(아이콘이 필요하면 인라인 SVG 또는 텍스트).

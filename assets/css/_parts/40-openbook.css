@@ -252,12 +252,11 @@ html.v2-ob-lock body { padding-right: var(--v2-ob-sbw, 0px); }
   display: grid;
   gap: 0.1rem;
   padding: 0.5rem 0.7rem;
-  border-left: 3px solid transparent;
   border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .v2-ob__opt:hover { background: var(--v2-surface-2); }
-.v2-ob__opt[aria-selected="true"] { background: var(--primary-soft); border-left-color: var(--primary); }
+.v2-ob__opt[aria-selected="true"] { background: var(--primary-soft);}
 .v2-ob__opt-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.1rem 0.6rem; }
 .v2-ob__opt-name { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; color: var(--ink); }
 .v2-ob__opt-mod { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); }
@@ -320,7 +319,7 @@ html.v2-ob-lock body { padding-right: var(--v2-ob-sbw, 0px); }
   padding: 0.7rem 0.9rem;
   color: var(--ink);
   background: var(--accent-soft);
-  border-left: 4px solid var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
   border-radius: var(--radius-sm);
 }
 .v2-ob__pitfall .v2-badge { padding-left: 0; background: none; }

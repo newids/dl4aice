@@ -277,13 +277,13 @@
   color: var(--ink);
   background: var(--v2-surface);
   border: 1px solid var(--line);
-  border-left: 4px solid var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-md);
   animation: v2-toast-in 220ms var(--ease);
 }
-.v2-toast--ok { border-left-color: var(--success); }
-.v2-toast--err { border-left-color: var(--danger); }
+.v2-toast--ok { border-color: color-mix(in srgb, var(--success) 45%, var(--line)); }
+.v2-toast--err { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); }
 .v2-toast__title { display: block; margin-bottom: 0.15rem; }
 .v2-toast__body ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
 .v2-toast__body code {

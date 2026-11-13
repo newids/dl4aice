@@ -149,21 +149,6 @@
 /* 챕터 제목과 오프너 */
 .opener__eyebrow { animation: v2-rise 600ms var(--v2-ease-out) both; }
 .page-body > h1 { animation: v2-rise 700ms var(--v2-ease-out) 80ms both; }
-.page-chapter .page-body > h1::after,
-.page-mock .page-body > h1::after,
-.page-extra .page-body > h1::after {
-  content: "";
-  display: block;
-  width: 4.5rem;
-  height: 4px;
-  margin-top: 0.9rem;
-  border-radius: 999px;
-  background: var(--v2-grad);
-  transform-origin: 0 50%;
-  animation: v2-grow 800ms var(--v2-ease-out) 300ms both;
-}
-@keyframes v2-grow { from { transform: scaleX(0); } }
-
 /* ---------- 카드: 떠오름 + 커서 스포트라이트 ---------- */
 .v2-spot {
   position: relative;
@@ -216,8 +201,6 @@
 .section-nav a.is-current {
   color: var(--primary);
   font-weight: 700;
-  padding-left: 0.6rem;
-  border-left: 3px solid var(--primary);
 }
 
 /* ---------- 버튼 · 탭 · 미터 ---------- */
@@ -286,7 +269,7 @@ details[open] > .v2-legacy__body { animation: v2-rise 360ms var(--v2-ease-out) b
   @view-transition { navigation: none; }
   .v2-reveal { opacity: 1; transform: none; transition: none; }
   .cover::before, .cover::after, .cover__title, .cover__kicker, .cover__tagline, .cover__concept,
-  .cover__reader, .opener__eyebrow, .page-body > h1, .page-body > h1::after,
+  .cover__reader, .opener__eyebrow, .page-body > h1,
   details[open] > .solution__body, details[open] > .v2-legacy__body { animation: none !important; }
   .v2-spot, .v2-spot:hover, .v2-btn:hover, .diagram:hover .diagram__frame { transform: none; }
   .v2-btn--primary::after { display: none; }
@@ -301,5 +284,4 @@ details[open] > .v2-legacy__body { animation: v2-rise 360ms var(--v2-ease-out) b
     background: none;
     color: #1a2332;
   }
-  .page-body > h1::after { display: none; }
 }

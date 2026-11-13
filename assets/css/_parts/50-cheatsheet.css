@@ -17,7 +17,7 @@
 }
 
 /* ---------- 절 ---------- */
-.page-body .v2-cs { margin: 0 0 0.5rem; }
+.page-body .v2-cs { margin: 0 auto 0.5rem; }
 .page-body .v2-cs > h2 { margin: 2.4rem 0 0.9rem; }
 .page-body .v2-cs:first-of-type > h2 { margin-top: 1.2rem; }
 
@@ -93,12 +93,12 @@
 .v2-cs-warn {
   margin: 0 0 1.1rem;
   padding: 0.7rem 1rem;
-  border-left: 4px solid var(--primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--line));
   background: var(--primary-soft);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border-radius: var(--radius-sm);
   font-size: 0.92rem;
 }
-.v2-cs-warn { border-left-color: var(--danger); background: var(--danger-soft); margin: 1rem 0 0; }
+.v2-cs-warn { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); background: var(--danger-soft); margin: 1rem 0 0; }
 .page-body .v2-cs-note p,
 .page-body .v2-cs-warn p { margin: 0; line-height: 1.6; }
 
@@ -135,7 +135,7 @@
   padding: 0.85rem 0.95rem 0.95rem;
   background: var(--v2-surface);
   border: 1px solid var(--line);
-  border-top: 3px solid var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
 }
@@ -169,8 +169,8 @@
   font-size: 0.78rem;
   line-height: 1.5;
   background: var(--danger-soft);
-  border-left: 3px solid var(--danger);
-  border-radius: 0 5px 5px 0;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--line));
+  border-radius: 5px;
 }
 .page-body .v2-cs-msg code,
 :root[data-theme="dark"] .page-body .v2-cs-msg code {
@@ -379,7 +379,7 @@
     font-size: 7.6pt;
     background: none;
     border: 0.5pt solid var(--v2-cs-print-line);
-    border-left: 2.5pt solid var(--v2-cs-print-ink);
+    border-color: color-mix(in srgb, var(--v2-cs-print-ink) 45%, var(--line));
     break-inside: avoid;
   }
   .v2-cs-warn { margin-top: 4pt; }
@@ -399,7 +399,7 @@
     padding: 3pt 5pt 4pt;
     background: none;
     border: 0.5pt solid var(--v2-cs-print-line);
-    border-top: 1.5pt solid var(--v2-cs-print-ink);
+    border-color: color-mix(in srgb, var(--v2-cs-print-ink) 45%, var(--line));
     border-radius: 2pt;
     box-shadow: none;
     break-inside: avoid;
@@ -413,7 +413,7 @@
     font-size: 6.8pt;
     line-height: 1.3;
     background: var(--v2-cs-print-code-bg);
-    border-left: 1.5pt solid var(--v2-cs-print-ink);
+    border: 1px solid color-mix(in srgb, var(--v2-cs-print-ink) 45%, var(--line));
   }
   .page-body .v2-cs-msg code,
   :root[data-theme="dark"] .page-body .v2-cs-msg code { color: var(--v2-cs-print-ink); }

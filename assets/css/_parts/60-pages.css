@@ -165,7 +165,7 @@
   color: var(--ink);
   background: var(--v2-surface);
   border: 1px solid var(--line);
-  border-left: 4px solid var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
@@ -176,7 +176,7 @@
 .v2-tool__desc { font-size: 0.86rem; line-height: 1.6; color: var(--v2-text-soft); }
 
 /* 모의고사가 3회분이 되어 로드맵 강조 범위를 한 칸 늘린다 */
-.road__step:nth-last-child(3) { border-left-color: var(--accent); background: #fffbeb; }
+.road__step:nth-last-child(3) { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: #fffbeb; }
 :root[data-theme="dark"] .road__step:nth-last-child(3) { background: var(--accent-soft); }
 
 /* ---------- v1 지면판 접힘 ---------- */
@@ -217,8 +217,8 @@
   font-size: 0.9rem;
   color: var(--v2-text-soft);
   background: var(--accent-soft);
-  border-left: 4px solid var(--accent);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: var(--radius-sm);
 }
 
 @media (max-width: 768px) {
