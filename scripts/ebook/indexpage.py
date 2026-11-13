@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import html
 
-from . import pages
+from . import pages, v2
 
 
 def _stat(value: str, label: str) -> str:
@@ -88,7 +88,16 @@ def render(meta: dict, rows: list[dict], infos: dict, stats: list[tuple[str, str
     body = f"""{pages.masthead(book_title, is_index=True)}
 <main class="page page--index">
 {_cover(meta, stats)}
+{v2.dashboard(rows, infos)}
+{v2.tools_section(sum(i.get("drills", 0) for i in infos.values()))}
 {_roadmap(rows)}
 {_toc(rows, infos)}
 </main>"""
-    return pages.shell(title=book_title, book_title=book_title, body=body, page_class="page-index")
+    return pages.shell(
+        title=book_title,
+        book_title=book_title,
+        body=body,
+        page_class="page-index",
+        head_extra=v2.head_extra(),
+        scripts=v2.scripts("index"),
+    )

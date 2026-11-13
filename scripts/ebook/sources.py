@@ -7,6 +7,7 @@ import re
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 DIAGRAM_RE = re.compile(r"<!--\s*DIAGRAM:\s*(.*?)-->", re.S)
 EXAM_RE = re.compile(r"<!--\s*EXAM:\s*(\S+?)\s*-->")
+WIDGET_RE = re.compile(r"<!--\s*WIDGET:\s*(.*?)-->", re.S)
 SOLUTION_HEADING = "## 해답 및 해설"
 
 
@@ -69,7 +70,8 @@ def strip_comments(text: str) -> str:
 
 
 def split_blocks(text: str) -> list[tuple[str, object]]:
-    """본문을 ('md', 텍스트) / ('diagram', (id, 캡션)) / ('exam', 챕터키) 로 분해한다.
+    """본문을 ('md', 텍스트) / ('diagram', (id, 캡션)) / ('exam', 챕터키) /
+    ('widget', (종류, 옵션들)) 로 분해한다.
 
     코드 펜스 안의 주석은 건드리지 않는다. 주석 제거는 호출 측에서 md 조각에만 적용한다.
     """
@@ -99,6 +101,12 @@ def split_blocks(text: str) -> list[tuple[str, object]]:
             if exam:
                 flush()
                 blocks.append(("exam", exam.group(1)))
+                continue
+            widget = WIDGET_RE.fullmatch(line.strip())
+            if widget:
+                fields = [f.strip() for f in widget.group(1).split("|")]
+                flush()
+                blocks.append(("widget", (fields[0], fields[1:])))
                 continue
         buffer.append(line)
     flush()

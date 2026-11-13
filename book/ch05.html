@@ -6,12 +6,14 @@
 <title>Ch05. 컴파일과 학습 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part III. 학습과 개선 · Chapter 5</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#1-compile이-정하는-세-가지">1. compile이 정하는 세 가지</a></li><li><a href="#2-손실-함수-선택-이-교재의-정본">2. 손실 함수 선택 — 이 교재의 정본</a></li><li><a href="#3-optimizer와-학습률">3. optimizer와 학습률</a></li><li><a href="#4-fit-epochs-batch-size-step">4. fit — epochs, batch_size, step</a></li><li><a href="#5-검증-데이터를-떼어내는-두-가지-방법">5. 검증 데이터를 떼어내는 두 가지 방법</a></li><li><a href="#6-history-학습이-어떻게-진행됐는지-읽기">6. history — 학습이 어떻게 진행됐는지 읽기</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch05-확인-문제-컴파일과-학습">Ch05 확인 문제 — 컴파일과 학습</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#1-compile이-정하는-세-가지">1. compile이 정하는 세 가지</a></li><li><a href="#2-손실-함수-선택-이-교재의-정본">2. 손실 함수 선택 — 이 교재의 정본</a></li><li><a href="#3-optimizer와-학습률">3. optimizer와 학습률</a></li><li><a href="#4-fit-epochs-batch-size-step">4. fit — epochs, batch_size, step</a></li><li><a href="#5-검증-데이터를-떼어내는-두-가지-방법">5. 검증 데이터를 떼어내는 두 가지 방법</a></li><li><a href="#6-history-학습이-어떻게-진행됐는지-읽기">6. history — 학습이 어떻게 진행됐는지 읽기</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch05">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch05-확인-문제-컴파일과-학습">Ch05 확인 문제 — 컴파일과 학습</a></li></ol></nav>
 <article class="page-body">
 <h1>컴파일과 학습</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>문제 유형과 라벨 형태에 맞는 손실 함수를 선택할 수 있다</li><li>fit의 epochs·batch_size·validation 인자를 의도에 맞게 설정할 수 있다</li><li>history로 학습 곡선을 그리고 학습 진행 상태를 읽을 수 있다</li></ul></aside>
@@ -288,6 +290,10 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 회귀 출력층은 <code>Dense(1)</code>입니다. 여기에 <code>activation='sigmoid'</code>를 붙이면 출력이 0~1로 눌려 집값이나 잔여 수명처럼 범위가 넓은 값을 절대 맞힐 수 없게 됩니다. 손실은 줄어들지 않고 <code>mae</code>가 큰 값에서 멈춥니다. 분류 코드를 복사해 회귀로 고칠 때 loss만 <code>mse</code>로 바꾸고 출력층의 <code>sigmoid</code>를 지우지 않는 실수가 특히 잦습니다.</p>
 </blockquote>
 <hr />
+<h3 id="직접-바꿔-보기-문제-유형이-바꾸는-compile-한-줄">직접 바꿔 보기 — 문제 유형이 바꾸는 compile 한 줄</h3>
+<p>문제 유형 탭을 바꾸면서 <code>loss</code>와 <code>metrics</code>가 어떻게 달라지는지 확인하십시오. 다중분류는 라벨이 <strong>원-핫인지 정수인지</strong>에 따라 손실 함수 이름이 갈립니다.</p>
+<div class="v2-arch" data-v2-arch data-default-type="multiclass_sparse" data-default-api="sequential" data-focus="loss,metrics"></div>
+<noscript><p class="v2-noscript">문제 유형·API 비교 위젯은 자바스크립트를 켜야 보입니다. 같은 내용은 Ch08의 템플릿 A·B·C에 정리되어 있습니다.</p></noscript>
 <h2 id="3-optimizer와-학습률">3. optimizer와 학습률</h2>
 <figure class="diagram" id="fig-ch05_optimizer-lr"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 356" width="800" height="356" role="img" aria-label="학습률에 따른 수렴 모습">
   <title>학습률에 따른 수렴 모습 — U자 손실 골짜기를 내려가는 공의 궤적을 세 패널로 비교한다. 학습률이 너무 작으면 걸음이 짧아 바닥에 닿지 못하고, 적절하면 바닥에 안정적으로 수렴하며, 너무 크면 바닥을 지나쳐 점점 크게 튀며 발산한다.</title>
@@ -792,7 +798,9 @@ model.compile(optimizer='adam',
 </tr>
 </tbody>
 </table></div>
-<section class="exam" id="exam-ch05">
+<section class="v2-drills" id="drills-ch05" data-v2-drills data-chapter="5" aria-label="Ch05 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 6문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch05">
 <h2 id="ch05-확인-문제-컴파일과-학습">Ch05 확인 문제 — 컴파일과 학습</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
@@ -1401,10 +1409,20 @@ sigmoid 잔존 — 마지막 val_mae = 186.05
 <li>오류를 하나만 찾고 넘어가는 것. <code>loss='accuracy'</code>는 실행이 멈추니 금방 보이지만, 출력층의 <code>sigmoid</code>는 조용히 살아남습니다. <strong>실행이 되기 시작했다고 해서 다 고친 것이 아닙니다.</strong></li>
 </ul>
 <hr /></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch04.html"><span class="pager__dir">이전</span><span class="pager__label">Ch04</span><span class="pager__title">Keras로 모델 만들기</span></a><a class="pager__slot pager__slot--next" href="ch06.html"><span class="pager__dir">다음</span><span class="pager__label">Ch06</span><span class="pager__title">과적합 진단과 대응</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/data/arch_patterns.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/motion.js"></script>
+<script defer src="assets/js/code-blocks.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/arch-switcher.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>

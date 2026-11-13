@@ -6,12 +6,14 @@
 <title>Ch03. 딥러닝은 어떻게 배우는가 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part II. 딥러닝의 뼈대 · Chapter 3</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#3-1-뉴런-하나가-하는-일">3.1 뉴런 하나가 하는 일</a></li><li><a href="#3-2-뉴런을-나란히겹겹이-쌓으면-층이-됩니다">3.2 뉴런을 나란히·겹겹이 쌓으면 층이 됩니다</a></li><li><a href="#3-3-활성화-함수-어디에-무엇을-쓰는가">3.3 활성화 함수 — 어디에 무엇을 쓰는가</a></li><li><a href="#3-4-순전파와-역전파-예측하고-되돌아가-고칩니다">3.4 순전파와 역전파 — 예측하고, 되돌아가 고칩니다</a></li><li><a href="#3-5-학습-루프-step과-epoch">3.5 학습 루프 — step과 epoch</a></li><li><a href="#3-6-층을-몇-개-노드를-몇-개-둘-것인가">3.6 층을 몇 개, 노드를 몇 개 둘 것인가</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch03-확인-문제-딥러닝은-어떻게-배우는가">Ch03 확인 문제 — 딥러닝은 어떻게 배우는가</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#3-1-뉴런-하나가-하는-일">3.1 뉴런 하나가 하는 일</a></li><li><a href="#3-2-뉴런을-나란히겹겹이-쌓으면-층이-됩니다">3.2 뉴런을 나란히·겹겹이 쌓으면 층이 됩니다</a></li><li><a href="#3-3-활성화-함수-어디에-무엇을-쓰는가">3.3 활성화 함수 — 어디에 무엇을 쓰는가</a></li><li><a href="#3-4-순전파와-역전파-예측하고-되돌아가-고칩니다">3.4 순전파와 역전파 — 예측하고, 되돌아가 고칩니다</a></li><li><a href="#3-5-학습-루프-step과-epoch">3.5 학습 루프 — step과 epoch</a></li><li><a href="#3-6-층을-몇-개-노드를-몇-개-둘-것인가">3.6 층을 몇 개, 노드를 몇 개 둘 것인가</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch03">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch03-확인-문제-딥러닝은-어떻게-배우는가">Ch03 확인 문제 — 딥러닝은 어떻게 배우는가</a></li></ol></nav>
 <article class="page-body">
 <h1>딥러닝은 어떻게 배우는가</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>뉴런 하나의 계산(가중합 + 편향 → 활성화)을 그림과 수식 한 줄로 설명할 수 있다</li><li>relu·sigmoid·softmax의 출력 범위와 사용 위치를 구분할 수 있다</li><li>순전파와 역전파가 한 epoch 안에서 반복되는 흐름을 설명할 수 있다</li></ul></aside>
@@ -796,7 +798,9 @@ print(&quot;손실 변화량:&quot;, round(float(loss_up - loss), 4))
 </tbody>
 </table></div>
 <p>다음 챕터에서는 이 구조를 <code>Sequential</code>과 <code>Dense</code>로 옮겨 실제로 동작하는 모델을 만듭니다.</p>
-<section class="exam" id="exam-ch03">
+<section class="v2-drills" id="drills-ch03" data-v2-drills data-chapter="3" aria-label="Ch03 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 5문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch03">
 <h2 id="ch03-확인-문제-딥러닝은-어떻게-배우는가">Ch03 확인 문제 — 딥러닝은 어떻게 배우는가</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
@@ -1055,10 +1059,18 @@ out.shape : (6, 1)
 <li>파라미터를 셀 때 편향을 빼고 <code>4×5 + 5×1 = 25</code>로 답하는 것. 편향 6개를 더해 31개입니다.</li>
 </ul>
 <hr /></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch02.html"><span class="pager__dir">이전</span><span class="pager__label">Ch02</span><span class="pager__title">전제 지식 압축 정리 — 데이터 준비와 머신러닝</span></a><a class="pager__slot pager__slot--next" href="ch04.html"><span class="pager__dir">다음</span><span class="pager__label">Ch04</span><span class="pager__title">Keras로 모델 만들기</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/motion.js"></script>
+<script defer src="assets/js/code-blocks.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>

@@ -5,7 +5,9 @@ from __future__ import annotations
 import html
 
 
-def shell(*, title: str, book_title: str, body: str, page_class: str = "") -> str:
+def shell(
+    *, title: str, book_title: str, body: str, page_class: str = "", head_extra: str = "", scripts: str = ""
+) -> str:
     cls = f' class="{page_class}"' if page_class else ""
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -15,9 +17,11 @@ def shell(*, title: str, book_title: str, body: str, page_class: str = "") -> st
 <title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(book_title)}" />
 <link rel="stylesheet" href="style.css" />
+{head_extra}
 </head>
 <body{cls}>
 {body}
+{scripts}
 </body>
 </html>
 """

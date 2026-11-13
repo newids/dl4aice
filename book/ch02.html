@@ -6,12 +6,14 @@
 <title>Ch02. 전제 지식 압축 정리 — 데이터 준비와 머신러닝 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part I. 시험의 지도 · Chapter 2</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</a></li><li><a href="#2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</a></li><li><a href="#2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</a></li><li><a href="#2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</a></li><li><a href="#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</a></li><li><a href="#2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</a></li><li><a href="#2-7-분리와-데이터-누수-순서가-곧-점수다">2.7 분리와 데이터 누수 — 순서가 곧 점수다</a></li><li><a href="#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</a></li><li><a href="#2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</a></li><li><a href="#2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</a></li><li><a href="#2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</a></li><li><a href="#2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</a></li><li><a href="#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</a></li><li><a href="#2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</a></li><li><a href="#2-7-분리와-데이터-누수-순서가-곧-점수다">2.7 분리와 데이터 누수 — 순서가 곧 점수다</a></li><li><a href="#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</a></li><li><a href="#2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</a></li><li><a href="#2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch02">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</a></li></ol></nav>
 <article class="page-body">
 <h1>전제 지식 압축 정리 — 데이터 준비와 머신러닝</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>결측치·이상치·인코딩·스케일링을 상황에 맞는 함수로 처리할 수 있다</li><li>데이터 누수 없이 학습/평가(테스트) 데이터를 분리하는 순서를 지킬 수 있다</li><li>머신러닝의 3줄 패턴과 딥러닝의 4단계 패턴의 차이를 설명할 수 있다</li></ul></aside>
@@ -768,6 +770,200 @@ print(classification_report(y_test, y_pred))
 <p>한 가지만 미리 짚어둡니다. 클래스가 불균형한 데이터(예: 이탈 고객이 10%)에서는 전부 "이탈 아님"이라고만 찍어도 정확도가 90%가 나옵니다. <strong>정확도만으로 판단하지 않는 습관</strong>이 필요하며, 그래서 <code>classification_report</code>로 클래스별 precision과 recall을 함께 보는 것입니다.</p>
 <p>각 지표를 실제로 계산하고 해석하는 방법은 Ch07에서 다룹니다. 이 챕터에서는 "어떤 상황에 어떤 지표를 고르는가"라는 지도만 머리에 넣어 두십시오.</p>
 <hr />
+<h2 id="2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</h2>
+<p><strong>한 줄 요약</strong> — 문항 10번까지 정상이던 데이터가 11번에서 갑자기 오류를 내는 이유는 대개 세 가지(인덱스 어긋남, <code>bool</code>/<code>object</code> 타입, <code>(N,)</code>와 <code>(N, 1)</code>의 shape 차이)이고, 각각 10초 안에 진단할 수 있습니다.</p>
+<p>현재 실기 시험은 14문항으로 구성되며(회차별 변동 가능, Ch01 참고), 1~10번은 탐색·전처리·머신러닝, <strong>11~14번이 딥러닝</strong>(모델 설계와 학습, 그리고 새로운 "시뮬레이션 입력"의 예측)입니다. 문제는 sklearn 모델이 <strong>관대하다</strong>는 점입니다. <code>RandomForestClassifier</code>는 DataFrame이든 배열이든, <code>bool</code> 컬럼이 섞여 있든 별말 없이 학습합니다. 그래서 10번까지는 통과한 데이터가 Keras로 넘어가는 순간 거부당하고, 이 <strong>10번과 11번 사이의 인계 지점</strong>에서 가장 많은 점수를 잃습니다. 오류 메시지의 일반론은 Ch08 §8.5에서 다루므로, 여기서는 <strong>전처리 쪽에서 만들어지는 원인</strong> 세 가지만 다룹니다.</p>
+<p>아래 코드는 이 절 전체의 출발점입니다. 앞 절과 같은 성격의 합성 데이터이며, 이후 블록은 이 <code>df</code>를 순서대로 이어받습니다.</p>
+<pre><code class="language-python"># 2.10 공용 준비 — 결측치가 섞인 합성 데이터 (시험에서는 read_csv 결과가 df)
+import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)
+n = 1000
+df = pd.DataFrame({
+    'tenure_months': rng.integers(1, 72, n),
+    'monthly_fee': rng.normal(60, 15, n).round(2),
+    'contract_type': rng.choice(['month', 'one_year', 'two_year'], n),
+    'churn': rng.binomial(1, 0.5, n),
+})
+df.loc[rng.choice(n, size=50, replace=False), 'monthly_fee'] = np.nan
+print(df.shape, df['monthly_fee'].isnull().sum())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(1000, 4) 50</code></p>
+</blockquote>
+<h3 id="2-10-1-행을-지운-뒤-x와-y의-인덱스가-어긋난다">2.10.1 행을 지운 뒤 X와 y의 인덱스가 어긋난다</h3>
+<p><strong>증상</strong> — <code>train_test_split</code>이 <code>ValueError: Found input variables with inconsistent numbers of samples: [950, 1000]</code>로 멈추거나, 더 나쁘게는 <strong>오류 없이 <code>NaN</code>이 생깁니다.</strong></p>
+<p><strong>원인</strong> — <code>dropna()</code>나 IQR 필터는 행을 지우면서 <strong>원래 인덱스를 그대로 남깁니다</strong>(0, 1, 3, 4, …처럼 번호가 건너뜀). 필터 전에 뽑아 둔 <code>y</code>는 1000행, 필터 후의 <code>X</code>는 950행이 됩니다. 또 <code>pd.concat</code>이나 대입은 <strong>인덱스 번호를 기준으로</strong> 짝을 맞추므로, 0부터 새로 매겨진 배열 기반 DataFrame(예: 스케일러 출력)을 번호가 건너뛴 DataFrame에 붙이면 짝이 맞지 않는 행에 <code>NaN</code>이 채워집니다.</p>
+<pre><code class="language-python"># 증상 재현 — y를 결측 제거 전에 뽑고, 스케일러 출력(0부터 새 인덱스)을 concat
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+y_bad = df['churn']                       # 행 제거 '전'에 뽑은 y
+df_clean = df.dropna()                    # 50행 삭제, 인덱스는 건너뜀
+X_bad = df_clean.drop(columns=['churn'])
+
+# 10초 진단 — 길이, 인덱스, NaN 세 가지를 찍는다
+print(len(X_bad), len(y_bad), X_bad.index.equals(y_bad.index))
+
+try:
+    train_test_split(X_bad, y_bad, test_size=0.3, random_state=42)
+except ValueError as e:
+    print(e)
+
+num = df_clean[['tenure_months', 'monthly_fee']]
+scaled = pd.DataFrame(StandardScaler().fit_transform(num), columns=['tenure_s', 'fee_s'])
+mixed = pd.concat([num, scaled], axis=1)  # 인덱스 번호 기준으로 맞춰 붙는다
+print(mixed.shape, mixed.isnull().sum().sum())
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>950 1000 False</code> → <code>Found input variables with inconsistent numbers of samples: [950, 1000]</code> → <code>(997, 4) 188</code>. 마지막 줄이 <strong>무서운 부분</strong>입니다. 행이 950개여야 하는데 997개로 늘고 <code>NaN</code>이 188개 생겼는데도 오류는 없습니다. 이 상태로 학습하면 Keras에서는 대개 <code>loss: nan</code>으로 나타납니다(<code>relu</code> 층에서는 가려질 수도 있습니다. Ch08 §8.5의 ③).</p>
+</blockquote>
+<pre><code class="language-python"># 해결 — 행을 지운 '직후' 인덱스를 새로 매기고, 같은 df에서 X와 y를 함께 만든다
+df = df.dropna().reset_index(drop=True)   # drop=True: 옛 인덱스를 컬럼으로 남기지 않음
+X = df.drop(columns=['churn'])            # X와 y는 항상 같은 df에서, 같은 시점에
+y = df['churn']
+
+print(len(X) == len(y), X.index.equals(y.index))   # True True
+print(df.index.min(), df.index.max())               # 0 949
+# Keras에 넘기기 직전에는 인덱스가 없는 numpy 배열로 바꾸는 것이 가장 안전하다
+# X_np = X.to_numpy();  y_np = y.to_numpy()   (2.10.2에서 타입을 정리한 뒤 사용)
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>True True</code> / <code>0 949</code>. 이상치를 필터로 삭제하는 경우도 <code>df = df[...]</code> 바로 다음 줄에 <code>df = df.reset_index(drop=True)</code>를 붙이십시오.</p>
+<p><strong>한 줄 규칙</strong> — 행을 지웠으면 그 줄 바로 아래에서 <code>reset_index(drop=True)</code>, <code>X</code>와 <code>y</code>는 지운 <strong>뒤의 같은 <code>df</code></strong>에서 만든다.</p>
+</blockquote>
+<h3 id="2-10-2-get-dummies-결과의-boolobject는-float로-맞춘다">2.10.2 <code>get_dummies</code> 결과의 <code>bool</code>·<code>object</code>는 <code>float</code>로 맞춘다</h3>
+<p><strong>증상</strong> — Keras <code>fit</code>에서 <code>ValueError: could not convert string to float: 'month'</code>가 나오거나, 배열로 바꾼 뒤 <code>ValueError: Invalid dtype: object</code>가 납니다. 텐서 변환 단계에서는 <code>Failed to convert a NumPy array to a Tensor (Unsupported object type float)</code>로 표시되기도 합니다.</p>
+<p><strong>원인</strong> — 두 가지입니다. ① 문자열 컬럼(<code>contract_type</code>)을 인코딩하지 않고 남겼다. ② <code>pd.get_dummies</code>를 <code>dtype</code> 없이 쓰면 최신 pandas는 <code>bool</code> 컬럼을 만들고, <code>float</code> 컬럼과 <code>bool</code> 컬럼이 섞인 DataFrame을 <code>.to_numpy()</code>로 바꾸면 배열 전체가 <strong><code>object</code></strong> 가 됩니다(Keras가 거부).</p>
+<pre><code class="language-python"># 증상 재현과 10초 진단
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense
+
+X_bool = pd.get_dummies(X, columns=['contract_type'])    # dtype 미지정 → bool
+print(X_bool.dtypes.value_counts())                      # 자료형별 컬럼 개수
+print(X_bool.select_dtypes(exclude='number').columns.tolist())   # 숫자가 아닌 컬럼 목록
+print(X_bool.to_numpy().dtype)                           # object
+
+probe = Sequential([Input(shape=(5,)), Dense(1, activation='sigmoid')])
+probe.compile(optimizer='adam', loss='binary_crossentropy')
+try:
+    probe.fit(X_bool.to_numpy(), y, epochs=1, verbose=0)
+except ValueError as e:
+    print(e)
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>bool 3 / int64 1 / float64 1</code>처럼 자료형이 섞여 나오고(컬럼 5개), 숫자가 아닌 컬럼으로 <code>contract_type_month</code> 등 3개가 찍히며, <code>object</code>, 그리고 <code>Invalid dtype: object</code>가 출력됩니다. 인코딩을 아예 빼먹었다면 <code>select_dtypes(exclude='number')</code>에 <code>contract_type</code>이 나타납니다. pandas 3 이상에서는 문자열 dtype이 <code>object</code>가 아니라 <code>str</code>로 표기되므로, <code>include='object'</code>보다 <code>exclude='number'</code>가 버전에 상관없이 안전합니다.</p>
+</blockquote>
+<pre><code class="language-python"># 해결 — 인코딩 단계에서 dtype=int, 혹은 마지막에 한 번 float32로 통일
+X = pd.get_dummies(X, columns=['contract_type'], dtype=int)   # 방법 1: 0/1 정수
+X = X.astype('float32')                                       # 방법 2: 전부 float (둘 다 써도 무방)
+
+print(X.dtypes.value_counts())
+print(X.select_dtypes(exclude='number').columns.tolist())     # [] 이어야 정상
+X_np, y_np = X.to_numpy(), y.to_numpy()
+print(X_np.dtype, X_np.shape, y_np.shape)
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>float32 5</code> / <code>[]</code> / <code>float32 (950, 5) (950,)</code>.</p>
+</blockquote>
+<p><code>StandardScaler</code>는 입력이 <code>bool</code>이든 <code>int</code>이든 <strong><code>float</code> ndarray</strong>로 돌려주므로, 인코딩 뒤에 스케일링까지 마친 <code>X_train_scaled</code>는 <code>bool</code> 문제가 가려집니다. 하지만 <strong>문자열 컬럼을 깜빡한 경우는 가려지지 않습니다.</strong> 스케일러가 <code>could not convert string to float: 'month'</code>로 먼저 멈추기 때문입니다. 이 오류를 만나면 모델이 아니라 인코딩 누락을 의심하십시오.</p>
+<blockquote class="callout callout--note">
+<p><strong>한 줄 규칙</strong> — 모델에 넣기 전 <code>X.select_dtypes(exclude='number')</code>가 빈 리스트가 아니면 아직 끝난 것이 아니다.</p>
+</blockquote>
+<h3 id="2-10-3-n과-n-1은-다른-모양이다">2.10.3 <code>(N,)</code>과 <code>(N, 1)</code>은 다른 모양이다</h3>
+<p><strong>증상</strong> — 오류 없이 <strong>정확도가 이상하게 나오거나</strong>(<code>(N, N)</code> 배열이 생김), <code>ValueError: Data must be 1-dimensional, got ndarray of shape (285, 285) instead</code>가 납니다. 다중분류에서는 <code>Argument 'output' must have rank (ndim) 'target.ndim - 1'</code>가 나옵니다.</p>
+<p><strong>원인</strong> — <code>model.predict</code>는 sigmoid 출력과 회귀 출력에 대해 <code>(N, 1)</code>을 돌려주지만 <code>y_test</code>는 <code>(N,)</code>입니다. numpy는 두 배열의 모양이 다르면 <strong>방송(broadcasting)</strong> 으로 <code>(N, 1)</code>과 <code>(N,)</code>을 <code>(N, N)</code>으로 확장해 비교·뺄셈을 해버립니다. 정답과 예측을 한 쌍씩 비교한 것이 아니라 모든 조합을 비교한 값이므로 결과가 틀립니다. 반대로 라벨이 원-핫 <code>(N, K)</code>인데 <code>sparse_categorical_crossentropy</code>를 쓰면 손실 함수가 <code>(N,)</code> 정수 라벨을 기대해 오류를 냅니다.</p>
+<pre><code class="language-python"># 증상 재현과 10초 진단 — 앞 블록의 X, y를 분리·스케일링해 작은 모델로 예측한다
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential([Input(shape=(X_train_scaled.shape[1],)),
+                    Dense(8, activation='relu'),
+                    Dense(1, activation='sigmoid')])
+model.compile(optimizer='adam', loss='binary_crossentropy')
+model.fit(X_train_scaled, y_train, epochs=3, verbose=0)
+
+pred = model.predict(X_test_scaled, verbose=0)
+print(pred.shape, y_test.shape)                 # 습관: 예측하자마자 두 shape를 찍는다
+
+pred_cls = (pred &gt; 0.5).astype(int)             # 아직 (N, 1)
+print((pred_cls == y_test.to_numpy()).shape)    # (N, N) — 오류 없이 틀린 모양
+try:
+    pred_cls == y_test                          # y_test가 Series이면 오류로 드러남
+except ValueError as e:
+    print(e)
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(285, 1) (285,)</code> → <code>(285, 285)</code> → <code>Data must be 1-dimensional, got ndarray of shape (285, 285) instead</code>.</p>
+</blockquote>
+<pre><code class="language-python"># 해결 — 비교 전에 pred를 1차원으로 편다
+from sklearn.metrics import accuracy_score
+
+pred_cls = (pred &gt; 0.5).astype(int).ravel()     # (N, 1) -&gt; (N,)   .flatten()도 동일
+print(pred_cls.shape, (pred_cls == y_test.to_numpy()).mean())   # 올바른 정확도
+print(accuracy_score(y_test, pred_cls))
+
+# 다중분류 라벨 — 원-핫 (N, K)와 손실 함수의 짝
+y_onehot = tf.keras.utils.to_categorical(y_train)           # (N, 2)
+y_int = y_onehot.argmax(axis=1)                             # (N,) 정수 라벨로 복원
+print(y_onehot.shape, y_int.shape)
+# 정수 라벨 (N,)   -&gt; loss='sparse_categorical_crossentropy'
+# 원-핫 라벨 (N,K) -&gt; loss='categorical_crossentropy'
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(285,)</code>과 함께 올바른 정확도(0~1 사이 값), <code>accuracy_score</code>는 같은 값, 그리고 <code>(665, 2) (665,)</code>. 참고로 sklearn의 <code>accuracy_score</code>·<code>classification_report</code>·<code>mean_squared_error</code>는 <code>(N, 1)</code>도 받아 주므로 <strong>오류로 드러나지 않는 쪽은 <code>==</code>, <code>-</code>, <code>.mean()</code> 같은 직접 계산</strong>입니다.</p>
+<p><strong>한 줄 규칙</strong> — <code>predict</code> 직후 <code>print(pred.shape, y_test.shape)</code>를 찍고, 다르면 <code>.ravel()</code>로 맞춘 뒤에 비교하고, 라벨 모양은 loss 이름과 짝을 맞춘다.</p>
+</blockquote>
+<h3 id="q10-q11-넘어가기-전-5줄-점검-셀">Q10 → Q11 넘어가기 전 5줄 점검 셀</h3>
+<p>딥러닝 모델을 만들기 전에 아래 다섯 줄을 붙여 넣어 실행하십시오. 이상이 있으면 모델을 만들기 전에 잡는 편이 훨씬 쌉니다.</p>
+<pre><code class="language-python"># 모델 구성 전 점검 — 5줄
+print(X_train_scaled.shape, y_train.shape, X_train_scaled.dtype)          # 1) shape·dtype (dtype은 float)
+print(np.isnan(X_train_scaled).sum(), np.isnan(X_test_scaled).sum())      # 2) NaN 개수 (둘 다 0)
+print(len(X_train_scaled) == len(y_train), len(X_test_scaled) == len(y_test))   # 3) 길이 일치 (True True)
+print(X_train.index.equals(y_train.index), y_train.ndim)                  # 4) 인덱스 일치, y가 1차원인지
+print(y_train.nunique(), sorted(y_train.unique().tolist()))                        # 5) 클래스 수 → 출력층·loss 결정
+</code></pre>
+<blockquote class="callout callout--note">
+<p>출력 요지: <code>(665, 5) (665,) float32</code> / <code>0 0</code> / <code>True True</code> / <code>True 1</code> / <code>2 [0, 1]</code>. 5번의 클래스 수가 2이면 <code>Dense(1, 'sigmoid')</code>, 3 이상이면 <code>Dense(K, 'softmax')</code>, 연속값이면 <code>Dense(1)</code>입니다.</p>
+</blockquote>
+<div class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>inconsistent numbers of samples</code> 또는 이유 모를 <code>NaN</code>·<code>loss: nan</code></td>
+<td>행 삭제 뒤 인덱스가 건너뜀, y를 필터 전에 추출</td>
+<td>삭제 직후 <code>reset_index(drop=True)</code>, 같은 <code>df</code>에서 X·y 생성</td>
+</tr>
+<tr>
+<td><code>Invalid dtype: object</code>, <code>could not convert string to float</code></td>
+<td><code>bool</code> 섞인 <code>to_numpy()</code>, 문자열 컬럼 인코딩 누락</td>
+<td><code>get_dummies(..., dtype=int)</code>, <code>X.astype('float32')</code></td>
+</tr>
+<tr>
+<td>정확도가 이상함, <code>(N, N)</code>, <code>must have rank</code></td>
+<td><code>(N, 1)</code>과 <code>(N,)</code> 방송, 원-핫 라벨과 sparse loss 불일치</td>
+<td><code>.ravel()</code>, 라벨 모양과 loss 이름 짝 맞추기</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="callout callout--warn">
+<p>⚠️ <strong>시험 포인트</strong> — 11번 문항 첫 셀은 모델 구성이 아니라 위 점검 셀이어야 합니다. 이 5줄은 10초면 끝나고, 오류가 났을 때 원인을 찾는 5분을 아껴 줍니다.</p>
+</blockquote>
+<hr />
 <h2 id="시험장-표준-코드">시험장 표준 코드</h2>
 <p>데이터 생성부터 베이스라인 성능 출력까지, 이 챕터 전체를 하나로 이은 코드입니다. 시험장에서는 첫 블록의 데이터 생성 부분만 <code>pd.read_csv('data.csv')</code>로 바꾸면 그대로 쓸 수 있습니다.</p>
 <pre><code class="language-python"># ===== 0) import =====
@@ -886,10 +1082,17 @@ print(confusion_matrix(y_test, y_pred))
 <td>타깃이 범주면 분류 지표, 숫자면 회귀 지표</td>
 <td><code>classification_report</code>, <code>r2_score</code></td>
 </tr>
+<tr>
+<td>딥러닝 인계(Q10→Q11)</td>
+<td>행 삭제 후 <code>reset_index(drop=True)</code>, 입력은 <code>float</code>, <code>pred</code>·<code>y</code>의 shape 확인</td>
+<td><code>X.select_dtypes(exclude='number')</code>, <code>pred.ravel()</code></td>
+</tr>
 </tbody>
 </table></div>
 <p><strong>순서 규칙 한 줄 정리:</strong> 인코딩은 분리 <strong>전</strong>, 스케일링은 분리 <strong>후</strong>.</p>
-<section class="exam" id="exam-ch02">
+<section class="v2-drills" id="drills-ch02" data-v2-drills data-chapter="2" aria-label="Ch02 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 6문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch02">
 <h2 id="ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닌 <strong>기출 변형</strong> 문항입니다.</p>
@@ -1289,10 +1492,18 @@ stratify=y로 나눈 test 비율  : 0.05
 </tr>
 </tbody>
 </table></div></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch01.html"><span class="pager__dir">이전</span><span class="pager__label">Ch01</span><span class="pager__title">AICE Associate 시험 구조와 학습 지도</span></a><a class="pager__slot pager__slot--next" href="ch03.html"><span class="pager__dir">다음</span><span class="pager__label">Ch03</span><span class="pager__title">딥러닝은 어떻게 배우는가</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/motion.js"></script>
+<script defer src="assets/js/code-blocks.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>

@@ -18,13 +18,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from ebook import assemble, curriculum, indexpage, mdconv, sources, verify  # noqa: E402
+from ebook import assemble, curriculum, indexpage, mdconv, sources, v2, verify  # noqa: E402
 
 WORKSPACE = ROOT / "_workspace"
 DIAGRAMS = WORKSPACE / "diagrams"
 CHAPTERS = WORKSPACE / "chapters"
 EXAMS = WORKSPACE / "exams"
 BOOK = ROOT / "book"
+DOCS = ROOT / "docs"
+EXTRA_PAGES = ("cheatsheet.html",)
 ASSETS = ROOT / "scripts" / "assets"
 
 
@@ -56,6 +58,8 @@ def _nav_items(rows: list[dict], infos: dict) -> dict:
 def collect_infos(rows: list[dict]) -> dict:
     """페이지별 frontmatter와 목차 카드용 수치."""
     infos: dict[str, dict] = {}
+    drills = v2.drill_ids_by_chapter()
+    exams = v2.mock_exams()
     for row in rows:
         if row["kind"] == "chapter":
             meta, body = sources.split_frontmatter((CHAPTERS / f'{row["key"]}.md').read_text(encoding="utf-8"))
@@ -70,15 +74,31 @@ def collect_infos(rows: list[dict]) -> dict:
                 "body": body,
                 "quiz": quiz_body,
                 "facts": [f"도해 {diagrams}개", f'확인 문제 {quiz_meta.get("items", "?")}문항'],
+                "drills": len(drills.get(int(row["number"]), [])),
             }
+            if infos[row["key"]]["drills"]:
+                infos[row["key"]]["facts"].append(f'실습 셀 {infos[row["key"]]["drills"]}문항')
         else:
-            meta, body = sources.split_frontmatter(
-                (EXAMS / f'mock_exam_{row["number"]}.md').read_text(encoding="utf-8")
+            legacy = EXAMS / f'mock_exam_{row["number"]}.md'
+            meta, body = (
+                sources.split_frontmatter(legacy.read_text(encoding="utf-8")) if legacy.exists() else ({}, "")
             )
-            facts = [f'{meta.get("items", "?")}문항', f'{meta.get("points", "?")}점', f'{meta.get("minutes", "?")}분']
-            if meta.get("extra_items"):
-                facts.append(f'확장 {meta["extra_items"]}문항')
-            infos[row["key"]] = {"title": meta.get("title", row["title"]), "meta": meta, "body": body, "facts": facts}
+            exam = exams.get(row["key"])
+            if exam:
+                # v2: 14문항 CBT. 배점·시간은 데이터에서 읽는다.
+                points = sum(q.get("points", 0) for q in exam["questions"])
+                facts = [f'{len(exam["questions"])}문항', f"{points}점", "90분", "CBT 즉시 채점"]
+            else:
+                facts = [f'{meta.get("items", "?")}문항', f'{meta.get("points", "?")}점', f'{meta.get("minutes", "?")}분']
+                if meta.get("extra_items"):
+                    facts.append(f'확장 {meta["extra_items"]}문항')
+            infos[row["key"]] = {
+                "title": (exam or {}).get("title") or meta.get("title", row["title"]),
+                "meta": meta,
+                "body": body,
+                "facts": facts,
+                "exam": exam,
+            }
     return infos
 
 
@@ -91,6 +111,7 @@ def build(only: set[str] | None = None) -> dict:
     shutil.copyfile(ASSETS / "style.css", BOOK / "style.css")
 
     written: list[str] = []
+    assets = v2.publish_assets(BOOK)
     for row in rows:
         key = row["key"]
         if only and key not in only:
@@ -98,10 +119,13 @@ def build(only: set[str] | None = None) -> dict:
         info = infos[key]
         if row["kind"] == "chapter":
             page, _ = assemble.chapter_page(
-                row, info["meta"], info["body"], svgs, info["quiz"], nav[key], book_title
+                row, info["meta"], info["body"], svgs, info["quiz"], nav[key], book_title,
+                drill_count=info.get("drills", 0),
             )
         else:
-            page, _ = assemble.mock_page(row, info["meta"], info["body"], nav[key], book_title)
+            page, _ = assemble.mock_page(
+                row, info["meta"], info["body"], nav[key], book_title, exam=info.get("exam")
+            )
         (BOOK / f"{key}.html").write_text(page, encoding="utf-8")
         written.append(f"{key}.html")
 
@@ -111,7 +135,15 @@ def build(only: set[str] | None = None) -> dict:
     )
     written.append("index.html")
     written.append("style.css")
-    return {"written": written, "rows": rows, "infos": infos}
+
+    fragment = v2.cheatsheet_fragment()
+    if fragment and (not only or "cheatsheet" in only):
+        (BOOK / "cheatsheet.html").write_text(
+            assemble.extra_page("cheatsheet", fragment, "시험장 치트시트", book_title, "시험장 직전 10분 치트시트"),
+            encoding="utf-8",
+        )
+        written.append("cheatsheet.html")
+    return {"written": written, "rows": rows, "infos": infos, "assets": assets}
 
 
 def _cover_stats(meta: dict, rows: list[dict], infos: dict) -> list[tuple[str, str]]:
@@ -119,12 +151,13 @@ def _cover_stats(meta: dict, rows: list[dict], infos: dict) -> list[tuple[str, s
     parts = len({r["part"] for r in chapters})
     diagrams = len(list(DIAGRAMS.glob("*.svg")))
     quiz_items = sum(int(infos[r["key"]]["facts"][1].split()[-1].rstrip("문항")) for r in chapters)
+    drill_items = sum(infos[r["key"]].get("drills", 0) for r in chapters)
     mocks = len(rows) - len(chapters)
     return [
         (f"{parts}", "Part"),
         (f"{len(chapters)}", "챕터"),
         (f"{diagrams}", "도해"),
-        (f"{quiz_items}", "확인 문제"),
+        (f"{drill_items or quiz_items}", "실습 셀" if drill_items else "확인 문제"),
         (f"{mocks}", "모의고사"),
     ]
 
@@ -133,7 +166,7 @@ def run_verification(rows: list[dict]) -> int:
     ph = verify.check_placeholders(BOOK)
     links = verify.check_links(BOOK)
     diag = verify.check_diagrams(BOOK, DIAGRAMS)
-    toc = verify.check_toc(BOOK, [r["key"] for r in rows])
+    toc = verify.check_toc(BOOK, [r["key"] for r in rows], EXTRA_PAGES)
     missing = assemble.missing_diagrams()
 
     print("\n=== 자체 검증 ===")
@@ -167,14 +200,20 @@ def run_verification(rows: list[dict]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="AICE 교본 e-book 빌더")
-    parser.add_argument("--only", help="갱신할 페이지 키 (예: ch03,mock01)")
+    parser.add_argument("--only", help="갱신할 페이지 키 (예: ch03,mock01,cheatsheet)")
+    parser.add_argument("--no-docs", action="store_true", help="docs/(GitHub Pages) 동기화를 건너뛴다")
     args = parser.parse_args()
     only = {k.strip() for k in args.only.split(",")} if args.only else None
 
     result = build(only)
     print(f"변환기: {mdconv.BACKEND}")
     print(f"생성: {', '.join(result['written'])}")
-    return 0 if run_verification(result["rows"]) == 0 else 1
+    print(f"v2 자산: {len(result['assets'])}개 파일 → book/assets/")
+    failures = run_verification(result["rows"])
+    if not args.no_docs:
+        v2.mirror(BOOK, DOCS)
+        print("docs/ 동기화 완료 (book/ 과 동일)")
+    return 0 if failures == 0 else 1
 
 
 if __name__ == "__main__":

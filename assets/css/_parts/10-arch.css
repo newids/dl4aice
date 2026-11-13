@@ -1,0 +1,266 @@
+/* ==========================================================================
+   10. arch-switcher — 문제 유형 x API 코드 비교 (.v2-arch)
+   ========================================================================== */
+.v2-arch {
+  --v2-arch-gap: 0.85rem;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  margin-block: 1.6rem;
+  padding: 1rem;
+  color: var(--ink);
+  background: var(--v2-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.v2-arch *, .v2-arch *::before, .v2-arch *::after { box-sizing: border-box; }
+
+/* 태그별 색: 기존 토큰에서 파생 */
+.v2-arch [data-tag="input"] { --t: var(--primary); }
+.v2-arch [data-tag="output"] { --t: var(--accent); }
+.v2-arch [data-tag="loss"] { --t: var(--danger); }
+.v2-arch [data-tag="metrics"] { --t: var(--success); }
+.v2-arch [data-tag="postprocess"] { --t: color-mix(in srgb, var(--primary) 55%, var(--danger)); }
+.v2-arch [data-tag="api"] { --t: var(--muted); }
+.v2-arch [data-tag="label"] { --t: var(--line); }
+
+.v2-arch__head { margin-bottom: 0.8rem; }
+.v2-arch__title { margin: 0; font-size: 1.1rem; line-height: 1.4; color: var(--ink); border: 0; padding: 0; }
+.v2-arch__hint { margin: 0.2rem 0 0; font-size: 0.84rem; color: var(--muted); }
+
+.v2-arch__controls { display: grid; gap: 0.5rem; }
+.v2-arch__row { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); align-items: center; gap: 0.6rem; }
+.v2-arch__rowlabel { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.v2-arch__tabs .v2-tab { padding-inline: 0.6rem; }
+
+.v2-arch__live {
+  margin: 0.8rem 0 0;
+  padding: 0.5rem 0.75rem;
+  min-height: 2.4rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--v2-text-soft);
+  background: var(--v2-surface-2);
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--line));
+  border-radius: var(--radius-sm);
+}
+
+.v2-arch__panel { margin-top: var(--v2-arch-gap); min-width: 0; }
+
+/* ---------- 핵심 변경 지점 ---------- */
+.v2-arch__striptitle { margin: 0 0 0.5rem; font-size: 0.82rem; font-weight: 800; color: var(--v2-text-soft); letter-spacing: 0.02em; }
+.v2-arch__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+.v2-arch__card {
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem 0.65rem 0.6rem;
+  background: var(--v2-surface-2);
+  border: 1px solid var(--line-soft);
+  border-color: color-mix(in srgb, var(--t, var(--line)) 45%, var(--line));
+  border-radius: var(--radius-sm);
+}
+.v2-arch__cardlabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.v2-arch__cardvalue {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.v2-arch__card.is-changed {
+  border-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  animation: v2-arch-card 2.5s var(--ease) 1;
+}
+.v2-arch__mark {
+  display: inline-block;
+  padding: 0 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.6;
+  white-space: nowrap;
+  color: #1c1400;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.v2-arch__pitfall {
+  margin: 0.6rem 0 0;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: var(--radius-sm);
+}
+.v2-arch__pitfall strong { color: var(--ink); }
+
+/* ---------- 도구줄: 범례 · 버튼 ---------- */
+.v2-arch__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin: var(--v2-arch-gap) 0 0.6rem;
+}
+.v2-arch__legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; min-width: 0; }
+.v2-arch__legendlabel { margin-right: 0.2rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.v2-arch__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.2rem 0.7rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--v2-text-soft);
+  background: var(--v2-surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.v2-arch__chip:hover { border-color: var(--t, var(--primary)); }
+.v2-arch__chip:focus-visible,
+.v2-arch__code:focus-visible { outline: 2px solid var(--v2-focus); outline-offset: 2px; }
+.v2-arch__swatch { width: 0.7rem; height: 0.7rem; background: var(--t, var(--muted)); border-radius: 3px; }
+.v2-arch__chip[aria-pressed="true"] {
+  color: var(--ink);
+  font-weight: 800;
+  background: color-mix(in srgb, var(--t, var(--primary)) 18%, var(--v2-surface));
+  border-color: var(--t, var(--primary));
+}
+.v2-arch__chip--reset { color: var(--muted); border-style: dashed; }
+.v2-arch__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.v2-arch__cmp[aria-pressed="true"] { color: var(--primary); border-color: var(--primary); background: var(--primary-soft); }
+
+/* ---------- 코드 패널 ---------- */
+.v2-arch__codepanel { min-width: 0; }
+.v2-arch__panes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.8rem; min-width: 0; }
+.v2-arch__pane { min-width: 0; }
+.v2-arch__panehead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--v2-text-soft);
+}
+.v2-arch__panes.is-compare .v2-arch__pane.is-selected .v2-arch__code { box-shadow: 0 0 0 2px var(--primary); }
+
+.v2-arch__code { padding: 0.7rem 0; max-height: 34rem; overflow: auto; font-size: 13.5px; }
+.v2-arch__lines { min-width: max-content; }
+.v2-arch__line {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  min-height: 1.62em;
+  padding: 0 0.9rem 0 3rem;
+  transition: opacity var(--duration) var(--ease);
+}
+.v2-arch__line::before {
+  content: attr(data-n);
+  position: absolute;
+  left: 0;
+  width: 2.2rem;
+  text-align: right;
+  color: #64748b;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.v2-arch__src { flex: 1 1 auto; white-space: pre; }
+.v2-arch__line.has-tag {
+  background: color-mix(in srgb, var(--t) 17%, transparent);
+}
+.v2-arch__side {
+  position: sticky;
+  right: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.12rem 0 0 auto;
+  padding-left: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.v2-arch__tagbadge {
+  padding: 0 0.5rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--t) 45%, #ffffff);
+  background: color-mix(in srgb, var(--t) 30%, #0a1020);
+  border: 1px solid color-mix(in srgb, var(--t) 55%, transparent);
+  border-radius: 999px;
+}
+.v2-arch__line.is-changed { animation: v2-arch-line 2.5s var(--ease) 1; }
+.v2-arch__panes.is-filtering .v2-arch__line.is-dim { opacity: 0.6; }
+
+.v2-arch__error {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--danger-soft);
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--line));
+  border-radius: var(--radius-sm);
+}
+
+@keyframes v2-arch-line {
+  0% { background-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+  100% { background-color: color-mix(in srgb, var(--t, transparent) 17%, transparent); }
+}
+@keyframes v2-arch-card {
+  0% { background-color: var(--accent-soft); }
+  100% { background-color: var(--v2-surface-2); }
+}
+
+@media (min-width: 1024px) {
+  .v2-arch__panes.is-compare { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .v2-arch { padding: 1.2rem 1.3rem; }
+}
+@media (max-width: 560px) {
+  .v2-arch { padding: 0.8rem; }
+  .v2-arch__row { grid-template-columns: minmax(0, 1fr); gap: 0.25rem; }
+  .v2-arch__tabs .v2-tab { flex: 1 1 calc(50% - 0.3rem); font-size: 0.82rem; }
+  .v2-arch__tools { align-items: stretch; }
+  .v2-arch__actions { width: 100%; }
+  .v2-arch__actions .v2-btn { flex: 1 1 0; }
+  .v2-arch__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .v2-arch__code { font-size: 12.5px; }
+  .v2-arch__side { position: static; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-arch__line.is-changed,
+  .v2-arch__card.is-changed { animation: none; }
+  .v2-arch__line.is-changed { background-color: color-mix(in srgb, var(--accent) 28%, transparent); }
+  .v2-arch__line, .v2-arch__chip { transition: none; }
+}
+
+@media print {
+  .v2-arch__tools, .v2-arch__controls { display: none !important; }
+  .v2-arch__code { max-height: none; overflow: visible; }
+}

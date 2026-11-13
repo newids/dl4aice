@@ -6,12 +6,14 @@
 <title>Ch01. AICE Associate 시험 구조와 학습 지도 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part I. 시험의 지도 · Chapter 1</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#1-시험은-어떤-순서로-흘러가는가">1. 시험은 어떤 순서로 흘러가는가</a></li><li><a href="#2-어디까지가-시험-범위인가">2. 어디까지가 시험 범위인가</a></li><li><a href="#3-90분을-어떻게-쓸-것인가">3. 90분을 어떻게 쓸 것인가</a></li><li><a href="#4-이-교재의-학습-경로">4. 이 교재의 학습 경로</a></li><li><a href="#5-시험장-표준-코드">5. 시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#ch01-확인-문제-aice-associate-시험-구조와-학습-지도">Ch01 확인 문제 — AICE Associate 시험 구조와 학습 지도</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#1-시험은-어떤-순서로-흘러가는가">1. 시험은 어떤 순서로 흘러가는가</a></li><li><a href="#2-어디까지가-시험-범위인가">2. 어디까지가 시험 범위인가</a></li><li><a href="#3-90분을-어떻게-쓸-것인가">3. 90분을 어떻게 쓸 것인가</a></li><li><a href="#4-이-교재의-학습-경로">4. 이 교재의 학습 경로</a></li><li><a href="#5-시험장-표준-코드">5. 시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch01">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch01-확인-문제-aice-associate-시험-구조와-학습-지도">Ch01 확인 문제 — AICE Associate 시험 구조와 학습 지도</a></li></ol></nav>
 <article class="page-body">
 <h1>AICE Associate 시험 구조와 학습 지도</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>AICE Associate 실기 시험의 문항 흐름과 채점 단위를 설명할 수 있다</li><li>시험 범위에 포함되는 딥러닝 주제와 범위 밖 주제를 구분할 수 있다</li><li>90분을 단계별로 배분하는 자기 기준을 세울 수 있다</li></ul></aside>
@@ -90,7 +92,14 @@
 <p><strong>한 줄 요약:</strong> 실기 시험은 하나의 데이터셋을 놓고 "탐색 → 전처리 → 분리 → 모델링 → 평가" 순서를 그대로 따라가는 <strong>단계형 문제 묶음</strong>입니다.</p>
 <p>문항이 무작위로 흩어져 있지 않다는 점이 이 시험의 가장 큰 특징입니다. 1번 문항에서 데이터를 불러오고, 몇 문항 뒤에서 결측치를 채우고, 그다음 학습 데이터와 평가(테스트) 데이터를 나누고, 후반부에서 딥러닝 모델을 만들어 성능을 출력하는 흐름입니다. 각 문항은 "○○ 컬럼의 결측치를 중앙값으로 대체하시오", "학습 데이터와 평가 데이터를 7:3으로 분리하시오"처럼 <strong>지시가 명확한 서술형 과제</strong>로 주어집니다.</p>
 <p>문항 수는 공개된 안내 기준 14문항 내외로 알려져 있으나 회차별 변동이 있으므로, 정확한 수치는 시험 공지 기준으로 확인하십시오. 중요한 것은 개수가 아니라 <strong>비중</strong>입니다. 도해에서 딥러닝 구간만 진하게 칠해 둔 이유가 여기 있습니다. 앞쪽 전처리 문항들은 정해진 함수를 정확히 쓰면 되는 확정적인 점수 구간이고, 뒤쪽 딥러닝 문항들은 배점이 크면서 동시에 시간이 부족해 손도 못 대는 사람이 가장 많이 나오는 구간입니다. 이 교재가 딥러닝에 집중하는 이유입니다.</p>
-<blockquote class="callout callout--warn">
+<blockquote class="callout callout--info">
+<p>ℹ️ <strong>현행 시험 형식 (기준선)</strong> — <strong>14문항, 90분, 100점 만점에 80점 이상이면 합격</strong>입니다. 문항 흐름은 다음과 같습니다.<br />
+- 1~3번: 라이브러리 import, 데이터 로딩, 탐색적 시각화<br />
+- 4~7번: 전처리(결측치·이상치·인코딩·분리·스케일링)<br />
+- 8~10번: 머신러닝 모델링<br />
+- 11~13번: 딥러닝 모델 설계, 컴파일, 콜백을 적용한 학습, 학습 곡선 확인(이 교재에서는 "유형 13"이라 부릅니다)<br />
+- 14번: 모델 평가와, 새로 주어진 "시뮬레이션 입력"에 대한 예측("유형 14")</p>
+<p><strong>제한적 오픈북</strong>이어서 공식 문서를 잠깐 찾아보는 것은 허용됩니다. 함수 시그니처를 외우는 것보다 "어디에 무엇이 있는지"를 아는 쪽이 더 중요합니다. 모델은 <code>Sequential</code>과 함수형(Functional) API 중 어느 방식으로 요구될지 모르므로 두 표기를 모두 읽고 쓸 수 있어야 합니다(Ch04). 10번과 11번 사이, 즉 머신러닝에서 딥러닝으로 데이터를 넘기는 지점에서 감점이 잦으므로 Ch02 §2.10을 함께 보십시오. 위 수치와 흐름도 회차에 따라 달라질 수 있으니 KT AICE 공식 공지를 확인하십시오.</p>
 <p>⚠️ <strong>시험 포인트 — 문항은 앞 문항의 결과를 이어받습니다</strong><br />
 4번에서 결측치를 처리한 데이터프레임을 6번에서 인코딩하고, 그것을 7번에서 분리합니다. 앞 단계를 건너뛰면 뒤 단계가 통째로 무너집니다. 막히는 문항이 있으면 완벽한 답을 포기하더라도 <strong>다음 단계가 이어받을 수 있는 형태의 결과물</strong>(예: 결측치를 일단 채운 데이터프레임)을 반드시 만들어 두고 넘어가십시오.</p>
 </blockquote>
@@ -428,7 +437,7 @@ print('imports ready')
 <tbody>
 <tr>
 <td>시험 형식</td>
-<td>온라인 실기 90분, Python 코드 작성형. 문항 수·배점은 <strong>시험 공지 기준 확인</strong></td>
+<td>온라인 실기 90분, 14문항, 100점 만점에 80점 합격, 제한적 오픈북. 세부 사항은 <strong>시험 공지 기준 확인</strong></td>
 </tr>
 <tr>
 <td>문항 구조</td>
@@ -452,7 +461,9 @@ print('imports ready')
 </tr>
 </tbody>
 </table></div>
-<section class="exam" id="exam-ch01">
+<section class="v2-drills" id="drills-ch01" data-v2-drills data-chapter="1" aria-label="Ch01 실습 셀 — 코드 빈칸 채우기"></section>
+<noscript><p class="v2-noscript">실습 셀 4문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch01">
 <h2 id="ch01-확인-문제-aice-associate-시험-구조와-학습-지도">Ch01 확인 문제 — AICE Associate 시험 구조와 학습 지도</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닌 <strong>기출 변형</strong> 문항입니다.<br />
@@ -591,10 +602,18 @@ print('imports ready')
 <li><code>Input</code>을 빠뜨리는 경우가 많습니다. Ch04부터 입력 정의는 <code>model.add(Input(shape=(n,)))</code>를 표준으로 쓰므로, import 목록에 반드시 포함시키십시오.</li>
 </ul>
 <hr /></div></details>
-</section>
+</section></div></details>
 
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="index.html"><span class="pager__dir">이전</span><span class="pager__label">표지</span><span class="pager__title">전체 목차</span></a><a class="pager__slot pager__slot--next" href="ch02.html"><span class="pager__dir">다음</span><span class="pager__label">Ch02</span><span class="pager__title">전제 지식 압축 정리 — 데이터 준비와 머신러닝</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/motion.js"></script>
+<script defer src="assets/js/code-blocks.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>
