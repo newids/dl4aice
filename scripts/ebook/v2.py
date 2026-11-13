@@ -121,7 +121,7 @@ def head_extra() -> str:
 def scripts(kind: str, *, arch: bool = False) -> str:
     """페이지 종류별 defer 스크립트 묶음. kind: chapter | mock | index | plain"""
     data: list[str] = ["openbook_refs"]
-    modules: list[str] = ["dl4aice-core"]
+    modules: list[str] = ["dl4aice-core", "motion", "code-blocks"]
     if kind == "chapter":
         data.append("chapter_drills")
         if arch:

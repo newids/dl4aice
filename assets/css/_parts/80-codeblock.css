@@ -1,0 +1,135 @@
+/* ==========================================================================
+   80. 본문 코드 블록 — 에디터 창 UI
+   ========================================================================== */
+.v2-cb {
+  --cb-bg: #0d1424;
+  --cb-head: #131c31;
+  --cb-line: rgba(148, 163, 184, 0.16);
+  --cb-gutter: #55637d;
+  position: relative;
+  margin: 0 0 1.6rem;
+  background: var(--cb-bg);
+  border: 1px solid var(--cb-line);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 18px 40px -24px rgba(15, 23, 42, 0.55);
+  overflow: hidden;
+}
+
+.v2-cb__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.35rem;
+  padding: 0 0.5rem 0 0.9rem;
+  background: var(--cb-head);
+  border-bottom: 1px solid var(--cb-line);
+}
+
+.v2-cb__dots { display: inline-flex; gap: 0.38rem; }
+.v2-cb__dots i {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+.v2-cb__dots i:nth-child(2) { background: #febc2e; }
+.v2-cb__dots i:nth-child(3) { background: #28c840; }
+
+.v2-cb__lang {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #8fa0bd;
+}
+
+.v2-cb__copy {
+  min-width: 3.6rem;
+  min-height: 1.9rem;
+  padding: 0.2rem 0.65rem;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #b6c2d9;
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity var(--duration) var(--ease), background var(--duration) var(--ease),
+    color var(--duration) var(--ease);
+}
+.v2-cb:hover .v2-cb__copy,
+.v2-cb__copy:focus-visible { opacity: 1; }
+.v2-cb__copy:hover { background: rgba(148, 163, 184, 0.22); color: #ffffff; }
+.v2-cb__copy:focus-visible { outline: 2px solid #93c5fd; outline-offset: 1px; }
+.v2-cb__copy.is-done { color: #86efac; background: rgba(52, 211, 153, 0.14); }
+
+.page-body .v2-cb > pre.v2-cb__pre {
+  margin: 0;
+  padding: 0.9rem 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  counter-reset: cb-line;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+.page-body .v2-cb > pre.v2-cb__pre code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  padding: 0;
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: #d6deeb;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.v2-cb__line {
+  display: inline-block;
+  min-width: 100%;
+  padding: 0 1.15rem 0 0;
+  box-sizing: border-box;
+}
+.v2-cb--code .v2-cb__line::before {
+  counter-increment: cb-line;
+  content: counter(cb-line);
+  display: inline-block;
+  width: 2.1rem;
+  margin-right: 1rem;
+  padding-right: 0.7rem;
+  text-align: right;
+  color: var(--cb-gutter);
+  border-right: 1px solid var(--cb-line);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.v2-cb--wide-gutter .v2-cb__line::before { width: 2.7rem; }
+.v2-cb--code .v2-cb__line:hover { background: rgba(148, 163, 184, 0.08); }
+.v2-cb--code .v2-cb__line:hover::before { color: #cbd5e1; }
+
+/* 실행 출력·텍스트: 터미널 창 느낌, 줄 번호 없음 */
+.v2-cb--output { --cb-bg: #0b1220; --cb-head: #0f1829; }
+.v2-cb--output .v2-cb__dots i { background: #3b4a66; }
+.v2-cb--output .v2-cb__line { padding-left: 1.15rem; }
+.v2-cb--output > pre.v2-cb__pre code { color: #b9c6dc; }
+.v2-cb--output .v2-cb__lang::before { content: "$ "; color: #34d399; }
+
+@media (max-width: 480px) {
+  .v2-cb { border-radius: var(--radius-sm); }
+  .page-body .v2-cb > pre.v2-cb__pre code { font-size: 13px; }
+  .v2-cb--code .v2-cb__line::before { width: 1.5rem; margin-right: 0.7rem; padding-right: 0.5rem; }
+}
+
+@media print {
+  .v2-cb { border: 1px solid #cbd5e1; box-shadow: none; background: #fff; break-inside: avoid; }
+  .v2-cb__head { display: none; }
+  .page-body .v2-cb > pre.v2-cb__pre code { color: #0f172a; white-space: pre-wrap; width: auto; }
+  .v2-cb__line::before { color: #94a3b8 !important; border-color: #e2e8f0 !important; }
+  .v2-cb [class^="v2-tok-"] { color: inherit; font-style: normal; }
+}

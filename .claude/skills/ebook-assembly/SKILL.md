@@ -66,4 +66,4 @@ HTML 빌드 위에 얹는 Vanilla JS 위젯 계층이다. 프레임워크·번�
 - **docs 동기화:** 빌드가 끝나면 `book/`을 `docs/`(GitHub Pages)로 그대로 반영한다(`--no-docs`로 생략).
 - **자체 검증 추가분:** `src` 경로 존재·외부 스크립트 금지 검사가 내부 링크 검사에 포함된다. 전체 게이트는 `python3 scripts/v2/verify_all.py`.
 - 스키마·모듈 계약·CSS 규칙의 상세는 `_workspace/v2/SPEC.md`가 단일 기준이다.
-
+- **모션·코드 블록 계층 (2026-11-13):** `assets/js/motion.js`(읽기 진행 막대, 스크롤 등장, 현재 절 표시, 카드 스포트라이트, 정답·합격 축하, 테마 전환 리빌)와 `assets/js/code-blocks.js`(본문 `<pre><code>`를 에디터 창 UI로: 구문 색상·줄 번호·복사)가 전 페이지에 붙는다. 스타일은 `css/_parts/70-motion.css`, `80-codeblock.css`. 원칙: transform/opacity만 애니메이션, `prefers-reduced-motion`이면 전부 끔, 클래스는 스크립트가 붙이므로 JS가 꺼져도 내용은 그대로 보인다. 구문 색상 토큰(`.v2-tok-*`)은 `00-base.css` 한 곳에서 정의한다.

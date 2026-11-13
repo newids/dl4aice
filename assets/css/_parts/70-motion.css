@@ -1,0 +1,305 @@
+/* ==========================================================================
+   70. 모션 · 비주얼 이펙트
+   transform/opacity 중심, 150~300ms 마이크로 인터랙션, 등장은 ease-out.
+   prefers-reduced-motion 이면 맨 아래 블록에서 전부 끈다.
+   ========================================================================== */
+:root {
+  --v2-grad: linear-gradient(100deg, #2563eb 0%, #7c3aed 48%, #f59e0b 100%);
+  --v2-grad-soft: linear-gradient(120deg, rgba(37, 99, 235, 0.16), rgba(124, 58, 237, 0.14) 50%, rgba(245, 158, 11, 0.16));
+  --v2-glow: rgba(37, 99, 235, 0.28);
+  --v2-spot: rgba(37, 99, 235, 0.14);
+  --v2-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+:root[data-theme="dark"] {
+  --v2-grad: linear-gradient(100deg, #6ea8fe 0%, #b794f6 48%, #fbbf24 100%);
+  --v2-glow: rgba(110, 168, 254, 0.32);
+  --v2-spot: rgba(110, 168, 254, 0.16);
+}
+
+/* ---------- 페이지 전환 (같은 사이트 안 이동) ---------- */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: v2-page-out 180ms ease-in both; }
+::view-transition-new(root) { animation: v2-page-in 320ms var(--v2-ease-out) both; }
+@keyframes v2-page-out { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes v2-page-in { from { opacity: 0; transform: translateY(10px); } }
+
+/* 테마 전환: 토글 버튼에서 퍼지는 원 */
+.v2-theme-switching::view-transition-old(root) { animation: none; }
+.v2-theme-switching::view-transition-new(root) {
+  animation: v2-theme-reveal 520ms var(--v2-ease-out) both;
+}
+@keyframes v2-theme-reveal {
+  from { clip-path: circle(0 at var(--v2-vt-x, 100%) var(--v2-vt-y, 0)); }
+  to { clip-path: circle(150vmax at var(--v2-vt-x, 100%) var(--v2-vt-y, 0)); }
+}
+
+/* ---------- 읽기 진행 막대 · 머리글 ---------- */
+.v2-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  height: 3px;
+  pointer-events: none;
+}
+.v2-progress__fill {
+  display: block;
+  height: 100%;
+  background: var(--v2-grad);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  box-shadow: 0 0 12px var(--v2-glow);
+}
+
+.masthead {
+  transition: box-shadow 240ms var(--ease), background 240ms var(--ease);
+}
+.v2-scrolled .masthead {
+  box-shadow: 0 10px 30px -18px rgba(15, 23, 42, 0.45);
+}
+.masthead::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 1px;
+  background: var(--v2-grad);
+  opacity: 0;
+  transition: opacity 240ms var(--ease);
+}
+.v2-scrolled .masthead::after { opacity: 0.55; }
+
+/* ---------- 스크롤 등장 ---------- */
+.v2-reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0) scale(0.985);
+  transition: opacity 620ms var(--v2-ease-out), transform 620ms var(--v2-ease-out);
+  transition-delay: var(--v2-delay, 0ms);
+  will-change: opacity, transform;
+}
+.v2-reveal.is-in { opacity: 1; transform: none; }
+
+/* ---------- 표지 히어로: 오로라 + 그라데이션 제목 ---------- */
+.v2-motion .cover {
+  position: relative;
+  isolation: isolate;
+}
+/* 오로라가 화면 밖으로 나가 가로 스크롤을 만들지 않도록 표지 페이지에서 잘라낸다 */
+.page--index { overflow-x: clip; }
+.cover::before,
+.cover::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.cover::before {
+  top: -4rem;
+  left: -6rem;
+  width: 26rem;
+  height: 20rem;
+  background: radial-gradient(closest-side, rgba(37, 99, 235, 0.42), transparent);
+  animation: v2-aurora-a 16s ease-in-out infinite alternate;
+}
+.cover::after {
+  top: 2rem;
+  right: -5rem;
+  width: 24rem;
+  height: 18rem;
+  background: radial-gradient(closest-side, rgba(245, 158, 11, 0.34), transparent 70%),
+    radial-gradient(closest-side, rgba(124, 58, 237, 0.3), transparent);
+  animation: v2-aurora-b 20s ease-in-out infinite alternate;
+}
+:root[data-theme="dark"] .cover::before,
+:root[data-theme="dark"] .cover::after { opacity: 0.4; }
+@keyframes v2-aurora-a {
+  to { transform: translate3d(7rem, 3rem, 0) scale(1.15); }
+}
+@keyframes v2-aurora-b {
+  to { transform: translate3d(-6rem, -2rem, 0) scale(0.9); }
+}
+
+.cover__title {
+  background: var(--v2-grad);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: v2-title-in 900ms var(--v2-ease-out) both, v2-sheen 9s ease-in-out 1s infinite alternate;
+}
+.cover__kicker, .cover__tagline, .cover__concept, .cover__reader {
+  animation: v2-rise 700ms var(--v2-ease-out) both;
+}
+.cover__tagline { animation-delay: 120ms; }
+.cover__concept { animation-delay: 200ms; }
+.cover__reader { animation-delay: 280ms; }
+@keyframes v2-title-in {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes v2-rise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+}
+@keyframes v2-sheen {
+  to { background-position: 100% 0; }
+}
+
+/* 챕터 제목과 오프너 */
+.opener__eyebrow { animation: v2-rise 600ms var(--v2-ease-out) both; }
+.page-body > h1 { animation: v2-rise 700ms var(--v2-ease-out) 80ms both; }
+.page-chapter .page-body > h1::after,
+.page-mock .page-body > h1::after,
+.page-extra .page-body > h1::after {
+  content: "";
+  display: block;
+  width: 4.5rem;
+  height: 4px;
+  margin-top: 0.9rem;
+  border-radius: 999px;
+  background: var(--v2-grad);
+  transform-origin: 0 50%;
+  animation: v2-grow 800ms var(--v2-ease-out) 300ms both;
+}
+@keyframes v2-grow { from { transform: scaleX(0); } }
+
+/* ---------- 카드: 떠오름 + 커서 스포트라이트 ---------- */
+.v2-spot {
+  position: relative;
+  transition: transform 220ms var(--v2-ease-out), box-shadow 220ms var(--v2-ease-out),
+    border-color 220ms var(--ease);
+}
+.v2-spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--v2-mx, 50%) var(--v2-my, 0%), var(--v2-spot), transparent 70%);
+  opacity: 0;
+  transition: opacity 240ms var(--ease);
+  pointer-events: none;
+}
+.v2-spot:hover::after { opacity: 1; }
+.v2-spot:hover {
+  transform: translate3d(0, -3px, 0);
+  box-shadow: 0 16px 34px -20px var(--v2-glow), var(--shadow-sm);
+  border-color: var(--primary);
+}
+.v2-spot:active { transform: translate3d(0, -1px, 0); }
+.entry.v2-spot > *,
+.stat.v2-spot > *,
+.v2-dash-stat.v2-spot > * { position: relative; z-index: 1; }
+
+.stat__value,
+.v2-dash-stat__value {
+  background: var(--v2-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---------- 도해: 확대 여유 ---------- */
+.diagram__frame {
+  transition: transform 320ms var(--v2-ease-out), box-shadow 320ms var(--v2-ease-out);
+}
+.diagram:hover .diagram__frame {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 22px 44px -28px rgba(15, 23, 42, 0.45);
+}
+
+/* ---------- 페이지 내 목차: 현재 절 ---------- */
+.section-nav a {
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease),
+    padding-left 200ms var(--v2-ease-out);
+}
+.section-nav a.is-current {
+  color: var(--primary);
+  font-weight: 700;
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--primary);
+}
+
+/* ---------- 버튼 · 탭 · 미터 ---------- */
+.v2-btn--primary {
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(120deg, var(--primary), #7c3aed);
+  border-color: transparent;
+  box-shadow: 0 8px 20px -12px var(--v2-glow);
+}
+:root[data-theme="dark"] .v2-btn--primary { background-image: linear-gradient(120deg, var(--primary), #b794f6); }
+.v2-btn--primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 600ms var(--v2-ease-out);
+  pointer-events: none;
+}
+.v2-btn--primary:hover::after { transform: translateX(120%); }
+.v2-btn:not([disabled]):hover { transform: translateY(-1px); }
+.v2-btn:not([disabled]):active { transform: translateY(1px) scale(0.985); }
+
+.v2-meter__fill { background-image: var(--v2-grad); }
+.v2-meter__fill--ok { background-image: linear-gradient(90deg, #059669, #34d399); }
+.v2-meter__fill--warn { background-image: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+.pager__slot { transition: transform 220ms var(--v2-ease-out), box-shadow 220ms var(--v2-ease-out), border-color 220ms var(--ease); }
+.pager__slot--next:hover .pager__dir { transform: translateX(3px); }
+.pager__slot--prev:hover .pager__dir { transform: translateX(-3px); }
+.pager__dir { display: inline-block; transition: transform 220ms var(--v2-ease-out); }
+
+/* 접힘 블록이 열릴 때 내용이 부드럽게 나타난다 */
+details[open] > .solution__body,
+details[open] > .v2-legacy__body { animation: v2-rise 360ms var(--v2-ease-out) both; }
+
+/* 실습 셀: 정답 시 테두리 광채 */
+.v2-cell { transition: box-shadow 300ms var(--ease); }
+.v2-cell:focus-within { box-shadow: 0 0 0 3px var(--v2-spot); }
+
+/* ---------- 축하 파티클 ---------- */
+.v2-confetti {
+  position: fixed;
+  z-index: 95;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.v2-confetti i {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: v2-confetti 1200ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes v2-confetti {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--dx), calc(var(--dy) + 120px), 0) rotate(var(--rot)); }
+}
+
+/* ---------- 모션 최소화 · 인쇄 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .v2-reveal { opacity: 1; transform: none; transition: none; }
+  .cover::before, .cover::after, .cover__title, .cover__kicker, .cover__tagline, .cover__concept,
+  .cover__reader, .opener__eyebrow, .page-body > h1, .page-body > h1::after,
+  details[open] > .solution__body, details[open] > .v2-legacy__body { animation: none !important; }
+  .v2-spot, .v2-spot:hover, .v2-btn:hover, .diagram:hover .diagram__frame { transform: none; }
+  .v2-btn--primary::after { display: none; }
+  .v2-confetti { display: none; }
+}
+
+@media print {
+  .v2-progress, .v2-confetti, .cover::before, .cover::after { display: none !important; }
+  .v2-reveal { opacity: 1 !important; transform: none !important; }
+  .cover__title, .stat__value, .v2-dash-stat__value {
+    -webkit-text-fill-color: currentColor;
+    background: none;
+    color: #1a2332;
+  }
+  .page-body > h1::after { display: none; }
+}

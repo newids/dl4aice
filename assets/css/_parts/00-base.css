@@ -242,11 +242,19 @@
   white-space: inherit;
 }
 
-.v2-tok-kw { color: #c4b5fd; }
-.v2-tok-str { color: #86efac; }
-.v2-tok-num { color: #fdba74; }
-.v2-tok-com { color: #8493a8; font-style: italic; }
-.v2-tok-fn { color: #7dd3fc; }
+/* 에디터(Dark+ 계열) 배색 — 본문 코드 블록, 실습 셀 출력, 위젯 코드가 모두 공유한다 */
+.v2-tok-kw { color: #c792ea; }
+.v2-tok-const { color: #82aaff; font-style: italic; }
+.v2-tok-str { color: #c3e88d; }
+.v2-tok-num { color: #f78c6c; }
+.v2-tok-com { color: #7c8aa5; font-style: italic; }
+.v2-tok-fn { color: #82d2ff; }
+.v2-tok-builtin { color: #ffcb6b; }
+.v2-tok-cls { color: #5eead4; }
+.v2-tok-param { color: #f9a8d4; }
+.v2-tok-mod { color: #d6deeb; }
+.v2-tok-dec { color: #ffcb6b; font-style: italic; }
+.v2-tok-op { color: #89ddff; }
 .v2-tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
 
 /* ---------- 토스트 ---------- */
