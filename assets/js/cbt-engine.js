@@ -392,7 +392,11 @@
     function variablesTable() {
       var vars = exam.variables || [];
       if (!vars.length) return note("변수 목록이 없습니다.");
-      return tableWrap(["변수명", "역할"], vars.map(function (v) { return [v.name, v.role || ""]; }), "변수명 표");
+      return tableWrap(["변수명", "역할"], vars.map(function (v) {
+        var cell = h("span", {});
+        String(v.name || "").split(/\s*,\s*/).forEach(function (n, i) { if (i) cell.appendChild(document.createTextNode(" ")); cell.appendChild(h("code", { text: n })); });
+        return [cell, v.role || ""];
+      }), "변수명 표");
     }
 
     function startAttempt() {

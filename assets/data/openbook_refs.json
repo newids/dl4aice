@@ -558,12 +558,12 @@
       "name": "map",
       "module": "pandas",
       "import": "import pandas as pd",
-      "signature": "df['col'].map(arg, na_action=None)",
+      "signature": "df['col'].map(func, na_action=None)",
       "summary": "딕셔너리나 함수로 열의 값을 하나씩 매핑한다. 라벨을 숫자로 바꿀 때 쓴다.",
       "params": [
         {
-          "name": "arg",
-          "desc": "{'원래값': 새값} 딕셔너리 또는 함수"
+          "name": "func",
+          "desc": "{'원래값': 새값} 딕셔너리 또는 함수 (구버전 pandas 에서는 인자 이름이 arg)"
         },
         {
           "name": "na_action",
@@ -958,7 +958,7 @@
       "name": "sns.scatterplot",
       "module": "seaborn",
       "import": "import seaborn as sns\nimport matplotlib.pyplot as plt",
-      "signature": "sns.scatterplot(data=None, x=None, y=None, hue=None, size=None, style=None, palette=None, hue_order=None, ..., alpha=None, ax=None)",
+      "signature": "sns.scatterplot(data=None, x=None, y=None, hue=None, size=None, style=None, palette=None, hue_order=None, ..., ax=None, **kwargs)   # alpha 등은 **kwargs",
       "summary": "두 수치 변수의 관계를 산점도로 그린다.",
       "params": [
         {
@@ -993,7 +993,7 @@
       "name": "plt.plot (학습 곡선)",
       "module": "matplotlib",
       "import": "import matplotlib.pyplot as plt",
-      "signature": "plt.plot(x, y, fmt, label=None, color=None, linestyle=None, marker=None, ...)",
+      "signature": "plt.plot(*args, scalex=True, scaley=True, data=None, **kwargs)   # 예: plt.plot(y, label='...', color='tab:blue')",
       "summary": "선 그래프. history.history 의 loss / val_loss 로 학습 곡선을 그려 과적합을 진단한다.",
       "params": [
         {
@@ -1363,7 +1363,7 @@
       "name": "LGBMClassifier",
       "module": "lightgbm",
       "import": "from lightgbm import LGBMClassifier",
-      "signature": "LGBMClassifier(boosting_type='gbdt', num_leaves=31, max_depth=-1, learning_rate=0.1, n_estimators=100, ..., random_state=None, n_jobs=None, verbose=...)",
+      "signature": "LGBMClassifier(boosting_type='gbdt', num_leaves=31, max_depth=-1, learning_rate=0.1, n_estimators=100, ..., random_state=None, n_jobs=None, importance_type='split', **kwargs)   # verbose=-1 은 **kwargs 로 전달",
       "summary": "LightGBM 그래디언트 부스팅 분류 모델.",
       "params": [
         {

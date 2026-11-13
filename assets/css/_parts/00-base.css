@@ -83,7 +83,9 @@
 :root[data-theme="dark"] .diagram__missing { color: var(--danger); }
 
 /* ---------- 머리글 도구 ---------- */
-.masthead__tools { display: inline-flex; align-items: center; gap: 0.5rem; }
+.masthead__tools { display: inline-flex; flex: none; align-items: center; gap: 0.5rem; }
+.masthead__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.masthead__toc, .v2-theme-toggle { flex: none; white-space: nowrap; }
 
 .v2-theme-toggle {
   font: inherit;
