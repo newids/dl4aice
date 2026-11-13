@@ -6,6 +6,8 @@
 <title>Ch08. 문제 유형별 완성 코드와 시험장 전략 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
@@ -154,6 +156,10 @@ print(len(np.unique(y_train)))      # 서로 다른 값의 개수
 유형을 바꿀 때 <strong>loss만 바꾸고 출력층을 그대로 두는 실수</strong>가 가장 흔합니다. 출력층과 loss는 언제나 <strong>짝</strong>으로 움직입니다. <code>Dense(1,'sigmoid')</code>를 남겨 둔 채 <code>sparse_categorical_crossentropy</code>로 컴파일하면 학습이 시작되자마자 오류가 납니다(8.5의 두 번째 증상).</p>
 </blockquote>
 <hr />
+<h3 id="직접-바꿔-보기-네-가지-유형-두-가지-api">직접 바꿔 보기 — 네 가지 유형 × 두 가지 API</h3>
+<p>아래 위젯은 이 챕터의 세 템플릿을 한 화면에서 전환합니다. 다중분류는 라벨 형태에 따라 둘로 나뉘고, 각 유형을 <code>Sequential</code> 방식과 함수형(Functional) 방식으로 볼 수 있습니다. 탭을 바꿀 때 강조되는 줄이 곧 시험장에서 고쳐 써야 하는 줄입니다.</p>
+<div class="v2-arch" data-v2-arch data-default-type="binary" data-default-api="sequential" data-focus="output,loss,metrics,postprocess"></div>
+<noscript><p class="v2-noscript">문제 유형·API 비교 위젯은 자바스크립트를 켜야 보입니다. 같은 내용은 Ch08의 템플릿 A·B·C에 정리되어 있습니다.</p></noscript>
 <h2 id="8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</h2>
 <figure class="diagram" id="fig-ch08_endtoend-binary"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420" role="img" aria-label="이진분류 문제의 전체 코드 지도" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>이진분류 문제의 전체 코드 지도 — 로딩, 탐색, 전처리, 분리에 이어 구성, 컴파일, 학습, 평가까지 여덟 단계가 순서대로 이어지며 각 단계마다 대표 코드 한 줄이 붙어 있고, 구성과 컴파일과 학습 세 단계가 딥러닝 구간이다.</title>
@@ -1798,5 +1804,13 @@ r2 : 0.4269
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch07.html"><span class="pager__dir">이전</span><span class="pager__label">Ch07</span><span class="pager__title">평가와 예측</span></a><a class="pager__slot pager__slot--next" href="mock01.html"><span class="pager__dir">다음</span><span class="pager__label">모의고사 1회</span><span class="pager__title">실전 모의고사 1회 — 이진분류: 통신사 고객 이탈 예측</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/data/arch_patterns.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/arch-switcher.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>

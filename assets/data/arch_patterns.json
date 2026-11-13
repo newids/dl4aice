@@ -1,0 +1,1173 @@
+{
+ "version": "2.0",
+ "apis": [
+  {
+   "id": "sequential",
+   "label": "Sequential API"
+  },
+  {
+   "id": "functional",
+   "label": "Functional API"
+  }
+ ],
+ "tags": [
+  {
+   "id": "input",
+   "label": "입력 shape"
+  },
+  {
+   "id": "output",
+   "label": "출력층"
+  },
+  {
+   "id": "loss",
+   "label": "손실 함수"
+  },
+  {
+   "id": "metrics",
+   "label": "평가지표"
+  },
+  {
+   "id": "postprocess",
+   "label": "예측 후처리"
+  },
+  {
+   "id": "api",
+   "label": "API 차이"
+  }
+ ],
+ "types": [
+  {
+   "id": "binary",
+   "label": "이진분류",
+   "short": "0/1 한 개의 확률",
+   "label_format": "y 는 0/1 정수 (N,)",
+   "summary": {
+    "input_shape": "Input(shape=(n_features,))",
+    "output_layer": {
+     "units": "1",
+     "activation": "'sigmoid'",
+     "code": "Dense(1, activation='sigmoid')"
+    },
+    "compile": {
+     "optimizer": "'adam'",
+     "loss": "'binary_crossentropy'",
+     "metrics": "['accuracy']"
+    },
+    "postprocess": "(pred > 0.5).astype(int)",
+    "pitfall": "출력 뉴런은 1개 + sigmoid. predict 결과는 (N, 1) 확률이므로 0.5 임계값으로 0/1 변환하고, 필요하면 ravel() 로 1차원으로 편다."
+   },
+   "code": {
+    "sequential": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Sequential",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import accuracy_score",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
+      "tag": "output"
+     },
+     {
+      "text": "# y_train: 0/1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "# y_test: 0/1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model = Sequential()",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Input(shape=(n_features,)))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(64, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(32, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(1, activation='sigmoid'))",
+      "tag": "output"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='binary_crossentropy',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['accuracy'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train,",
+      "tag": null
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = (pred > 0.5).astype(int).ravel()",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('accuracy:', accuracy_score(y_test, y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('test loss, acc:', model.evaluate(X_test_scaled, y_test, verbose=0))",
+      "tag": "metrics"
+     }
+    ],
+    "functional": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Model",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import accuracy_score",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
+      "tag": "output"
+     },
+     {
+      "text": "# y_train: 0/1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "# y_test: 0/1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "inputs = Input(shape=(n_features,))",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(64, activation='relu')(inputs)",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(32, activation='relu')(x)",
+      "tag": "api"
+     },
+     {
+      "text": "outputs = Dense(1, activation='sigmoid')(x)",
+      "tag": "output"
+     },
+     {
+      "text": "model = Model(inputs=inputs, outputs=outputs)",
+      "tag": "api"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='binary_crossentropy',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['accuracy'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train,",
+      "tag": null
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = (pred > 0.5).astype(int).ravel()",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('accuracy:', accuracy_score(y_test, y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('test loss, acc:', model.evaluate(X_test_scaled, y_test, verbose=0))",
+      "tag": "metrics"
+     }
+    ]
+   }
+  },
+  {
+   "id": "multiclass_onehot",
+   "label": "다중분류(One-hot)",
+   "short": "K개 확률 + 원-핫 라벨",
+   "label_format": "y 는 원-핫 (N, K) — to_categorical / get_dummies",
+   "summary": {
+    "input_shape": "Input(shape=(n_features,))",
+    "output_layer": {
+     "units": "n_classes",
+     "activation": "'softmax'",
+     "code": "Dense(n_classes, activation='softmax')"
+    },
+    "compile": {
+     "optimizer": "'adam'",
+     "loss": "'categorical_crossentropy'",
+     "metrics": "['accuracy']"
+    },
+    "postprocess": "np.argmax(pred, axis=1)",
+    "pitfall": "라벨을 원-핫으로 바꿨다면 loss 는 categorical_crossentropy. sparse_ 를 쓰면 shape 오류가 나고, 정확도 비교 때는 원-핫 y_test 도 argmax 로 되돌려야 한다."
+   },
+   "code": {
+    "sequential": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Sequential",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import accuracy_score",
+      "tag": "metrics"
+     },
+     {
+      "text": "from tensorflow.keras.utils import to_categorical",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "n_classes = len(np.unique(y_train))",
+      "tag": "output"
+     },
+     {
+      "text": "y_train_oh = to_categorical(y_train, n_classes)",
+      "tag": "loss"
+     },
+     {
+      "text": "y_test_oh = to_categorical(y_test, n_classes)",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model = Sequential()",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Input(shape=(n_features,)))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(64, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(32, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(n_classes, activation='softmax'))",
+      "tag": "output"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='categorical_crossentropy',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['accuracy'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train_oh,",
+      "tag": "loss"
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = np.argmax(pred, axis=1)",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('accuracy:', accuracy_score(np.argmax(y_test_oh, axis=1), y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('test loss, acc:', model.evaluate(X_test_scaled, y_test_oh, verbose=0))",
+      "tag": "metrics"
+     }
+    ],
+    "functional": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Model",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import accuracy_score",
+      "tag": "metrics"
+     },
+     {
+      "text": "from tensorflow.keras.utils import to_categorical",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "n_classes = len(np.unique(y_train))",
+      "tag": "output"
+     },
+     {
+      "text": "y_train_oh = to_categorical(y_train, n_classes)",
+      "tag": "loss"
+     },
+     {
+      "text": "y_test_oh = to_categorical(y_test, n_classes)",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "inputs = Input(shape=(n_features,))",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(64, activation='relu')(inputs)",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(32, activation='relu')(x)",
+      "tag": "api"
+     },
+     {
+      "text": "outputs = Dense(n_classes, activation='softmax')(x)",
+      "tag": "output"
+     },
+     {
+      "text": "model = Model(inputs=inputs, outputs=outputs)",
+      "tag": "api"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='categorical_crossentropy',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['accuracy'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train_oh,",
+      "tag": "loss"
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = np.argmax(pred, axis=1)",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('accuracy:', accuracy_score(np.argmax(y_test_oh, axis=1), y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('test loss, acc:', model.evaluate(X_test_scaled, y_test_oh, verbose=0))",
+      "tag": "metrics"
+     }
+    ]
+   }
+  },
+  {
+   "id": "multiclass_sparse",
+   "label": "다중분류(Label)",
+   "short": "K개 확률 + 정수 라벨",
+   "label_format": "y 는 0..K-1 정수 (N,)",
+   "summary": {
+    "input_shape": "Input(shape=(n_features,))",
+    "output_layer": {
+     "units": "n_classes",
+     "activation": "'softmax'",
+     "code": "Dense(n_classes, activation='softmax')"
+    },
+    "compile": {
+     "optimizer": "'adam'",
+     "loss": "'sparse_categorical_crossentropy'",
+     "metrics": "['accuracy']"
+    },
+    "postprocess": "np.argmax(pred, axis=1)",
+    "pitfall": "정수 라벨은 sparse_categorical_crossentropy. categorical_ 을 쓰면 shape 오류가 난다. 출력층은 원-핫과 같은 softmax(K) 이고 argmax 로 클래스를 얻는다."
+   },
+   "code": {
+    "sequential": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Sequential",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import accuracy_score",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "n_classes = len(np.unique(y_train))",
+      "tag": "output"
+     },
+     {
+      "text": "# y_train: 0..K-1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "# y_test: 0..K-1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model = Sequential()",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Input(shape=(n_features,)))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(64, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(32, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(n_classes, activation='softmax'))",
+      "tag": "output"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='sparse_categorical_crossentropy',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['accuracy'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train,",
+      "tag": null
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = np.argmax(pred, axis=1)",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('accuracy:', accuracy_score(y_test, y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('test loss, acc:', model.evaluate(X_test_scaled, y_test, verbose=0))",
+      "tag": "metrics"
+     }
+    ],
+    "functional": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Model",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import accuracy_score",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "n_classes = len(np.unique(y_train))",
+      "tag": "output"
+     },
+     {
+      "text": "# y_train: 0..K-1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "# y_test: 0..K-1 정수 라벨 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "inputs = Input(shape=(n_features,))",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(64, activation='relu')(inputs)",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(32, activation='relu')(x)",
+      "tag": "api"
+     },
+     {
+      "text": "outputs = Dense(n_classes, activation='softmax')(x)",
+      "tag": "output"
+     },
+     {
+      "text": "model = Model(inputs=inputs, outputs=outputs)",
+      "tag": "api"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='sparse_categorical_crossentropy',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['accuracy'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train,",
+      "tag": null
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = np.argmax(pred, axis=1)",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('accuracy:', accuracy_score(y_test, y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('test loss, acc:', model.evaluate(X_test_scaled, y_test, verbose=0))",
+      "tag": "metrics"
+     }
+    ]
+   }
+  },
+  {
+   "id": "regression",
+   "label": "회귀",
+   "short": "연속값 1개, 활성화 없음",
+   "label_format": "y 는 연속형 실수 (N,)",
+   "summary": {
+    "input_shape": "Input(shape=(n_features,))",
+    "output_layer": {
+     "units": "1",
+     "activation": "없음 (선형)",
+     "code": "Dense(1)"
+    },
+    "compile": {
+     "optimizer": "'adam'",
+     "loss": "'mse'",
+     "metrics": "['mae']"
+    },
+    "postprocess": "pred.flatten()",
+    "pitfall": "출력층에 sigmoid/softmax 를 붙이지 않는다(Dense(1) 만). 분류용 loss·accuracy 를 쓰면 안 되고, predict 결과 (N, 1) 은 flatten() 으로 편다."
+   },
+   "code": {
+    "sequential": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Sequential",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import r2_score, mean_absolute_error",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
+      "tag": "output"
+     },
+     {
+      "text": "# y_train: 연속형 숫자 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "# y_test: 연속형 숫자 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model = Sequential()",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Input(shape=(n_features,)))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(64, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(32, activation='relu'))",
+      "tag": "api"
+     },
+     {
+      "text": "model.add(Dense(1))",
+      "tag": "output"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='mse',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['mae'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train,",
+      "tag": null
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = pred.flatten()",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('R2:', r2_score(y_test, y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('MAE:', mean_absolute_error(y_test, y_pred))",
+      "tag": "metrics"
+     }
+    ],
+    "functional": [
+     {
+      "text": "import numpy as np",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.models import Model",
+      "tag": "api"
+     },
+     {
+      "text": "from tensorflow.keras.layers import Input, Dense",
+      "tag": null
+     },
+     {
+      "text": "from tensorflow.keras.callbacks import EarlyStopping",
+      "tag": null
+     },
+     {
+      "text": "from sklearn.metrics import r2_score, mean_absolute_error",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "n_features = X_train_scaled.shape[1]  # 입력 특성 수",
+      "tag": null
+     },
+     {
+      "text": "# 출력 뉴런은 1개 (n_classes 불필요)",
+      "tag": "output"
+     },
+     {
+      "text": "# y_train: 연속형 숫자 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "# y_test: 연속형 숫자 그대로 사용",
+      "tag": "loss"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "inputs = Input(shape=(n_features,))",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(64, activation='relu')(inputs)",
+      "tag": "api"
+     },
+     {
+      "text": "x = Dense(32, activation='relu')(x)",
+      "tag": "api"
+     },
+     {
+      "text": "outputs = Dense(1)(x)",
+      "tag": "output"
+     },
+     {
+      "text": "model = Model(inputs=inputs, outputs=outputs)",
+      "tag": "api"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "model.compile(optimizer='adam',",
+      "tag": null
+     },
+     {
+      "text": "              loss='mse',",
+      "tag": "loss"
+     },
+     {
+      "text": "              metrics=['mae'])",
+      "tag": "metrics"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)",
+      "tag": null
+     },
+     {
+      "text": "history = model.fit(X_train_scaled, y_train,",
+      "tag": null
+     },
+     {
+      "text": "                    validation_split=0.2, epochs=50, batch_size=32,",
+      "tag": null
+     },
+     {
+      "text": "                    callbacks=[es], verbose=0)",
+      "tag": null
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "pred = model.predict(X_test_scaled)  # 확률 또는 예측값",
+      "tag": null
+     },
+     {
+      "text": "y_pred = pred.flatten()",
+      "tag": "postprocess"
+     },
+     {
+      "text": "",
+      "tag": null
+     },
+     {
+      "text": "print('R2:', r2_score(y_test, y_pred))",
+      "tag": "metrics"
+     },
+     {
+      "text": "print('MAE:', mean_absolute_error(y_test, y_pred))",
+      "tag": "metrics"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,611 @@
+{
+  "generated_from": "git HEAD book/",
+  "pages": {
+    "ch01.html": {
+      "figures": [
+        {
+          "id": "fig-ch01_exam-flow",
+          "caption": "그림 1-1AICE Associate 실기 시험의 문항 흐름",
+          "svg_sha256": "c15a3fa4a7646b52e01802b911d63cf0de9b56a74e65a4f9b595ce6a3784f4ab",
+          "svg_bytes": 3900
+        },
+        {
+          "id": "fig-ch01_scope-map",
+          "caption": "그림 1-2이 교재가 다루는 범위와 다루지 않는 범위",
+          "svg_sha256": "c8c43daa2603c762a5fc66a2cc9864afc9c4fd4c3545d45b0b2d15b118991825",
+          "svg_bytes": 3581
+        },
+        {
+          "id": "fig-ch01_time-budget",
+          "caption": "그림 1-390분 시험 시간 배분 예시",
+          "svg_sha256": "132166be838ebc3d9c3b248186f106d0fa0d68febbcf9034d8a88fabee6ca205",
+          "svg_bytes": 3471
+        },
+        {
+          "id": "fig-ch01_learning-path",
+          "caption": "그림 1-4교재 학습 경로와 챕터 의존 관계",
+          "svg_sha256": "b5e84ba3394c9e751bf144555a09a99f544e630c757b701e1a56051089499057",
+          "svg_bytes": 6136
+        }
+      ],
+      "h2_ids": [
+        "1-시험은-어떤-순서로-흘러가는가",
+        "2-어디까지가-시험-범위인가",
+        "3-90분을-어떻게-쓸-것인가",
+        "4-이-교재의-학습-경로",
+        "5-시험장-표준-코드",
+        "핵심-요약",
+        "ch01-확인-문제-aice-associate-시험-구조와-학습-지도"
+      ],
+      "code_blocks": 6,
+      "tables": 2,
+      "internal_links": [
+        "#1-시험은-어떤-순서로-흘러가는가",
+        "#2-어디까지가-시험-범위인가",
+        "#3-90분을-어떻게-쓸-것인가",
+        "#4-이-교재의-학습-경로",
+        "#5-시험장-표준-코드",
+        "#ch01-확인-문제-aice-associate-시험-구조와-학습-지도",
+        "#핵심-요약",
+        "ch02.html",
+        "index.html",
+        "style.css"
+      ]
+    },
+    "ch02.html": {
+      "figures": [
+        {
+          "id": "fig-ch02_data-pipeline",
+          "caption": "그림 2-1데이터 준비 5단계 파이프라인",
+          "svg_sha256": "44cf7122aa6348607fc48b10ccef58ccf846ea89ebadc0a0a2b20428396b568e",
+          "svg_bytes": 3609
+        },
+        {
+          "id": "fig-ch02_missing-strategy",
+          "caption": "그림 2-2결측치 처리 방법 선택 분기",
+          "svg_sha256": "92a279bdeae5a3f8c43c3b427ce0e8d5111a9a2c0a05b6f1de9556dec656d73e",
+          "svg_bytes": 3429
+        },
+        {
+          "id": "fig-ch02_encoding-compare",
+          "caption": "그림 2-3라벨 인코딩과 원-핫 인코딩의 결과 차이",
+          "svg_sha256": "7ef2c1d82bd79fa9026459e0e488e4e9137aa97484dbe7cf9783963eed6a524d",
+          "svg_bytes": 6190
+        },
+        {
+          "id": "fig-ch02_scaling-effect",
+          "caption": "그림 2-4스케일링 전후 특성 분포의 변화",
+          "svg_sha256": "902bf5771b7b3f227d420c8dad0f3d92fac9b929647050d9e9a37f3eebc606fb",
+          "svg_bytes": 4084
+        },
+        {
+          "id": "fig-ch02_split-leakage",
+          "caption": "그림 2-5스케일러 fit 시점과 데이터 누수",
+          "svg_sha256": "78ad7bc81d601295f3b2b119c3abba94930c684f15ca63664612f25426665fe6",
+          "svg_bytes": 4918
+        },
+        {
+          "id": "fig-ch02_ml-vs-dl",
+          "caption": "그림 2-6머신러닝 3줄 패턴과 딥러닝 4단계 패턴",
+          "svg_sha256": "862da0f75a301d377fe1c82ee3e000c760c7789f78bc0b03541ab6aa2a9d9409",
+          "svg_bytes": 5772
+        },
+        {
+          "id": "fig-ch02_metric-map",
+          "caption": "그림 2-7문제 유형별 평가지표 지도",
+          "svg_sha256": "c504455471a239bad8c40f3a012d0f9e9204abdc9148c992128345ac1b803c31",
+          "svg_bytes": 4659
+        }
+      ],
+      "h2_ids": [
+        "2-1-데이터-준비는-다섯-단계로-흐른다",
+        "2-2-먼저-데이터를-본다-탐색과-시각화",
+        "2-3-결측치-지울-것인가-채울-것인가",
+        "2-4-이상치-iqr로-찾고-지시대로-처리한다",
+        "2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길",
+        "2-6-스케일링-특성의-크기를-맞춘다",
+        "2-7-분리와-데이터-누수-순서가-곧-점수다",
+        "2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴",
+        "2-9-평가지표-지도-무엇을-볼지-먼저-고른다",
+        "시험장-표준-코드",
+        "핵심-요약",
+        "ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝"
+      ],
+      "code_blocks": 25,
+      "tables": 5,
+      "internal_links": [
+        "#2-1-데이터-준비는-다섯-단계로-흐른다",
+        "#2-2-먼저-데이터를-본다-탐색과-시각화",
+        "#2-3-결측치-지울-것인가-채울-것인가",
+        "#2-4-이상치-iqr로-찾고-지시대로-처리한다",
+        "#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길",
+        "#2-6-스케일링-특성의-크기를-맞춘다",
+        "#2-7-분리와-데이터-누수-순서가-곧-점수다",
+        "#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴",
+        "#2-9-평가지표-지도-무엇을-볼지-먼저-고른다",
+        "#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝",
+        "#시험장-표준-코드",
+        "#핵심-요약",
+        "ch01.html",
+        "ch03.html",
+        "index.html",
+        "style.css"
+      ]
+    },
+    "ch03.html": {
+      "figures": [
+        {
+          "id": "fig-ch03_neuron",
+          "caption": "그림 3-1뉴런 하나가 값을 계산하는 과정",
+          "svg_sha256": "d064c012c85113dc33737e4976edecd55ed6f17f9fa55d581d5fcd47519bbb5e",
+          "svg_bytes": 4431
+        },
+        {
+          "id": "fig-ch03_layer-stack",
+          "caption": "그림 3-2입력층·은닉층·출력층의 계층 구조",
+          "svg_sha256": "76c4a55e7bc2d6d155d4f662843ccddaaba99d26f0dd496647b871a55a919fe1",
+          "svg_bytes": 3473
+        },
+        {
+          "id": "fig-ch03_activation-shapes",
+          "caption": "그림 3-3주요 활성화 함수의 모양과 사용 위치",
+          "svg_sha256": "3148da2480577d34bc035d3a03f93efc7a84c7c0a3df32440c625fbd665576b2",
+          "svg_bytes": 4311
+        },
+        {
+          "id": "fig-ch03_forward-backward",
+          "caption": "그림 3-4순전파와 역전파의 방향",
+          "svg_sha256": "abc2c620f67ed2b803a85f42d7c3d5bb4718fc6c974add74fd54929ef74c67df",
+          "svg_bytes": 3992
+        },
+        {
+          "id": "fig-ch03_learning-loop",
+          "caption": "그림 3-5학습 한 번의 반복 루프",
+          "svg_sha256": "346f92f0c25b864d98f4763c1044595f2385dce640469f0c5ceb01bc42e18c7f",
+          "svg_bytes": 3275
+        },
+        {
+          "id": "fig-ch03_width-depth",
+          "caption": "그림 3-6층 수와 노드 수가 모델에 미치는 영향",
+          "svg_sha256": "3e9ed3ee3700b14ca14ddaad4dddb9e6f057bb9b8c8fc55e361e426f81c8df3c",
+          "svg_bytes": 6789
+        }
+      ],
+      "h2_ids": [
+        "3-1-뉴런-하나가-하는-일",
+        "3-2-뉴런을-나란히겹겹이-쌓으면-층이-됩니다",
+        "3-3-활성화-함수-어디에-무엇을-쓰는가",
+        "3-4-순전파와-역전파-예측하고-되돌아가-고칩니다",
+        "3-5-학습-루프-step과-epoch",
+        "3-6-층을-몇-개-노드를-몇-개-둘-것인가",
+        "시험장-표준-코드",
+        "핵심-요약",
+        "ch03-확인-문제-딥러닝은-어떻게-배우는가"
+      ],
+      "code_blocks": 16,
+      "tables": 4,
+      "internal_links": [
+        "#3-1-뉴런-하나가-하는-일",
+        "#3-2-뉴런을-나란히겹겹이-쌓으면-층이-됩니다",
+        "#3-3-활성화-함수-어디에-무엇을-쓰는가",
+        "#3-4-순전파와-역전파-예측하고-되돌아가-고칩니다",
+        "#3-5-학습-루프-step과-epoch",
+        "#3-6-층을-몇-개-노드를-몇-개-둘-것인가",
+        "#ch03-확인-문제-딥러닝은-어떻게-배우는가",
+        "#시험장-표준-코드",
+        "#핵심-요약",
+        "ch02.html",
+        "ch04.html",
+        "index.html",
+        "style.css"
+      ]
+    },
+    "ch04.html": {
+      "figures": [
+        {
+          "id": "fig-ch04_keras-4steps",
+          "caption": "그림 4-1Keras 모델 제작 4단계",
+          "svg_sha256": "66b2887f213b22a462706e2457933f910491585be167ec57d6597d1d569cd387",
+          "svg_bytes": 3770
+        },
+        {
+          "id": "fig-ch04_sequential-build",
+          "caption": "그림 4-2코드 한 줄과 층 하나의 대응",
+          "svg_sha256": "918c41ea79eee15b3ee665b70786923a7cb1056d33e0b7b0ba346ad4d657b55e",
+          "svg_bytes": 3444
+        },
+        {
+          "id": "fig-ch04_input-shape",
+          "caption": "그림 4-3입력 shape를 정하는 규칙",
+          "svg_sha256": "bf168741f15f4da1ae9b7b588400f6443e2d5b18cdee75a22f893adc4154faa3",
+          "svg_bytes": 4001
+        },
+        {
+          "id": "fig-ch04_output-layer-choice",
+          "caption": "그림 4-4문제 유형별 출력층 설계",
+          "svg_sha256": "469dbf3980656e69ca07a2cfe8920de0b7be261fcc8ad3d060bb3664214a1538",
+          "svg_bytes": 5483
+        },
+        {
+          "id": "fig-ch04_param-count",
+          "caption": "그림 4-5파라미터 수가 계산되는 방식",
+          "svg_sha256": "385512aa35a1b1251c5fddd90e54d6b98c340d52bba85130d5347f508d1427d3",
+          "svg_bytes": 4796
+        },
+        {
+          "id": "fig-ch04_dropout-bn-position",
+          "caption": "그림 4-6Dropout과 BatchNormalization을 넣는 위치",
+          "svg_sha256": "0ad8c34b8d9e56d60797b1534b06ea43a9fa6810dde4b9306e6d235872537dad",
+          "svg_bytes": 5501
+        }
+      ],
+      "h2_ids": [
+        "4-1-모델-만들기는-전체-4단계-중-첫-단계입니다",
+        "4-2-sequential-코드-한-줄이-층-하나입니다",
+        "4-3-입력-shape-샘플-수는-넣지-않습니다",
+        "4-4-출력층-문제-유형이-units와-activation을-결정합니다",
+        "4-5-summary-만든-모델을-눈으로-확인합니다",
+        "4-6-dropout과-batchnormalization-위치가-전부입니다",
+        "시험장-표준-코드",
+        "핵심-요약",
+        "ch04-확인-문제-keras로-모델-만들기"
+      ],
+      "code_blocks": 29,
+      "tables": 4,
+      "internal_links": [
+        "#4-1-모델-만들기는-전체-4단계-중-첫-단계입니다",
+        "#4-2-sequential-코드-한-줄이-층-하나입니다",
+        "#4-3-입력-shape-샘플-수는-넣지-않습니다",
+        "#4-4-출력층-문제-유형이-units와-activation을-결정합니다",
+        "#4-5-summary-만든-모델을-눈으로-확인합니다",
+        "#4-6-dropout과-batchnormalization-위치가-전부입니다",
+        "#ch04-확인-문제-keras로-모델-만들기",
+        "#시험장-표준-코드",
+        "#핵심-요약",
+        "ch03.html",
+        "ch05.html",
+        "index.html",
+        "style.css"
+      ]
+    },
+    "ch05.html": {
+      "figures": [
+        {
+          "id": "fig-ch05_compile-triple",
+          "caption": "그림 5-1compile의 세 인자와 역할",
+          "svg_sha256": "4db8f61dd9ecdccf1ecadd33f7bfc875a03b6f72de4a21a74036c32b73f68880",
+          "svg_bytes": 4279
+        },
+        {
+          "id": "fig-ch05_loss-decision",
+          "caption": "그림 5-2손실 함수와 출력층 짝 선택 분기",
+          "svg_sha256": "3cfbd7928ba1abe868696820589ef3dc8aba6ac4507443393f5e5e118e7686c8",
+          "svg_bytes": 6185
+        },
+        {
+          "id": "fig-ch05_optimizer-lr",
+          "caption": "그림 5-3학습률에 따른 수렴 모습",
+          "svg_sha256": "3b9a8e47c91b4ed803ec0cf583972103b095c6816965b59cf7222700d8f9fa39",
+          "svg_bytes": 4679
+        },
+        {
+          "id": "fig-ch05_epoch-batch",
+          "caption": "그림 5-4epoch, batch_size, step의 관계",
+          "svg_sha256": "d6cc4e22a7ddc2018ecaa89e5185405789c23f8f08f00bfa4762944a74b1d0d8",
+          "svg_bytes": 5854
+        },
+        {
+          "id": "fig-ch05_validation-split",
+          "caption": "그림 5-5validation_split이 데이터를 나누는 방식",
+          "svg_sha256": "645086a71776d4df7a3946b1725d5927d0cef8f360473433158e13ea50506286",
+          "svg_bytes": 3909
+        },
+        {
+          "id": "fig-ch05_history-curve",
+          "caption": "그림 5-6학습 곡선의 구성 요소",
+          "svg_sha256": "a7584749f60107e0bad674b0f02e27c4384d64a28074053d64577f9bedd274f8",
+          "svg_bytes": 2599
+        }
+      ],
+      "h2_ids": [
+        "1-compile이-정하는-세-가지",
+        "2-손실-함수-선택-이-교재의-정본",
+        "3-optimizer와-학습률",
+        "4-fit-epochs-batch-size-step",
+        "5-검증-데이터를-떼어내는-두-가지-방법",
+        "6-history-학습이-어떻게-진행됐는지-읽기",
+        "시험장-표준-코드",
+        "핵심-요약",
+        "ch05-확인-문제-컴파일과-학습"
+      ],
+      "code_blocks": 32,
+      "tables": 7,
+      "internal_links": [
+        "#1-compile이-정하는-세-가지",
+        "#2-손실-함수-선택-이-교재의-정본",
+        "#3-optimizer와-학습률",
+        "#4-fit-epochs-batch-size-step",
+        "#5-검증-데이터를-떼어내는-두-가지-방법",
+        "#6-history-학습이-어떻게-진행됐는지-읽기",
+        "#ch05-확인-문제-컴파일과-학습",
+        "#시험장-표준-코드",
+        "#핵심-요약",
+        "ch04.html",
+        "ch06.html",
+        "index.html",
+        "style.css"
+      ]
+    },
+    "ch06.html": {
+      "figures": [
+        {
+          "id": "fig-ch06_underfit-overfit-fit",
+          "caption": "그림 6-1과소적합·적정·과적합의 결정 경계",
+          "svg_sha256": "ffb60e389914e4c0eb62d61adefbfde159b3b6c55c011c8aefbb815aeef273b0",
+          "svg_bytes": 5363
+        },
+        {
+          "id": "fig-ch06_overfit-vs-good",
+          "caption": "그림 6-2과적합 곡선과 정상 학습 곡선 비교",
+          "svg_sha256": "1fc9335b182af70e15358af14c9fb44ac2a28e764a6f2dd8adbe6f99aba627b2",
+          "svg_bytes": 4022
+        },
+        {
+          "id": "fig-ch06_dropout-mechanism",
+          "caption": "그림 6-3Dropout이 학습 중 뉴런을 끄는 방식",
+          "svg_sha256": "b94361544e55b92a2519c39ba6175f68418148ede23d11b094038531a1c397b9",
+          "svg_bytes": 5894
+        },
+        {
+          "id": "fig-ch06_earlystopping",
+          "caption": "그림 6-4EarlyStopping이 학습을 멈추는 지점",
+          "svg_sha256": "c5dbc1c06004e2dc585d93840978e3c268ac1d263a2acc659bca4b389e7bf871",
+          "svg_bytes": 3245
+        },
+        {
+          "id": "fig-ch06_callback-flow",
+          "caption": "그림 6-5콜백이 학습 루프에 끼어드는 위치",
+          "svg_sha256": "fb72bbdcd2f70d557b4083a663311885e62233e3b7dd0fced260d354ff78da11",
+          "svg_bytes": 4489
+        },
+        {
+          "id": "fig-ch06_regularization-menu",
+          "caption": "그림 6-6과적합 대응 수단 비교",
+          "svg_sha256": "b57de7f6fdafe3752031077b571bc033e9954aaad9bfa397db8d94b0536074d3",
+          "svg_bytes": 2976
+        }
+      ],
+      "h2_ids": [
+        "6-1-과적합은-외운-것과-이해한-것의-차이입니다",
+        "6-2-학습-곡선-두-선이-벌어지는-지점을-찾습니다",
+        "6-3-dropout-학습할-때만-끄고-예측할-때는-켭니다",
+        "6-4-earlystopping-가장-좋았던-지점에서-멈추고-되돌립니다",
+        "6-5-modelcheckpoint-좋았던-순간을-파일로-남깁니다",
+        "6-6-과적합-대응-수단을-고르는-순서",
+        "시험장-표준-코드",
+        "핵심-요약",
+        "ch06-확인-문제-과적합-진단과-대응"
+      ],
+      "code_blocks": 30,
+      "tables": 8,
+      "internal_links": [
+        "#6-1-과적합은-외운-것과-이해한-것의-차이입니다",
+        "#6-2-학습-곡선-두-선이-벌어지는-지점을-찾습니다",
+        "#6-3-dropout-학습할-때만-끄고-예측할-때는-켭니다",
+        "#6-4-earlystopping-가장-좋았던-지점에서-멈추고-되돌립니다",
+        "#6-5-modelcheckpoint-좋았던-순간을-파일로-남깁니다",
+        "#6-6-과적합-대응-수단을-고르는-순서",
+        "#ch06-확인-문제-과적합-진단과-대응",
+        "#ch06uof-pts",
+        "#시험장-표준-코드",
+        "#핵심-요약",
+        "ch05.html",
+        "ch07.html",
+        "index.html",
+        "style.css"
+      ]
+    },
+    "ch07.html": {
+      "figures": [
+        {
+          "id": "fig-ch07_evaluate-predict",
+          "caption": "그림 7-1evaluate와 predict의 반환값 차이",
+          "svg_sha256": "a53270f9c54f37422b75839b0238c0254aa318b3e69b4e886f1ab20b99707cb5",
+          "svg_bytes": 4565
+        },
+        {
+          "id": "fig-ch07_prob-to-class",
+          "caption": "그림 7-2확률 예측값을 클래스로 바꾸는 방법",
+          "svg_sha256": "d7f3348c760e5f75b574c1bfd0486f409def29562a959d04b3cd3f042b9a2fa6",
+          "svg_bytes": 5486
+        },
+        {
+          "id": "fig-ch07_confusion-matrix",
+          "caption": "그림 7-3혼동 행렬의 네 칸 읽는 법",
+          "svg_sha256": "517e2912eba33d9506bab1d42e2265132731ab1dbb2e6897a57bd6647e07fb79",
+          "svg_bytes": 4911
+        },
+        {
+          "id": "fig-ch07_precision-recall",
+          "caption": "그림 7-4정밀도와 재현율이 중요해지는 상황",
+          "svg_sha256": "a32e551135894a99ad3a7ae93dbdf9a9f8a4ba7611c84f887efe470b8ae620c1",
+          "svg_bytes": 4216
+        },
+        {
+          "id": "fig-ch07_report-read",
+          "caption": "그림 7-5classification_report 읽는 순서",
+          "svg_sha256": "2f9e93de434f7b2f656ad1913acf5ad224c0db3201c6721944faf96c88d42489",
+          "svg_bytes": 4688
+        },
+        {
+          "id": "fig-ch07_regression-metrics",
+          "caption": "그림 7-6회귀 지표 mse·mae·r2의 초점 차이",
+          "svg_sha256": "33d55b0c5a1cdf5ab22196e1b92095965bb29a67a931e1bd476523934356f6a4",
+          "svg_bytes": 3820
+        }
+      ],
+      "h2_ids": [
+        "7-1-evaluate와-predict-돌려주는-것이-다릅니다",
+        "7-2-확률을-클래스로-임계값과-argmax",
+        "7-3-혼동-행렬-어디에서-틀렸는지를-봅니다",
+        "7-4-정밀도와-재현율-무엇을-더-두려워하는가",
+        "7-5-classification-report-읽는-순서가-있습니다",
+        "7-6-회귀-지표-mse-mae-r2",
+        "7-7-학습-곡선으로-평가-결과를-뒷받침합니다",
+        "시험장-표준-코드",
+        "핵심-요약",
+        "ch07-확인-문제-평가와-예측"
+      ],
+      "code_blocks": 32,
+      "tables": 8,
+      "internal_links": [
+        "#7-1-evaluate와-predict-돌려주는-것이-다릅니다",
+        "#7-2-확률을-클래스로-임계값과-argmax",
+        "#7-3-혼동-행렬-어디에서-틀렸는지를-봅니다",
+        "#7-4-정밀도와-재현율-무엇을-더-두려워하는가",
+        "#7-5-classification-report-읽는-순서가-있습니다",
+        "#7-6-회귀-지표-mse-mae-r2",
+        "#7-7-학습-곡선으로-평가-결과를-뒷받침합니다",
+        "#ch07-확인-문제-평가와-예측",
+        "#시험장-표준-코드",
+        "#핵심-요약",
+        "ch06.html",
+        "ch08.html",
+        "index.html",
+        "style.css"
+      ]
+    },
+    "ch08.html": {
+      "figures": [
+        {
+          "id": "fig-ch08_three-templates",
+          "caption": "그림 8-1유형별로 바뀌는 세 곳",
+          "svg_sha256": "a83a3fc8cf469a981fff2a5902cf2454a26d7728659d46ae91ab7c2e352cf91f",
+          "svg_bytes": 6189
+        },
+        {
+          "id": "fig-ch08_endtoend-binary",
+          "caption": "그림 8-2이진분류 문제의 전체 코드 지도",
+          "svg_sha256": "c94722d2fd82c0d1593f796784e434a98fc2182633695a16f66f4cbf4e40ace6",
+          "svg_bytes": 7709
+        },
+        {
+          "id": "fig-ch08_error-triage",
+          "caption": "그림 8-3자주 만나는 오류와 원인 판별",
+          "svg_sha256": "1a88a49b1935fa9d474a49cd13bcb3b49e1c4019ed04e1964897595780c70c02",
+          "svg_bytes": 7813
+        },
+        {
+          "id": "fig-ch08_score-strategy",
+          "caption": "그림 8-4부분 점수를 지키는 답안 구성",
+          "svg_sha256": "545e0abc644fe9903d33bd5ab957650fa3b1b2a5cd3a1757fdfe44a6c12ba2ec",
+          "svg_bytes": 5615
+        },
+        {
+          "id": "fig-ch08_exam-checklist",
+          "caption": "그림 8-5제출 전 최종 점검 순서",
+          "svg_sha256": "6ccaf2c9157921027e5f33c2b8ce0f16695e9f6ddaa3a26e619bbfdaf329d73b",
+          "svg_bytes": 4814
+        }
+      ],
+      "h2_ids": [
+        "8-1-바뀌는-곳은-세-줄뿐입니다",
+        "8-2-템플릿-a-이진분류-end-to-end",
+        "8-3-템플릿-b-다중분류-end-to-end",
+        "8-4-템플릿-c-회귀-end-to-end",
+        "8-5-오류-응급처치-메시지로-원인을-좁힙니다",
+        "8-6-시간-배분과-부분-점수-전략",
+        "8-7-제출-전-최종-점검",
+        "시험장-표준-코드",
+        "핵심-요약",
+        "ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략"
+      ],
+      "code_blocks": 31,
+      "tables": 8,
+      "internal_links": [
+        "#8-1-바뀌는-곳은-세-줄뿐입니다",
+        "#8-2-템플릿-a-이진분류-end-to-end",
+        "#8-3-템플릿-b-다중분류-end-to-end",
+        "#8-4-템플릿-c-회귀-end-to-end",
+        "#8-5-오류-응급처치-메시지로-원인을-좁힙니다",
+        "#8-6-시간-배분과-부분-점수-전략",
+        "#8-7-제출-전-최종-점검",
+        "#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략",
+        "#시험장-표준-코드",
+        "#핵심-요약",
+        "ch07.html",
+        "index.html",
+        "mock01.html",
+        "style.css"
+      ]
+    },
+    "index.html": {
+      "figures": [],
+      "h2_ids": [
+        "roadmap-title",
+        "toc-title"
+      ],
+      "code_blocks": 0,
+      "tables": 0,
+      "internal_links": [
+        "ch01.html",
+        "ch02.html",
+        "ch03.html",
+        "ch04.html",
+        "ch05.html",
+        "ch06.html",
+        "ch07.html",
+        "ch08.html",
+        "mock01.html",
+        "mock02.html",
+        "style.css"
+      ]
+    },
+    "mock01.html": {
+      "figures": [],
+      "h2_ids": [
+        "시작하기-전에-답안-작성-규칙",
+        "데이터-준비-문제-풀이-전-1회-실행",
+        "문제",
+        "채점표",
+        "이-회차에서-반드시-가져갈-것"
+      ],
+      "code_blocks": 26,
+      "tables": 6,
+      "internal_links": [
+        "#데이터-준비-문제-풀이-전-1회-실행",
+        "#문제",
+        "#시작하기-전에-답안-작성-규칙",
+        "ch08.html",
+        "index.html",
+        "mock02.html",
+        "style.css"
+      ]
+    },
+    "mock02.html": {
+      "figures": [],
+      "h2_ids": [
+        "시작하기-전에-답안-작성-규칙",
+        "데이터-준비-문제-풀이-전-1회-실행",
+        "문제",
+        "채점표",
+        "이-회차에서-반드시-가져갈-것"
+      ],
+      "code_blocks": 32,
+      "tables": 10,
+      "internal_links": [
+        "#데이터-준비-문제-풀이-전-1회-실행",
+        "#문제",
+        "#시작하기-전에-답안-작성-규칙",
+        "index.html",
+        "mock01.html",
+        "style.css"
+      ]
+    }
+  },
+  "totals": {
+    "pages": 11,
+    "figures": 46,
+    "unique_figure_ids": 46
+  }
+}

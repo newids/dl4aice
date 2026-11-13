@@ -6,6 +6,8 @@
 <title>Ch07. 평가와 예측 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
@@ -311,6 +313,10 @@ print(wrong, wrong.shape)                # [1 0 2] (3,)  ← 샘플 수가 아�
 확률을 그대로 <code>classification_report(y_test, pred)</code>에 넣으면 <code>continuous is not supported</code> 계열의 오류가 납니다. <strong><code>predict</code> 다음 줄에는 반드시 변환 한 줄</strong>이 온다고 외워 두십시오. 다중분류의 <code>axis=1</code>도 함께 묶어 기억하면 좋습니다.</p>
 </blockquote>
 <hr />
+<h3 id="직접-바꿔-보기-문제-유형별-예측-후처리">직접 바꿔 보기 — 문제 유형별 예측 후처리</h3>
+<p><code>model.predict()</code>가 돌려준 값을 정답과 비교할 수 있는 형태로 바꾸는 줄은 문제 유형마다 다릅니다. 탭을 바꾸면서 <strong>예측 후처리</strong> 줄과 <strong>평가지표</strong> 줄을 비교하십시오.</p>
+<div class="v2-arch" data-v2-arch data-default-type="binary" data-default-api="sequential" data-focus="postprocess,metrics"></div>
+<noscript><p class="v2-noscript">문제 유형·API 비교 위젯은 자바스크립트를 켜야 보입니다. 같은 내용은 Ch08의 템플릿 A·B·C에 정리되어 있습니다.</p></noscript>
 <h2 id="7-3-혼동-행렬-어디에서-틀렸는지를-봅니다">7.3 혼동 행렬 — 어디에서 틀렸는지를 봅니다</h2>
 <figure class="diagram" id="fig-ch07_confusion-matrix"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 456" width="800" height="456" role="img" aria-label="혼동 행렬의 네 칸 읽는 법">
   <title>혼동 행렬의 네 칸 읽는 법 — 행은 실제, 열은 예측이며 배치는 왼쪽 위부터 TN, FP, FN, TP 순이다. 정밀도는 예측 1 열, 재현율은 실제 1 행 방향으로 계산한다.</title>
@@ -1549,5 +1555,13 @@ weighted avg       0.98      0.98      0.98       171
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch06.html"><span class="pager__dir">이전</span><span class="pager__label">Ch06</span><span class="pager__title">과적합 진단과 대응</span></a><a class="pager__slot pager__slot--next" href="ch08.html"><span class="pager__dir">다음</span><span class="pager__label">Ch08</span><span class="pager__title">문제 유형별 완성 코드와 시험장 전략</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/data/arch_patterns.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/arch-switcher.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>

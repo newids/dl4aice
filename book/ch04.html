@@ -6,6 +6,8 @@
 <title>Ch04. Keras로 모델 만들기 — AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</title>
 <meta name="description" content="AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="assets/css/v2-widgets.css" />
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body class="page-chapter">
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본 — 도해로 익히고 코드로 끝낸다</a><a class="masthead__toc" href="index.html">목차</a></header>
@@ -405,6 +407,13 @@ print(n_class)                              # 3
 회귀 문제에 <code>Dense(1, activation='sigmoid')</code>를 쓰는 실수가 자주 나옵니다. sigmoid는 출력을 0~1로 눌러 버리므로, 집값이나 잔여 수명 같은 값은 영원히 맞힐 수 없습니다. <strong>회귀 출력층에는 활성화 함수를 쓰지 않습니다.</strong></p>
 </blockquote>
 <hr />
+<h3 id="직접-바꿔-보기-문제-유형과-api에-따라-달라지는-줄">직접 바꿔 보기 — 문제 유형과 API에 따라 달라지는 줄</h3>
+<p>같은 모델을 <code>Sequential</code> 방식과 함수형(Functional) 방식(<code>Input</code> → <code>Dense</code> → <code>Model</code>)으로 나란히 볼 수 있습니다. 문제 유형 탭을 바꾸면 <strong>출력층</strong>이, API 탭을 바꾸면 <strong>모델을 조립하는 줄</strong>이 강조됩니다. 시험 지시문이 어느 방식을 요구하든 바뀌는 줄은 정해져 있습니다.</p>
+<div class="v2-arch" data-v2-arch data-default-type="binary" data-default-api="sequential" data-focus="output,api"></div>
+<noscript><p class="v2-noscript">문제 유형·API 비교 위젯은 자바스크립트를 켜야 보입니다. 같은 내용은 Ch08의 템플릿 A·B·C에 정리되어 있습니다.</p></noscript>
+<blockquote class="callout callout--pin">
+<p>📌 <strong>시험 포인트</strong> — 함수형 API는 "층을 함수처럼 호출해 앞 층의 출력에 연결한다"는 점만 다릅니다. <code>inputs = Input(shape=(n,))</code>로 시작해 <code>x = Dense(64, activation='relu')(inputs)</code>처럼 잇고, 마지막에 <code>model = Model(inputs=inputs, outputs=outputs)</code>로 묶습니다. 출력층의 <code>units</code>와 <code>activation</code>을 고르는 규칙은 두 방식이 완전히 같습니다.</p>
+</blockquote>
 <h2 id="4-5-summary-만든-모델을-눈으로-확인합니다">4.5 summary() — 만든 모델을 눈으로 확인합니다</h2>
 <figure class="diagram" id="fig-ch04_param-count"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 530" width="800" height="530" role="img" aria-label="파라미터 수가 계산되는 방식" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>파라미터 수가 계산되는 방식. 입력 4노드와 은닉 5노드의 연결에서 가중치 20개와 편향 5개가 나와 25가 되고, 이 값이 summary 표의 Param 열에 나타납니다.</title>
@@ -1140,5 +1149,13 @@ Total params: 3,556
 </article>
 <nav class="pager" aria-label="페이지 이동"><a class="pager__slot pager__slot--prev" href="ch03.html"><span class="pager__dir">이전</span><span class="pager__label">Ch03</span><span class="pager__title">딥러닝은 어떻게 배우는가</span></a><a class="pager__slot pager__slot--next" href="ch05.html"><span class="pager__dir">다음</span><span class="pager__label">Ch05</span><span class="pager__title">컴파일과 학습</span></a></nav>
 </main>
+<script defer src="assets/data/openbook_refs.js"></script>
+<script defer src="assets/data/chapter_drills.js"></script>
+<script defer src="assets/data/arch_patterns.js"></script>
+<script defer src="assets/js/dl4aice-core.js"></script>
+<script defer src="assets/js/grader-core.js"></script>
+<script defer src="assets/js/code-grader.js"></script>
+<script defer src="assets/js/arch-switcher.js"></script>
+<script defer src="assets/js/openbook-modal.js"></script>
 </body>
 </html>

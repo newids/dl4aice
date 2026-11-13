@@ -8,7 +8,9 @@ from pathlib import Path
 HREF_RE = re.compile(r'href="([^"]+)"')
 ID_RE = re.compile(r'\sid="([^"]+)"')
 SVG_BLOCK_RE = re.compile(r"(?s)<svg\b.*?</svg>")
-PLACEHOLDER_RE = re.compile(r"<!--\s*(DIAGRAM|EXAM)\b")
+PLACEHOLDER_RE = re.compile(r"<!--\s*(DIAGRAM|EXAM|WIDGET)\b")
+SRC_RE = re.compile(r'\ssrc="([^"]+)"')
+SCRIPT_BLOCK_RE = re.compile(r"(?s)<script\b[^>]*>.*?</script>")
 COMMENT_RE = re.compile(r"<!--(?!\[if).*?-->", re.S)
 
 
@@ -40,7 +42,15 @@ def check_links(book: Path) -> dict:
     total = 0
     for path in sorted(book.glob("*.html")):
         text = path.read_text(encoding="utf-8")
-        for href in HREF_RE.findall(_outside_svg(text)):
+        outside = _outside_svg(text)
+        for src in SRC_RE.findall(outside):
+            if src.startswith(("http://", "https://", "data:")):
+                broken.append(f"{path.name} -> {src} (외부 스크립트/리소스 금지)")
+                continue
+            total += 1
+            if not (book / src).exists():
+                broken.append(f"{path.name} -> {src} (파일 없음)")
+        for href in HREF_RE.findall(SCRIPT_BLOCK_RE.sub("", outside)):
             if href.startswith(("http://", "https://", "mailto:")):
                 continue
             total += 1
@@ -68,7 +78,7 @@ def check_diagrams(book: Path, diagrams: Path) -> dict:
     }
 
 
-def check_toc(book: Path, expected_keys: list[str]) -> dict:
+def check_toc(book: Path, expected_keys: list[str], extra_pages: tuple[str, ...] = ()) -> dict:
     """4) 목차 ↔ 실제 페이지 일치."""
     index = (book / "index.html").read_text(encoding="utf-8")
     linked = {
@@ -77,7 +87,8 @@ def check_toc(book: Path, expected_keys: list[str]) -> dict:
         if h.endswith(".html")
     }
     expected = {f"{k}.html" for k in expected_keys}
-    produced = {p.name for p in book.glob("*.html")} - {"index.html"}
+    produced = {p.name for p in book.glob("*.html")} - {"index.html"} - set(extra_pages)
+    linked -= set(extra_pages)  # 목차 밖 부속 페이지(치트시트 등)는 링크 검사에서 따로 확인한다
     return {
         "expected": sorted(expected),
         "not_linked": sorted(expected - linked),
