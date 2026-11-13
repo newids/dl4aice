@@ -649,14 +649,6 @@
     }
     window.addEventListener("resize", debounce(measureTop, 120));
 
-    var recalcSoon = debounce(function () {
-      var q = byNo[S.current];
-      if (!q || screen !== "exam") return;
-      status[q.no] = classify(q, codeOf(q));
-      updatePalette();
-      updateScore();
-    }, 280);
-
     /* ----- 문항 화면 ----- */
     function goTo(no, user) {
       if (!byNo[no] || S.submitted) return;
@@ -681,7 +673,6 @@
     function buildQuestion(no) {
       var q = byNo[no];
       var qw = ui.qwrap;
-      recalcSoon.flush();
       qw.textContent = "";
       cellApi = null;
       if (!q) { qw.appendChild(note("문항을 찾지 못했습니다.", "err")); return; }
@@ -768,18 +759,13 @@
       return { root: box, textarea: ta, getCode: function () { return ta.value; }, setDisabled: function (b) { ta.disabled = !!b; }, run: function () {}, focusFirstBlank: function () { ta.focus(); } };
     }
 
+    /* 셀이 이미 300ms 디바운스하므로 여기서는 바로 판정한다(문항 이동 직후 도착한 변경도 올바른 문항에 반영) */
     function onEdit(q, code, res) {
       if (S.submitted) return;
       S.answers[q.no] = code;
       saveSoon();
-      if (res) {
-        status[q.no] = classify(q, code, res);
-        recalcSoon.flush();
-        updatePalette();
-        updateScore();
-      } else {
-        recalcSoon();
-      }
+      status[q.no] = classify(q, code, res);
+      if (screen === "exam") { updatePalette(); updateScore(); }
     }
 
     function paintBookmark() {
@@ -850,7 +836,6 @@
     function submit(timeout) {
       if (S.submitted) return;
       if (dialog) { dialog.close(); dialog = null; }
-      recalcSoon.flush();
       var rem = curRemaining();
       stopTimer();
       S.remaining = rem;
