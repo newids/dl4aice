@@ -28,3 +28,4 @@
 | 2026-11-13 | 광고 카피식 문구 금지 규칙 추가. 교재 제목의 구호 삭제, 부제·콘셉트 문장과 소제목 3곳(2.7, 4.6, 7.4) 평서문으로 수정 | CLAUDE.md, 01_curriculum.md, chapters/ch02·04·07, skills/chapter-writing, exam-authoring | 사용자 지시 |
 | 2026-11-13 | 부록 `appendix.html`(외워야 하는 코드 3단 분해: 흐름·줄·값) 추가. 원고 정본은 `scripts/v2/appendix_memorize.py`, `--verify`로 실린 코드 실제 실행 | scripts/v2, _workspace/pages, assets/css/_parts/55-appendix.css | 사용자 요청 |
 | 2026-11-13 | 부록에 기억 연습 추가(순서의 이유, 값·줄 가리기, 보지 않고 써 보기 + 정적 채점, 1·3·7·14·30일 간격 복습). 전체 목차에 "부록" 묶음(A 외워야 하는 코드, B 치트시트) 추가, 이전/다음 내비게이션 연결 | scripts/v2/appendix_memorize.py, assets/js/appendix.js, assets/data/appendix_units.json, scripts/ebook | 사용자 요청 |
+| 2026-11-22 | 그룹 스터디 발표 자료 `study/`(회차별 11개, 발표 30~40분 + 질의응답 20분) 추가, 형식 검사 `scripts/v2/check_study.py`. 교재 본문의 과장 문장 3곳(Ch05, Ch08) 평서문으로 수정 | study/, scripts/v2, chapters/ch05·08 | 사용자 요청 |
