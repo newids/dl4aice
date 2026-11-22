@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>8회차 — 문제 유형별 완성 코드와 시험장 전략 — 스터디 발표 자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef1f6; --paper: #ffffff; --ink: #1a2332; --soft: #475569; --muted: #64748b;
+  --line: #cbd5e1; --line-soft: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+  --chip-bg: #eef2f7; --chip-fg: #0f2a5e; --code-bg: #0d1424; --code-fg: #d6deeb;
+  --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "D2Coding", monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0f1a; --paper: #111827; --ink: #e6eaf2; --soft: #c3cddd; --muted: #9aa8bd;
+  --line: #334155; --line-soft: #243044; --primary: #6ea8fe; --primary-soft: #1b2f4f;
+  --chip-bg: #22304a; --chip-fg: #cfe0ff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  word-break: keep-all; overflow-wrap: anywhere; overflow: hidden;
+}
+.deck { position: fixed; inset: 0 0 3.25rem 0; display: grid; place-items: center; padding: 1.2vmin; }
+.slide {
+  display: none; width: min(100%, calc((100vh - 3.25rem - 2.4vmin) * 16 / 9)); aspect-ratio: 16 / 9;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px;
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.45); overflow: hidden;
+}
+.slide.is-current { display: block; }
+.slide__inner {
+  --scale: 1; height: 100%; padding: 4.2% 5.4% 3.6%; overflow: auto;
+  font-size: calc(clamp(13px, 1.72vw, 30px) * var(--scale)); line-height: 1.55;
+}
+.slide h1, .slide h2 { margin: 0 0 0.7em; line-height: 1.28; letter-spacing: -0.02em; }
+.slide h1 { font-size: 2.1em; margin-top: 12%; }
+.slide h2 { font-size: 1.42em; padding-bottom: 0.35em; border-bottom: 1px solid var(--line-soft); }
+.slide h3 { font-size: 1.08em; margin: 0.9em 0 0.4em; }
+.slide p { margin: 0 0 0.6em; }
+.slide ul, .slide ol { margin: 0 0 0.6em; padding-left: 1.25em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li > ul, .slide li > ol { margin-top: 0.3em; }
+.slide a { color: var(--primary); }
+.slide strong { font-weight: 700; }
+.slide code {
+  font-family: var(--mono); font-size: 0.86em; padding: 0.05em 0.32em; border-radius: 5px;
+  color: var(--chip-fg); background: var(--chip-bg); font-variant-ligatures: none;
+}
+.slide pre {
+  margin: 0 0 0.7em; padding: 0.75em 0.95em; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.slide pre code { padding: 0; background: none; color: inherit; font-size: 0.8em; line-height: 1.55; white-space: pre; }
+.slide table { width: 100%; margin: 0 0 0.7em; border-collapse: collapse; font-size: 0.88em; }
+.slide th, .slide td { padding: 0.42em 0.6em; text-align: left; vertical-align: top; border: 1px solid var(--line-soft); }
+.slide thead th { background: var(--chip-bg); color: var(--chip-fg); font-weight: 700; }
+.slide blockquote {
+  margin: 0 0 0.7em; padding: 0.6em 0.9em; color: var(--soft); background: var(--chip-bg);
+  border: 1px solid var(--line-soft); border-radius: 10px;
+}
+.slide blockquote > :last-child { margin-bottom: 0; }
+.figure { margin: 0 0 0.6em; padding: 0.5em; background: #ffffff; border: 1px solid var(--line-soft); border-radius: 10px; text-align: center; }
+.figure svg { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(44vh * var(--fig, 1)); margin: 0 auto; }
+.figure figcaption { margin-top: 0.3em; font-size: 0.72em; color: #64748b; }
+.slide--title .slide__inner { display: flex; flex-direction: column; justify-content: center; }
+.slide--title h1 { margin-top: 0; }
+.slide--title ul { list-style: none; padding: 0; color: var(--soft); }
+
+.tok-kw { color: #c792ea; } .tok-const { color: #82aaff; font-style: italic; } .tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; } .tok-com { color: #7c8aa5; font-style: italic; } .tok-fn { color: #82d2ff; }
+.tok-builtin { color: #ffcb6b; } .tok-cls { color: #5eead4; } .tok-param { color: #f9a8d4; }
+.tok-mod { color: #d6deeb; } .tok-dec { color: #ffcb6b; font-style: italic; } .tok-op { color: #89ddff; }
+.tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
+
+.bar {
+  position: fixed; inset: auto 0 0 0; height: 3.25rem; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 0.8rem; background: var(--paper); border-top: 1px solid var(--line-soft); font-size: 0.86rem;
+}
+.bar__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); font-weight: 600; }
+.bar__count, .bar__time { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.bar__time strong { color: var(--ink); }
+.bar__time.is-over strong { color: #dc2626; }
+.btn {
+  min-width: 2.5rem; min-height: 2.5rem; padding: 0.3rem 0.7rem; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn:focus-visible, .ov__item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.meter { position: fixed; inset: auto 0 3.25rem 0; height: 3px; background: var(--line-soft); }
+.meter span { display: block; height: 100%; width: 0; background: var(--primary); transition: width 180ms ease-out; }
+
+.ov { position: fixed; inset: 0; z-index: 10; display: none; padding: 1.2rem; overflow: auto; background: var(--bg); }
+.ov.is-open { display: block; }
+.ov__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
+.ov__head h2 { margin: 0; font-size: 1.1rem; }
+.ov__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; }
+.ov__item {
+  display: flex; gap: 0.6rem; width: 100%; min-height: 3.2rem; padding: 0.6rem 0.8rem; font: inherit; text-align: left; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 10px; cursor: pointer;
+}
+.ov__item:hover { border-color: var(--primary); }
+.ov__item[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.ov__no { flex: none; width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.help { margin: 1rem 0 0; font-size: 0.82rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+
+.index { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; overflow: auto; height: 100%; }
+.index h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+.index p { color: var(--soft); line-height: 1.7; }
+.index ol { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.6rem; }
+.index li a {
+  display: flex; gap: 1rem; align-items: baseline; padding: 0.9rem 1.1rem; color: var(--ink); text-decoration: none;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.index li a:hover { border-color: var(--primary); }
+.index .no { flex: none; width: 3.6rem; font-weight: 700; color: var(--primary); }
+.index .meta { margin-left: auto; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .bar__title { display: none; }
+  .slide { width: 100%; aspect-ratio: auto; height: 100%; }
+  .slide__inner { font-size: calc(15px * var(--scale)); }
+}
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .bar, .meter, .ov { display: none !important; }
+  .deck { position: static; display: block; padding: 0; }
+  .slide { display: block !important; width: 297mm; height: 167mm; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; break-after: page; }
+  .slide__inner { font-size: 15pt; overflow: hidden; }
+}
+</style>
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body data-minutes="34">
+<main class="deck" aria-live="polite">
+<section class="slide slide--title" data-title="8회차 — 문제 유형별 완성 코드와 시험장 전략" aria-label="1 / 26"><div class="slide__inner"><h1>8회차 — 문제 유형별 완성 코드와 시험장 전략</h1>
+<ul>
+<li>범위: 교재 8장 문제 유형별 완성 코드와 시험장 전략 (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch08.html">https://newids.github.io/dl4aice/ch08.html</a>)</li>
+<li>발표 35분 안팎 + 질의응답 20분</li>
+<li>사전 준비: 챕터 읽기 + 실습 셀 풀기</li>
+</ul></div></section>
+<section class="slide" data-title="오늘의 목표" aria-label="2 / 26"><div class="slide__inner"><h2>오늘의 목표</h2>
+<ol>
+<li>이진분류, 다중분류, 회귀 코드에서 바꾸는 네 곳(출력층, loss, metrics, 예측 변환)을 짝지어 말하고 교체한다.</li>
+<li>오류 메시지의 키워드 하나로 원인을 좁히고, 학습이 안 될 때 자가 진단 4줄을 실행한다.</li>
+<li>90분 시간 배분과 제출 전 점검 순서를 자기 계획으로 만든다.</li>
+</ol></div></section>
+<section class="slide" data-title="진행 순서" aria-label="3 / 26"><div class="slide__inner"><h2>진행 순서</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>내용</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8.1</td>
+<td>유형별로 바뀌는 곳</td>
+<td>4분</td>
+</tr>
+<tr>
+<td>8.2~8.4</td>
+<td>세 가지 end-to-end 템플릿</td>
+<td>8분</td>
+</tr>
+<tr>
+<td>8.5</td>
+<td>오류 응급처치</td>
+<td>8분</td>
+</tr>
+<tr>
+<td>8.6~8.7</td>
+<td>시간 배분, 부분 점수, 제출 전 점검</td>
+<td>5분</td>
+</tr>
+<tr>
+<td>참고 자료</td>
+<td>치트시트와 부록 A</td>
+<td>2분</td>
+</tr>
+<tr>
+<td>함께 풀기</td>
+<td>실습 셀 두 개</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>정리</td>
+<td>기억할 내용</td>
+<td>1분</td>
+</tr>
+<tr>
+<td>질의응답</td>
+<td>토론 질문과 질문 받기</td>
+<td>20분</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="8.1 유형별로 바뀌는 곳 (2분)" aria-label="4 / 26"><div class="slide__inner"><h2>8.1 유형별로 바뀌는 곳 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 432" width="800" height="432" role="img" aria-label="유형별로 바뀌는 세 곳" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>유형별로 바뀌는 세 곳 — 이진분류, 다중분류, 회귀 세 유형에서 출력층과 loss와 평가지표 세 줄만 달라지고, 전처리부터 은닉층 구성과 콜백까지 나머지 코드는 모두 동일하다.</title>
+
+  <rect x="0" y="0" width="800" height="432" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">유형별로 바뀌는 세 곳</text>
+
+  
+  <rect x="24" y="64" width="76" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="62" y="89" font-size="11" font-weight="bold" text-anchor="middle" fill="#2563eb">교체 지점</text>
+
+  <rect x="108" y="64" width="210" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="213" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a2332">이진분류</text>
+
+  <rect x="326" y="64" width="270" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="461" y="90" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">다중분류 (K클래스, 정수 라벨)</text>
+
+  <rect x="604" y="64" width="172" height="40" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="690" y="90" font-size="14" font-weight="bold" text-anchor="middle" fill="#1a2332">회귀</text>
+
+  
+  <text x="62" y="155" font-size="13" font-weight="bold" text-anchor="middle" fill="#2563eb">출력층</text>
+
+  <rect x="108" y="116" width="210" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1,</text>
+  <text x="213" y="160" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation='sigmoid')</text>
+
+  <rect x="326" y="116" width="270" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(n_classes,</text>
+  <text x="461" y="160" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation='softmax')</text>
+  <text x="461" y="178" font-size="11" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">n_classes = len(np.unique(y_train))</text>
+
+  <rect x="604" y="116" width="172" height="68" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="142" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1)</text>
+  <text x="690" y="162" font-size="11" text-anchor="middle" fill="#94a3b8">활성화 없음</text>
+
+  
+  <text x="62" y="225" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss</text>
+
+  <rect x="108" y="192" width="210" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'binary_crossentropy'</text>
+
+  <rect x="326" y="192" width="270" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'sparse_categorical_crossentropy'</text>
+
+  <rect x="604" y="192" width="172" height="56" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="226" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'mse'</text>
+
+  
+  <text x="62" y="291" font-size="13" font-weight="bold" text-anchor="middle" fill="#2563eb">평가지표</text>
+
+  <rect x="108" y="256" width="210" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="213" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['accuracy']</text>
+  <text x="213" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">classification_report</text>
+
+  <rect x="326" y="256" width="270" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="461" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['accuracy']</text>
+  <text x="461" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">혼동 행렬은 클래스 수만큼 커집니다</text>
+
+  <rect x="604" y="256" width="172" height="60" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="690" y="284" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">['mae']</text>
+  <text x="690" y="303" font-size="11" text-anchor="middle" fill="#94a3b8">mse · mae · r2</text>
+
+  
+  <text x="24" y="340" font-size="12" fill="#94a3b8">표에 없는 한 곳 — 예측 변환(0.5 임계값 / argmax / flatten)은 평가 단계에서 함께 바뀝니다.</text>
+
+  
+  <rect x="24" y="356" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="400" y="379" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">나머지는 세 유형 모두 동일</text>
+  <text x="400" y="398" font-size="12" text-anchor="middle" fill="#94a3b8">결측치 처리 · 인코딩 · 데이터 분리 · 스케일링 · 은닉층 구성 · Dropout · EarlyStopping · 학습 곡선</text>
+</svg><figcaption>세 유형에서 바뀌는 곳은 출력층, loss, 평가지표입니다</figcaption></figure>
+<ul>
+<li>전처리, 은닉층, <code>Dropout</code>, <code>EarlyStopping</code>, 학습 곡선은 세 유형에서 같습니다.</li>
+<li>코드의 교체 슬롯은 네 곳입니다: 출력층, loss, metrics, 예측 변환.</li>
+<li><code>metrics</code>는 회귀에서만 바뀌므로 분류끼리 비교하면 세 곳입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.1 바뀌는 곳 비교표와 유형 판정 (1분)" aria-label="5 / 26"><div class="slide__inner"><h2>8.1 바뀌는 곳 비교표와 유형 판정 (1분)</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>이진분류</th>
+<th>다중분류</th>
+<th>회귀</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>출력층</td>
+<td><code>Dense(1, 'sigmoid')</code></td>
+<td><code>Dense(K, 'softmax')</code></td>
+<td><code>Dense(1)</code></td>
+</tr>
+<tr>
+<td>loss</td>
+<td><code>binary_crossentropy</code></td>
+<td><code>sparse_categorical_crossentropy</code></td>
+<td><code>mse</code></td>
+</tr>
+<tr>
+<td>metrics</td>
+<td><code>['accuracy']</code></td>
+<td><code>['accuracy']</code></td>
+<td><code>['mae']</code></td>
+</tr>
+<tr>
+<td>예측 변환</td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+<td><code>np.argmax(pred, axis=1)</code></td>
+<td><code>pred.flatten()</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">print(y_train[:10]); print(y_train.dtype); print(len(np.unique(y_train)))
+</code></pre>
+<ul>
+<li>값 2개는 이진, 정수 3개 이상은 다중, 계속 다른 실수는 회귀입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="자주 틀리는 지점 (1) 출력층과 loss의 짝 (1분)" aria-label="6 / 26"><div class="slide__inner"><h2>자주 틀리는 지점 (1) 출력층과 loss의 짝 (1분)</h2>
+<ul>
+<li>loss만 바꾸고 출력층을 그대로 두는 실수가 가장 흔합니다. 반대로 출력층만 바꾸고 loss를 두는 경우도 같습니다. 두 줄은 한 쌍입니다.</li>
+<li>라벨이 정수면 <code>sparse_categorical_crossentropy</code>, 원-핫이면 <code>categorical_crossentropy</code>입니다. 출력층은 둘 다 <code>Dense(K, 'softmax')</code>입니다.</li>
+<li>회귀 출력층에 <code>sigmoid</code>를 붙이면 예측이 1을 넘지 못해 r2가 크게 음수가 됩니다.</li>
+<li>회귀에는 <code>stratify</code>를 쓰지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.2 템플릿 A: 이진분류 end-to-end (3분)" aria-label="7 / 26"><div class="slide__inner"><h2>8.2 템플릿 A: 이진분류 end-to-end (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420" role="img" aria-label="이진분류 문제의 전체 코드 지도" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>이진분류 문제의 전체 코드 지도 — 로딩, 탐색, 전처리, 분리에 이어 구성, 컴파일, 학습, 평가까지 여덟 단계가 순서대로 이어지며 각 단계마다 대표 코드 한 줄이 붙어 있고, 구성과 컴파일과 학습 세 단계가 딥러닝 구간이다.</title>
+  <defs>
+    <marker id="ch08eb-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="420" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">이진분류 문제의 전체 코드 지도</text>
+  <text x="24" y="62" font-size="12" fill="#94a3b8">8단계를 순서대로 밟으면 답안 한 벌이 완성됩니다.</text>
+
+  
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)">
+    <line x1="196" y1="142" x2="214" y2="142"/>
+    <line x1="390" y1="142" x2="408" y2="142"/>
+    <line x1="584" y1="142" x2="602" y2="142"/>
+  </g>
+
+  
+  
+  <rect x="26" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="50" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="50" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">1</text>
+  <text x="109" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">로딩</text>
+  <text x="109" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">pd.read_csv(...)</text>
+  <text x="109" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">원본 데이터프레임</text>
+
+  
+  <rect x="220" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="244" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="244" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">2</text>
+  <text x="303" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">탐색</text>
+  <text x="303" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">df.isnull().sum()</text>
+  <text x="303" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">shape · 결측 · 분포</text>
+
+  
+  <rect x="414" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="438" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="438" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">3</text>
+  <text x="497" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">전처리</text>
+  <text x="497" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna / get_dummies</text>
+  <text x="497" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">인코딩은 분리 전</text>
+
+  
+  <rect x="608" y="92" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="632" cy="116" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="632" y="121" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">4</text>
+  <text x="691" y="138" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">분리</text>
+  <text x="691" y="166" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split(...)</text>
+  <text x="691" y="184" font-size="11" text-anchor="middle" fill="#94a3b8">스케일링은 분리 후</text>
+
+  
+  <path d="M691,192 V222 H109 V252" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)"/>
+
+  
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08eb-arrow)">
+    <line x1="196" y1="306" x2="214" y2="306"/>
+    <line x1="390" y1="306" x2="408" y2="306"/>
+    <line x1="584" y1="306" x2="602" y2="306"/>
+  </g>
+
+  
+  
+  <rect x="26" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="50" cy="280" r="13" fill="#2563eb"/>
+  <text x="50" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">5</text>
+  <text x="109" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">구성</text>
+  <text x="109" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Sequential / Dense</text>
+  <text x="109" y="348" font-size="11" text-anchor="middle" fill="#2563eb">교체 지점 (1) 출력층</text>
+
+  
+  <rect x="220" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="244" cy="280" r="13" fill="#2563eb"/>
+  <text x="244" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">6</text>
+  <text x="303" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">컴파일</text>
+  <text x="303" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.compile(...)</text>
+  <text x="303" y="348" font-size="11" text-anchor="middle" fill="#2563eb">교체 지점 (2)(3)</text>
+
+  
+  <rect x="414" y="256" width="166" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="438" cy="280" r="13" fill="#2563eb"/>
+  <text x="438" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">7</text>
+  <text x="497" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">학습</text>
+  <text x="497" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.fit(...)</text>
+  <text x="497" y="348" font-size="11" text-anchor="middle" fill="#2563eb">EarlyStopping 포함</text>
+
+  
+  <rect x="608" y="256" width="166" height="100" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="632" cy="280" r="13" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="632" y="285" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">8</text>
+  <text x="691" y="302" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a2332">평가</text>
+  <text x="691" y="330" font-size="11.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate / predict</text>
+  <text x="691" y="348" font-size="11" text-anchor="middle" fill="#94a3b8">교체 지점 (4) 예측 변환</text>
+
+  
+  <path d="M26,368 L26,376 L580,376 L580,368" fill="none" stroke="#2563eb" stroke-width="2"/>
+  <text x="303" y="398" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">딥러닝 3단계 — 구성(Ch04) · 컴파일 · 학습(Ch05)</text>
+</svg><figcaption>로딩에서 평가까지 8단계 지도</figcaption></figure>
+<ul>
+<li>8단계: 로딩, 탐색, 결측 처리, 인코딩과 분리와 스케일링, 구성, 컴파일, 학습, 평가.</li>
+<li>시험에서는 로딩 블록만 <code>df = pd.read_csv('data.csv')</code>로 바꿉니다.</li>
+<li>교재 예시에서 <code>df.shape</code>는 <code>(1000, 5)</code>인데 입력 특성 수는 6입니다. <code>get_dummies</code>가 범주 컬럼 하나를 세 컬럼으로 펼치기 때문이므로 <code>Input(shape=(X_train_scaled.shape[1],))</code>로 받습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.2 인코딩, 분리, 스케일링의 순서 (2분)" aria-label="8 / 26"><div class="slide__inner"><h2>8.2 인코딩, 분리, 스케일링의 순서 (2분)</h2>
+<pre><code class="language-python">df = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+X = df.drop(columns=['churn'])
+y = df['churn']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+</code></pre>
+<ul>
+<li>인코딩은 분리 전, 스케일링은 분리 후입니다.</li>
+<li>모델에 넣는 것은 항상 <code>_scaled</code> 배열입니다.</li>
+<li>평가 데이터에는 <code>fit</code> 없이 <code>transform</code>만 합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.3 템플릿 B: 다중분류 교체 카드 (2분)" aria-label="9 / 26"><div class="slide__inner"><h2>8.3 템플릿 B: 다중분류 교체 카드 (2분)</h2>
+<pre><code class="language-python">n_classes = len(np.unique(y_train))
+model.add(Dense(n_classes, activation='softmax'))         # (1)
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',     # (2) 원-핫이면 categorical_crossentropy
+              metrics=['accuracy'])                       # (3)
+y_pred = np.argmax(pred, axis=1)                          # (4)
+</code></pre>
+<ul>
+<li>와인 데이터(클래스 3개)에서 <code>predict</code> 결과는 <code>(54, 3)</code>이고 한 행의 합이 1입니다.</li>
+<li>혼동 행렬은 3x3이므로 <code>ravel()</code>로 풀지 않고 표 전체를 출력합니다.</li>
+<li>클래스 수는 눈으로 세지 않고 <code>len(np.unique(y_train))</code>으로 구합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.4 템플릿 C: 회귀 교체 카드 (1분)" aria-label="10 / 26"><div class="slide__inner"><h2>8.4 템플릿 C: 회귀 교체 카드 (1분)</h2>
+<pre><code class="language-python">model.add(Dense(1))                                       # (1) 활성화 없음
+model.compile(optimizer='adam',
+              loss='mse',                                 # (2)
+              metrics=['mae'])                            # (3)
+y_pred = pred.flatten()                                   # (4)
+print('mse:', mean_squared_error(y_test, y_pred))
+print('mae:', mean_absolute_error(y_test, y_pred))
+print('r2 :', r2_score(y_test, y_pred))
+</code></pre>
+<ul>
+<li><code>history</code> 키가 <code>mae</code>, <code>val_mae</code>로 바뀝니다. 곡선을 그리기 전에 <code>history.history.keys()</code>를 확인합니다.</li>
+<li><code>classification_report</code>는 쓰지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.5 오류 응급처치: 네 가지 증상 (3분)" aria-label="11 / 26"><div class="slide__inner"><h2>8.5 오류 응급처치: 네 가지 증상 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" aria-label="자주 만나는 오류와 원인 판별" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>자주 만나는 오류와 원인 판별 — shape 불일치, 라벨과 출력층 불일치, loss가 nan, accuracy가 0.5 부근 고정이라는 네 가지 증상 각각에 대해 원인과 조치가 짝지어져 있다.</title>
+  <defs>
+    <marker id="ch08et-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="520" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">자주 만나는 오류와 원인 판별</text>
+  <text x="24" y="62" font-size="12" fill="#94a3b8">메시지의 첫 줄만 읽어도 네 갈래 중 하나로 좁혀집니다.</text>
+
+  
+  <text x="143" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">증상</text>
+  <text x="372" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">원인</text>
+  <text x="629" y="88" font-size="12" font-weight="bold" text-anchor="middle" fill="#059669">조치</text>
+
+  
+  <g stroke="#94a3b8" stroke-width="2" marker-end="url(#ch08et-arrow)">
+    <line x1="266" y1="142" x2="282" y2="142"/>
+    <line x1="462" y1="142" x2="478" y2="142"/>
+    <line x1="266" y1="238" x2="282" y2="238"/>
+    <line x1="462" y1="238" x2="478" y2="238"/>
+    <line x1="266" y1="334" x2="282" y2="334"/>
+    <line x1="462" y1="334" x2="478" y2="334"/>
+    <line x1="266" y1="430" x2="282" y2="430"/>
+    <line x1="462" y1="430" x2="478" y2="430"/>
+  </g>
+
+  
+  <rect x="24" y="100" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="124" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="129" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">1</text>
+  <text x="68" y="129" font-size="13" font-weight="bold" fill="#dc2626">shape 불일치</text>
+  <text x="40" y="152" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">expected axis -1 of input shape</text>
+  <text x="40" y="170" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">to have value 10 ... (None, 13)</text>
+
+  <rect x="286" y="100" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="136" font-size="12" text-anchor="middle" fill="#1a2332">Input(shape=)의 숫자가</text>
+  <text x="372" y="156" font-size="12" text-anchor="middle" fill="#1a2332">실제 특성 수와 다름</text>
+
+  <rect x="482" y="100" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="130" font-size="12.5" font-weight="bold" fill="#059669">특성 수를 직접 세지 말고 자동 계산</text>
+  <text x="498" y="156" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(X_train_scaled.shape[1],))</text>
+
+  
+  <rect x="24" y="196" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="220" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="225" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">2</text>
+  <text x="68" y="225" font-size="13" font-weight="bold" fill="#dc2626">라벨 · 출력층 불일치</text>
+  <text x="40" y="248" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Received a label value of 2</text>
+  <text x="40" y="266" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">outside the valid range of [0, 1)</text>
+
+  <rect x="286" y="196" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="232" font-size="12" text-anchor="middle" fill="#1a2332">클래스는 3개인데</text>
+  <text x="372" y="252" font-size="12" text-anchor="middle" fill="#1a2332">출력층이 Dense(1)</text>
+
+  <rect x="482" y="196" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="226" font-size="12.5" font-weight="bold" fill="#059669">출력층을 클래스 수에 맞춰 교체</text>
+  <text x="498" y="252" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(n_classes, activation='softmax')</text>
+
+  
+  <rect x="24" y="292" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="316" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="321" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">3</text>
+  <text x="68" y="321" font-size="13" font-weight="bold" fill="#dc2626">loss가 nan</text>
+  <text x="40" y="344" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss: nan</text>
+  <text x="40" y="364" font-size="11" fill="#94a3b8">오류 메시지 없이 학습만 진행됩니다</text>
+
+  <rect x="286" y="292" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="328" font-size="12" text-anchor="middle" fill="#1a2332">입력에 결측치(NaN)가</text>
+  <text x="372" y="348" font-size="12" text-anchor="middle" fill="#1a2332">남아 있음</text>
+
+  <rect x="482" y="292" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="322" font-size="12.5" font-weight="bold" fill="#059669">결측 개수를 확인한 뒤 다시 처리</text>
+  <text x="498" y="348" font-size="11" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">np.isnan(X_train_scaled).sum()</text>
+
+  
+  <rect x="24" y="388" width="238" height="84" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="46" cy="412" r="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="46" y="417" font-size="12" font-weight="bold" text-anchor="middle" fill="#dc2626">4</text>
+  <text x="68" y="417" font-size="13" font-weight="bold" fill="#dc2626">accuracy 0.5 부근 고정</text>
+  <text x="40" y="444" font-size="11.5" fill="#1a2332">오류 메시지 없이 학습만 안 됩니다</text>
+  <text x="40" y="464" font-size="11" fill="#94a3b8">accuracy가 오르지 않고 멈춰 있습니다</text>
+
+  <rect x="286" y="388" width="172" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="372" y="416" font-size="12" text-anchor="middle" fill="#1a2332">스케일링 누락</text>
+  <text x="372" y="436" font-size="12" text-anchor="middle" fill="#1a2332">출력층 활성화 오지정</text>
+  <text x="372" y="456" font-size="12" text-anchor="middle" fill="#1a2332">라벨 형태 이상</text>
+
+  <rect x="482" y="388" width="294" height="84" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="498" y="418" font-size="12.5" font-weight="bold" fill="#059669">자가 진단 4줄 실행</text>
+  <text x="498" y="444" font-size="11" fill="#1a2332">입력 결측 · 입력 범위 · 라벨 분포 · 출력층</text>
+
+  <text x="24" y="500" font-size="12" fill="#94a3b8">모델을 만든 직후 model.summary()를 찍어 두면 1번과 2번은 학습을 돌리기 전에 잡힙니다.</text>
+</svg><figcaption>오류 증상, 원인, 조치를 연결한 분기도</figcaption></figure>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>shape 불일치</td>
+<td><code>Input(shape=)</code> 숫자와 실제 특성 수가 다름</td>
+</tr>
+<tr>
+<td>라벨 범위 오류</td>
+<td>클래스 수와 출력층 노드 수가 다름</td>
+</tr>
+<tr>
+<td>loss가 <code>nan</code></td>
+<td>입력에 결측치가 남음</td>
+</tr>
+<tr>
+<td>accuracy가 0.5 부근 고정</td>
+<td>스케일링 누락, 출력층 활성화 오지정, 라벨 형태 이상</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="8.5 메시지 키워드로 원인 좁히기 (2분)" aria-label="12 / 26"><div class="slide__inner"><h2>8.5 메시지 키워드로 원인 좁히기 (2분)</h2>
+<ul>
+<li>메시지가 길어도 키워드 한 개를 먼저 찾습니다.</li>
+<li><code>incompatible</code>이 보이면 입력 shape 문제입니다. 같은 줄의 숫자 두 개, <code>to have value 10</code>(모델이 기대한 값)과 <code>(None, 13)</code>(실제 입력)를 비교합니다.</li>
+<li><code>label value</code>가 보이면 라벨과 출력층 문제입니다. 예: <code>Received a label value of 2 which is outside the valid range of [0, 1)</code>는 클래스 3개에 <code>Dense(1)</code>을 쓴 경우입니다.</li>
+<li><code>nan</code>은 오류 메시지가 나지 않습니다. 학습 출력의 <code>loss: nan</code>을 직접 보고 알아챕니다.</li>
+<li>교재의 오류 문구는 Keras 3 기준이며 Keras 2에서는 표현이 다르지만, 숫자 두 개를 비교하는 방법은 같습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.5 학습이 안 될 때 자가 진단 4줄 (3분)" aria-label="13 / 26"><div class="slide__inner"><h2>8.5 학습이 안 될 때 자가 진단 4줄 (3분)</h2>
+<pre><code class="language-python">print('1. 입력 결측:', np.isnan(X_train_scaled).sum())
+print('2. 입력 범위:', X_train_scaled.min().round(2), '~', X_train_scaled.max().round(2))
+print('3. 라벨 분포:', np.bincount(y_train))
+print('4. 출력층:', model.layers[-1].units, model.layers[-1].activation.__name__)
+</code></pre>
+<ul>
+<li>1번이 0이 아니면 결측 처리를 빠뜨린 것입니다.</li>
+<li>2번 범위가 <code>0 ~ 800</code>처럼 넓으면 스케일링하지 않은 배열을 넣은 것입니다.</li>
+<li>3번이 심하게 치우쳤으면 정확도가 의미 없습니다.</li>
+<li>4번은 이진 <code>1 sigmoid</code>, 다중 <code>K softmax</code>, 회귀 <code>1 linear</code>여야 합니다.</li>
+<li>모델을 만든 직후 <code>model.summary()</code>를 찍는 습관이 절반을 잡아 줍니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.6 시간 배분 (2분)" aria-label="14 / 26"><div class="slide__inner"><h2>8.6 시간 배분 (2분)</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>배분</th>
+<th>누적</th>
+<th>할 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>탐색</td>
+<td>15분</td>
+<td>15분</td>
+<td>shape, info, value_counts, 결측 확인, 지시된 그래프</td>
+</tr>
+<tr>
+<td>전처리</td>
+<td>25분</td>
+<td>40분</td>
+<td>결측, 인코딩, 분리, 스케일링</td>
+</tr>
+<tr>
+<td>머신러닝</td>
+<td>15분</td>
+<td>55분</td>
+<td>베이스라인 모델과 성능 출력</td>
+</tr>
+<tr>
+<td>딥러닝</td>
+<td>25분</td>
+<td>80분</td>
+<td>판정, 구성, 컴파일, 학습, 평가</td>
+</tr>
+<tr>
+<td>검토</td>
+<td>10분</td>
+<td>90분</td>
+<td>새 코드 없이 재실행과 지시 대조</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>교재의 기준 배분이며, 실제 시험의 문항 수와 시간은 회차별로 다를 수 있어 공식 공지를 확인합니다.</li>
+<li>학습은 먼저 <code>epochs=20</code>으로 완주해 평가 출력을 만든 뒤, 시간이 남으면 <code>epochs=100</code> + <code>EarlyStopping</code>으로 다시 돌립니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.6 부분 점수를 지키는 답안 구성 (1분)" aria-label="15 / 26"><div class="slide__inner"><h2>8.6 부분 점수를 지키는 답안 구성 (1분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 412" width="800" height="412" role="img" aria-label="부분 점수를 지키는 답안 구성" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>부분 점수를 지키는 답안 구성 — 전 과정을 한 셀에 몰아 쓰면 오류 하나로 셀 전체가 실패해 화면에 남는 출력이 없지만, 단계별로 셀을 나누고 셀 끝마다 print를 남기면 실패한 셀 앞 단계의 출력은 그대로 남는다.</title>
+
+  <rect x="0" y="0" width="800" height="412" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">부분 점수를 지키는 답안 구성</text>
+
+  
+  <line x1="400" y1="58" x2="400" y2="360" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  
+  <circle cx="34" cy="74" r="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="29.5" y1="69.5" x2="38.5" y2="78.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="38.5" y1="69.5" x2="29.5" y2="78.5" stroke="#dc2626" stroke-width="2"/>
+  <text x="52" y="80" font-size="15" font-weight="bold" fill="#dc2626">한 셀에 몰아 쓰기</text>
+
+  <rect x="24" y="96" width="360" height="172" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="42" y="122" font-size="11" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">In [1]</text>
+
+  <text x="44" y="150" font-size="13.5" fill="#1a2332">전처리</text>
+  <text x="44" y="178" font-size="13.5" fill="#1a2332">모델 구성</text>
+  <text x="44" y="206" font-size="13.5" fill="#1a2332">학습</text>
+  <text x="44" y="234" font-size="13.5" fill="#1a2332">평가 · print()</text>
+
+  <circle cx="150" cy="173" r="9" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="146.5" y1="169.5" x2="153.5" y2="176.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="153.5" y1="169.5" x2="146.5" y2="176.5" stroke="#dc2626" stroke-width="2"/>
+  <text x="166" y="178" font-size="12" font-weight="bold" fill="#dc2626">여기서 오류</text>
+
+  <text x="44" y="256" font-size="11" fill="#dc2626">오류 하나로 셀 전체가 실패합니다</text>
+
+  <text x="24" y="292" font-size="12" fill="#dc2626">앞 단계까지 잘 썼어도 화면에 결과가 남지 않습니다.</text>
+
+  <rect x="24" y="308" width="360" height="44" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="204" y="336" font-size="13" font-weight="bold" text-anchor="middle" fill="#dc2626">화면에 남는 출력 — 없음</text>
+
+  
+  <circle cx="426" cy="74" r="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M421,74 L425,79 L432,69" fill="none" stroke="#059669" stroke-width="2"/>
+  <text x="444" y="80" font-size="15" font-weight="bold" fill="#059669">단계별 셀 분리</text>
+
+  
+  <rect x="416" y="96" width="360" height="38" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="432" y="120" font-size="12.5" fill="#1a2332">1. 전처리</text>
+  <text x="524" y="120" font-size="11" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">print(df.isnull().sum())</text>
+  <circle cx="754" cy="115" r="9" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M749,115 L753,120 L760,110" fill="none" stroke="#059669" stroke-width="2"/>
+
+  
+  <rect x="416" y="140" width="360" height="38" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="432" y="164" font-size="12.5" fill="#1a2332">2. 분리 · 스케일링</text>
+  <text x="560" y="164" font-size="11" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">print(X_train_scaled.shape)</text>
+  <circle cx="754" cy="159" r="9" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M749,159 L753,164 L760,154" fill="none" stroke="#059669" stroke-width="2"/>
+
+  
+  <rect x="416" y="184" width="360" height="38" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="432" y="208" font-size="12.5" fill="#1a2332">3. 모델 구성</text>
+  <text x="540" y="208" font-size="11" fill="#dc2626" font-family="'SFMono-Regular', Menlo, Consolas, monospace">ValueError</text>
+  <circle cx="754" cy="203" r="9" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="750.5" y1="199.5" x2="757.5" y2="206.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="757.5" y1="199.5" x2="750.5" y2="206.5" stroke="#dc2626" stroke-width="2"/>
+
+  
+  <rect x="416" y="228" width="360" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="432" y="252" font-size="12.5" fill="#94a3b8">4. 학습 · 평가</text>
+  <text x="552" y="252" font-size="11" fill="#94a3b8">3번을 고친 뒤 이어서 실행</text>
+  <line x1="745" y1="247" x2="763" y2="247" stroke="#94a3b8" stroke-width="2"/>
+
+  <text x="416" y="292" font-size="12" fill="#059669">3번 셀만 실패하고 1 · 2번의 출력은 화면에 그대로 남습니다.</text>
+
+  <rect x="416" y="308" width="360" height="44" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="596" y="336" font-size="13" font-weight="bold" text-anchor="middle" fill="#059669">화면에 남는 출력 — 1 · 2단계</text>
+
+  <text x="24" y="388" font-size="12" fill="#94a3b8">셀 끝마다 print()로 결과를 남기십시오 — 채점자가 보는 것은 화면에 출력된 결과입니다.</text>
+</svg><figcaption>한 셀에 몰아 쓴 답안과 단계별로 셀을 나눈 답안의 비교</figcaption></figure>
+<ul>
+<li>단계마다 셀을 나누고 셀 끝에 <code>print()</code>로 결과를 남깁니다.</li>
+<li>막히면 최소 형태로라도 다음 단계에 넘깁니다. 문제가 되는 컬럼을 <code>drop</code>해서라도 진행합니다.</li>
+<li>지시문의 조건(은닉층 수, <code>Dropout</code>, <code>EarlyStopping</code>, <code>random_state=42</code>)부터 채웁니다.</li>
+<li>앞 문항의 변수명을 뒤 문항이 이어받으므로 표준 이름을 끝까지 유지합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="8.7 제출 전 최종 점검 (1분)" aria-label="16 / 26"><div class="slide__inner"><h2>8.7 제출 전 최종 점검 (1분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 506" width="800" height="506" role="img" aria-label="제출 전 최종 점검 순서" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>제출 전 최종 점검 순서 — 셀을 위에서부터 다시 실행하기, 지시된 변수명 사용, random_state 확인, 결과를 print로 출력, 저장 파일명 확인, 남은 시간 배분까지 여섯 항목을 위에서부터 확인한다.</title>
+
+  <rect x="0" y="0" width="800" height="506" fill="#ffffff"/>
+
+  <text x="24" y="38" font-size="20" font-weight="bold" fill="#1a2332">제출 전 최종 점검 순서</text>
+
+  
+  <rect x="24" y="58" width="752" height="36" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="82" font-size="13" font-weight="bold" text-anchor="middle" fill="#1a2332">마지막 10분 — 새 코드를 쓰는 시간이 아니라 확인하는 시간입니다</text>
+
+  
+  <rect x="24" y="110" width="752" height="52" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="38" y="141" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">1</text>
+  <rect x="52" y="126" width="20" height="20" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="88" y="141" font-size="15" font-weight="bold" fill="#1a2332">셀을 위에서부터 다시 실행</text>
+  <text x="396" y="141" font-size="12" fill="#2563eb">커널 재시작 후 순서대로 전체 실행 — 가장 중요합니다</text>
+
+  
+  <rect x="24" y="170" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="201" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">2</text>
+  <rect x="52" y="186" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="201" font-size="15" fill="#1a2332">지시된 변수명을 그대로 사용</text>
+  <text x="396" y="201" font-size="12" fill="#94a3b8">문제지의 이름과 코드의 이름을 눈으로 대조</text>
+
+  
+  <rect x="24" y="230" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="261" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">3</text>
+  <rect x="52" y="246" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="261" font-size="15" fill="#1a2332"><tspan font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="14">random_state</tspan> 값이 지시대로인가</text>
+  <text x="396" y="261" font-size="12" fill="#94a3b8">train_test_split 인자와 머신러닝 모델 인자 확인</text>
+
+  
+  <rect x="24" y="290" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="321" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">4</text>
+  <rect x="52" y="306" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="321" font-size="15" fill="#1a2332">결과를 <tspan font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="14">print()</tspan>로 출력</text>
+  <text x="396" y="321" font-size="12" fill="#94a3b8">출력하시오 지시가 붙은 항목마다 화면에 결과가 남았는지 확인</text>
+
+  
+  <rect x="24" y="350" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="381" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">5</text>
+  <rect x="52" y="366" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="381" font-size="15" fill="#1a2332">저장 파일명과 확장자 확인</text>
+  <text x="396" y="381" font-size="12" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">ModelCheckpoint('best_model.keras')</text>
+
+  
+  <rect x="24" y="410" width="752" height="52" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="38" y="441" font-size="12" font-weight="bold" text-anchor="middle" fill="#94a3b8">6</text>
+  <rect x="52" y="426" width="20" height="20" rx="4" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="88" y="441" font-size="15" fill="#1a2332">남은 시간에 손댈 곳 결정</text>
+  <text x="396" y="441" font-size="12" fill="#94a3b8">미완성 문항 중 배점이 큰 것부터</text>
+
+  <text x="24" y="486" font-size="12" fill="#94a3b8">성능을 더 올리려 모델 구조를 바꾸는 것보다, 실행 가능한 상태를 유지하는 편이 안전합니다.</text>
+</svg><figcaption>제출 전 여섯 가지 점검 목록</figcaption></figure>
+<ul>
+<li>셀을 위에서부터 다시 실행해도 끝까지 도는지 확인합니다.</li>
+<li>지시된 변수명, <code>random_state</code>, <code>print()</code> 유무, 저장 파일명(<code>.keras</code>)을 대조합니다.</li>
+<li>마지막 10분에 모델 구조를 바꾸지 않습니다. 재학습이 끝나기 전에 시간이 끝나면 확보한 출력까지 잃을 수 있습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="자주 틀리는 지점 (2) 오류를 만났을 때 (1분)" aria-label="17 / 26"><div class="slide__inner"><h2>자주 틀리는 지점 (2) 오류를 만났을 때 (1분)</h2>
+<ul>
+<li>오류가 나면 코드를 처음부터 다시 쓰지 않고 메시지의 키워드를 찾습니다.</li>
+<li>오류를 보고 <code>epochs</code>나 <code>batch_size</code>를 조정하지 않습니다. 학습 설정과 무관한 오류가 많습니다.</li>
+<li>실행이 되었다고 맞은 것이 아닙니다. 회귀에서는 예측값 범위를 실제값 범위와 비교합니다.</li>
+<li>r2가 -4처럼 크게 음수이면 데이터 탓이 아니라 코드 오류입니다.</li>
+<li>스케일러를 두 번 <code>fit</code>한 흔적이 없는지 재실행으로 확인합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="치트시트와 부록 A 안내 (2분)" aria-label="18 / 26"><div class="slide__inner"><h2>치트시트와 부록 A 안내 (2분)</h2>
+<ul>
+<li>치트시트: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/cheatsheet.html">https://newids.github.io/dl4aice/cheatsheet.html</a></li>
+<li>문제 유형별 비교, 빈출 에러 메시지, 문항별 표준 변수명, 콜백과 신규 샘플 예측, 90분 시간 배분, 제출 전 점검이 한 페이지에 있습니다.</li>
+<li>시험은 제한적 오픈북이라고 알려져 있으나 허용 범위는 회차별로 다르므로 공식 공지를 확인합니다.</li>
+<li>부록 A: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/appendix.html">https://newids.github.io/dl4aice/appendix.html</a></li>
+<li>외워야 하는 코드를 흐름, 줄, 값 세 단계로 나눠 연습합니다.</li>
+<li>첫 셀 임포트부터 새 입력 예측까지 A~I 아홉 묶음이 있습니다.</li>
+<li>이번 회차 이후 부록 복습 일정에 맞춰 매일 한 묶음씩 보지 않고 써 봅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 1 — 이진분류 골격을 다중분류로 교체 (2분)" aria-label="19 / 26"><div class="slide__inner"><h2>함께 풀기 1 — 이진분류 골격을 다중분류로 교체 (2분)</h2>
+<p>사이트의 실습 셀 ch08-q2를 열어 함께 풉니다. 발표자는 <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch08.html#drills-ch08">https://newids.github.io/dl4aice/ch08.html#drills-ch08</a> 에서 해당 셀을 띄우고 라이브로 풉니다.</p>
+<p>3클래스 와인 데이터입니다. 이진분류 골격에서 바뀌는 곳만 채웁니다. (앞부분의 분리와 스케일링은 생략했습니다.)</p>
+<pre><code class="language-python">n_classes = ___
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(___)
+
+model.compile(optimizer='adam',
+              loss=___,
+              metrics=['accuracy'])
+# ... fit, evaluate ...
+pred = model.predict(X_test_scaled, verbose=0)
+y_pred = ___
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 2 — loss만 바꾸고 출력층을 남긴 코드 (2분)" aria-label="20 / 26"><div class="slide__inner"><h2>함께 풀기 2 — loss만 바꾸고 출력층을 남긴 코드 (2분)</h2>
+<p>사이트의 실습 셀 ch08-q4를 열어 함께 풉니다. 주소는 <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch08.html#drills-ch08">https://newids.github.io/dl4aice/ch08.html#drills-ch08</a> 입니다.</p>
+<p>3클래스 와인 분류에서 loss만 <code>sparse_categorical_crossentropy</code>로 바꾸고 출력층을 <code>Dense(1, 'sigmoid')</code>로 두었더니 <code>fit()</code>에서 <code>label value of 2 ... [0, 1)</code> 오류가 났습니다. 출력층과 점검 줄을 채웁니다.</p>
+<pre><code class="language-python">n_classes = ___
+
+model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(___)
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+print('출력 shape:', ___)
+
+history = model.fit(X_train_scaled, y_train, epochs=10, verbose=0)
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유 (2분)" aria-label="21 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (2분)</h2>
+<p><strong>문제 1 (ch08-q2)</strong></p>
+<pre><code class="language-python">n_classes = len(np.unique(y_train))
+model.add(Dense(n_classes, activation='softmax'))
+loss='sparse_categorical_crossentropy'
+y_pred = np.argmax(pred, axis=1)
+</code></pre>
+<ul>
+<li>바뀌는 곳은 출력층, loss, 예측 변환입니다. <code>metrics=['accuracy']</code>는 그대로입니다. <code>predict shape (54, 3)</code>과 행 합 1.0으로 교체를 점검합니다.</li>
+</ul>
+<p><strong>문제 2 (ch08-q4)</strong></p>
+<pre><code class="language-python">n_classes = len(np.unique(y_train))
+model.add(Dense(n_classes, activation='softmax'))
+print('출력 shape:', model.output_shape)
+</code></pre>
+<ul>
+<li>출력 노드가 1개이면 허용 라벨 범위가 <code>[0, 1)</code>이라 라벨 1, 2가 범위를 벗어납니다. loss를 되돌릴 것이 아니라 출력층을 고칩니다.</li>
+</ul></div></section>
+<section class="slide" data-title="정리" aria-label="22 / 26"><div class="slide__inner"><h2>정리</h2>
+<ul>
+<li>유형이 바뀌어도 교체 슬롯은 출력층, loss, metrics, 예측 변환 네 곳이고 나머지 골격은 같습니다.</li>
+<li>출력층과 loss는 짝으로 바꾸고, <code>predict</code> 다음 줄에는 유형에 맞는 변환 한 줄을 둡니다.</li>
+<li>오류는 <code>incompatible</code>, <code>label value</code>, <code>nan</code> 같은 키워드로 좁히고, 자가 진단 4줄을 돌립니다.</li>
+<li>단계별 셀 분리와 셀 끝 <code>print()</code>가 부분 점수를 지키는 기본 방식입니다.</li>
+<li>마지막 10분은 새 코드를 쓰지 않고 재실행과 지시 대조에 씁니다.</li>
+</ul></div></section>
+<section class="slide" data-title="다음 회차 준비" aria-label="23 / 26"><div class="slide__inner"><h2>다음 회차 준비</h2>
+<ul>
+<li>다음은 9회차 모의고사 1회 리뷰(이진분류)입니다.</li>
+<li>모의고사 1회를 90분 타이머를 켠 채 직접 풉니다: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/mock01.html">https://newids.github.io/dl4aice/mock01.html</a></li>
+<li>점수와 틀린 문항 번호를 적어 옵니다. 틀린 이유를 오류 키워드, 변수명, 순서 실수 중 어디에 속하는지 한 줄씩 메모하면 리뷰가 빨라집니다.</li>
+<li>치트시트와 부록 A로 막힌 부분을 복습하되, 풀이 중에는 시험처럼 필요한 것만 찾아봅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="토론 질문" aria-label="24 / 26"><div class="slide__inner"><h2>토론 질문</h2>
+<ol>
+<li>시간이 부족해 딥러닝 문항에서 <code>epochs=20</code>으로 완주한 답안과, 시간을 들여 성능을 올린 미완성 답안 중 어느 쪽이 유리합니까? 근거를 채점 방식에서 찾아 설명해 보십시오.</li>
+<li>세 템플릿의 교체 지점을 외우는 방식과 원리(출력층 활성화와 손실 함수의 관계)를 이해하는 방식은 시험에서 어떤 차이를 만듭니까?</li>
+<li>제한적 오픈북이라면 어떤 자료를 열어 보고, 어떤 코드는 반드시 외워서 써야 합니까? 이유와 함께 기준을 정해 봅시다.</li>
+</ol></div></section>
+<section class="slide" data-title="예상 질문과 답 (1)" aria-label="25 / 26"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
+<p><strong>Q1.</strong> 다중분류 라벨이 문자열 클래스이면 어떻게 합니까?
+답: 교재 템플릿은 정수 라벨을 전제로 하므로, 라벨 인코딩으로 정수로 바꾼 뒤 <code>sparse_categorical_crossentropy</code>를 씁니다. 예측 뒤에는 <code>np.argmax</code>로 번호를 얻고 <code>inverse_transform</code>으로 원래 이름으로 되돌립니다.</p>
+<p><strong>Q2.</strong> 입력 특성 수가 헷갈릴 때 <code>Input(shape=)</code>에 숫자를 직접 써도 됩니까?
+답: 가능하지만 원-핫 인코딩 뒤의 특성 수는 사람이 세다가 틀리기 쉽습니다. <code>X_train_scaled.shape[1]</code>로 받으면 shape 불일치 오류를 처음부터 막을 수 있습니다.</p>
+<p><strong>Q3.</strong> 정확도가 0.7 정도밖에 안 나오는데 코드가 틀린 것입니까?
+답: 교재의 합성 이탈 데이터는 원래 어려워 0.7대가 나옵니다. 채점은 점수의 절대값보다 지시한 절차를 지켰는지를 본다고 교재는 설명하므로, 자가 진단 4줄로 코드 오류가 아닌지만 확인합니다.</p></div></section>
+<section class="slide" data-title="예상 질문과 답 (2)" aria-label="26 / 26"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
+<p><strong>Q4.</strong> 한 셀에 몰아 쓰면 안 되는 이유가 무엇입니까?
+답: 모델 구성에서 오류가 나면 그 셀 전체가 실행되지 않아 앞 단계의 출력도 남지 않습니다. 단계마다 셀을 나누면 오류가 나도 앞 단계 결과가 화면에 남습니다.</p>
+<p><strong>Q5.</strong> <code>epochs=100</code>으로 걸어 두고 기다려도 됩니까?
+답: 학습 구간이 가장 시간을 잃기 쉬운 곳입니다. 먼저 <code>epochs=20</code> 정도로 평가 출력까지 완주해 두고, 시간이 남을 때 <code>EarlyStopping</code>과 함께 늘려 다시 실행합니다.</p>
+<p><strong>Q6.</strong> 회귀인데 loss가 <code>nan</code>이면 무엇부터 봅니까?
+답: 입력에 결측치가 남았는지 <code>np.isnan(X_train_scaled).sum()</code>으로 확인합니다. 결측 하나만 있어도 손실이 <code>nan</code>이 되고 이후 epoch에서 회복되지 않습니다.</p>
+<p><strong>Q7.</strong> 오류 메시지가 영어로 길게 나오면 어디를 읽습니까?
+답: 처음부터 읽지 않고 <code>incompatible</code>, <code>label value</code>, <code>expected shape</code> 같은 키워드가 있는 줄을 찾습니다. 숫자 두 개(기대한 값과 실제 값)를 비교하면 대부분 원인이 드러납니다.</p></div></section>
+</main>
+<div class="meter" aria-hidden="true"><span></span></div>
+<nav class="bar" aria-label="슬라이드 이동">
+<a class="btn" href="index.html" title="회차 목록">회차</a>
+<button class="btn" type="button" data-overview title="슬라이드 목록 (O)">목록</button>
+<span class="bar__title"></span>
+<span class="bar__time" title="발표 타이머 — 두 번 누르면 0으로 (R)"></span>
+<button class="btn" type="button" data-theme-toggle title="밝게/어둡게 (T)">명암</button>
+<button class="btn" type="button" data-full title="전체 화면 (F)">전체</button>
+<button class="btn" type="button" data-prev aria-label="이전 슬라이드">&#8592;</button>
+<span class="bar__count"></span>
+<button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
+</nav>
+<div class="ov" role="dialog" aria-label="슬라이드 목록">
+<div class="ov__head"><h2>8회차 — 문제 유형별 완성 코드와 시험장 전략</h2><span><a class="btn" href="07-ch07.html" title="이전 회차">이전 회차</a> <a class="btn" href="09-mock01.html" title="다음 회차">다음 회차</a> <button class="btn" type="button" data-close>닫기</button></span></div>
+<ol class="ov__grid">
+<li><button class="ov__item" type="button"><span class="ov__no">1</span><span>8회차 — 문제 유형별 완성 코드와 시험장 전략</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">4</span><span>8.1 유형별로 바뀌는 곳 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>8.1 바뀌는 곳 비교표와 유형 판정 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">6</span><span>자주 틀리는 지점 (1) 출력층과 loss의 짝 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">7</span><span>8.2 템플릿 A: 이진분류 end-to-end (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">8</span><span>8.2 인코딩, 분리, 스케일링의 순서 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>8.3 템플릿 B: 다중분류 교체 카드 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>8.4 템플릿 C: 회귀 교체 카드 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>8.5 오류 응급처치: 네 가지 증상 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">12</span><span>8.5 메시지 키워드로 원인 좁히기 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>8.5 학습이 안 될 때 자가 진단 4줄 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">14</span><span>8.6 시간 배분 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">15</span><span>8.6 부분 점수를 지키는 답안 구성 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">16</span><span>8.7 제출 전 최종 점검 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">17</span><span>자주 틀리는 지점 (2) 오류를 만났을 때 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">18</span><span>치트시트와 부록 A 안내 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">19</span><span>함께 풀기 1 — 이진분류 골격을 다중분류로 교체 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">20</span><span>함께 풀기 2 — loss만 바꾸고 출력층을 남긴 코드 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">21</span><span>함께 풀기 — 답과 이유 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">22</span><span>정리</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">23</span><span>다음 회차 준비</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">24</span><span>토론 질문</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">25</span><span>예상 질문과 답 (1)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">26</span><span>예상 질문과 답 (2)</span></button></li>
+</ol>
+<p class="help"><kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>Home</kbd> <kbd>End</kbd> 처음/끝 · <kbd>O</kbd> 목록 · <kbd>F</kbd> 전체 화면 · <kbd>T</kbd> 명암 · <kbd>R</kbd> 타이머 초기화 · 인쇄하면 한 장에 한 슬라이드씩 PDF로 저장됩니다.</p>
+</div>
+<script>/* dl4aice v2 — dl4aice-core.js
+ * 모든 v2 위젯이 공유하는 최소 런타임: 데이터 로더, localStorage 저장소, 진도 기록,
+ * 토스트, 파이썬 코드 하이라이터, 클립보드, 라이트/다크 테마.
+ * 외부 의존성 없음. file:// 로 열어도 동작하도록 데이터는 assets/data/*.js 래퍼
+ * (window.DL4AICE_DATA)에서 먼저 찾고, 없을 때만 fetch 로 JSON 을 읽는다.
+ */
+(function () {
+  "use strict";
+
+  var NS = "dl4aice.v2.";
+  var D = (window.DL4AICE = window.DL4AICE || {});
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* 문제 지문용 미니 마크업: `code`, **굵게**, 빈 줄 = 문단, 줄바꿈 = <br>, "- " 목록 */
+  function richText(text) {
+    var source = String(text == null ? "" : text).replace(/\r\n?/g, "\n");
+    /* ```코드 펜스``` 는 먼저 떼어 내어 코드 블록으로 렌더링한다 */
+    var fences = [];
+    source = source.replace(/```[a-zA-Z]*\n([\s\S]*?)\n?```/g, function (_, code) {
+      fences.push(code);
+      return "\n\n\u0000FENCE" + (fences.length - 1) + "\u0000\n\n";
+    });
+    var blocks = source.split(/\n{2,}/).filter(function (b) { return b.trim() !== ""; });
+    return blocks
+      .map(function (block) {
+        var fence = /^\u0000FENCE(\d+)\u0000$/.exec(block.trim());
+        if (fence) {
+          return '<pre class="v2-code"><code>' + highlight(fences[Number(fence[1])]) + "</code></pre>";
+        }
+        var lines = block.split("\n");
+        var inline = function (line) {
+          return escapeHtml(line)
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        };
+        if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+          return "<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*[-•]\s+/, "")) + "</li>"; }).join("") + "</ul>";
+        }
+        if (lines.every(function (l) { return /^\s*\d+[.)]\s+/.test(l); })) {
+          return "<ol>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>"; }).join("") + "</ol>";
+        }
+        return "<p>" + lines.map(inline).join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
+  var CONSTANTS = /^(?:True|False|None|self|cls)$/;
+  var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+
+  function tok(cls, text) {
+    return '<span class="v2-tok-' + cls + '">' + text + "</span>";
+  }
+
+  /* 파이썬 코드 -> 에디터식으로 색을 입힌 HTML (이스케이프 포함).
+     주석·문자열·숫자·키워드·상수·내장 함수·함수 호출·클래스·키워드 인자·데코레이터·연산자를 구분한다. */
+  function highlight(code) {
+    var src = String(code == null ? "" : code);
+    var out = "";
+    var last = 0;
+    var depth = 0;
+    var prevWord = "";
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(src))) {
+      var gap = src.slice(last, m.index);
+      for (var i = 0; i < gap.length; i++) {
+        if (gap[i] === "(" || gap[i] === "[" || gap[i] === "{") depth++;
+        else if (gap[i] === ")" || gap[i] === "]" || gap[i] === "}") depth = Math.max(0, depth - 1);
+      }
+      out += escapeHtml(gap);
+      var text = escapeHtml(m[0]);
+      var end = TOKEN_RE.lastIndex;
+      if (m[1]) out += tok("com", text);
+      else if (m[2]) out += tok("str", text);
+      else if (m[3]) out += tok("num", text);
+      else if (m[4]) out += tok("blank", text);
+      else if (m[5]) out += tok("dec", text);
+      else if (m[6]) {
+        var word = m[6];
+        var next = src[end];
+        var rest = src.slice(end, end + 3);
+        if (KEYWORDS.test(word)) out += tok("kw", text);
+        else if (CONSTANTS.test(word)) out += tok("const", text);
+        else if (prevWord === "def") out += tok("fn", text);
+        else if (prevWord === "class") out += tok("cls", text);
+        else if (next === "(") {
+          if (BUILTINS.test(word)) out += tok("builtin", text);
+          else if (/^[A-Z]/.test(word)) out += tok("cls", text);
+          else out += tok("fn", text);
+        } else if (depth > 0 && /^\s*=(?!=)/.test(rest)) out += tok("param", text);
+        else if (prevWord === "import" || prevWord === "from" || prevWord === "as") out += tok("mod", text);
+        else out += text;
+        prevWord = word;
+      } else out += tok("op", text);
+      if (!m[6] && !m[7]) prevWord = "";
+      last = end;
+    }
+    return out + escapeHtml(src.slice(last));
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === false || value == null) return;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key.slice(0, 2) === "on" && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (Array.isArray(children) ? children : children == null ? [] : [children]).forEach(function (child) {
+      if (child == null || child === false) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  /* ---------- 저장소 ---------- */
+  var memory = {};
+  var store = {
+    get: function (key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(NS + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : fallback;
+      }
+    },
+    set: function (key, value) {
+      memory[key] = value;
+      try {
+        window.localStorage.setItem(NS + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      delete memory[key];
+      try { window.localStorage.removeItem(NS + key); } catch (e) { /* 저장소 사용 불가 */ }
+    }
+  };
+
+  /* ---------- 진도 ---------- */
+  function readProgress() {
+    var p = store.get("progress", null) || {};
+    p.drills = p.drills || {};
+    p.mocks = p.mocks || {};
+    return p;
+  }
+
+  function announce() {
+    try {
+      document.dispatchEvent(new CustomEvent("dl4aice:progress", { detail: readProgress() }));
+    } catch (e) { /* 구형 브라우저 */ }
+  }
+
+  var progress = {
+    read: readProgress,
+    /* 챕터 실습 문항 통과 기록. questionId 예: "ch04-q3" */
+    markDrill: function (questionId, passed) {
+      var p = readProgress();
+      var prev = p.drills[questionId] || { attempts: 0, ok: false };
+      p.drills[questionId] = {
+        ok: prev.ok || !!passed,
+        attempts: (prev.attempts || 0) + 1,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.drills[questionId];
+    },
+    isDrillDone: function (questionId) {
+      var rec = readProgress().drills[questionId];
+      return !!(rec && rec.ok);
+    },
+    /* chapterKey 예: "ch04". questionIds 는 그 챕터 문항 id 배열 */
+    chapterStats: function (questionIds) {
+      var p = readProgress();
+      var done = (questionIds || []).filter(function (id) { return p.drills[id] && p.drills[id].ok; }).length;
+      var total = (questionIds || []).length;
+      return { done: done, total: total, percent: total ? Math.round((done / total) * 100) : 0 };
+    },
+    /* 모의고사 채점 결과 기록. detail = { parts: {preprocess:{earned,max},...}, elapsedSec } */
+    recordMock: function (mockId, score, detail) {
+      var p = readProgress();
+      var prev = p.mocks[mockId] || { best: 0, attempts: 0 };
+      p.mocks[mockId] = {
+        best: Math.max(prev.best || 0, score),
+        last: score,
+        attempts: (prev.attempts || 0) + 1,
+        detail: detail || null,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.mocks[mockId];
+    },
+    mock: function (mockId) {
+      return readProgress().mocks[mockId] || null;
+    },
+    reset: function () {
+      store.remove("progress");
+      announce();
+    }
+  };
+
+  /* ---------- 데이터 로더 ---------- */
+  var pending = {};
+  function data(name) {
+    var bag = window.DL4AICE_DATA || {};
+    if (bag[name]) return Promise.resolve(bag[name]);
+    if (!pending[name]) {
+      pending[name] = fetch("assets/data/" + name + ".json")
+        .then(function (res) {
+          if (!res.ok) throw new Error(name + ".json " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          (window.DL4AICE_DATA = window.DL4AICE_DATA || {})[name] = json;
+          return json;
+        });
+    }
+    return pending[name];
+  }
+
+  /* ---------- 토스트 ---------- */
+  function toastHost() {
+    var host = document.querySelector(".v2-toasts");
+    if (!host) {
+      host = el("div", { class: "v2-toasts", role: "status", "aria-live": "polite" });
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  /* toast("메시지", { type: "ok" | "err" | "info", title, timeout(ms), html }) */
+  function toast(message, opts) {
+    opts = opts || {};
+    var type = opts.type || "info";
+    var node = el("div", { class: "v2-toast v2-toast--" + type }, [
+      opts.title ? el("strong", { class: "v2-toast__title", text: opts.title }) : null,
+      opts.html ? el("div", { class: "v2-toast__body", html: message }) : el("div", { class: "v2-toast__body", text: message }),
+      el("button", { class: "v2-toast__close", type: "button", "aria-label": "닫기", text: "×", onclick: function () { dismiss(); } })
+    ]);
+    var timer = null;
+    function dismiss() {
+      if (timer) clearTimeout(timer);
+      if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    var host = toastHost();
+    while (host.children.length >= 3) host.removeChild(host.firstChild);
+    host.appendChild(node);
+    var timeout = opts.timeout === undefined ? (type === "err" ? 9000 : 4500) : opts.timeout;
+    if (timeout > 0) timer = setTimeout(dismiss, timeout);
+    return dismiss;
+  }
+
+  /* ---------- 클립보드 ---------- */
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var area = el("textarea", { class: "v2-sr-only", "aria-hidden": "true" });
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  /* ---------- 테마 ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+    var btn = document.querySelector(".v2-theme-toggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+  }
+
+  var theme = {
+    get: function () { return store.get("theme", "light"); },
+    set: function (value) { store.set("theme", value); applyTheme(value); },
+    toggle: function () { theme.set(theme.get() === "dark" ? "light" : "dark"); }
+  };
+
+  /* 깜빡임 방지: 스크립트 로드 즉시 적용 */
+  applyTheme(theme.get());
+
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function () {
+    var masthead = document.querySelector(".masthead");
+    if (masthead && !masthead.querySelector(".v2-theme-toggle")) {
+      var tools = masthead.querySelector(".masthead__tools");
+      if (!tools) {
+        tools = el("span", { class: "masthead__tools" });
+        var toc = masthead.querySelector(".masthead__toc");
+        masthead.appendChild(tools);
+        if (toc) tools.appendChild(toc);
+      }
+      tools.insertBefore(
+        el("button", { class: "v2-theme-toggle", type: "button", onclick: function () { theme.toggle(); } }),
+        tools.firstChild
+      );
+    }
+    applyTheme(theme.get());
+  });
+
+  /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
+  function revealHashTarget() {
+    var id = decodeURIComponent((window.location.hash || "").slice(1));
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    var opened = false;
+    for (var node = target.parentElement; node; node = node.parentElement) {
+      if (node.tagName === "DETAILS" && !node.open) { node.open = true; opened = true; }
+    }
+    if (opened) target.scrollIntoView();
+  }
+  ready(revealHashTarget);
+  window.addEventListener("hashchange", revealHashTarget);
+
+  D.escapeHtml = escapeHtml;
+  D.richText = richText;
+  D.highlight = highlight;
+  D.el = el;
+  D.store = store;
+  D.progress = progress;
+  D.data = data;
+  D.toast = toast;
+  D.copy = copy;
+  D.theme = theme;
+  D.ready = ready;
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DL4AICE || {};
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = slides.length;
+  var current = 0;
+  var bar = document.querySelector(".bar");
+  var countEl = bar.querySelector(".bar__count");
+  var titleEl = bar.querySelector(".bar__title");
+  var timeEl = bar.querySelector(".bar__time");
+  var meter = document.querySelector(".meter span");
+  var prev = bar.querySelector("[data-prev]");
+  var next = bar.querySelector("[data-next]");
+  var overview = document.querySelector(".ov");
+  var planned = Number(document.body.getAttribute("data-minutes")) || 35;
+
+  /* 파이썬 코드 색 입히기 (교재와 같은 배색) */
+  if (D.highlight) {
+    Array.prototype.forEach.call(document.querySelectorAll("pre > code.language-python"), function (code) {
+      code.innerHTML = D.highlight(code.textContent).replace(/class="v2-tok-/g, 'class="tok-');
+    });
+  }
+
+  /* 내용이 넘치면 글자를 조금 줄여 한 장에 맞춘다 */
+  function fit(slide) {
+    var inner = slide.querySelector(".slide__inner");
+    var scale = 1;
+    var fig = 1;
+    inner.style.setProperty("--scale", "1");
+    inner.style.setProperty("--fig", "1");
+    /* 먼저 도해를 줄이고(글자는 읽기 좋은 크기로 유지), 그래도 넘치면 글자를 줄인다 */
+    while (inner.scrollHeight > inner.clientHeight + 2 && (fig > 0.5 || scale > 0.56)) {
+      if (fig > 0.5 && (fig > scale - 0.1 || scale <= 0.56)) fig -= 0.05;
+      else scale -= 0.03;
+      inner.style.setProperty("--fig", fig.toFixed(2));
+      inner.style.setProperty("--scale", scale.toFixed(2));
+    }
+  }
+
+  function show(index, replace) {
+    current = Math.max(0, Math.min(count - 1, index));
+    slides.forEach(function (s, i) { s.classList.toggle("is-current", i === current); });
+    fit(slides[current]);
+    countEl.textContent = current + 1 + " / " + count;
+    titleEl.textContent = slides[current].getAttribute("data-title");
+    meter.style.width = ((current + 1) / count) * 100 + "%";
+    prev.disabled = current === 0;
+    next.disabled = current === count - 1;
+    Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+      item.setAttribute("aria-current", i === current ? "true" : "false");
+    });
+    var hash = "#" + (current + 1);
+    if (replace) history.replaceState(null, "", hash); else if (location.hash !== hash) history.pushState(null, "", hash);
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isFinite(n) ? n - 1 : 0;
+  }
+
+  /* 발표 타이머: 처음 넘길 때 시작, 계획 시간을 넘기면 색으로 알린다 */
+  var startedAt = null;
+  var timer = null;
+  function tick() {
+    var sec = Math.floor((Date.now() - startedAt) / 1000);
+    var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+    var ss = String(sec % 60).padStart(2, "0");
+    timeEl.innerHTML = "<strong>" + mm + ":" + ss + "</strong> / " + planned + "분";
+    timeEl.classList.toggle("is-over", sec > planned * 60);
+  }
+  function startTimer() {
+    if (startedAt) return;
+    startedAt = Date.now();
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    startedAt = null;
+    timeEl.innerHTML = "<strong>00:00</strong> / " + planned + "분";
+    timeEl.classList.remove("is-over");
+  }
+
+  function go(delta) { startTimer(); show(current + delta); }
+  function toggleOverview(open) {
+    var willOpen = open === undefined ? !overview.classList.contains("is-open") : open;
+    overview.classList.toggle("is-open", willOpen);
+    if (willOpen) { var cur = overview.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
+  }
+  function toggleTheme() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("dl4aice.v2.theme", JSON.stringify(dark ? "light" : "dark")); } catch (e) { /* 저장 불가 */ }
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  }
+
+  prev.addEventListener("click", function () { go(-1); });
+  next.addEventListener("click", function () { go(1); });
+  bar.querySelector("[data-overview]").addEventListener("click", function () { toggleOverview(); });
+  bar.querySelector("[data-theme-toggle]").addEventListener("click", toggleTheme);
+  bar.querySelector("[data-full]").addEventListener("click", toggleFullscreen);
+  timeEl.addEventListener("dblclick", resetTimer);
+  overview.querySelector("[data-close]").addEventListener("click", function () { toggleOverview(false); });
+  Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+    item.addEventListener("click", function () { show(i); toggleOverview(false); });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var key = event.key;
+    if (overview.classList.contains("is-open")) {
+      if (key === "Escape" || key === "o" || key === "O") { toggleOverview(false); event.preventDefault(); }
+      return;
+    }
+    if (key === "ArrowRight" || key === "PageDown" || key === " " || key === "Enter") { go(1); event.preventDefault(); }
+    else if (key === "ArrowLeft" || key === "PageUp" || key === "Backspace") { go(-1); event.preventDefault(); }
+    else if (key === "Home") { show(0); event.preventDefault(); }
+    else if (key === "End") { show(count - 1); event.preventDefault(); }
+    else if (key === "o" || key === "O") { toggleOverview(true); }
+    else if (key === "f" || key === "F") { toggleFullscreen(); }
+    else if (key === "t" || key === "T") { toggleTheme(); }
+    else if (key === "r" || key === "R") { resetTimer(); }
+  });
+
+  /* 터치: 좌우로 밀어 넘기기 */
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  window.addEventListener("resize", function () { fit(slides[current]); });
+  resetTimer();
+  show(fromHash(), true);
+})();
+</script>
+</body>
+</html>

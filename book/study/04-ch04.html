@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>4회차 — Keras로 모델 만들기 — 스터디 발표 자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef1f6; --paper: #ffffff; --ink: #1a2332; --soft: #475569; --muted: #64748b;
+  --line: #cbd5e1; --line-soft: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+  --chip-bg: #eef2f7; --chip-fg: #0f2a5e; --code-bg: #0d1424; --code-fg: #d6deeb;
+  --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "D2Coding", monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0f1a; --paper: #111827; --ink: #e6eaf2; --soft: #c3cddd; --muted: #9aa8bd;
+  --line: #334155; --line-soft: #243044; --primary: #6ea8fe; --primary-soft: #1b2f4f;
+  --chip-bg: #22304a; --chip-fg: #cfe0ff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  word-break: keep-all; overflow-wrap: anywhere; overflow: hidden;
+}
+.deck { position: fixed; inset: 0 0 3.25rem 0; display: grid; place-items: center; padding: 1.2vmin; }
+.slide {
+  display: none; width: min(100%, calc((100vh - 3.25rem - 2.4vmin) * 16 / 9)); aspect-ratio: 16 / 9;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px;
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.45); overflow: hidden;
+}
+.slide.is-current { display: block; }
+.slide__inner {
+  --scale: 1; height: 100%; padding: 4.2% 5.4% 3.6%; overflow: auto;
+  font-size: calc(clamp(13px, 1.72vw, 30px) * var(--scale)); line-height: 1.55;
+}
+.slide h1, .slide h2 { margin: 0 0 0.7em; line-height: 1.28; letter-spacing: -0.02em; }
+.slide h1 { font-size: 2.1em; margin-top: 12%; }
+.slide h2 { font-size: 1.42em; padding-bottom: 0.35em; border-bottom: 1px solid var(--line-soft); }
+.slide h3 { font-size: 1.08em; margin: 0.9em 0 0.4em; }
+.slide p { margin: 0 0 0.6em; }
+.slide ul, .slide ol { margin: 0 0 0.6em; padding-left: 1.25em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li > ul, .slide li > ol { margin-top: 0.3em; }
+.slide a { color: var(--primary); }
+.slide strong { font-weight: 700; }
+.slide code {
+  font-family: var(--mono); font-size: 0.86em; padding: 0.05em 0.32em; border-radius: 5px;
+  color: var(--chip-fg); background: var(--chip-bg); font-variant-ligatures: none;
+}
+.slide pre {
+  margin: 0 0 0.7em; padding: 0.75em 0.95em; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.slide pre code { padding: 0; background: none; color: inherit; font-size: 0.8em; line-height: 1.55; white-space: pre; }
+.slide table { width: 100%; margin: 0 0 0.7em; border-collapse: collapse; font-size: 0.88em; }
+.slide th, .slide td { padding: 0.42em 0.6em; text-align: left; vertical-align: top; border: 1px solid var(--line-soft); }
+.slide thead th { background: var(--chip-bg); color: var(--chip-fg); font-weight: 700; }
+.slide blockquote {
+  margin: 0 0 0.7em; padding: 0.6em 0.9em; color: var(--soft); background: var(--chip-bg);
+  border: 1px solid var(--line-soft); border-radius: 10px;
+}
+.slide blockquote > :last-child { margin-bottom: 0; }
+.figure { margin: 0 0 0.6em; padding: 0.5em; background: #ffffff; border: 1px solid var(--line-soft); border-radius: 10px; text-align: center; }
+.figure svg { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(44vh * var(--fig, 1)); margin: 0 auto; }
+.figure figcaption { margin-top: 0.3em; font-size: 0.72em; color: #64748b; }
+.slide--title .slide__inner { display: flex; flex-direction: column; justify-content: center; }
+.slide--title h1 { margin-top: 0; }
+.slide--title ul { list-style: none; padding: 0; color: var(--soft); }
+
+.tok-kw { color: #c792ea; } .tok-const { color: #82aaff; font-style: italic; } .tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; } .tok-com { color: #7c8aa5; font-style: italic; } .tok-fn { color: #82d2ff; }
+.tok-builtin { color: #ffcb6b; } .tok-cls { color: #5eead4; } .tok-param { color: #f9a8d4; }
+.tok-mod { color: #d6deeb; } .tok-dec { color: #ffcb6b; font-style: italic; } .tok-op { color: #89ddff; }
+.tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
+
+.bar {
+  position: fixed; inset: auto 0 0 0; height: 3.25rem; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 0.8rem; background: var(--paper); border-top: 1px solid var(--line-soft); font-size: 0.86rem;
+}
+.bar__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); font-weight: 600; }
+.bar__count, .bar__time { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.bar__time strong { color: var(--ink); }
+.bar__time.is-over strong { color: #dc2626; }
+.btn {
+  min-width: 2.5rem; min-height: 2.5rem; padding: 0.3rem 0.7rem; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn:focus-visible, .ov__item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.meter { position: fixed; inset: auto 0 3.25rem 0; height: 3px; background: var(--line-soft); }
+.meter span { display: block; height: 100%; width: 0; background: var(--primary); transition: width 180ms ease-out; }
+
+.ov { position: fixed; inset: 0; z-index: 10; display: none; padding: 1.2rem; overflow: auto; background: var(--bg); }
+.ov.is-open { display: block; }
+.ov__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
+.ov__head h2 { margin: 0; font-size: 1.1rem; }
+.ov__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; }
+.ov__item {
+  display: flex; gap: 0.6rem; width: 100%; min-height: 3.2rem; padding: 0.6rem 0.8rem; font: inherit; text-align: left; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 10px; cursor: pointer;
+}
+.ov__item:hover { border-color: var(--primary); }
+.ov__item[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.ov__no { flex: none; width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.help { margin: 1rem 0 0; font-size: 0.82rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+
+.index { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; overflow: auto; height: 100%; }
+.index h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+.index p { color: var(--soft); line-height: 1.7; }
+.index ol { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.6rem; }
+.index li a {
+  display: flex; gap: 1rem; align-items: baseline; padding: 0.9rem 1.1rem; color: var(--ink); text-decoration: none;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.index li a:hover { border-color: var(--primary); }
+.index .no { flex: none; width: 3.6rem; font-weight: 700; color: var(--primary); }
+.index .meta { margin-left: auto; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .bar__title { display: none; }
+  .slide { width: 100%; aspect-ratio: auto; height: 100%; }
+  .slide__inner { font-size: calc(15px * var(--scale)); }
+}
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .bar, .meter, .ov { display: none !important; }
+  .deck { position: static; display: block; padding: 0; }
+  .slide { display: block !important; width: 297mm; height: 167mm; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; break-after: page; }
+  .slide__inner { font-size: 15pt; overflow: hidden; }
+}
+</style>
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body data-minutes="33">
+<main class="deck" aria-live="polite">
+<section class="slide slide--title" data-title="4회차 — Keras로 모델 만들기" aria-label="1 / 25"><div class="slide__inner"><h1>4회차 — Keras로 모델 만들기</h1>
+<ul>
+<li>범위: 교재 4장 (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch04.html">https://newids.github.io/dl4aice/ch04.html</a>)</li>
+<li>발표 35분 안팎 + 질의응답 20분</li>
+<li>사전 준비: 챕터 읽기 + 실습 셀 풀기</li>
+</ul></div></section>
+<section class="slide" data-title="오늘의 목표" aria-label="2 / 25"><div class="slide__inner"><h2>오늘의 목표</h2>
+<ol>
+<li><code>Sequential</code>과 <code>Dense</code>로 은닉층 2개 이상의 모델을 직접 작성한다.</li>
+<li>입력 shape와 출력층(units, activation)을 문제 유형에 맞게 정한다.</li>
+<li><code>summary()</code>의 Output Shape와 Param #를 읽고, Dropout과 BatchNormalization의 위치를 맞게 놓는다.</li>
+</ol></div></section>
+<section class="slide" data-title="진행 순서" aria-label="3 / 25"><div class="slide__inner"><h2>진행 순서</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>내용</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>도입</td>
+<td>모델 제작 4단계와 4장의 범위 (4.1)</td>
+<td>2분</td>
+</tr>
+<tr>
+<td>입력</td>
+<td>Sequential 구성과 입력 shape (4.2~4.3)</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>출력</td>
+<td>문제 유형별 출력층 (4.4)</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>비교</td>
+<td>Sequential과 Functional 비교</td>
+<td>4분</td>
+</tr>
+<tr>
+<td>확인</td>
+<td>summary()와 파라미터 수 (4.5)</td>
+<td>4분</td>
+</tr>
+<tr>
+<td>보조 층</td>
+<td>Dropout과 BatchNormalization (4.6)</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>점검</td>
+<td>자주 틀리는 지점과 표준 코드</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>실습</td>
+<td>함께 풀기 두 문항</td>
+<td>8분</td>
+</tr>
+<tr>
+<td>질의응답</td>
+<td>토론 질문과 질문 받기</td>
+<td>20분</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="4.1 모델 제작 4단계와 시험에서의 위치 (2분)" aria-label="4 / 25"><div class="slide__inner"><h2>4.1 모델 제작 4단계와 시험에서의 위치 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 260" width="800" height="260" role="img" aria-label="Keras 모델 제작 4단계" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Keras 모델 제작 4단계 파이프라인. 구성, 컴파일, 학습, 평가 네 단계 중 이 챕터는 첫 단계인 구성을 다룹니다.</title>
+  <defs>
+    <marker id="k4s-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="260" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">Keras 모델 제작 4단계</text>
+  <text x="768" y="38" font-size="12" fill="#94a3b8" text-anchor="end">파란 칸이 이 챕터의 범위</text>
+
+  
+  <rect x="34" y="96" width="150" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="109" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">구성</text>
+  <text x="109" y="152" font-size="12" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Sequential</text>
+  <text x="109" y="170" font-size="12" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense</text>
+  <text x="109" y="204" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">Ch04 (이 챕터)</text>
+
+  <line x1="192" y1="138" x2="220" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  
+  <rect x="228" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="303" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">컴파일</text>
+  <text x="303" y="152" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">optimizer</text>
+  <text x="303" y="170" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">loss</text>
+  <text x="303" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch05</text>
+
+  <line x1="386" y1="138" x2="414" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  
+  <rect x="422" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="497" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습</text>
+  <text x="497" y="156" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fit()</text>
+  <text x="497" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch05</text>
+
+  <line x1="580" y1="138" x2="608" y2="138" stroke="#94a3b8" stroke-width="2" marker-end="url(#k4s-arrow)"/>
+
+  
+  <rect x="616" y="96" width="150" height="84" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="691" y="128" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">평가</text>
+  <text x="691" y="152" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate()</text>
+  <text x="691" y="170" font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">predict()</text>
+  <text x="691" y="204" font-size="12" fill="#94a3b8" text-anchor="middle">Ch07</text>
+
+  <text x="34" y="236" font-size="12" fill="#94a3b8">순서를 건너뛸 수 없다. compile() 없이 fit()을 부르면 오류가 난다.</text>
+</svg><figcaption>Keras 모델 제작 4단계</figcaption></figure>
+<ul>
+<li>순서는 구성, 컴파일, 학습, 평가입니다. 4장은 첫 단계인 구성만 다룹니다.</li>
+<li>구성에서 정하는 것은 입력 개수, 은닉층 구조, 출력층(개수와 활성화 함수) 세 가지입니다.</li>
+<li>시험은 14문항, 90분, 합격 80점이며, 11~13번이 딥러닝 모델링, 14번이 평가와 새 입력 예측입니다. 회차마다 다를 수 있으므로 KT AICE 공식 공지를 확인합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.2 Sequential 모델 구성 (3분)" aria-label="5 / 25"><div class="slide__inner"><h2>4.2 Sequential 모델 구성 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 384" width="800" height="384" role="img" aria-label="코드 한 줄과 층 하나의 대응" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Sequential 모델에서 model.add 코드 한 줄이 층 하나에 대응하는 모습. 작성한 순서가 데이터가 지나가는 순서가 됩니다.</title>
+  <defs>
+    <marker id="sqb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="384" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">코드 한 줄 = 층 하나</text>
+
+  <text x="32" y="66" font-size="12" fill="#94a3b8">작성 순서</text>
+  <text x="460" y="66" font-size="12" fill="#94a3b8">데이터가 지나가는 순서</text>
+
+  
+  <rect x="32" y="80" width="352" height="252" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="48" y="110" font-size="12" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Input(shape=(8,)))</text>
+  <text x="48" y="174" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(64, activation='relu'))</text>
+  <text x="48" y="238" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(32, activation='relu'))</text>
+  <text x="48" y="302" font-size="12" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.add(Dense(1, activation='sigmoid'))</text>
+
+  
+  <line x1="392" y1="106" x2="452" y2="106" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="170" x2="452" y2="170" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="234" x2="452" y2="234" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="392" y1="298" x2="452" y2="298" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+
+  
+  <rect x="460" y="84" width="290" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="478" y="112" font-size="14" fill="#94a3b8">입력 — 특성 8개</text>
+
+  <line x1="605" y1="130" x2="605" y2="146" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="148" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="176" font-size="14" fill="#1a2332">은닉층 1 — 노드 64, relu</text>
+
+  <line x1="605" y1="194" x2="605" y2="210" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="212" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="240" font-size="14" fill="#1a2332">은닉층 2 — 노드 32, relu</text>
+
+  <line x1="605" y1="258" x2="605" y2="274" stroke="#2563eb" stroke-width="2" marker-end="url(#sqb-arrow)"/>
+
+  <rect x="460" y="276" width="290" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="478" y="304" font-size="14" fill="#1a2332">출력층 — 노드 1, sigmoid</text>
+
+  <text x="460" y="356" font-size="12" fill="#94a3b8">Input은 층으로 세지 않는다: len(model.layers) = 3</text>
+</svg><figcaption>코드 한 줄과 층 하나의 대응</figcaption></figure>
+<pre><code class="language-python">model = Sequential()
+model.add(Input(shape=(n_features,)))        # 입력 정의
+model.add(Dense(64, activation='relu'))      # 은닉층 1
+model.add(Dense(32, activation='relu'))      # 은닉층 2
+model.add(Dense(1, activation='sigmoid'))    # 출력층
+</code></pre>
+<ul>
+<li><code>model.add()</code>를 부른 순서가 데이터가 지나가는 순서입니다.</li>
+<li><code>len(model.layers)</code>는 3입니다. <code>Input</code>은 층으로 세지 않습니다.</li>
+<li>은닉층은 입력층과 출력층을 뺀 중간층입니다. 기본값은 은닉층 2개, 64에서 32로 줄어드는 형태입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.3 입력 shape (2분)" aria-label="6 / 25"><div class="slide__inner"><h2>4.3 입력 shape (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="800" height="350" role="img" aria-label="입력 shape를 정하는 규칙" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>입력 shape를 정하는 규칙. 표 데이터의 열 수(특성 수)만 Input의 shape에 넣고, 행 수(샘플 수)는 넣지 않습니다.</title>
+  <defs>
+    <marker id="ish-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ish-p-s" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ish-a-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="ish-a-s" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="350" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">입력 shape는 열 수만 쓴다</text>
+
+  
+  <text x="236" y="66" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">8열 = 특성 수</text>
+  <line x1="124" y1="78" x2="348" y2="78" stroke="#2563eb" stroke-width="2" marker-start="url(#ish-p-s)" marker-end="url(#ish-p-e)"/>
+
+  
+  <text x="96" y="146" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="end">1,000행</text>
+  <text x="96" y="164" font-size="12" fill="#f59e0b" text-anchor="end">(샘플 수)</text>
+  <line x1="110" y1="92" x2="110" y2="230" stroke="#f59e0b" stroke-width="2" marker-start="url(#ish-a-s)" marker-end="url(#ish-a-e)"/>
+
+  
+  <rect x="124" y="92" width="224" height="104" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <line x1="152" y1="92" x2="152" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="180" y1="92" x2="180" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="208" y1="92" x2="208" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="236" y1="92" x2="236" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="264" y1="92" x2="264" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="292" y1="92" x2="292" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="320" y1="92" x2="320" y2="196" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="118" x2="348" y2="118" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="144" x2="348" y2="144" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="124" y1="170" x2="348" y2="170" stroke="#94a3b8" stroke-width="1"/>
+  <circle cx="236" cy="208" r="2.5" fill="#94a3b8"/>
+  <circle cx="236" cy="216" r="2.5" fill="#94a3b8"/>
+  <circle cx="236" cy="224" r="2.5" fill="#94a3b8"/>
+
+  
+  <line x1="366" y1="163" x2="452" y2="163" stroke="#2563eb" stroke-width="2" marker-end="url(#ish-p-e)"/>
+
+  <rect x="460" y="126" width="290" height="74" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="605" y="162" font-size="16" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(<tspan fill="#2563eb" font-weight="700">8</tspan>,))</text>
+  <text x="605" y="187" font-size="12" fill="#94a3b8" text-anchor="middle">8 = X_train_scaled.shape[1]</text>
+
+  
+  <rect x="120" y="258" width="560" height="66" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="286" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">행 수(샘플 수)는 shape에 넣지 않는다</text>
+  <text x="400" y="308" font-size="12" fill="#94a3b8" text-anchor="middle">Input(shape=(1000, 8)) 처럼 쓰면 틀린 표기</text>
+</svg><figcaption>입력 shape를 정하는 규칙</figcaption></figure>
+<ul>
+<li><code>Input(shape=(n,))</code>의 n은 특성(컬럼) 수입니다. 1000행 8열이면 <code>shape=(8,)</code>입니다.</li>
+<li>샘플 수는 넣지 않습니다. summary에서 <code>None</code>으로 보이는 자리입니다.</li>
+<li><code>(30)</code>은 정수이고 <code>(30,)</code>이 원소 하나짜리 튜플입니다. 쉼표를 빠뜨리지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.3 특성 수는 데이터에서 뽑는다 (1분)" aria-label="7 / 25"><div class="slide__inner"><h2>4.3 특성 수는 데이터에서 뽑는다 (1분)</h2>
+<pre><code class="language-python">print(X_train_scaled.shape)          # (398, 30)
+n_features = X_train_scaled.shape[1] # 30
+</code></pre>
+<ul>
+<li>숫자를 손으로 적으면 원-핫 인코딩이나 컬럼 삭제 뒤에 틀립니다.</li>
+<li>구버전 표기 <code>Dense(64, activation='relu', input_shape=(n_features,))</code>는 읽을 줄만 알면 됩니다.</li>
+<li>새로 쓸 때는 Keras 2와 3 양쪽에서 동작하는 <code>Input(shape=(n,))</code>를 씁니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.4 문제 유형별 출력층 (2분)" aria-label="8 / 25"><div class="slide__inner"><h2>4.4 문제 유형별 출력층 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" width="800" height="380" role="img" aria-label="문제 유형별 출력층 설계" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>문제 유형별 출력층 설계 분기도. 이진분류, 다중분류, 회귀에 따라 출력층의 units와 activation이 하나로 정해집니다.</title>
+  <defs>
+    <marker id="olc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="380" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">문제 유형이 출력층을 정한다</text>
+
+  
+  <path d="M300,96 L400,68 L500,96 L400,124 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="102" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">문제 유형?</text>
+
+  <line x1="400" y1="124" x2="400" y2="152" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="148" y1="152" x2="652" y2="152" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="148" y1="152" x2="148" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+  <line x1="400" y1="152" x2="400" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+  <line x1="652" y1="152" x2="652" y2="176" stroke="#94a3b8" stroke-width="2" marker-end="url(#olc-arrow)"/>
+
+  
+  <rect x="32" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="148" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이진분류 (0 / 1)</text>
+  <rect x="48" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="132" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="144" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="132" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="144" y="262" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'sigmoid'</text>
+  <text x="148" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">1일 확률 하나 (0~1)</text>
+  <text x="148" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1, activation='sigmoid')</text>
+  <text x="148" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+
+  
+  <rect x="284" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="400" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">다중분류 (K개 클래스)</text>
+  <rect x="300" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="384" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="396" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">K</text>
+  <text x="384" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="396" y="262" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">'softmax'</text>
+  <text x="400" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">클래스별 확률 K개 (합 = 1)</text>
+  <text x="400" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(K, activation='softmax')</text>
+  <text x="400" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+
+  
+  <rect x="536" y="180" width="232" height="172" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="652" y="207" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">회귀 (연속값)</text>
+  <rect x="552" y="218" width="200" height="56" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="636" y="240" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">units</text>
+  <text x="648" y="240" font-size="13" font-weight="700" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="636" y="262" font-size="12" fill="#94a3b8" text-anchor="end" font-family="'SFMono-Regular', Menlo, Consolas, monospace">activation</text>
+  <text x="648" y="262" font-size="13" font-weight="700" fill="#f59e0b">쓰지 않음</text>
+  <text x="652" y="296" font-size="12" fill="#94a3b8" text-anchor="middle">예측한 숫자 그 자체</text>
+  <text x="652" y="320" font-size="11" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1)</text>
+  <text x="652" y="341" font-size="11" fill="#94a3b8" text-anchor="middle">손실 함수는 Ch05 참조</text>
+</svg><figcaption>문제 유형별 출력층 설계</figcaption></figure>
+<table>
+<thead>
+<tr>
+<th>문제 유형</th>
+<th>출력층 코드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이진분류</td>
+<td><code>Dense(1, activation='sigmoid')</code></td>
+</tr>
+<tr>
+<td>다중분류 (K개)</td>
+<td><code>Dense(K, activation='softmax')</code></td>
+</tr>
+<tr>
+<td>회귀</td>
+<td><code>Dense(1)</code> (활성화 없음)</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="4.4 클래스 수와 회귀 출력 (1분)" aria-label="9 / 25"><div class="slide__inner"><h2>4.4 클래스 수와 회귀 출력 (1분)</h2>
+<pre><code class="language-python">n_class = len(np.unique(y_multi))          # 3
+multi_model.add(Dense(n_class, activation='softmax'))
+
+reg_model.add(Dense(1))                    # 회귀는 activation 없음
+</code></pre>
+<ul>
+<li>클래스 수 K도 <code>len(np.unique(y))</code>로 뽑습니다. 3클래스에 <code>Dense(2, 'softmax')</code>를 쓰면 학습 단계에서 오류가 납니다.</li>
+<li>회귀에 sigmoid를 붙이면 출력이 0~1에 갇혀 집값 같은 큰 값을 맞힐 수 없습니다.</li>
+<li>손실 함수와의 짝짓기는 5회차(5장)에서 다룹니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.4 Sequential과 Functional 비교 (4분)" aria-label="10 / 25"><div class="slide__inner"><h2>4.4 Sequential과 Functional 비교 (4분)</h2>
+<p>같은 이진분류 모델입니다. 바뀌는 줄은 모델을 조립하는 부분뿐입니다.</p>
+<pre><code class="language-python"># Sequential
+model = Sequential()
+model.add(Input(shape=(n_features,)))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+# Functional
+inputs = Input(shape=(n_features,))
+x = Dense(64, activation='relu')(inputs)
+x = Dense(32, activation='relu')(x)
+outputs = Dense(1, activation='sigmoid')(x)
+model = Model(inputs=inputs, outputs=outputs)
+</code></pre>
+<ul>
+<li>함수형은 층을 함수처럼 호출해 앞 층의 출력에 연결하고, 마지막에 <code>Model(inputs=..., outputs=...)</code>로 묶습니다.</li>
+<li>출력층의 units와 activation을 고르는 규칙은 두 방식이 같습니다.</li>
+<li>챕터 4.4의 "직접 바꿔 보기" 위젯(문제 유형 × API 비교)에서 탭을 바꿔 가며 바뀌는 줄을 확인합니다. 발표자는 이 위젯을 화면에 띄웁니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.5 summary()로 확인한다 (2분)" aria-label="11 / 25"><div class="slide__inner"><h2>4.5 summary()로 확인한다 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 530" width="800" height="530" role="img" aria-label="파라미터 수가 계산되는 방식" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>파라미터 수가 계산되는 방식. 입력 4노드와 은닉 5노드의 연결에서 가중치 20개와 편향 5개가 나와 25가 되고, 이 값이 summary 표의 Param 열에 나타납니다.</title>
+  <defs>
+    <marker id="pc-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="530" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">파라미터 수 세는 법</text>
+
+  
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="138" y1="102" x2="282" y2="76"/>
+    <line x1="138" y1="102" x2="282" y2="128"/>
+    <line x1="138" y1="102" x2="282" y2="180"/>
+    <line x1="138" y1="102" x2="282" y2="232"/>
+    <line x1="138" y1="102" x2="282" y2="284"/>
+    <line x1="138" y1="154" x2="282" y2="76"/>
+    <line x1="138" y1="154" x2="282" y2="128"/>
+    <line x1="138" y1="154" x2="282" y2="180"/>
+    <line x1="138" y1="154" x2="282" y2="232"/>
+    <line x1="138" y1="154" x2="282" y2="284"/>
+    <line x1="138" y1="206" x2="282" y2="76"/>
+    <line x1="138" y1="206" x2="282" y2="128"/>
+    <line x1="138" y1="206" x2="282" y2="180"/>
+    <line x1="138" y1="206" x2="282" y2="232"/>
+    <line x1="138" y1="206" x2="282" y2="284"/>
+    <line x1="138" y1="258" x2="282" y2="76"/>
+    <line x1="138" y1="258" x2="282" y2="128"/>
+    <line x1="138" y1="258" x2="282" y2="180"/>
+    <line x1="138" y1="258" x2="282" y2="232"/>
+    <line x1="138" y1="258" x2="282" y2="284"/>
+  </g>
+
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="120" cy="102" r="18"/>
+    <circle cx="120" cy="154" r="18"/>
+    <circle cx="120" cy="206" r="18"/>
+    <circle cx="120" cy="258" r="18"/>
+  </g>
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="300" cy="76" r="18"/>
+    <circle cx="300" cy="128" r="18"/>
+    <circle cx="300" cy="180" r="18"/>
+    <circle cx="300" cy="232" r="18"/>
+    <circle cx="300" cy="284" r="18"/>
+  </g>
+
+  <text x="120" y="322" font-size="12" fill="#94a3b8" text-anchor="middle">입력 4노드</text>
+  <text x="300" y="322" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="700">Dense(5) 5노드</text>
+
+  <line x1="326" y1="152" x2="412" y2="152" stroke="#2563eb" stroke-width="2" marker-end="url(#pc-p-e)"/>
+
+  
+  <text x="420" y="86" font-size="12" fill="#94a3b8">첫 층 dense (Dense)의 파라미터</text>
+  <rect x="420" y="96" width="356" height="112" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="598" y="128" font-size="13" fill="#1a2332" text-anchor="middle">파라미터 수 = (앞 층 노드 x 이 층 노드) + 이 층 노드</text>
+  <text x="598" y="168" font-size="19" font-weight="700" fill="#2563eb" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">(4 x 5) + 5 = 25</text>
+  <text x="598" y="194" font-size="12" fill="#94a3b8" text-anchor="middle">가중치 4 x 5 = 20개 + 편향 5개</text>
+
+  
+  <path d="M700,214 V404 H654" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#pc-p-e)"/>
+
+  
+  <rect x="120" y="346" width="560" height="130" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <g font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="12">
+    <text x="140" y="372" fill="#94a3b8">Layer (type)</text>
+    <text x="380" y="372" fill="#94a3b8">Output Shape</text>
+    <text x="640" y="372" fill="#94a3b8" text-anchor="end">Param #</text>
+
+    <rect x="612" y="389" width="34" height="20" rx="4" fill="#dbeafe"/>
+    <text x="140" y="404" fill="#1a2332">dense (Dense)</text>
+    <text x="380" y="404" fill="#1a2332">(None, 5)</text>
+    <text x="640" y="404" fill="#2563eb" font-weight="700" text-anchor="end">25</text>
+
+    <text x="140" y="430" fill="#1a2332">dense_1 (Dense)</text>
+    <text x="380" y="430" fill="#1a2332">(None, 1)</text>
+    <text x="640" y="430" fill="#1a2332" text-anchor="end">6</text>
+
+    <text x="140" y="464" fill="#1a2332" font-weight="700">Total params: 31</text>
+  </g>
+  <line x1="132" y1="382" x2="668" y2="382" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="132" y1="442" x2="668" y2="442" stroke="#94a3b8" stroke-width="1"/>
+
+  <text x="120" y="502" font-size="12" fill="#94a3b8">둘째 층도 같은 식으로 (5 x 1) + 1 = 6, 두 층을 더해 Total params 31</text>
+</svg><figcaption>파라미터 수가 계산되는 방식</figcaption></figure>
+<ul>
+<li>구성 직후 반드시 <code>model.summary()</code>를 한 번 호출합니다.</li>
+<li>Output Shape의 <code>None</code>은 샘플 수가 정해지지 않았다는 뜻이며 오류가 아닙니다.</li>
+<li>Total params가 0이거나 "build되지 않았다"는 메시지가 나오면 <code>Input</code>을 빠뜨린 것입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.5 파라미터 수 계산 (2분)" aria-label="12 / 25"><div class="slide__inner"><h2>4.5 파라미터 수 계산 (2분)</h2>
+<p>파라미터 수 = (앞 층 노드 수 x 이 층 노드 수) + 이 층 노드 수</p>
+<pre><code>입력 4 → 은닉 5 → 출력 1
+dense   : (4 x 5) + 5 = 25
+dense_1 : (5 x 1) + 1 = 6
+Total params: 31
+</code></pre>
+<ul>
+<li>뒤의 항이 노드마다 하나씩 있는 편향입니다.</li>
+<li>편향을 빼고 세면 정확히 편향 개수만큼 모자랍니다. 출력층도 합계에 넣습니다.</li>
+<li>발표자는 <code>30 → 64</code> 층이 <code>(30 x 64) + 64 = 1984</code>가 되는지 청중과 함께 계산해 봅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.6 Dropout과 BatchNormalization을 놓는 위치 (2분)" aria-label="13 / 25"><div class="slide__inner"><h2>4.6 Dropout과 BatchNormalization을 놓는 위치 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 630" width="800" height="630" role="img" aria-label="Dropout과 BatchNormalization을 넣는 위치" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>Dropout과 BatchNormalization을 넣는 위치. 은닉층 Dense 뒤에 BatchNormalization, 그 뒤에 Dropout을 두며 출력층 뒤에는 넣지 않습니다.</title>
+  <defs>
+    <marker id="dbp-p-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="dbp-d-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="630" fill="#ffffff"/>
+
+  <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">보조 층을 넣는 위치</text>
+
+  
+  <path d="M242,126 H230 V306 H242" fill="none" stroke="#f59e0b" stroke-width="2"/>
+  <text x="214" y="204" font-size="12" font-weight="700" fill="#1a2332" text-anchor="end">은닉층 블록</text>
+  <text x="214" y="222" font-size="12" fill="#94a3b8" text-anchor="end">Dense 뒤에 BN,</text>
+  <text x="214" y="240" font-size="12" fill="#94a3b8" text-anchor="end">그 뒤에 Dropout</text>
+
+  
+  <rect x="256" y="58" width="288" height="44" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="400" y="86" font-size="14" fill="#94a3b8" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Input(shape=(30,))</text>
+  <line x1="400" y1="104" x2="400" y2="124" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  
+  <rect x="256" y="126" width="288" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="154" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(64, activation='relu')</text>
+  <line x1="400" y1="172" x2="400" y2="192" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  
+  <rect x="256" y="194" width="288" height="44" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="222" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">BatchNormalization()</text>
+  <text x="566" y="221" font-size="12" fill="#94a3b8">값의 분포를 정돈</text>
+  <line x1="400" y1="240" x2="400" y2="260" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  
+  <rect x="256" y="262" width="288" height="44" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="290" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dropout(0.3)</text>
+  <text x="566" y="278" font-size="12" fill="#94a3b8">노드 일부를 끔</text>
+  <text x="566" y="296" font-size="12" fill="#94a3b8">0.3 = 끄는 비율</text>
+  <line x1="400" y1="308" x2="400" y2="328" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  
+  <rect x="256" y="330" width="288" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="358" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(32, activation='relu')</text>
+  <line x1="400" y1="376" x2="400" y2="396" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  
+  <rect x="256" y="398" width="288" height="44" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="426" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dropout(0.3)</text>
+  <line x1="400" y1="444" x2="400" y2="464" stroke="#94a3b8" stroke-width="2" marker-end="url(#dbp-p-e)"/>
+
+  
+  <rect x="256" y="466" width="288" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="494" font-size="14" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dense(1, activation='sigmoid')</text>
+  <text x="566" y="493" font-size="12" fill="#94a3b8">출력층</text>
+  <line x1="400" y1="512" x2="400" y2="532" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#dbp-d-e)"/>
+
+  
+  <rect x="256" y="534" width="288" height="44" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="400" y="562" font-size="14" fill="#dc2626" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace">Dropout(0.3)</text>
+  <circle cx="222" cy="556" r="13" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="216" y1="550" x2="228" y2="562" stroke="#dc2626" stroke-width="2"/>
+  <line x1="228" y1="550" x2="216" y2="562" stroke="#dc2626" stroke-width="2"/>
+  <text x="566" y="552" font-size="13" font-weight="700" fill="#dc2626">출력층 뒤에는</text>
+  <text x="566" y="570" font-size="13" font-weight="700" fill="#dc2626">넣지 않는다</text>
+
+  <text x="400" y="606" font-size="12" fill="#94a3b8" text-anchor="middle">보조 층은 은닉층 Dense 뒤에만 넣는다. 순서는 Dense, BatchNormalization, Dropout.</text>
+</svg><figcaption>Dropout과 BatchNormalization을 넣는 위치</figcaption></figure>
+<ul>
+<li><code>Dropout(0.3)</code>의 0.3은 끄는 비율입니다. 시험에서는 0.2~0.5, 지시가 없으면 0.3 정도를 씁니다.</li>
+<li>순서는 <code>Dense</code>, <code>BatchNormalization</code>, <code>Dropout</code>입니다.</li>
+<li>출력층 뒤에는 넣지 않습니다. 마지막 층은 항상 <code>Dense</code>입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="4.6 보조 층을 넣은 표준 배치 (1분)" aria-label="14 / 25"><div class="slide__inner"><h2>4.6 보조 층을 넣은 표준 배치 (1분)</h2>
+<pre><code class="language-python">model.add(Input(shape=(30,)))
+model.add(Dense(64, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))
+</code></pre>
+<ul>
+<li><code>Dropout</code>의 Param #는 0입니다. 정상입니다.</li>
+<li><code>BatchNormalization</code>은 노드 수의 4배(64 x 4 = 256)가 잡히고 절반(128)이 Non-trainable입니다. 오류가 아닙니다.</li>
+</ul></div></section>
+<section class="slide" data-title="자주 틀리는 지점 (2분)" aria-label="15 / 25"><div class="slide__inner"><h2>자주 틀리는 지점 (2분)</h2>
+<ul>
+<li><code>Input(shape=(1000, 8))</code>처럼 샘플 수를 넣는다. 구성 단계에서 오류가 없고 <code>fit()</code>에서 shape 불일치로 터집니다.</li>
+<li><code>shape=(8)</code>로 쓰고 쉼표를 빠뜨린다.</li>
+<li>은닉층 2개 조건에서 <code>Dense(64)</code>와 출력층만 쓴다. 은닉층이 1개뿐입니다.</li>
+<li>클래스 수를 눈으로 세어 출력층 units를 잘못 적는다.</li>
+<li>회귀 출력층에 sigmoid를 붙이거나, 출력층 뒤에 Dropout을 넣는다.</li>
+<li><code>compile()</code>을 빠뜨리고 <code>fit()</code>을 부른다.</li>
+</ul></div></section>
+<section class="slide" data-title="시험장 표준 코드 (1분)" aria-label="16 / 25"><div class="slide__inner"><h2>시험장 표준 코드 (1분)</h2>
+<pre><code class="language-python">n_features = X_train_scaled.shape[1]
+
+model = Sequential()
+model.add(Input(shape=(n_features,)))
+model.add(Dense(64, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))   # 유형별 교체 지점
+model.summary()
+</code></pre>
+<ul>
+<li>유형이 바뀌면 마지막 <code>Dense</code> 한 줄만 4.4의 표대로 바꿉니다.</li>
+<li>이 모델은 아직 학습할 수 없습니다. 다음 회차에서 <code>compile()</code>과 <code>fit()</code>을 붙입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 (1) 이진분류 모델 구성 (4분)" aria-label="17 / 25"><div class="slide__inner"><h2>함께 풀기 (1) 이진분류 모델 구성 (4분)</h2>
+<p>발표자는 교재 사이트의 실습 셀을 열고 함께 풉니다: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch04.html#drills-ch04">https://newids.github.io/dl4aice/ch04.html#drills-ch04</a> (문항 ch04-q3)</p>
+<p><code>X_tr</code>의 shape가 <code>(800, 15)</code>인 이진분류입니다. 은닉층 2개(64, 32, relu)로 <code>model</code>을 구성합니다.</p>
+<pre><code class="language-python">n_features = ___
+
+model = Sequential()
+model.add(___)
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(___)
+
+model.summary()
+</code></pre>
+<ul>
+<li>먼저 청중이 빈칸 세 곳을 말하게 하고, 실습 셀에 입력해 실행합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유" aria-label="18 / 25"><div class="slide__inner"><h2>함께 풀기 — 답과 이유</h2>
+<p>문항 1 (ch04-q3)의 답입니다.</p>
+<pre><code class="language-python">n_features = X_tr.shape[1]
+model.add(Input(shape=(n_features,)))
+model.add(Dense(1, activation='sigmoid'))
+</code></pre>
+<ul>
+<li>이진분류 출력은 1일 확률 하나이므로 노드 1개와 sigmoid가 한 쌍입니다.</li>
+<li>Total params는 (15x64+64) + (64x32+32) + (32x1+1) = 1,024 + 2,080 + 33 = 3,137입니다.</li>
+<li>흔한 오류: <code>shape[0]</code>(800)을 쓴다. 출력층에 relu를 그대로 둔다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 (2) 오류 2곳 고치기 (4분)" aria-label="19 / 25"><div class="slide__inner"><h2>함께 풀기 (2) 오류 2곳 고치기 (4분)</h2>
+<p>발표자는 실습 셀을 열고 함께 풉니다: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch04.html#drills-ch04">https://newids.github.io/dl4aice/ch04.html#drills-ch04</a> (문항 ch04-q6)</p>
+<p>y_train에는 클래스 0~3이 있습니다. 원래 코드는 출력 노드가 2개였고 Dropout이 출력층 뒤에 있었습니다.</p>
+<pre><code class="language-python">n_class = ___
+
+model.add(Dense(32, activation='relu'))
+model.add(___(0.3))
+model.add(Dense(___, activation='softmax'))
+
+print('출력 shape:', model.output_shape)
+print('마지막 층 :', type(model.layers[-1]).__name__)
+</code></pre>
+<ul>
+<li>어떤 줄이 두 오류를 각각 고치는지 청중이 먼저 말해 봅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유" aria-label="20 / 25"><div class="slide__inner"><h2>함께 풀기 — 답과 이유</h2>
+<p>문항 2 (ch04-q6)의 답입니다.</p>
+<pre><code class="language-python">n_class = len(np.unique(y_train))
+model.add(Dropout(0.3))
+model.add(Dense(n_class, activation='softmax'))
+</code></pre>
+<ul>
+<li>출력층 노드 수는 클래스 개수와 같아야 하므로 데이터에서 뽑습니다.</li>
+<li>Dropout은 은닉층 Dense 뒤에만 둡니다. 출력층 뒤에 두면 최종 확률이 무작위로 0이 됩니다.</li>
+<li>구성 직후 summary의 마지막 행이 <code>Dense</code>이고 Output Shape가 <code>(None, 4)</code>인지 확인하면 두 오류를 한 번에 잡습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="정리" aria-label="21 / 25"><div class="slide__inner"><h2>정리</h2>
+<ul>
+<li>구성, 컴파일, 학습, 평가 중 4장은 구성입니다. 시험 답안에는 <code>compile()</code>까지 반드시 씁니다.</li>
+<li><code>Input(shape=(X_train_scaled.shape[1],))</code>: 샘플 수는 넣지 않고 쉼표를 붙입니다.</li>
+<li>출력층: 이진 <code>Dense(1,'sigmoid')</code>, 다중 <code>Dense(K,'softmax')</code>, 회귀 <code>Dense(1)</code>.</li>
+<li>Param # = (앞 층 노드 수 x 이 층 노드 수) + 이 층 노드 수.</li>
+<li>보조 층은 <code>Dense</code> 뒤에 <code>BatchNormalization</code>, <code>Dropout</code> 순서이고 출력층 뒤에는 넣지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="다음 회차 준비" aria-label="22 / 25"><div class="slide__inner"><h2>다음 회차 준비</h2>
+<ul>
+<li>다음 회차는 5회차, 5장 "컴파일과 학습"입니다.</li>
+<li>챕터 5의 1~2절(compile 세 인자, 손실 함수 선택 표)을 읽어 옵니다.</li>
+<li>5장 실습 셀 6문항 중 손실 함수 짝짓기(ch05-q1)를 먼저 풀어 봅니다.</li>
+<li>이번 회차 표준 코드를 보지 않고 써 보고, <code>summary()</code>의 Total params가 직접 계산한 값과 맞는지 확인합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="토론 질문" aria-label="23 / 25"><div class="slide__inner"><h2>토론 질문</h2>
+<ol>
+<li>시험에서 은닉층 수와 노드 수를 어떻게 정하겠습니까? 64에서 32 기본값을 그대로 쓰는 경우와 바꾸는 경우를 나누어 말해 봅시다.</li>
+<li>문제가 구성 방식을 지정하지 않으면 Sequential과 Functional 중 무엇을 쓰겠습니까? 그 이유는 무엇입니까?</li>
+<li>구성을 마친 직후 <code>summary()</code>에서 어떤 순서로 무엇을 점검하겠습니까? 시간이 부족할 때 꼭 남기는 점검 한 가지는 무엇입니까?</li>
+</ol></div></section>
+<section class="slide" data-title="예상 질문과 답 (1)" aria-label="24 / 25"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
+<p><strong>Q1.</strong> <code>Input</code>은 층인데 왜 <code>len(model.layers)</code>에 안 잡힙니까?
+답: <code>Input</code>은 연산을 하는 층이 아니라 입력 형태를 선언하는 것입니다. 그래서 <code>Dense</code> 세 개만 층으로 세어 3이 나옵니다.</p>
+<p><strong>Q2.</strong> 은닉층 노드 수를 64와 32로 정한 근거가 있습니까?
+답: 정해진 정답은 없습니다. 앞 층이 크고 뒤 층이 작아지는 64에서 32를 실기의 기본값으로 삼으라는 것이 교재의 권고이며, 층과 노드를 크게 늘리면 과적합 위험도 함께 커집니다.</p>
+<p><strong>Q3.</strong> <code>input_shape=</code>를 쓰면 틀린 답이 됩니까?
+답: 챕터 실행 확인에서는 Keras 3에서 경고가 나온 뒤 정상 동작했습니다. 다만 Keras 3에서 권장되지 않는 표기이므로 <code>Input(shape=(n,))</code>를 표준으로 씁니다.</p></div></section>
+<section class="slide" data-title="예상 질문과 답 (2)" aria-label="25 / 25"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
+<p><strong>Q4.</strong> summary에서 BatchNormalization 파라미터가 왜 4배이고 Non-trainable이 생깁니까?
+답: 학습으로 조정하는 값 두 종류와, 학습 중 관찰한 통계를 저장해 두는 값 두 종류가 함께 있기 때문입니다. 64노드면 256개이고 그중 128개가 Non-trainable이며 오류가 아닙니다.</p>
+<p><strong>Q5.</strong> 회귀 출력층에 relu를 붙이면 안 됩니까?
+답: 교재는 회귀 출력층에 활성화 함수를 쓰지 않는다고 규정합니다. 값을 제한하는 활성화는 큰 값이나 음수 값을 맞히지 못하게 만들기 때문입니다.</p>
+<p><strong>Q6.</strong> 다중분류에서 클래스 수가 틀리면 언제 오류가 납니까?
+답: 구성 단계에서는 조용하고 학습 단계에서 라벨과 출력 개수가 맞지 않아 오류가 납니다. 그래서 <code>len(np.unique(y))</code>로 뽑고 구성 직후 summary로 Output Shape를 확인합니다.</p>
+<p><strong>Q7.</strong> 시험에서 Functional API를 꼭 알아야 합니까?
+답: 챕터는 Sequential을 표준으로 다루고 함수형은 비교 수준으로만 소개합니다. 지시문이 어느 쪽을 요구하든 출력층 규칙은 같으므로, 두 형태에서 바뀌는 줄을 읽을 수 있으면 충분합니다.</p></div></section>
+</main>
+<div class="meter" aria-hidden="true"><span></span></div>
+<nav class="bar" aria-label="슬라이드 이동">
+<a class="btn" href="index.html" title="회차 목록">회차</a>
+<button class="btn" type="button" data-overview title="슬라이드 목록 (O)">목록</button>
+<span class="bar__title"></span>
+<span class="bar__time" title="발표 타이머 — 두 번 누르면 0으로 (R)"></span>
+<button class="btn" type="button" data-theme-toggle title="밝게/어둡게 (T)">명암</button>
+<button class="btn" type="button" data-full title="전체 화면 (F)">전체</button>
+<button class="btn" type="button" data-prev aria-label="이전 슬라이드">&#8592;</button>
+<span class="bar__count"></span>
+<button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
+</nav>
+<div class="ov" role="dialog" aria-label="슬라이드 목록">
+<div class="ov__head"><h2>4회차 — Keras로 모델 만들기</h2><span><a class="btn" href="03-ch03.html" title="이전 회차">이전 회차</a> <a class="btn" href="05-ch05.html" title="다음 회차">다음 회차</a> <button class="btn" type="button" data-close>닫기</button></span></div>
+<ol class="ov__grid">
+<li><button class="ov__item" type="button"><span class="ov__no">1</span><span>4회차 — Keras로 모델 만들기</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">4</span><span>4.1 모델 제작 4단계와 시험에서의 위치 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>4.2 Sequential 모델 구성 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">6</span><span>4.3 입력 shape (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">7</span><span>4.3 특성 수는 데이터에서 뽑는다 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">8</span><span>4.4 문제 유형별 출력층 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>4.4 클래스 수와 회귀 출력 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>4.4 Sequential과 Functional 비교 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>4.5 summary()로 확인한다 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">12</span><span>4.5 파라미터 수 계산 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>4.6 Dropout과 BatchNormalization을 놓는 위치 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">14</span><span>4.6 보조 층을 넣은 표준 배치 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">15</span><span>자주 틀리는 지점 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">16</span><span>시험장 표준 코드 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">17</span><span>함께 풀기 (1) 이진분류 모델 구성 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">18</span><span>함께 풀기 — 답과 이유</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">19</span><span>함께 풀기 (2) 오류 2곳 고치기 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">20</span><span>함께 풀기 — 답과 이유</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">21</span><span>정리</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">22</span><span>다음 회차 준비</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">23</span><span>토론 질문</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">24</span><span>예상 질문과 답 (1)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">25</span><span>예상 질문과 답 (2)</span></button></li>
+</ol>
+<p class="help"><kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>Home</kbd> <kbd>End</kbd> 처음/끝 · <kbd>O</kbd> 목록 · <kbd>F</kbd> 전체 화면 · <kbd>T</kbd> 명암 · <kbd>R</kbd> 타이머 초기화 · 인쇄하면 한 장에 한 슬라이드씩 PDF로 저장됩니다.</p>
+</div>
+<script>/* dl4aice v2 — dl4aice-core.js
+ * 모든 v2 위젯이 공유하는 최소 런타임: 데이터 로더, localStorage 저장소, 진도 기록,
+ * 토스트, 파이썬 코드 하이라이터, 클립보드, 라이트/다크 테마.
+ * 외부 의존성 없음. file:// 로 열어도 동작하도록 데이터는 assets/data/*.js 래퍼
+ * (window.DL4AICE_DATA)에서 먼저 찾고, 없을 때만 fetch 로 JSON 을 읽는다.
+ */
+(function () {
+  "use strict";
+
+  var NS = "dl4aice.v2.";
+  var D = (window.DL4AICE = window.DL4AICE || {});
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* 문제 지문용 미니 마크업: `code`, **굵게**, 빈 줄 = 문단, 줄바꿈 = <br>, "- " 목록 */
+  function richText(text) {
+    var source = String(text == null ? "" : text).replace(/\r\n?/g, "\n");
+    /* ```코드 펜스``` 는 먼저 떼어 내어 코드 블록으로 렌더링한다 */
+    var fences = [];
+    source = source.replace(/```[a-zA-Z]*\n([\s\S]*?)\n?```/g, function (_, code) {
+      fences.push(code);
+      return "\n\n\u0000FENCE" + (fences.length - 1) + "\u0000\n\n";
+    });
+    var blocks = source.split(/\n{2,}/).filter(function (b) { return b.trim() !== ""; });
+    return blocks
+      .map(function (block) {
+        var fence = /^\u0000FENCE(\d+)\u0000$/.exec(block.trim());
+        if (fence) {
+          return '<pre class="v2-code"><code>' + highlight(fences[Number(fence[1])]) + "</code></pre>";
+        }
+        var lines = block.split("\n");
+        var inline = function (line) {
+          return escapeHtml(line)
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        };
+        if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+          return "<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*[-•]\s+/, "")) + "</li>"; }).join("") + "</ul>";
+        }
+        if (lines.every(function (l) { return /^\s*\d+[.)]\s+/.test(l); })) {
+          return "<ol>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>"; }).join("") + "</ol>";
+        }
+        return "<p>" + lines.map(inline).join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
+  var CONSTANTS = /^(?:True|False|None|self|cls)$/;
+  var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+
+  function tok(cls, text) {
+    return '<span class="v2-tok-' + cls + '">' + text + "</span>";
+  }
+
+  /* 파이썬 코드 -> 에디터식으로 색을 입힌 HTML (이스케이프 포함).
+     주석·문자열·숫자·키워드·상수·내장 함수·함수 호출·클래스·키워드 인자·데코레이터·연산자를 구분한다. */
+  function highlight(code) {
+    var src = String(code == null ? "" : code);
+    var out = "";
+    var last = 0;
+    var depth = 0;
+    var prevWord = "";
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(src))) {
+      var gap = src.slice(last, m.index);
+      for (var i = 0; i < gap.length; i++) {
+        if (gap[i] === "(" || gap[i] === "[" || gap[i] === "{") depth++;
+        else if (gap[i] === ")" || gap[i] === "]" || gap[i] === "}") depth = Math.max(0, depth - 1);
+      }
+      out += escapeHtml(gap);
+      var text = escapeHtml(m[0]);
+      var end = TOKEN_RE.lastIndex;
+      if (m[1]) out += tok("com", text);
+      else if (m[2]) out += tok("str", text);
+      else if (m[3]) out += tok("num", text);
+      else if (m[4]) out += tok("blank", text);
+      else if (m[5]) out += tok("dec", text);
+      else if (m[6]) {
+        var word = m[6];
+        var next = src[end];
+        var rest = src.slice(end, end + 3);
+        if (KEYWORDS.test(word)) out += tok("kw", text);
+        else if (CONSTANTS.test(word)) out += tok("const", text);
+        else if (prevWord === "def") out += tok("fn", text);
+        else if (prevWord === "class") out += tok("cls", text);
+        else if (next === "(") {
+          if (BUILTINS.test(word)) out += tok("builtin", text);
+          else if (/^[A-Z]/.test(word)) out += tok("cls", text);
+          else out += tok("fn", text);
+        } else if (depth > 0 && /^\s*=(?!=)/.test(rest)) out += tok("param", text);
+        else if (prevWord === "import" || prevWord === "from" || prevWord === "as") out += tok("mod", text);
+        else out += text;
+        prevWord = word;
+      } else out += tok("op", text);
+      if (!m[6] && !m[7]) prevWord = "";
+      last = end;
+    }
+    return out + escapeHtml(src.slice(last));
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === false || value == null) return;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key.slice(0, 2) === "on" && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (Array.isArray(children) ? children : children == null ? [] : [children]).forEach(function (child) {
+      if (child == null || child === false) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  /* ---------- 저장소 ---------- */
+  var memory = {};
+  var store = {
+    get: function (key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(NS + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : fallback;
+      }
+    },
+    set: function (key, value) {
+      memory[key] = value;
+      try {
+        window.localStorage.setItem(NS + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      delete memory[key];
+      try { window.localStorage.removeItem(NS + key); } catch (e) { /* 저장소 사용 불가 */ }
+    }
+  };
+
+  /* ---------- 진도 ---------- */
+  function readProgress() {
+    var p = store.get("progress", null) || {};
+    p.drills = p.drills || {};
+    p.mocks = p.mocks || {};
+    return p;
+  }
+
+  function announce() {
+    try {
+      document.dispatchEvent(new CustomEvent("dl4aice:progress", { detail: readProgress() }));
+    } catch (e) { /* 구형 브라우저 */ }
+  }
+
+  var progress = {
+    read: readProgress,
+    /* 챕터 실습 문항 통과 기록. questionId 예: "ch04-q3" */
+    markDrill: function (questionId, passed) {
+      var p = readProgress();
+      var prev = p.drills[questionId] || { attempts: 0, ok: false };
+      p.drills[questionId] = {
+        ok: prev.ok || !!passed,
+        attempts: (prev.attempts || 0) + 1,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.drills[questionId];
+    },
+    isDrillDone: function (questionId) {
+      var rec = readProgress().drills[questionId];
+      return !!(rec && rec.ok);
+    },
+    /* chapterKey 예: "ch04". questionIds 는 그 챕터 문항 id 배열 */
+    chapterStats: function (questionIds) {
+      var p = readProgress();
+      var done = (questionIds || []).filter(function (id) { return p.drills[id] && p.drills[id].ok; }).length;
+      var total = (questionIds || []).length;
+      return { done: done, total: total, percent: total ? Math.round((done / total) * 100) : 0 };
+    },
+    /* 모의고사 채점 결과 기록. detail = { parts: {preprocess:{earned,max},...}, elapsedSec } */
+    recordMock: function (mockId, score, detail) {
+      var p = readProgress();
+      var prev = p.mocks[mockId] || { best: 0, attempts: 0 };
+      p.mocks[mockId] = {
+        best: Math.max(prev.best || 0, score),
+        last: score,
+        attempts: (prev.attempts || 0) + 1,
+        detail: detail || null,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.mocks[mockId];
+    },
+    mock: function (mockId) {
+      return readProgress().mocks[mockId] || null;
+    },
+    reset: function () {
+      store.remove("progress");
+      announce();
+    }
+  };
+
+  /* ---------- 데이터 로더 ---------- */
+  var pending = {};
+  function data(name) {
+    var bag = window.DL4AICE_DATA || {};
+    if (bag[name]) return Promise.resolve(bag[name]);
+    if (!pending[name]) {
+      pending[name] = fetch("assets/data/" + name + ".json")
+        .then(function (res) {
+          if (!res.ok) throw new Error(name + ".json " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          (window.DL4AICE_DATA = window.DL4AICE_DATA || {})[name] = json;
+          return json;
+        });
+    }
+    return pending[name];
+  }
+
+  /* ---------- 토스트 ---------- */
+  function toastHost() {
+    var host = document.querySelector(".v2-toasts");
+    if (!host) {
+      host = el("div", { class: "v2-toasts", role: "status", "aria-live": "polite" });
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  /* toast("메시지", { type: "ok" | "err" | "info", title, timeout(ms), html }) */
+  function toast(message, opts) {
+    opts = opts || {};
+    var type = opts.type || "info";
+    var node = el("div", { class: "v2-toast v2-toast--" + type }, [
+      opts.title ? el("strong", { class: "v2-toast__title", text: opts.title }) : null,
+      opts.html ? el("div", { class: "v2-toast__body", html: message }) : el("div", { class: "v2-toast__body", text: message }),
+      el("button", { class: "v2-toast__close", type: "button", "aria-label": "닫기", text: "×", onclick: function () { dismiss(); } })
+    ]);
+    var timer = null;
+    function dismiss() {
+      if (timer) clearTimeout(timer);
+      if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    var host = toastHost();
+    while (host.children.length >= 3) host.removeChild(host.firstChild);
+    host.appendChild(node);
+    var timeout = opts.timeout === undefined ? (type === "err" ? 9000 : 4500) : opts.timeout;
+    if (timeout > 0) timer = setTimeout(dismiss, timeout);
+    return dismiss;
+  }
+
+  /* ---------- 클립보드 ---------- */
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var area = el("textarea", { class: "v2-sr-only", "aria-hidden": "true" });
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  /* ---------- 테마 ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+    var btn = document.querySelector(".v2-theme-toggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+  }
+
+  var theme = {
+    get: function () { return store.get("theme", "light"); },
+    set: function (value) { store.set("theme", value); applyTheme(value); },
+    toggle: function () { theme.set(theme.get() === "dark" ? "light" : "dark"); }
+  };
+
+  /* 깜빡임 방지: 스크립트 로드 즉시 적용 */
+  applyTheme(theme.get());
+
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function () {
+    var masthead = document.querySelector(".masthead");
+    if (masthead && !masthead.querySelector(".v2-theme-toggle")) {
+      var tools = masthead.querySelector(".masthead__tools");
+      if (!tools) {
+        tools = el("span", { class: "masthead__tools" });
+        var toc = masthead.querySelector(".masthead__toc");
+        masthead.appendChild(tools);
+        if (toc) tools.appendChild(toc);
+      }
+      tools.insertBefore(
+        el("button", { class: "v2-theme-toggle", type: "button", onclick: function () { theme.toggle(); } }),
+        tools.firstChild
+      );
+    }
+    applyTheme(theme.get());
+  });
+
+  /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
+  function revealHashTarget() {
+    var id = decodeURIComponent((window.location.hash || "").slice(1));
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    var opened = false;
+    for (var node = target.parentElement; node; node = node.parentElement) {
+      if (node.tagName === "DETAILS" && !node.open) { node.open = true; opened = true; }
+    }
+    if (opened) target.scrollIntoView();
+  }
+  ready(revealHashTarget);
+  window.addEventListener("hashchange", revealHashTarget);
+
+  D.escapeHtml = escapeHtml;
+  D.richText = richText;
+  D.highlight = highlight;
+  D.el = el;
+  D.store = store;
+  D.progress = progress;
+  D.data = data;
+  D.toast = toast;
+  D.copy = copy;
+  D.theme = theme;
+  D.ready = ready;
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DL4AICE || {};
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = slides.length;
+  var current = 0;
+  var bar = document.querySelector(".bar");
+  var countEl = bar.querySelector(".bar__count");
+  var titleEl = bar.querySelector(".bar__title");
+  var timeEl = bar.querySelector(".bar__time");
+  var meter = document.querySelector(".meter span");
+  var prev = bar.querySelector("[data-prev]");
+  var next = bar.querySelector("[data-next]");
+  var overview = document.querySelector(".ov");
+  var planned = Number(document.body.getAttribute("data-minutes")) || 35;
+
+  /* 파이썬 코드 색 입히기 (교재와 같은 배색) */
+  if (D.highlight) {
+    Array.prototype.forEach.call(document.querySelectorAll("pre > code.language-python"), function (code) {
+      code.innerHTML = D.highlight(code.textContent).replace(/class="v2-tok-/g, 'class="tok-');
+    });
+  }
+
+  /* 내용이 넘치면 글자를 조금 줄여 한 장에 맞춘다 */
+  function fit(slide) {
+    var inner = slide.querySelector(".slide__inner");
+    var scale = 1;
+    var fig = 1;
+    inner.style.setProperty("--scale", "1");
+    inner.style.setProperty("--fig", "1");
+    /* 먼저 도해를 줄이고(글자는 읽기 좋은 크기로 유지), 그래도 넘치면 글자를 줄인다 */
+    while (inner.scrollHeight > inner.clientHeight + 2 && (fig > 0.5 || scale > 0.56)) {
+      if (fig > 0.5 && (fig > scale - 0.1 || scale <= 0.56)) fig -= 0.05;
+      else scale -= 0.03;
+      inner.style.setProperty("--fig", fig.toFixed(2));
+      inner.style.setProperty("--scale", scale.toFixed(2));
+    }
+  }
+
+  function show(index, replace) {
+    current = Math.max(0, Math.min(count - 1, index));
+    slides.forEach(function (s, i) { s.classList.toggle("is-current", i === current); });
+    fit(slides[current]);
+    countEl.textContent = current + 1 + " / " + count;
+    titleEl.textContent = slides[current].getAttribute("data-title");
+    meter.style.width = ((current + 1) / count) * 100 + "%";
+    prev.disabled = current === 0;
+    next.disabled = current === count - 1;
+    Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+      item.setAttribute("aria-current", i === current ? "true" : "false");
+    });
+    var hash = "#" + (current + 1);
+    if (replace) history.replaceState(null, "", hash); else if (location.hash !== hash) history.pushState(null, "", hash);
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isFinite(n) ? n - 1 : 0;
+  }
+
+  /* 발표 타이머: 처음 넘길 때 시작, 계획 시간을 넘기면 색으로 알린다 */
+  var startedAt = null;
+  var timer = null;
+  function tick() {
+    var sec = Math.floor((Date.now() - startedAt) / 1000);
+    var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+    var ss = String(sec % 60).padStart(2, "0");
+    timeEl.innerHTML = "<strong>" + mm + ":" + ss + "</strong> / " + planned + "분";
+    timeEl.classList.toggle("is-over", sec > planned * 60);
+  }
+  function startTimer() {
+    if (startedAt) return;
+    startedAt = Date.now();
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    startedAt = null;
+    timeEl.innerHTML = "<strong>00:00</strong> / " + planned + "분";
+    timeEl.classList.remove("is-over");
+  }
+
+  function go(delta) { startTimer(); show(current + delta); }
+  function toggleOverview(open) {
+    var willOpen = open === undefined ? !overview.classList.contains("is-open") : open;
+    overview.classList.toggle("is-open", willOpen);
+    if (willOpen) { var cur = overview.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
+  }
+  function toggleTheme() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("dl4aice.v2.theme", JSON.stringify(dark ? "light" : "dark")); } catch (e) { /* 저장 불가 */ }
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  }
+
+  prev.addEventListener("click", function () { go(-1); });
+  next.addEventListener("click", function () { go(1); });
+  bar.querySelector("[data-overview]").addEventListener("click", function () { toggleOverview(); });
+  bar.querySelector("[data-theme-toggle]").addEventListener("click", toggleTheme);
+  bar.querySelector("[data-full]").addEventListener("click", toggleFullscreen);
+  timeEl.addEventListener("dblclick", resetTimer);
+  overview.querySelector("[data-close]").addEventListener("click", function () { toggleOverview(false); });
+  Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+    item.addEventListener("click", function () { show(i); toggleOverview(false); });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var key = event.key;
+    if (overview.classList.contains("is-open")) {
+      if (key === "Escape" || key === "o" || key === "O") { toggleOverview(false); event.preventDefault(); }
+      return;
+    }
+    if (key === "ArrowRight" || key === "PageDown" || key === " " || key === "Enter") { go(1); event.preventDefault(); }
+    else if (key === "ArrowLeft" || key === "PageUp" || key === "Backspace") { go(-1); event.preventDefault(); }
+    else if (key === "Home") { show(0); event.preventDefault(); }
+    else if (key === "End") { show(count - 1); event.preventDefault(); }
+    else if (key === "o" || key === "O") { toggleOverview(true); }
+    else if (key === "f" || key === "F") { toggleFullscreen(); }
+    else if (key === "t" || key === "T") { toggleTheme(); }
+    else if (key === "r" || key === "R") { resetTimer(); }
+  });
+
+  /* 터치: 좌우로 밀어 넘기기 */
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  window.addEventListener("resize", function () { fit(slides[current]); });
+  resetTimer();
+  show(fromHash(), true);
+})();
+</script>
+</body>
+</html>

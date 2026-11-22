@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>9회차 — 모의고사 1회 리뷰 (이진분류) — 스터디 발표 자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef1f6; --paper: #ffffff; --ink: #1a2332; --soft: #475569; --muted: #64748b;
+  --line: #cbd5e1; --line-soft: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+  --chip-bg: #eef2f7; --chip-fg: #0f2a5e; --code-bg: #0d1424; --code-fg: #d6deeb;
+  --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "D2Coding", monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0f1a; --paper: #111827; --ink: #e6eaf2; --soft: #c3cddd; --muted: #9aa8bd;
+  --line: #334155; --line-soft: #243044; --primary: #6ea8fe; --primary-soft: #1b2f4f;
+  --chip-bg: #22304a; --chip-fg: #cfe0ff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  word-break: keep-all; overflow-wrap: anywhere; overflow: hidden;
+}
+.deck { position: fixed; inset: 0 0 3.25rem 0; display: grid; place-items: center; padding: 1.2vmin; }
+.slide {
+  display: none; width: min(100%, calc((100vh - 3.25rem - 2.4vmin) * 16 / 9)); aspect-ratio: 16 / 9;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px;
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.45); overflow: hidden;
+}
+.slide.is-current { display: block; }
+.slide__inner {
+  --scale: 1; height: 100%; padding: 4.2% 5.4% 3.6%; overflow: auto;
+  font-size: calc(clamp(13px, 1.72vw, 30px) * var(--scale)); line-height: 1.55;
+}
+.slide h1, .slide h2 { margin: 0 0 0.7em; line-height: 1.28; letter-spacing: -0.02em; }
+.slide h1 { font-size: 2.1em; margin-top: 12%; }
+.slide h2 { font-size: 1.42em; padding-bottom: 0.35em; border-bottom: 1px solid var(--line-soft); }
+.slide h3 { font-size: 1.08em; margin: 0.9em 0 0.4em; }
+.slide p { margin: 0 0 0.6em; }
+.slide ul, .slide ol { margin: 0 0 0.6em; padding-left: 1.25em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li > ul, .slide li > ol { margin-top: 0.3em; }
+.slide a { color: var(--primary); }
+.slide strong { font-weight: 700; }
+.slide code {
+  font-family: var(--mono); font-size: 0.86em; padding: 0.05em 0.32em; border-radius: 5px;
+  color: var(--chip-fg); background: var(--chip-bg); font-variant-ligatures: none;
+}
+.slide pre {
+  margin: 0 0 0.7em; padding: 0.75em 0.95em; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.slide pre code { padding: 0; background: none; color: inherit; font-size: 0.8em; line-height: 1.55; white-space: pre; }
+.slide table { width: 100%; margin: 0 0 0.7em; border-collapse: collapse; font-size: 0.88em; }
+.slide th, .slide td { padding: 0.42em 0.6em; text-align: left; vertical-align: top; border: 1px solid var(--line-soft); }
+.slide thead th { background: var(--chip-bg); color: var(--chip-fg); font-weight: 700; }
+.slide blockquote {
+  margin: 0 0 0.7em; padding: 0.6em 0.9em; color: var(--soft); background: var(--chip-bg);
+  border: 1px solid var(--line-soft); border-radius: 10px;
+}
+.slide blockquote > :last-child { margin-bottom: 0; }
+.figure { margin: 0 0 0.6em; padding: 0.5em; background: #ffffff; border: 1px solid var(--line-soft); border-radius: 10px; text-align: center; }
+.figure svg { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(44vh * var(--fig, 1)); margin: 0 auto; }
+.figure figcaption { margin-top: 0.3em; font-size: 0.72em; color: #64748b; }
+.slide--title .slide__inner { display: flex; flex-direction: column; justify-content: center; }
+.slide--title h1 { margin-top: 0; }
+.slide--title ul { list-style: none; padding: 0; color: var(--soft); }
+
+.tok-kw { color: #c792ea; } .tok-const { color: #82aaff; font-style: italic; } .tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; } .tok-com { color: #7c8aa5; font-style: italic; } .tok-fn { color: #82d2ff; }
+.tok-builtin { color: #ffcb6b; } .tok-cls { color: #5eead4; } .tok-param { color: #f9a8d4; }
+.tok-mod { color: #d6deeb; } .tok-dec { color: #ffcb6b; font-style: italic; } .tok-op { color: #89ddff; }
+.tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
+
+.bar {
+  position: fixed; inset: auto 0 0 0; height: 3.25rem; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 0.8rem; background: var(--paper); border-top: 1px solid var(--line-soft); font-size: 0.86rem;
+}
+.bar__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); font-weight: 600; }
+.bar__count, .bar__time { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.bar__time strong { color: var(--ink); }
+.bar__time.is-over strong { color: #dc2626; }
+.btn {
+  min-width: 2.5rem; min-height: 2.5rem; padding: 0.3rem 0.7rem; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn:focus-visible, .ov__item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.meter { position: fixed; inset: auto 0 3.25rem 0; height: 3px; background: var(--line-soft); }
+.meter span { display: block; height: 100%; width: 0; background: var(--primary); transition: width 180ms ease-out; }
+
+.ov { position: fixed; inset: 0; z-index: 10; display: none; padding: 1.2rem; overflow: auto; background: var(--bg); }
+.ov.is-open { display: block; }
+.ov__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
+.ov__head h2 { margin: 0; font-size: 1.1rem; }
+.ov__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; }
+.ov__item {
+  display: flex; gap: 0.6rem; width: 100%; min-height: 3.2rem; padding: 0.6rem 0.8rem; font: inherit; text-align: left; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 10px; cursor: pointer;
+}
+.ov__item:hover { border-color: var(--primary); }
+.ov__item[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.ov__no { flex: none; width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.help { margin: 1rem 0 0; font-size: 0.82rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+
+.index { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; overflow: auto; height: 100%; }
+.index h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+.index p { color: var(--soft); line-height: 1.7; }
+.index ol { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.6rem; }
+.index li a {
+  display: flex; gap: 1rem; align-items: baseline; padding: 0.9rem 1.1rem; color: var(--ink); text-decoration: none;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.index li a:hover { border-color: var(--primary); }
+.index .no { flex: none; width: 3.6rem; font-weight: 700; color: var(--primary); }
+.index .meta { margin-left: auto; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .bar__title { display: none; }
+  .slide { width: 100%; aspect-ratio: auto; height: 100%; }
+  .slide__inner { font-size: calc(15px * var(--scale)); }
+}
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .bar, .meter, .ov { display: none !important; }
+  .deck { position: static; display: block; padding: 0; }
+  .slide { display: block !important; width: 297mm; height: 167mm; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; break-after: page; }
+  .slide__inner { font-size: 15pt; overflow: hidden; }
+}
+</style>
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body data-minutes="36">
+<main class="deck" aria-live="polite">
+<section class="slide slide--title" data-title="9회차 — 모의고사 1회 리뷰 (이진분류)" aria-label="1 / 26"><div class="slide__inner"><h1>9회차 — 모의고사 1회 리뷰 (이진분류)</h1>
+<ul>
+<li>범위: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/mock01.html">모의고사 1회</a> (통신사 고객 이탈 예측, 14문항)</li>
+<li>발표 35분 안팎 + 질의응답 20분</li>
+<li>사전 준비: 90분 타이머로 직접 풀고 점수와 틀린 문항을 기록해 옵니다</li>
+</ul></div></section>
+<section class="slide" data-title="오늘의 목표" aria-label="2 / 26"><div class="slide__inner"><h2>오늘의 목표</h2>
+<ol>
+<li>14문항이 하나의 파이프라인으로 이어지는 순서와, 문항 사이에 넘겨받는 변수를 확인합니다.</li>
+<li>채점 규칙이 문항마다 무엇을 보는지 알고, 본인이 감점된 이유를 찾습니다.</li>
+<li>이진분류에서 출력층, 손실 함수, 예측 변환(임계값 0.5)을 한 묶음으로 정리합니다.</li>
+</ol></div></section>
+<section class="slide" data-title="진행 순서" aria-label="3 / 26"><div class="slide__inner"><h2>진행 순서</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>내용</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>도입</td>
+<td>목표와 진행 순서</td>
+<td>1분</td>
+</tr>
+<tr>
+<td>시험 구성</td>
+<td>시나리오, 데이터, 파트별 배점</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>점수 나누기</td>
+<td>점수와 약한 파트 공유</td>
+<td>4분</td>
+</tr>
+<tr>
+<td>파트별 흐름</td>
+<td>14문항을 4개 파트로 나누어 훑기</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>자세히 보는 문항</td>
+<td>Q5, Q7, Q10, Q11, Q12, Q14</td>
+<td>13분</td>
+</tr>
+<tr>
+<td>정적 채점</td>
+<td>채점기가 보는 것과 보지 않는 것</td>
+<td>2분</td>
+</tr>
+<tr>
+<td>함께 풀기</td>
+<td>Q6, Q14 빈칸 채우기</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>정리</td>
+<td>핵심 정리와 다음 회차</td>
+<td>1분</td>
+</tr>
+<tr>
+<td>질의응답</td>
+<td>토론 질문과 질문 받기</td>
+<td>20분</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="시험 구성 (3분)" aria-label="4 / 26"><div class="slide__inner"><h2>시험 구성 (3분)</h2>
+<p>시나리오: 통신사 고객 3,000명의 가입 정보와 이탈 여부로 이탈할 고객을 미리 예측합니다.
+머신러닝 세 모델로 기준선을 만든 뒤, Sequential API 딥러닝 모델로 평가하고 신규 고객 1명에 적용합니다.</p>
+<p>핵심 컬럼: <code>tenure_months</code>, <code>monthly_fee</code>, <code>total_fee</code>(결측 150건), <code>contract_type</code>, <code>internet_service</code>, <code>support_calls</code>, 타깃 <code>churn</code>(0 약 70%, 1 약 30%). <code>customer_id</code>는 예측에 쓰지 않는 식별자입니다.</p>
+<table>
+<thead>
+<tr>
+<th>파트</th>
+<th>문항</th>
+<th>배점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>탐색·전처리</td>
+<td>Q1–7</td>
+<td>40점</td>
+</tr>
+<tr>
+<td>머신러닝</td>
+<td>Q8–10</td>
+<td>22점</td>
+</tr>
+<tr>
+<td>딥러닝 모델링</td>
+<td>Q11–13</td>
+<td>26점</td>
+</tr>
+<tr>
+<td>딥러닝 추론</td>
+<td>Q14</td>
+<td>12점</td>
+</tr>
+</tbody>
+</table>
+<p>합격선은 80점(100점 만점)입니다. 문항 수, 배점, 오픈북 정책은 회차마다 다를 수 있으므로 응시 전에 KT AICE 공식 공지를 확인합니다.</p></div></section>
+<section class="slide" data-title="점수 나누기 (4분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 나누기 (4분)</h2>
+<p>CBT 결과 화면에는 파트별 분석이 나옵니다. 한 사람씩 짧게 말합니다.</p>
+<p>발표자가 던질 질문 3개:</p>
+<ol>
+<li>총점은 몇 점이고, 합격선 80점과 얼마나 차이가 났습니까?</li>
+<li>파트별로 가장 점수가 낮았던 곳은 어디입니까?</li>
+<li>시간이 모자랐던 문항이 있었습니까, 아니면 시간은 남았는데 틀렸습니까?</li>
+</ol>
+<p>답을 듣고 오늘 자세히 볼 문항의 순서를 조정합니다.</p></div></section>
+<section class="slide" data-title="파트 1: 탐색·전처리 (Q1–7, 40점)" aria-label="6 / 26"><div class="slide__inner"><h2>파트 1: 탐색·전처리 (Q1–7, 40점)</h2>
+<table>
+<thead>
+<tr>
+<th>문항</th>
+<th>점수</th>
+<th>채점에서 보는 한 가지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1</td>
+<td>4</td>
+<td><code>pd</code>, <code>sns</code> 별칭, <code>read_csv</code>로 <code>df</code> 저장</td>
+</tr>
+<tr>
+<td>Q2</td>
+<td>4</td>
+<td>클래스 비율 출력, <code>countplot</code>의 <code>x</code>=계약 유형, <code>hue</code>=<code>churn</code></td>
+</tr>
+<tr>
+<td>Q3</td>
+<td>6</td>
+<td><code>boxplot</code>(x=<code>churn</code>, y=<code>monthly_fee</code>), 수치형만 <code>corr</code>에 저장</td>
+</tr>
+<tr>
+<td>Q4</td>
+<td>6</td>
+<td><code>total_fee</code>를 중앙값으로 <code>fillna</code> 후 재대입</td>
+</tr>
+<tr>
+<td>Q5</td>
+<td>6</td>
+<td>IQR 범위 안의 행만 남기고 <code>customer_id</code> 제거</td>
+</tr>
+<tr>
+<td>Q6</td>
+<td>7</td>
+<td><code>get_dummies</code>를 정수형으로</td>
+</tr>
+<tr>
+<td>Q7</td>
+<td>7</td>
+<td>7:3 층화 분리, 학습 데이터로만 <code>fit_transform</code></td>
+</tr>
+</tbody>
+</table>
+<p>뒤로 넘어가는 변수: <code>df</code>(Q4~Q6에서 갱신), <code>X</code>, <code>y</code>, <code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>, <code>scaler</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code></p></div></section>
+<section class="slide" data-title="파트 2: 머신러닝 (Q8–10, 22점)" aria-label="7 / 26"><div class="slide__inner"><h2>파트 2: 머신러닝 (Q8–10, 22점)</h2>
+<table>
+<thead>
+<tr>
+<th>문항</th>
+<th>점수</th>
+<th>채점에서 보는 한 가지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q8</td>
+<td>7</td>
+<td><code>dt_model</code> 생성(<code>max_depth</code>, <code>random_state</code>), <code>dt_pred</code></td>
+</tr>
+<tr>
+<td>Q9</td>
+<td>7</td>
+<td><code>rf_model</code>(<code>n_estimators=100</code>, <code>random_state=42</code>), <code>rf_pred</code></td>
+</tr>
+<tr>
+<td>Q10</td>
+<td>8</td>
+<td><code>xgb_model</code>, <code>xgb_pred</code>, 세 모델을 담은 <code>comparison</code> 표</td>
+</tr>
+</tbody>
+</table>
+<p>세 문항 모두 생성, <code>fit</code>, <code>predict</code>의 세 단계이며 입력은 <code>X_train_scaled</code>, <code>X_test_scaled</code>입니다.</p>
+<p>모범 답안 기준 결과: accuracy는 DecisionTree 0.7453, RandomForest 0.7330, XGBoost 0.7453입니다. 이 값이 Q14 딥러닝 결과를 견주는 기준선입니다.</p>
+<p>뒤로 넘어가는 변수: <code>dt_pred</code>, <code>rf_pred</code>, <code>xgb_pred</code>, <code>comparison</code>. 모델 변수명을 <code>model</code>로 쓰지 않아야 Q11의 <code>model</code>과 겹치지 않습니다.</p></div></section>
+<section class="slide" data-title="파트 3: 딥러닝 모델링 (Q11–13, 26점)" aria-label="8 / 26"><div class="slide__inner"><h2>파트 3: 딥러닝 모델링 (Q11–13, 26점)</h2>
+<table>
+<thead>
+<tr>
+<th>문항</th>
+<th>점수</th>
+<th>채점에서 보는 한 가지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q11</td>
+<td>9</td>
+<td><code>Input(shape=(특성 개수,))</code>, <code>Dense(1, sigmoid)</code>, compile</td>
+</tr>
+<tr>
+<td>Q12</td>
+<td>9</td>
+<td><code>es</code>(<code>val_loss</code>, <code>patience=5</code>, 최적 가중치 복원), <code>mc</code>(<code>best_model.keras</code>), <code>fit</code></td>
+</tr>
+<tr>
+<td>Q13</td>
+<td>8</td>
+<td>loss와 accuracy의 학습·검증 곡선, 제목·축 이름, <code>plt.show()</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Q11의 <code>model</code>이 Q12 <code>fit</code>, Q14 <code>evaluate</code>와 <code>predict</code>로 이어집니다.</li>
+<li>Q12의 <code>history</code>가 Q13 그래프의 재료입니다. 키는 <code>loss</code>, <code>accuracy</code>, <code>val_loss</code>, <code>val_accuracy</code>입니다.</li>
+</ul>
+<p>뒤로 넘어가는 변수: <code>model</code>, <code>es</code>, <code>mc</code>, <code>history</code></p></div></section>
+<section class="slide" data-title="파트 4: 딥러닝 추론 (Q14, 12점)" aria-label="9 / 26"><div class="slide__inner"><h2>파트 4: 딥러닝 추론 (Q14, 12점)</h2>
+<table>
+<thead>
+<tr>
+<th>단계</th>
+<th>채점에서 보는 한 가지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>평가</td>
+<td><code>evaluate</code> 결과를 <code>test_loss</code>, <code>test_acc</code>에 받기</td>
+</tr>
+<tr>
+<td>클래스 변환</td>
+<td>임계값 0.5로 <code>y_pred</code> 만들기</td>
+</tr>
+<tr>
+<td>신규 입력</td>
+<td><code>new_df</code>를 학습 컬럼 구성·순서(<code>X.columns</code>)에 맞추고 빈 컬럼은 0</td>
+</tr>
+<tr>
+<td>스케일링</td>
+<td>학습 때의 <code>scaler</code>로 <code>transform</code>만</td>
+</tr>
+<tr>
+<td>판정</td>
+<td><code>new_pred</code>에서 확률과 0/1 판정 출력</td>
+</tr>
+</tbody>
+</table>
+<p>Q14가 앞 문항에서 받는 것: <code>model</code>, <code>X_test_scaled</code>, <code>y_test</code>, <code>X</code>, <code>scaler</code>. 앞 문항에서 변수 하나만 틀려도 이 문항까지 영향이 이어집니다.</p></div></section>
+<section class="slide" data-title="자세히 보는 문항: Q5 IQR 이상치 제거" aria-label="10 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q5 IQR 이상치 제거</h2>
+<pre><code class="language-python">q1 = df['monthly_fee'].quantile(0.25)
+q3 = df['monthly_fee'].quantile(0.75)
+iqr = q3 - q1
+lower = q1 - 1.5 * iqr
+upper = q3 + 1.5 * iqr
+
+df = df[(df['monthly_fee'] &gt;= lower) &amp; (df['monthly_fee'] &lt;= upper)]
+df = df.drop(columns=['customer_id'])
+print(df.shape)   # (2982, 7)
+</code></pre>
+<p>채점에서 보는 것: <code>q3 = 75% 분위수</code>, 하한~상한 범위 안의 행만 남겨 <code>df</code>에 재대입, <code>customer_id</code> 컬럼 제거</p>
+<p>자주 틀리는 답:
+- 3사분위수 자리에 중앙값(0.5)을 쓰거나, 조건을 뒤집어 이상치만 남겨 공집합이 됨
+- <code>and</code>로 연결하거나 괄호를 빠뜨림, <code>drop</code> 결과를 재대입하지 않아 <code>customer_id</code>가 남음</p></div></section>
+<section class="slide" data-title="자세히 보는 문항: Q7 분리와 스케일링" aria-label="11 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q7 분리와 스케일링</h2>
+<pre><code class="language-python">X = df.drop(columns=['churn'])
+y = df['churn']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+print(X_train_scaled.shape, X_test_scaled.shape)
+# (2087, 10) (895, 10)
+</code></pre>
+<p>채점에서 보는 것: 7:3, <code>random_state=42</code>, 층화 추출 / 학습 데이터에만 <code>fit_transform</code> / 평가 데이터는 <code>transform</code>만</p>
+<p>자주 틀리는 답:
+- 평가 데이터에 <code>fit_transform</code>, <code>stratify</code> 누락, <code>test_size=0.7</code>로 학습과 평가를 뒤바꿈
+- 문제는 "클래스 비율을 동일하게 유지"라고만 쓰고 <code>stratify</code>라는 단어를 쓰지 않습니다. Q2의 70:30 불균형이 그 이유입니다.</p></div></section>
+<section class="slide" data-title="자세히 보는 문항: Q10 XGBoost와 세 모델 비교" aria-label="12 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q10 XGBoost와 세 모델 비교</h2>
+<pre><code class="language-python">xgb_model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4,
+                          random_state=42, eval_metric='logloss')
+xgb_model.fit(X_train_scaled, y_train)
+xgb_pred = xgb_model.predict(X_test_scaled)
+
+comparison = pd.DataFrame({
+    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],
+    'accuracy': [accuracy_score(y_test, dt_pred),
+                 accuracy_score(y_test, rf_pred),
+                 accuracy_score(y_test, xgb_pred)],
+    'f1': [f1_score(y_test, dt_pred),
+           f1_score(y_test, rf_pred),
+           f1_score(y_test, xgb_pred)]
+})
+print(comparison.round(4))
+</code></pre>
+<p>채점에서 보는 것: <code>learning_rate</code>, <code>max_depth</code>, <code>random_state</code> / 표의 XGBoost 칸에 <code>xgb_pred</code> 사용 / <code>comparison</code> 표 출력</p>
+<p>자주 틀리는 답: 요구 범위(<code>max_depth</code> 2~8)를 벗어난 깊이, 표의 XGBoost 칸에 랜덤포레스트 예측값을 복사</p></div></section>
+<section class="slide" data-title="자세히 보는 문항: Q11 모델 설계와 compile" aria-label="13 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q11 모델 설계와 compile</h2>
+<pre><code class="language-python">model = Sequential()
+model.add(Input(shape=(X_train_scaled.shape[1],)))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1, activation='sigmoid'))
+model.summary()
+
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+</code></pre>
+<p>채점에서 보는 것: <code>Input</code>의 shape=(특성 개수,) / 출력층 <code>Dense(1, sigmoid)</code> / compile adam, <code>binary_crossentropy</code>, accuracy</p>
+<p>자주 틀리는 답:
+- 노드 1개에 <code>softmax</code>, 출력 노드 2개, 다중분류용 손실 함수
+- 행 수를 shape로 사용(열 개수는 <code>shape[1]</code>), <code>metrics=['acc']</code>로 쓰면 Q13의 <code>accuracy</code> 키와 어긋남, <code>metrics</code>를 리스트로 감싸지 않음</p></div></section>
+<section class="slide" data-title="자세히 보는 문항: Q12 콜백과 fit" aria-label="14 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q12 콜백과 fit</h2>
+<pre><code class="language-python">es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+mc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)
+
+history = model.fit(X_train_scaled, y_train,
+                    validation_split=0.2,
+                    epochs=100, batch_size=32,
+                    callbacks=[es, mc],
+                    verbose=0)
+
+print('실제로 학습한 epoch 수:', len(history.history['loss']))
+# 12 (환경마다 다를 수 있음)
+</code></pre>
+<p>채점에서 보는 것: <code>es</code>(<code>val_loss</code>, <code>patience=5</code>, 최적 가중치 복원) / <code>mc</code>(<code>best_model.keras</code>, 가장 좋은 모델만 저장) / 검증 20%, <code>epochs=100</code>, <code>batch_size=32</code> / <code>callbacks</code> 리스트</p>
+<p>자주 틀리는 답: <code>restore_best_weights</code> 누락, <code>callbacks</code>를 <code>fit</code>에 전달하지 않음(오류 없이 100 epoch를 모두 돎), 확장자 없는 파일명</p></div></section>
+<section class="slide" data-title="자세히 보는 문항: Q14 평가와 신규 고객 예측" aria-label="15 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q14 평가와 신규 고객 예측</h2>
+<pre><code class="language-python">test_loss, test_acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+pred = model.predict(X_test_scaled)
+y_pred = (pred &gt; 0.5).astype(int)
+print(classification_report(y_test, y_pred))
+...
+new_df = pd.DataFrame([new_data])
+new_df = pd.get_dummies(new_df, columns=['contract_type', 'internet_service'], dtype=int)
+new_df = new_df.reindex(columns=X.columns, fill_value=0)
+new_scaled = scaler.transform(new_df)
+new_pred = model.predict(new_scaled)
+print('예측 결과:', int(new_pred[0][0] &gt; 0.5))
+</code></pre>
+<p>모범 답안 결과: test loss 0.4967, test accuracy 0.7497, 이탈 확률 0.8273, 예측 결과 1. 이탈(1) 클래스 recall은 0.43입니다.</p>
+<p>채점에서 보는 것: 임계값 0.5로 0/1 변환 / 학습 컬럼 구성·순서로 맞추고 없는 컬럼은 0 / <code>scaler</code>로 <code>transform</code>만</p></div></section>
+<section class="slide" data-title="자세히 보는 문항: Q14에서 자주 틀리는 답" aria-label="16 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q14에서 자주 틀리는 답</h2>
+<ul>
+<li>새 샘플에 <code>fit_transform</code>: 한 건의 평균·표준편차를 새로 배워 모든 값이 0이 됩니다.</li>
+<li><code>fill_value</code> 누락: 없는 더미 컬럼이 NaN이 되어 예측이 <code>nan</code>입니다.</li>
+<li><code>reindex</code>를 건너뜀: 한 건에는 <code>month</code>, <code>fiber</code> 더미만 생겨서 <code>scaler.transform</code>이 feature names 불일치 <code>ValueError</code>를 냅니다.</li>
+<li>평가를 학습 데이터로 수행하거나 임계값을 지시와 다르게 지정합니다.</li>
+<li>불리언 <code>[[True]]</code>를 그대로 출력합니다. 지문은 최종 판정 0 또는 1을 요구합니다.</li>
+</ul>
+<p>순서: DataFrame 만들기, <code>get_dummies</code>, <code>reindex</code>, <code>scaler.transform</code>, <code>model.predict</code></p></div></section>
+<section class="slide" data-title="정적 채점에서 주의할 점 (2분)" aria-label="17 / 26"><div class="slide__inner"><h2>정적 채점에서 주의할 점 (2분)</h2>
+<ul>
+<li>사이트의 채점기는 코드를 실행하지 않습니다. 변수 이름과 핵심 인자가 있는지 검사합니다.</li>
+<li>따옴표 종류, 공백, 키워드 인자의 순서는 무시합니다.</li>
+<li>출력 결과는 보지 않으므로, 풀 때는 직접 실행해 결과를 확인합니다.</li>
+<li>옳은 답이어도 규칙이 다루지 않는 형태로 쓰면 오답으로 표시될 수 있습니다.</li>
+</ul>
+<p>그런 경우를 만난 분은 해당 문항과 본인이 쓴 코드를 세션에 가져옵니다. 질의응답 시간에 함께 확인합니다.</p></div></section>
+<section class="slide" data-title="함께 풀기 1: Q6 범주형 인코딩 (2분)" aria-label="18 / 26"><div class="slide__inner"><h2>함께 풀기 1: Q6 범주형 인코딩 (2분)</h2>
+<p>발표자가 모의고사 1회 화면의 Q6을 열고, 참가자가 빈칸을 말로 채웁니다.</p>
+<pre><code class="language-python">df = pd.get_dummies(df, columns=[___], dtype=___)
+print(df.shape)
+print(df.columns.tolist())
+</code></pre>
+<p>힌트: 문자열 컬럼은 두 개이고, 더미 변수는 0과 1의 정수여야 합니다.</p></div></section>
+<section class="slide" data-title="함께 풀기 2: Q14 평가와 신규 고객 예측 (4분)" aria-label="19 / 26"><div class="slide__inner"><h2>함께 풀기 2: Q14 평가와 신규 고객 예측 (4분)</h2>
+<p>Q14 화면을 열고 빈칸을 하나씩 채웁니다.</p>
+<pre><code class="language-python">test_loss, test_acc = model.evaluate(___, ___, verbose=0)
+pred = model.predict(X_test_scaled)
+y_pred = (pred &gt; ___).astype(int)
+...
+new_df = pd.DataFrame(___)
+new_df = new_df.reindex(columns=___, fill_value=___)
+new_scaled = scaler.___(new_df)
+new_pred = model.predict(new_scaled)
+...
+print('예측 결과:', ___)
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유 (Q6)" aria-label="20 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (Q6)</h2>
+<pre><code class="language-python">df = pd.get_dummies(df, columns=['contract_type', 'internet_service'], dtype=int)
+</code></pre>
+<ul>
+<li>대상 컬럼은 <code>contract_type</code>, <code>internet_service</code> 두 개입니다. <code>internet_service</code>를 빠뜨리면 문자열이 남습니다.</li>
+<li><code>dtype=int</code>를 쓰지 않으면 더미가 True/False로 만들어집니다.</li>
+<li>결과를 <code>df</code>에 다시 저장해야 합니다. 모범 답안 기준 출력은 (2982, 11)입니다.</li>
+<li>LabelEncoder로 0/1/2를 붙이면 없던 크기 관계를 학습하므로 채점 규칙이 금지합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유 (Q14)" aria-label="21 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (Q14)</h2>
+<ul>
+<li><code>evaluate(X_test_scaled, y_test, verbose=0)</code>: 스케일링된 평가 데이터와 정답을 넣습니다.</li>
+<li><code>pred &gt; 0.5</code>: 이진분류는 임계값 비교로 0/1을 만듭니다. <code>argmax</code>는 다중분류용입니다.</li>
+<li><code>pd.DataFrame([new_data])</code>: 딕셔너리를 리스트로 감싸야 1행이 됩니다.</li>
+<li><code>reindex(columns=X.columns, fill_value=0)</code>: 학습 때 컬럼 구성과 순서로 맞추고 없는 더미는 0입니다.</li>
+<li><code>scaler.transform(new_df)</code>: 학습 때 만든 <code>scaler</code>를 재사용하며 <code>fit</code>하지 않습니다.</li>
+<li><code>int(new_pred[0][0] &gt; 0.5)</code>: 확률을 최종 판정 0 또는 1로 바꿉니다.</li>
+</ul></div></section>
+<section class="slide" data-title="정리" aria-label="22 / 26"><div class="slide__inner"><h2>정리</h2>
+<ul>
+<li>인코딩은 분리 전에, 스케일링은 분리 후에 하고, <code>fit</code>은 학습 데이터에서만 합니다.</li>
+<li>이진분류의 출력층은 <code>Dense(1, sigmoid)</code>이고 손실 함수는 <code>binary_crossentropy</code>입니다. 한쪽만 바꾸면 오류 없이 학습이 어긋납니다.</li>
+<li><code>fillna</code>, <code>drop</code>, <code>get_dummies</code>는 새 객체를 돌려주므로 재대입이 필요합니다.</li>
+<li>콜백은 만든 뒤 <code>fit</code>의 <code>callbacks=[es, mc]</code>로 전달해야 동작합니다.</li>
+<li>신규 샘플은 학습 때와 같은 전처리 순서를 거친 뒤 임계값 0.5로 판정합니다.</li>
+<li>이탈 클래스의 recall(0.43)을 accuracy와 함께 봅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="다음 회차 준비" aria-label="23 / 26"><div class="slide__inner"><h2>다음 회차 준비</h2>
+<ul>
+<li>10회차는 모의고사 2회(다중분류, 설비 센서 불량 유형)입니다.</li>
+<li>90분 타이머로 직접 풀고 점수와 틀린 문항을 기록해 옵니다.</li>
+<li>이번 회차의 이진분류 코드에서 출력층, 손실 함수, 예측 변환이 3클래스에서 어떻게 바뀔지 예상해 봅니다.</li>
+<li>오늘 정적 채점에서 의문이 생긴 문항은 다음 회차 시작 때 다시 확인합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="토론 질문" aria-label="24 / 26"><div class="slide__inner"><h2>토론 질문</h2>
+<ol>
+<li>Q4처럼 분리 전에 전체 데이터로 결측치를 채우라는 지시가 나왔을 때, 시험에서는 어떻게 쓰고 실무에서는 무엇이 달라져야 합니까?</li>
+<li>딥러닝 accuracy가 0.7497인데 전부 유지로 찍어도 약 70%입니다. 이탈 고객을 찾는 것이 목적이라면 어떤 지표를 어떻게 읽어야 합니까?</li>
+<li>시간이 모자랄 때 어떤 문항부터 풀고 어떤 문항을 나중으로 미루겠습니까? 본인 점수 기록을 근거로 이유를 말해 봅시다.</li>
+</ol></div></section>
+<section class="slide" data-title="예상 질문과 답 (1)" aria-label="25 / 26"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
+<p><strong>Q1.</strong> 분리 전에 결측치를 채우면 데이터 누수가 아닙니까?
+답: 엄밀히는 대체값도 학습 데이터로만 구하는 것이 원칙입니다. 다만 이 시험 흐름은 Q7 분리 전에 전체 데이터로 처리하라고 지시하므로, 시험에서는 지시대로 전체 데이터에 적용합니다.</p>
+<p><strong>Q2.</strong> 이진분류에서 출력 노드를 2개로 두면 안 됩니까?
+답: 이 모의고사의 채점 규칙은 <code>Dense(1, sigmoid)</code>와 <code>binary_crossentropy</code>의 짝을 요구하고, 노드 2개는 오답 사례로 등록되어 있습니다. 문항이 "이진분류에 맞는"이라고 쓰면 1개와 sigmoid로 답합니다.</p>
+<p><strong>Q3.</strong> 테스트 accuracy 0.7497이면 잘 나온 것입니까?
+답: 평가 데이터의 유지(0)가 630건, 이탈(1)이 265건이라 전부 유지로 찍어도 약 70%입니다. 이탈 클래스의 recall이 0.43이므로, accuracy만 보고 판단하지 않고 <code>classification_report</code>를 함께 읽습니다.</p></div></section>
+<section class="slide" data-title="예상 질문과 답 (2)" aria-label="26 / 26"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
+<p><strong>Q4.</strong> Q10 표에서 DecisionTree와 XGBoost의 accuracy와 f1이 같은데 복사한 것입니까?
+답: 아닙니다. 이 데이터에서 우연히 지표가 같아진 것이며 두 모델의 예측이 서로 다른 행도 있습니다. 비교표에는 모델마다 자기 예측 변수를 넣어야 합니다.</p>
+<p><strong>Q5.</strong> 제 <code>epoch</code> 수가 모범 답안의 12와 다릅니다. 틀린 것입니까?
+답: 중단 시점은 실행 환경과 난수에 따라 달라질 수 있습니다. <code>epochs=100</code>은 상한이므로 100보다 훨씬 앞에서 끝나면 <code>EarlyStopping</code>이 동작한 것입니다.</p>
+<p><strong>Q6.</strong> <code>metrics=['acc']</code>로 쓰면 왜 감점입니까?
+답: Keras 3에서는 <code>history</code> 키가 <code>acc</code>, <code>val_acc</code>가 되어 Q13의 <code>accuracy</code>, <code>val_accuracy</code>와 어긋납니다. 지문이 <code>accuracy</code>를 지정하므로 그대로 씁니다.</p></div></section>
+</main>
+<div class="meter" aria-hidden="true"><span></span></div>
+<nav class="bar" aria-label="슬라이드 이동">
+<a class="btn" href="index.html" title="회차 목록">회차</a>
+<button class="btn" type="button" data-overview title="슬라이드 목록 (O)">목록</button>
+<span class="bar__title"></span>
+<span class="bar__time" title="발표 타이머 — 두 번 누르면 0으로 (R)"></span>
+<button class="btn" type="button" data-theme-toggle title="밝게/어둡게 (T)">명암</button>
+<button class="btn" type="button" data-full title="전체 화면 (F)">전체</button>
+<button class="btn" type="button" data-prev aria-label="이전 슬라이드">&#8592;</button>
+<span class="bar__count"></span>
+<button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
+</nav>
+<div class="ov" role="dialog" aria-label="슬라이드 목록">
+<div class="ov__head"><h2>9회차 — 모의고사 1회 리뷰 (이진분류)</h2><span><a class="btn" href="08-ch08.html" title="이전 회차">이전 회차</a> <a class="btn" href="10-mock02.html" title="다음 회차">다음 회차</a> <button class="btn" type="button" data-close>닫기</button></span></div>
+<ol class="ov__grid">
+<li><button class="ov__item" type="button"><span class="ov__no">1</span><span>9회차 — 모의고사 1회 리뷰 (이진분류)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">4</span><span>시험 구성 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 나누기 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">6</span><span>파트 1: 탐색·전처리 (Q1–7, 40점)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">7</span><span>파트 2: 머신러닝 (Q8–10, 22점)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">8</span><span>파트 3: 딥러닝 모델링 (Q11–13, 26점)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>파트 4: 딥러닝 추론 (Q14, 12점)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>자세히 보는 문항: Q5 IQR 이상치 제거</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>자세히 보는 문항: Q7 분리와 스케일링</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">12</span><span>자세히 보는 문항: Q10 XGBoost와 세 모델 비교</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>자세히 보는 문항: Q11 모델 설계와 compile</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">14</span><span>자세히 보는 문항: Q12 콜백과 fit</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">15</span><span>자세히 보는 문항: Q14 평가와 신규 고객 예측</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">16</span><span>자세히 보는 문항: Q14에서 자주 틀리는 답</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">17</span><span>정적 채점에서 주의할 점 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">18</span><span>함께 풀기 1: Q6 범주형 인코딩 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">19</span><span>함께 풀기 2: Q14 평가와 신규 고객 예측 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">20</span><span>함께 풀기 — 답과 이유 (Q6)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">21</span><span>함께 풀기 — 답과 이유 (Q14)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">22</span><span>정리</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">23</span><span>다음 회차 준비</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">24</span><span>토론 질문</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">25</span><span>예상 질문과 답 (1)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">26</span><span>예상 질문과 답 (2)</span></button></li>
+</ol>
+<p class="help"><kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>Home</kbd> <kbd>End</kbd> 처음/끝 · <kbd>O</kbd> 목록 · <kbd>F</kbd> 전체 화면 · <kbd>T</kbd> 명암 · <kbd>R</kbd> 타이머 초기화 · 인쇄하면 한 장에 한 슬라이드씩 PDF로 저장됩니다.</p>
+</div>
+<script>/* dl4aice v2 — dl4aice-core.js
+ * 모든 v2 위젯이 공유하는 최소 런타임: 데이터 로더, localStorage 저장소, 진도 기록,
+ * 토스트, 파이썬 코드 하이라이터, 클립보드, 라이트/다크 테마.
+ * 외부 의존성 없음. file:// 로 열어도 동작하도록 데이터는 assets/data/*.js 래퍼
+ * (window.DL4AICE_DATA)에서 먼저 찾고, 없을 때만 fetch 로 JSON 을 읽는다.
+ */
+(function () {
+  "use strict";
+
+  var NS = "dl4aice.v2.";
+  var D = (window.DL4AICE = window.DL4AICE || {});
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* 문제 지문용 미니 마크업: `code`, **굵게**, 빈 줄 = 문단, 줄바꿈 = <br>, "- " 목록 */
+  function richText(text) {
+    var source = String(text == null ? "" : text).replace(/\r\n?/g, "\n");
+    /* ```코드 펜스``` 는 먼저 떼어 내어 코드 블록으로 렌더링한다 */
+    var fences = [];
+    source = source.replace(/```[a-zA-Z]*\n([\s\S]*?)\n?```/g, function (_, code) {
+      fences.push(code);
+      return "\n\n\u0000FENCE" + (fences.length - 1) + "\u0000\n\n";
+    });
+    var blocks = source.split(/\n{2,}/).filter(function (b) { return b.trim() !== ""; });
+    return blocks
+      .map(function (block) {
+        var fence = /^\u0000FENCE(\d+)\u0000$/.exec(block.trim());
+        if (fence) {
+          return '<pre class="v2-code"><code>' + highlight(fences[Number(fence[1])]) + "</code></pre>";
+        }
+        var lines = block.split("\n");
+        var inline = function (line) {
+          return escapeHtml(line)
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        };
+        if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+          return "<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*[-•]\s+/, "")) + "</li>"; }).join("") + "</ul>";
+        }
+        if (lines.every(function (l) { return /^\s*\d+[.)]\s+/.test(l); })) {
+          return "<ol>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>"; }).join("") + "</ol>";
+        }
+        return "<p>" + lines.map(inline).join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
+  var CONSTANTS = /^(?:True|False|None|self|cls)$/;
+  var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+
+  function tok(cls, text) {
+    return '<span class="v2-tok-' + cls + '">' + text + "</span>";
+  }
+
+  /* 파이썬 코드 -> 에디터식으로 색을 입힌 HTML (이스케이프 포함).
+     주석·문자열·숫자·키워드·상수·내장 함수·함수 호출·클래스·키워드 인자·데코레이터·연산자를 구분한다. */
+  function highlight(code) {
+    var src = String(code == null ? "" : code);
+    var out = "";
+    var last = 0;
+    var depth = 0;
+    var prevWord = "";
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(src))) {
+      var gap = src.slice(last, m.index);
+      for (var i = 0; i < gap.length; i++) {
+        if (gap[i] === "(" || gap[i] === "[" || gap[i] === "{") depth++;
+        else if (gap[i] === ")" || gap[i] === "]" || gap[i] === "}") depth = Math.max(0, depth - 1);
+      }
+      out += escapeHtml(gap);
+      var text = escapeHtml(m[0]);
+      var end = TOKEN_RE.lastIndex;
+      if (m[1]) out += tok("com", text);
+      else if (m[2]) out += tok("str", text);
+      else if (m[3]) out += tok("num", text);
+      else if (m[4]) out += tok("blank", text);
+      else if (m[5]) out += tok("dec", text);
+      else if (m[6]) {
+        var word = m[6];
+        var next = src[end];
+        var rest = src.slice(end, end + 3);
+        if (KEYWORDS.test(word)) out += tok("kw", text);
+        else if (CONSTANTS.test(word)) out += tok("const", text);
+        else if (prevWord === "def") out += tok("fn", text);
+        else if (prevWord === "class") out += tok("cls", text);
+        else if (next === "(") {
+          if (BUILTINS.test(word)) out += tok("builtin", text);
+          else if (/^[A-Z]/.test(word)) out += tok("cls", text);
+          else out += tok("fn", text);
+        } else if (depth > 0 && /^\s*=(?!=)/.test(rest)) out += tok("param", text);
+        else if (prevWord === "import" || prevWord === "from" || prevWord === "as") out += tok("mod", text);
+        else out += text;
+        prevWord = word;
+      } else out += tok("op", text);
+      if (!m[6] && !m[7]) prevWord = "";
+      last = end;
+    }
+    return out + escapeHtml(src.slice(last));
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === false || value == null) return;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key.slice(0, 2) === "on" && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (Array.isArray(children) ? children : children == null ? [] : [children]).forEach(function (child) {
+      if (child == null || child === false) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  /* ---------- 저장소 ---------- */
+  var memory = {};
+  var store = {
+    get: function (key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(NS + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : fallback;
+      }
+    },
+    set: function (key, value) {
+      memory[key] = value;
+      try {
+        window.localStorage.setItem(NS + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      delete memory[key];
+      try { window.localStorage.removeItem(NS + key); } catch (e) { /* 저장소 사용 불가 */ }
+    }
+  };
+
+  /* ---------- 진도 ---------- */
+  function readProgress() {
+    var p = store.get("progress", null) || {};
+    p.drills = p.drills || {};
+    p.mocks = p.mocks || {};
+    return p;
+  }
+
+  function announce() {
+    try {
+      document.dispatchEvent(new CustomEvent("dl4aice:progress", { detail: readProgress() }));
+    } catch (e) { /* 구형 브라우저 */ }
+  }
+
+  var progress = {
+    read: readProgress,
+    /* 챕터 실습 문항 통과 기록. questionId 예: "ch04-q3" */
+    markDrill: function (questionId, passed) {
+      var p = readProgress();
+      var prev = p.drills[questionId] || { attempts: 0, ok: false };
+      p.drills[questionId] = {
+        ok: prev.ok || !!passed,
+        attempts: (prev.attempts || 0) + 1,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.drills[questionId];
+    },
+    isDrillDone: function (questionId) {
+      var rec = readProgress().drills[questionId];
+      return !!(rec && rec.ok);
+    },
+    /* chapterKey 예: "ch04". questionIds 는 그 챕터 문항 id 배열 */
+    chapterStats: function (questionIds) {
+      var p = readProgress();
+      var done = (questionIds || []).filter(function (id) { return p.drills[id] && p.drills[id].ok; }).length;
+      var total = (questionIds || []).length;
+      return { done: done, total: total, percent: total ? Math.round((done / total) * 100) : 0 };
+    },
+    /* 모의고사 채점 결과 기록. detail = { parts: {preprocess:{earned,max},...}, elapsedSec } */
+    recordMock: function (mockId, score, detail) {
+      var p = readProgress();
+      var prev = p.mocks[mockId] || { best: 0, attempts: 0 };
+      p.mocks[mockId] = {
+        best: Math.max(prev.best || 0, score),
+        last: score,
+        attempts: (prev.attempts || 0) + 1,
+        detail: detail || null,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.mocks[mockId];
+    },
+    mock: function (mockId) {
+      return readProgress().mocks[mockId] || null;
+    },
+    reset: function () {
+      store.remove("progress");
+      announce();
+    }
+  };
+
+  /* ---------- 데이터 로더 ---------- */
+  var pending = {};
+  function data(name) {
+    var bag = window.DL4AICE_DATA || {};
+    if (bag[name]) return Promise.resolve(bag[name]);
+    if (!pending[name]) {
+      pending[name] = fetch("assets/data/" + name + ".json")
+        .then(function (res) {
+          if (!res.ok) throw new Error(name + ".json " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          (window.DL4AICE_DATA = window.DL4AICE_DATA || {})[name] = json;
+          return json;
+        });
+    }
+    return pending[name];
+  }
+
+  /* ---------- 토스트 ---------- */
+  function toastHost() {
+    var host = document.querySelector(".v2-toasts");
+    if (!host) {
+      host = el("div", { class: "v2-toasts", role: "status", "aria-live": "polite" });
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  /* toast("메시지", { type: "ok" | "err" | "info", title, timeout(ms), html }) */
+  function toast(message, opts) {
+    opts = opts || {};
+    var type = opts.type || "info";
+    var node = el("div", { class: "v2-toast v2-toast--" + type }, [
+      opts.title ? el("strong", { class: "v2-toast__title", text: opts.title }) : null,
+      opts.html ? el("div", { class: "v2-toast__body", html: message }) : el("div", { class: "v2-toast__body", text: message }),
+      el("button", { class: "v2-toast__close", type: "button", "aria-label": "닫기", text: "×", onclick: function () { dismiss(); } })
+    ]);
+    var timer = null;
+    function dismiss() {
+      if (timer) clearTimeout(timer);
+      if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    var host = toastHost();
+    while (host.children.length >= 3) host.removeChild(host.firstChild);
+    host.appendChild(node);
+    var timeout = opts.timeout === undefined ? (type === "err" ? 9000 : 4500) : opts.timeout;
+    if (timeout > 0) timer = setTimeout(dismiss, timeout);
+    return dismiss;
+  }
+
+  /* ---------- 클립보드 ---------- */
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var area = el("textarea", { class: "v2-sr-only", "aria-hidden": "true" });
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  /* ---------- 테마 ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+    var btn = document.querySelector(".v2-theme-toggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+  }
+
+  var theme = {
+    get: function () { return store.get("theme", "light"); },
+    set: function (value) { store.set("theme", value); applyTheme(value); },
+    toggle: function () { theme.set(theme.get() === "dark" ? "light" : "dark"); }
+  };
+
+  /* 깜빡임 방지: 스크립트 로드 즉시 적용 */
+  applyTheme(theme.get());
+
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function () {
+    var masthead = document.querySelector(".masthead");
+    if (masthead && !masthead.querySelector(".v2-theme-toggle")) {
+      var tools = masthead.querySelector(".masthead__tools");
+      if (!tools) {
+        tools = el("span", { class: "masthead__tools" });
+        var toc = masthead.querySelector(".masthead__toc");
+        masthead.appendChild(tools);
+        if (toc) tools.appendChild(toc);
+      }
+      tools.insertBefore(
+        el("button", { class: "v2-theme-toggle", type: "button", onclick: function () { theme.toggle(); } }),
+        tools.firstChild
+      );
+    }
+    applyTheme(theme.get());
+  });
+
+  /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
+  function revealHashTarget() {
+    var id = decodeURIComponent((window.location.hash || "").slice(1));
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    var opened = false;
+    for (var node = target.parentElement; node; node = node.parentElement) {
+      if (node.tagName === "DETAILS" && !node.open) { node.open = true; opened = true; }
+    }
+    if (opened) target.scrollIntoView();
+  }
+  ready(revealHashTarget);
+  window.addEventListener("hashchange", revealHashTarget);
+
+  D.escapeHtml = escapeHtml;
+  D.richText = richText;
+  D.highlight = highlight;
+  D.el = el;
+  D.store = store;
+  D.progress = progress;
+  D.data = data;
+  D.toast = toast;
+  D.copy = copy;
+  D.theme = theme;
+  D.ready = ready;
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DL4AICE || {};
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = slides.length;
+  var current = 0;
+  var bar = document.querySelector(".bar");
+  var countEl = bar.querySelector(".bar__count");
+  var titleEl = bar.querySelector(".bar__title");
+  var timeEl = bar.querySelector(".bar__time");
+  var meter = document.querySelector(".meter span");
+  var prev = bar.querySelector("[data-prev]");
+  var next = bar.querySelector("[data-next]");
+  var overview = document.querySelector(".ov");
+  var planned = Number(document.body.getAttribute("data-minutes")) || 35;
+
+  /* 파이썬 코드 색 입히기 (교재와 같은 배색) */
+  if (D.highlight) {
+    Array.prototype.forEach.call(document.querySelectorAll("pre > code.language-python"), function (code) {
+      code.innerHTML = D.highlight(code.textContent).replace(/class="v2-tok-/g, 'class="tok-');
+    });
+  }
+
+  /* 내용이 넘치면 글자를 조금 줄여 한 장에 맞춘다 */
+  function fit(slide) {
+    var inner = slide.querySelector(".slide__inner");
+    var scale = 1;
+    var fig = 1;
+    inner.style.setProperty("--scale", "1");
+    inner.style.setProperty("--fig", "1");
+    /* 먼저 도해를 줄이고(글자는 읽기 좋은 크기로 유지), 그래도 넘치면 글자를 줄인다 */
+    while (inner.scrollHeight > inner.clientHeight + 2 && (fig > 0.5 || scale > 0.56)) {
+      if (fig > 0.5 && (fig > scale - 0.1 || scale <= 0.56)) fig -= 0.05;
+      else scale -= 0.03;
+      inner.style.setProperty("--fig", fig.toFixed(2));
+      inner.style.setProperty("--scale", scale.toFixed(2));
+    }
+  }
+
+  function show(index, replace) {
+    current = Math.max(0, Math.min(count - 1, index));
+    slides.forEach(function (s, i) { s.classList.toggle("is-current", i === current); });
+    fit(slides[current]);
+    countEl.textContent = current + 1 + " / " + count;
+    titleEl.textContent = slides[current].getAttribute("data-title");
+    meter.style.width = ((current + 1) / count) * 100 + "%";
+    prev.disabled = current === 0;
+    next.disabled = current === count - 1;
+    Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+      item.setAttribute("aria-current", i === current ? "true" : "false");
+    });
+    var hash = "#" + (current + 1);
+    if (replace) history.replaceState(null, "", hash); else if (location.hash !== hash) history.pushState(null, "", hash);
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isFinite(n) ? n - 1 : 0;
+  }
+
+  /* 발표 타이머: 처음 넘길 때 시작, 계획 시간을 넘기면 색으로 알린다 */
+  var startedAt = null;
+  var timer = null;
+  function tick() {
+    var sec = Math.floor((Date.now() - startedAt) / 1000);
+    var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+    var ss = String(sec % 60).padStart(2, "0");
+    timeEl.innerHTML = "<strong>" + mm + ":" + ss + "</strong> / " + planned + "분";
+    timeEl.classList.toggle("is-over", sec > planned * 60);
+  }
+  function startTimer() {
+    if (startedAt) return;
+    startedAt = Date.now();
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    startedAt = null;
+    timeEl.innerHTML = "<strong>00:00</strong> / " + planned + "분";
+    timeEl.classList.remove("is-over");
+  }
+
+  function go(delta) { startTimer(); show(current + delta); }
+  function toggleOverview(open) {
+    var willOpen = open === undefined ? !overview.classList.contains("is-open") : open;
+    overview.classList.toggle("is-open", willOpen);
+    if (willOpen) { var cur = overview.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
+  }
+  function toggleTheme() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("dl4aice.v2.theme", JSON.stringify(dark ? "light" : "dark")); } catch (e) { /* 저장 불가 */ }
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  }
+
+  prev.addEventListener("click", function () { go(-1); });
+  next.addEventListener("click", function () { go(1); });
+  bar.querySelector("[data-overview]").addEventListener("click", function () { toggleOverview(); });
+  bar.querySelector("[data-theme-toggle]").addEventListener("click", toggleTheme);
+  bar.querySelector("[data-full]").addEventListener("click", toggleFullscreen);
+  timeEl.addEventListener("dblclick", resetTimer);
+  overview.querySelector("[data-close]").addEventListener("click", function () { toggleOverview(false); });
+  Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+    item.addEventListener("click", function () { show(i); toggleOverview(false); });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var key = event.key;
+    if (overview.classList.contains("is-open")) {
+      if (key === "Escape" || key === "o" || key === "O") { toggleOverview(false); event.preventDefault(); }
+      return;
+    }
+    if (key === "ArrowRight" || key === "PageDown" || key === " " || key === "Enter") { go(1); event.preventDefault(); }
+    else if (key === "ArrowLeft" || key === "PageUp" || key === "Backspace") { go(-1); event.preventDefault(); }
+    else if (key === "Home") { show(0); event.preventDefault(); }
+    else if (key === "End") { show(count - 1); event.preventDefault(); }
+    else if (key === "o" || key === "O") { toggleOverview(true); }
+    else if (key === "f" || key === "F") { toggleFullscreen(); }
+    else if (key === "t" || key === "T") { toggleTheme(); }
+    else if (key === "r" || key === "R") { resetTimer(); }
+  });
+
+  /* 터치: 좌우로 밀어 넘기기 */
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  window.addEventListener("resize", function () { fit(slides[current]); });
+  resetTimer();
+  show(fromHash(), true);
+})();
+</script>
+</body>
+</html>

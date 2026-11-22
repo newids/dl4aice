@@ -84,7 +84,7 @@ def check_toc(book: Path, expected_keys: list[str], extra_pages: tuple[str, ...]
     linked = {
         h.split("#")[0]
         for h in HREF_RE.findall(index)
-        if h.endswith(".html")
+        if h.endswith(".html") and "/" not in h  # 하위 디렉터리(study/ 등)는 링크 검사에서 따로 확인한다
     }
     expected = {f"{k}.html" for k in expected_keys}
     produced = {p.name for p in book.glob("*.html")} - {"index.html"} - set(extra_pages)

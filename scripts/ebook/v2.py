@@ -94,6 +94,18 @@ def publish_assets(book: Path) -> list[str]:
     return written
 
 
+def publish_study(book: Path) -> int:
+    """study/html/(발표 슬라이드, scripts/v2/build_study_slides.py 산출물)을 book/study/ 로 복사한다."""
+    src = ROOT / "study" / "html"
+    out = book / "study"
+    if out.exists():
+        shutil.rmtree(out)
+    if not src.exists():
+        return 0
+    shutil.copytree(src, out)
+    return len(list(out.glob("*.html")))
+
+
 def mirror(book: Path, docs: Path) -> None:
     """book/ 을 docs/(GitHub Pages)로 그대로 반영한다. .nojekyll 은 유지."""
     docs.mkdir(parents=True, exist_ok=True)
@@ -251,6 +263,8 @@ def tools_section(drill_total: int) -> str:
          "임포트부터 새 입력 예측까지 아홉 묶음을 흐름·줄·값 세 단계로 나눠 외웁니다."),
         ("mock01.html", "CBT 실전 모의고사 3회분",
          "14문항·90분 타이머·자동 저장·즉시 채점. 1회 이진분류, 2회 다중분류, 3회 회귀."),
+        ("study/index.html", "그룹 스터디 발표 슬라이드",
+         "챕터 8회와 모의고사 리뷰 3회, 한 장씩 넘기는 발표 자료입니다. 회차당 발표 30~40분에 질의응답 20분."),
         ("ch08.html#drills-ch08", f"챕터 실습 셀 {drill_total}문항",
          "주피터 셀처럼 빈칸을 채우고 Shift+Enter 로 채점합니다. 변수명과 핵심 인자를 엄격히 확인합니다."),
     ]
