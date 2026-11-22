@@ -26,3 +26,7 @@ AICE Associate 실기 시험의 딥러닝 파트를 빠르게 복습하면서 �
 회차에 따라 실제 시험의 문항 수와 배점이 달라질 수 있으므로, 응시 전 반드시 KT AICE 공식 공지를 함께 확인해 주세요.
 
 👉 교재 바로가기: https://newids.github.io/dl4aice/
+
+👉 스터디 발표 자료 (한 장씩 넘기는 슬라이드): https://newids.github.io/dl4aice/study/
+
+챕터 8회와 모의고사 리뷰 3회, 회차당 발표 30~40분에 질의응답 20분으로 구성했습니다. 진행 방법과 마크다운 원본은 [study/](study/README.md)에 있습니다.
