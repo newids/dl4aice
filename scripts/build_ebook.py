@@ -117,6 +117,7 @@ def build(only: set[str] | None = None) -> dict:
 
     written: list[str] = []
     assets = v2.publish_assets(BOOK)
+    study_pages = v2.publish_study(BOOK)
     for row in rows:
         key = row["key"]
         if only and key not in only:
@@ -150,7 +151,7 @@ def build(only: set[str] | None = None) -> dict:
                 encoding="utf-8",
             )
             written.append(f"{key}.html")
-    return {"written": written, "rows": rows, "infos": infos, "assets": assets}
+    return {"written": written, "rows": rows, "infos": infos, "assets": assets, "study": study_pages}
 
 
 def _cover_stats(meta: dict, rows: list[dict], infos: dict) -> list[tuple[str, str]]:
@@ -216,6 +217,8 @@ def main() -> int:
     print(f"변환기: {mdconv.BACKEND}")
     print(f"생성: {', '.join(result['written'])}")
     print(f"v2 자산: {len(result['assets'])}개 파일 → book/assets/")
+    if result["study"]:
+        print(f"스터디 슬라이드: {result['study']}개 페이지 → book/study/")
     failures = run_verification(result["rows"])
     if not args.no_docs:
         v2.mirror(BOOK, DOCS)

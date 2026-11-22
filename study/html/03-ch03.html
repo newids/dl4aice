@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>3회차 — 딥러닝은 어떻게 배우는가 — 스터디 발표 자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef1f6; --paper: #ffffff; --ink: #1a2332; --soft: #475569; --muted: #64748b;
+  --line: #cbd5e1; --line-soft: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+  --chip-bg: #eef2f7; --chip-fg: #0f2a5e; --code-bg: #0d1424; --code-fg: #d6deeb;
+  --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "D2Coding", monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0f1a; --paper: #111827; --ink: #e6eaf2; --soft: #c3cddd; --muted: #9aa8bd;
+  --line: #334155; --line-soft: #243044; --primary: #6ea8fe; --primary-soft: #1b2f4f;
+  --chip-bg: #22304a; --chip-fg: #cfe0ff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  word-break: keep-all; overflow-wrap: anywhere; overflow: hidden;
+}
+.deck { position: fixed; inset: 0 0 3.25rem 0; display: grid; place-items: center; padding: 1.2vmin; }
+.slide {
+  display: none; width: min(100%, calc((100vh - 3.25rem - 2.4vmin) * 16 / 9)); aspect-ratio: 16 / 9;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px;
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.45); overflow: hidden;
+}
+.slide.is-current { display: block; }
+.slide__inner {
+  --scale: 1; height: 100%; padding: 4.2% 5.4% 3.6%; overflow: auto;
+  font-size: calc(clamp(13px, 1.72vw, 30px) * var(--scale)); line-height: 1.55;
+}
+.slide h1, .slide h2 { margin: 0 0 0.7em; line-height: 1.28; letter-spacing: -0.02em; }
+.slide h1 { font-size: 2.1em; margin-top: 12%; }
+.slide h2 { font-size: 1.42em; padding-bottom: 0.35em; border-bottom: 1px solid var(--line-soft); }
+.slide h3 { font-size: 1.08em; margin: 0.9em 0 0.4em; }
+.slide p { margin: 0 0 0.6em; }
+.slide ul, .slide ol { margin: 0 0 0.6em; padding-left: 1.25em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li > ul, .slide li > ol { margin-top: 0.3em; }
+.slide a { color: var(--primary); }
+.slide strong { font-weight: 700; }
+.slide code {
+  font-family: var(--mono); font-size: 0.86em; padding: 0.05em 0.32em; border-radius: 5px;
+  color: var(--chip-fg); background: var(--chip-bg); font-variant-ligatures: none;
+}
+.slide pre {
+  margin: 0 0 0.7em; padding: 0.75em 0.95em; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.slide pre code { padding: 0; background: none; color: inherit; font-size: 0.8em; line-height: 1.55; white-space: pre; }
+.slide table { width: 100%; margin: 0 0 0.7em; border-collapse: collapse; font-size: 0.88em; }
+.slide th, .slide td { padding: 0.42em 0.6em; text-align: left; vertical-align: top; border: 1px solid var(--line-soft); }
+.slide thead th { background: var(--chip-bg); color: var(--chip-fg); font-weight: 700; }
+.slide blockquote {
+  margin: 0 0 0.7em; padding: 0.6em 0.9em; color: var(--soft); background: var(--chip-bg);
+  border: 1px solid var(--line-soft); border-radius: 10px;
+}
+.slide blockquote > :last-child { margin-bottom: 0; }
+.figure { margin: 0 0 0.6em; padding: 0.5em; background: #ffffff; border: 1px solid var(--line-soft); border-radius: 10px; text-align: center; }
+.figure svg { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(44vh * var(--fig, 1)); margin: 0 auto; }
+.figure figcaption { margin-top: 0.3em; font-size: 0.72em; color: #64748b; }
+.slide--title .slide__inner { display: flex; flex-direction: column; justify-content: center; }
+.slide--title h1 { margin-top: 0; }
+.slide--title ul { list-style: none; padding: 0; color: var(--soft); }
+
+.tok-kw { color: #c792ea; } .tok-const { color: #82aaff; font-style: italic; } .tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; } .tok-com { color: #7c8aa5; font-style: italic; } .tok-fn { color: #82d2ff; }
+.tok-builtin { color: #ffcb6b; } .tok-cls { color: #5eead4; } .tok-param { color: #f9a8d4; }
+.tok-mod { color: #d6deeb; } .tok-dec { color: #ffcb6b; font-style: italic; } .tok-op { color: #89ddff; }
+.tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
+
+.bar {
+  position: fixed; inset: auto 0 0 0; height: 3.25rem; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 0.8rem; background: var(--paper); border-top: 1px solid var(--line-soft); font-size: 0.86rem;
+}
+.bar__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); font-weight: 600; }
+.bar__count, .bar__time { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.bar__time strong { color: var(--ink); }
+.bar__time.is-over strong { color: #dc2626; }
+.btn {
+  min-width: 2.5rem; min-height: 2.5rem; padding: 0.3rem 0.7rem; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn:focus-visible, .ov__item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.meter { position: fixed; inset: auto 0 3.25rem 0; height: 3px; background: var(--line-soft); }
+.meter span { display: block; height: 100%; width: 0; background: var(--primary); transition: width 180ms ease-out; }
+
+.ov { position: fixed; inset: 0; z-index: 10; display: none; padding: 1.2rem; overflow: auto; background: var(--bg); }
+.ov.is-open { display: block; }
+.ov__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
+.ov__head h2 { margin: 0; font-size: 1.1rem; }
+.ov__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; }
+.ov__item {
+  display: flex; gap: 0.6rem; width: 100%; min-height: 3.2rem; padding: 0.6rem 0.8rem; font: inherit; text-align: left; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 10px; cursor: pointer;
+}
+.ov__item:hover { border-color: var(--primary); }
+.ov__item[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.ov__no { flex: none; width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.help { margin: 1rem 0 0; font-size: 0.82rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+
+.index { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; overflow: auto; height: 100%; }
+.index h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+.index p { color: var(--soft); line-height: 1.7; }
+.index ol { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.6rem; }
+.index li a {
+  display: flex; gap: 1rem; align-items: baseline; padding: 0.9rem 1.1rem; color: var(--ink); text-decoration: none;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.index li a:hover { border-color: var(--primary); }
+.index .no { flex: none; width: 3.6rem; font-weight: 700; color: var(--primary); }
+.index .meta { margin-left: auto; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .bar__title { display: none; }
+  .slide { width: 100%; aspect-ratio: auto; height: 100%; }
+  .slide__inner { font-size: calc(15px * var(--scale)); }
+}
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .bar, .meter, .ov { display: none !important; }
+  .deck { position: static; display: block; padding: 0; }
+  .slide { display: block !important; width: 297mm; height: 167mm; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; break-after: page; }
+  .slide__inner { font-size: 15pt; overflow: hidden; }
+}
+</style>
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body data-minutes="36">
+<main class="deck" aria-live="polite">
+<section class="slide slide--title" data-title="3회차 — 딥러닝은 어떻게 배우는가" aria-label="1 / 23"><div class="slide__inner"><h1>3회차 — 딥러닝은 어떻게 배우는가</h1>
+<ul>
+<li>범위: 3장 (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch03.html">https://newids.github.io/dl4aice/ch03.html</a>)</li>
+<li>발표 35분 안팎 + 질의응답 20분</li>
+<li>사전 준비: 챕터 읽기 + 실습 셀 풀기 (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch03.html#drills-ch03">https://newids.github.io/dl4aice/ch03.html#drills-ch03</a>)</li>
+</ul></div></section>
+<section class="slide" data-title="오늘의 목표" aria-label="2 / 23"><div class="slide__inner"><h2>오늘의 목표</h2>
+<ol>
+<li>뉴런 하나의 계산(가중합 + 편향, 그 뒤 활성화)을 numpy 두 줄로 쓴다.</li>
+<li>relu, sigmoid, softmax의 출력 범위와 쓰는 자리를 구분한다.</li>
+<li>순전파, 역전파, step, epoch의 관계를 설명하고 가중치 갱신 횟수를 계산한다.</li>
+</ol></div></section>
+<section class="slide" data-title="진행 순서" aria-label="3 / 23"><div class="slide__inner"><h2>진행 순서</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>내용</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>뉴런과 층</td>
+<td>뉴런, 층 구조와 shape, 파라미터 개수</td>
+<td>9분</td>
+</tr>
+<tr>
+<td>활성화 함수</td>
+<td>쓰는 자리, 출력 범위, 필요한 이유</td>
+<td>4분</td>
+</tr>
+<tr>
+<td>학습의 원리</td>
+<td>순전파와 역전파, step과 epoch</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>구조 설계와 점검</td>
+<td>층과 노드 수, numpy 축소판, 자주 틀리는 지점</td>
+<td>7분</td>
+</tr>
+<tr>
+<td>함께 풀기</td>
+<td>실습 셀 두 문항</td>
+<td>8분</td>
+</tr>
+<tr>
+<td>정리</td>
+<td>기억할 내용 정리</td>
+<td>2분</td>
+</tr>
+<tr>
+<td>질의응답</td>
+<td>토론 질문과 질문 받기</td>
+<td>20분</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="뉴런 하나의 계산 (2분)" aria-label="4 / 23"><div class="slide__inner"><h2>뉴런 하나의 계산 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-neuron-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-neuron-title">뉴런 하나가 값을 계산하는 과정 — 입력 x1, x2, x3에 가중치 w1, w2, w3을 곱해 더하고 편향 b를 더한 뒤 활성화 함수를 통과시켜 출력 a를 만드는 구조도</title>
+  <defs>
+    <marker id="ch03n-arw-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="ch03n-arw-primary" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ch03n-arw-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="470" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">뉴런 하나가 값을 계산하는 과정</text>
+
+  
+  <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#ch03n-arw-muted)">
+    <line x1="117" y1="126" x2="301" y2="186"/>
+    <line x1="118" y1="195" x2="300" y2="195"/>
+    <line x1="117" y1="264" x2="301" y2="204"/>
+  </g>
+
+  
+  <line x1="258" y1="330" x2="316" y2="222" stroke="#f59e0b" stroke-width="2" marker-end="url(#ch03n-arw-accent)"/>
+
+  
+  <line x1="363" y1="195" x2="424" y2="195" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch03n-arw-muted)"/>
+  <text x="393" y="182" font-size="13" fill="#1a2332" text-anchor="middle">z</text>
+
+  
+  <line x1="584" y1="195" x2="638" y2="195" stroke="#2563eb" stroke-width="2" marker-end="url(#ch03n-arw-primary)"/>
+
+  
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="100" cy="120" r="18"/>
+    <circle cx="100" cy="195" r="18"/>
+    <circle cx="100" cy="270" r="18"/>
+  </g>
+  <g font-size="14" fill="#1a2332" text-anchor="middle">
+    <text x="100" y="125">x1</text>
+    <text x="100" y="200">x2</text>
+    <text x="100" y="275">x3</text>
+  </g>
+  <text x="100" y="312" font-size="12" fill="#94a3b8" text-anchor="middle">입력</text>
+
+  
+  <g>
+    <rect x="190" y="145" width="36" height="20" rx="6" fill="#ffffff"/>
+    <rect x="190" y="185" width="36" height="20" rx="6" fill="#ffffff"/>
+    <rect x="190" y="225" width="36" height="20" rx="6" fill="#ffffff"/>
+  </g>
+  <g font-size="13" fill="#2563eb" text-anchor="middle" font-weight="600">
+    <text x="208" y="159">w1</text>
+    <text x="208" y="199">w2</text>
+    <text x="208" y="239">w3</text>
+  </g>
+
+  
+  <circle cx="250" cy="345" r="17" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="250" y="350" font-size="14" fill="#1a2332" text-anchor="middle">b</text>
+  <text x="250" y="382" font-size="12" fill="#f59e0b" text-anchor="middle">편향</text>
+
+  
+  <circle cx="330" cy="195" r="30" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="330" y="200" font-size="15" fill="#1a2332" text-anchor="middle">sum</text>
+
+  
+  <rect x="430" y="163" width="150" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="505" y="201" font-size="15" fill="#1a2332" text-anchor="middle">활성화 함수 f</text>
+  <text x="505" y="250" font-size="12" fill="#94a3b8" text-anchor="middle">(은닉층은 relu)</text>
+
+  
+  <circle cx="660" cy="195" r="18" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="660" y="200" font-size="15" fill="#1a2332" text-anchor="middle">a</text>
+  <text x="660" y="237" font-size="12" fill="#94a3b8" text-anchor="middle">출력</text>
+
+  
+  <rect x="150" y="398" width="500" height="48" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="428" font-size="16" fill="#1a2332" text-anchor="middle" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">a = f(w1*x1 + w2*x2 + w3*x3 + b)</text>
+</svg><figcaption>뉴런 하나의 계산</figcaption></figure>
+<ul>
+<li>1단계: 입력마다 가중치를 곱해 더하고 편향을 더합니다. 결과가 <code>z</code>입니다.</li>
+<li>2단계: <code>z</code>를 활성화 함수에 넣어 출력 <code>a</code>를 만듭니다.</li>
+<li>학습으로 바뀌는 값은 가중치와 편향뿐이며, 이것이 모델의 파라미터입니다. 입력과 정답은 바뀌지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="뉴런을 numpy로 계산해 보기 (2분)" aria-label="5 / 23"><div class="slide__inner"><h2>뉴런을 numpy로 계산해 보기 (2분)</h2>
+<pre><code class="language-python">import numpy as np
+
+x = np.array([2.0, 3.0, 1.0])     # 입력 3개
+w = np.array([0.5, -1.0, 2.0])    # 가중치 3개
+b = 0.1                           # 편향 1개
+
+z = np.dot(w, x) + b              # 1단계: 가중합 + 편향
+a = np.maximum(0, z)              # 2단계: 활성화(relu)
+print(f&quot;z = {z:.2f}, a = {a:.2f}&quot;)
+
+w2 = np.array([0.5, -1.0, -2.0])
+z2 = np.dot(w2, x) + b
+print(f&quot;z2 = {z2:.2f}, a2 = {np.maximum(0, z2):.2f}&quot;)
+</code></pre>
+<ul>
+<li>출력: <code>z = 0.10, a = 0.10</code> / <code>z2 = -3.90, a2 = 0.00</code>. <code>z</code>가 음수이면 relu가 0으로 자릅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="층 구조와 shape (3분)" aria-label="6 / 23"><div class="slide__inner"><h2>층 구조와 shape (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 484" width="800" height="484" role="img" aria-labelledby="ch03-layer-stack-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-layer-stack-title">입력층, 은닉층 2개, 출력층으로 이어지는 신경망의 계층 구조도. 입력 4노드, 은닉 5노드, 은닉 5노드, 출력 1노드가 좌에서 우로 완전 연결되어 있다</title>
+
+  <rect x="0" y="0" width="800" height="484" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">입력층·은닉층·출력층의 계층 구조</text>
+  <text x="768" y="100" font-size="12" fill="#94a3b8" text-anchor="end">각 노드는 앞 층의 모든 노드와 연결됩니다</text>
+
+  
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.55" fill="none">
+    <path d="M130,157L320,126M130,157L320,188M130,157L320,250M130,157L320,312M130,157L320,374"/>
+    <path d="M130,219L320,126M130,219L320,188M130,219L320,250M130,219L320,312M130,219L320,374"/>
+    <path d="M130,281L320,126M130,281L320,188M130,281L320,250M130,281L320,312M130,281L320,374"/>
+    <path d="M130,343L320,126M130,343L320,188M130,343L320,250M130,343L320,312M130,343L320,374"/>
+
+    <path d="M320,126L510,126M320,126L510,188M320,126L510,250M320,126L510,312M320,126L510,374"/>
+    <path d="M320,188L510,126M320,188L510,188M320,188L510,250M320,188L510,312M320,188L510,374"/>
+    <path d="M320,250L510,126M320,250L510,188M320,250L510,250M320,250L510,312M320,250L510,374"/>
+    <path d="M320,312L510,126M320,312L510,188M320,312L510,250M320,312L510,312M320,312L510,374"/>
+    <path d="M320,374L510,126M320,374L510,188M320,374L510,250M320,374L510,312M320,374L510,374"/>
+
+    <path d="M510,126L680,250M510,188L680,250M510,250L680,250M510,312L680,250M510,374L680,250"/>
+  </g>
+
+  
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="130" cy="157" r="18"/>
+    <circle cx="130" cy="219" r="18"/>
+    <circle cx="130" cy="281" r="18"/>
+    <circle cx="130" cy="343" r="18"/>
+  </g>
+
+  
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="320" cy="126" r="18"/>
+    <circle cx="320" cy="188" r="18"/>
+    <circle cx="320" cy="250" r="18"/>
+    <circle cx="320" cy="312" r="18"/>
+    <circle cx="320" cy="374" r="18"/>
+  </g>
+
+  
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="510" cy="126" r="18"/>
+    <circle cx="510" cy="188" r="18"/>
+    <circle cx="510" cy="250" r="18"/>
+    <circle cx="510" cy="312" r="18"/>
+    <circle cx="510" cy="374" r="18"/>
+  </g>
+
+  
+  <circle cx="680" cy="250" r="18" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+
+  
+  <g font-size="15" fill="#1a2332" text-anchor="middle" font-weight="600">
+    <text x="130" y="430">입력층</text>
+    <text x="320" y="430">은닉층 1</text>
+    <text x="510" y="430">은닉층 2</text>
+    <text x="680" y="430">출력층</text>
+  </g>
+  <text x="130" y="454" font-size="13" fill="#94a3b8" text-anchor="middle">특성 4개</text>
+  <g font-size="13" text-anchor="middle" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">
+    <text x="320" y="454" fill="#2563eb">Dense(5)</text>
+    <text x="510" y="454" fill="#2563eb">Dense(5)</text>
+    <text x="680" y="454" fill="#2563eb">Dense(1)</text>
+  </g>
+</svg><figcaption>층 쌓기</figcaption></figure>
+<table>
+<thead>
+<tr>
+<th>층</th>
+<th>노드 수를 정하는 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>입력층</td>
+<td>특성(컬럼) 개수로 고정</td>
+</tr>
+<tr>
+<td>은닉층</td>
+<td>설계자가 선택 (예: 64, 32)</td>
+</tr>
+<tr>
+<td>출력층</td>
+<td>문제 유형이 결정 (Ch04)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>가중치 행렬의 모양은 (앞 층의 노드 수, 뒤 층의 노드 수)입니다. 편향은 뒤 층의 노드 수만큼 있습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="파라미터 개수 세기 (2분)" aria-label="7 / 23"><div class="slide__inner"><h2>파라미터 개수 세기 (2분)</h2>
+<ul>
+<li>입력 3개 → 은닉 4개 층: 가중치 3 x 4 = 12, 편향 4, 합계 16개</li>
+<li>입력 4개 → 은닉 5개 → 출력 1개 (실습 셀의 구조):</li>
+<li>첫 번째 층: 4 x 5 + 5 = 25</li>
+<li>두 번째 층: 5 x 1 + 1 = 6</li>
+<li>합계 31개</li>
+<li>편향을 빼고 25로 답하는 것이 흔한 실수입니다.</li>
+<li>4회차에서 <code>model.summary()</code>의 <code>Param #</code>이 이 계산과 같은 값을 보여 줍니다.</li>
+</ul></div></section>
+<section class="slide" data-title="활성화 함수: 어디에 무엇을 쓰는가 (2분)" aria-label="8 / 23"><div class="slide__inner"><h2>활성화 함수: 어디에 무엇을 쓰는가 (2분)</h2>
+<table>
+<thead>
+<tr>
+<th>활성화 함수</th>
+<th>출력 범위</th>
+<th>쓰는 자리</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>relu</code></td>
+<td>0 이상</td>
+<td>은닉층 기본값</td>
+</tr>
+<tr>
+<td><code>sigmoid</code></td>
+<td>0 ~ 1 (값 1개)</td>
+<td>이진분류 출력층</td>
+</tr>
+<tr>
+<td><code>softmax</code></td>
+<td>0 ~ 1, 합이 1 (값 K개)</td>
+<td>다중분류 출력층</td>
+</tr>
+<tr>
+<td>없음</td>
+<td>제한 없음</td>
+<td>회귀 출력층</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>은닉층은 relu가 표준입니다. sigmoid를 여러 층에 쓰면 신호가 점점 작아져 학습이 잘 되지 않습니다.</li>
+<li>이진분류는 노드 1개 + <code>sigmoid</code>, 다중분류는 노드 K개 + <code>softmax</code>입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="활성화 함수의 모양과 필요한 이유 (2분)" aria-label="9 / 23"><div class="slide__inner"><h2>활성화 함수의 모양과 필요한 이유 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 424" width="800" height="424" role="img" aria-labelledby="ch03-activation-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-activation-title">relu, sigmoid, softmax 세 활성화 함수의 모양과 출력 범위, 사용 위치를 비교한 3분할 개념 그래프. relu는 음수 구간이 0인 꺾은선, sigmoid는 0에서 1 사이의 S자 곡선, softmax는 합이 1인 막대 3개로 표현</title>
+
+  <rect x="0" y="0" width="800" height="424" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">주요 활성화 함수의 모양과 사용 위치</text>
+
+  
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="1" opacity="0.9">
+    <rect x="32" y="84" width="232" height="286" rx="10"/>
+    <rect x="284" y="84" width="232" height="286" rx="10"/>
+    <rect x="536" y="84" width="232" height="286" rx="10"/>
+  </g>
+
+  
+  <g font-size="16" text-anchor="middle" fill="#2563eb" font-family="'SFMono-Regular','Consolas','D2Coding',monospace">
+    <text x="148" y="114">relu</text>
+    <text x="400" y="114">sigmoid</text>
+    <text x="652" y="114">softmax</text>
+  </g>
+
+  
+  <g stroke="#94a3b8" stroke-width="1.5">
+    <line x1="60" y1="255" x2="240" y2="255"/>
+    <line x1="148" y1="150" x2="148" y2="275"/>
+  </g>
+  <polyline points="60,255 148,255 236,163" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="140" y="272" font-size="12" fill="#94a3b8" text-anchor="end">0</text>
+  <text x="148" y="305" font-size="13" fill="#1a2332" text-anchor="middle">출력 범위: 0 이상</text>
+  <rect x="73" y="322" width="150" height="30" rx="10" fill="#dbeafe"/>
+  <text x="148" y="342" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="600">은닉층 기본값</text>
+
+  
+  <line x1="312" y1="159" x2="492" y2="159" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+  <g stroke="#94a3b8" stroke-width="1.5">
+    <line x1="312" y1="251" x2="492" y2="251"/>
+    <line x1="402" y1="150" x2="402" y2="275"/>
+  </g>
+  <polyline points="312,250.8 327,250.4 342,249.3 357,246.7 372,240.1 387,226.3 402,205 417,183.7 432,170 447,163.3 462,160.7 477,159.6 492,159.2"
+            fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="306" y="163" font-size="12" fill="#94a3b8" text-anchor="end">1</text>
+  <text x="306" y="255" font-size="12" fill="#94a3b8" text-anchor="end">0</text>
+  <text x="400" y="305" font-size="13" fill="#1a2332" text-anchor="middle">출력 범위: 0 ~ 1 (값 1개)</text>
+  <rect x="325" y="322" width="150" height="30" rx="10" fill="#dbeafe"/>
+  <text x="400" y="342" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="600">이진분류 출력층</text>
+
+  
+  <text x="652" y="150" font-size="13" fill="#2563eb" text-anchor="middle" font-weight="600">합 = 1.00</text>
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <rect x="576" y="233" width="36" height="22"/>
+    <rect x="634" y="195" width="36" height="60"/>
+    <rect x="692" y="242" width="36" height="13"/>
+  </g>
+  <line x1="566" y1="255" x2="738" y2="255" stroke="#94a3b8" stroke-width="1.5"/>
+  <g font-size="12" fill="#1a2332" text-anchor="middle">
+    <text x="594" y="225">0.23</text>
+    <text x="652" y="187">0.63</text>
+    <text x="710" y="234">0.14</text>
+  </g>
+  <g font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="594" y="273">클래스 1</text>
+    <text x="652" y="273">클래스 2</text>
+    <text x="710" y="273">클래스 3</text>
+  </g>
+  <text x="652" y="305" font-size="13" fill="#1a2332" text-anchor="middle">출력 범위: 0 ~ 1, 합 = 1</text>
+  <rect x="577" y="322" width="150" height="30" rx="10" fill="#dbeafe"/>
+  <text x="652" y="342" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="600">다중분류 출력층</text>
+
+  
+  <text x="32" y="398" font-size="12" fill="#94a3b8">※ 개념 개략도이며 실제 측정값 그래프가 아닙니다. softmax 막대는 본문 예시 z = [1.0, 2.0, 0.5]의 계산 결과입니다.</text>
+</svg><figcaption>활성화 함수 출력 모양</figcaption></figure>
+<ul>
+<li><code>z = [1.0, 2.0, 0.5]</code>일 때 sigmoid는 <code>[0.731 0.881 0.622]</code>로 각각 독립적이고, softmax는 <code>[0.231 0.629 0.14]</code>로 합이 1입니다.</li>
+<li>은닉층에서 활성화 함수를 빼면 층을 아무리 쌓아도 하나의 직선식으로 합쳐집니다. 층 사이의 꺾인 함수가 직선을 구부립니다.</li>
+</ul></div></section>
+<section class="slide" data-title="순전파와 역전파 (3분)" aria-label="10 / 23"><div class="slide__inner"><h2>순전파와 역전파 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="800" height="460" role="img" aria-labelledby="ch03-fb-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-fb-title">같은 신경망 위에 순전파와 역전파의 방향을 표시한 구조도. 위쪽은 왼쪽에서 오른쪽으로 예측값을 계산하는 순전파, 아래쪽은 오른쪽 손실에서 왼쪽으로 되돌아오며 가중치 수정 방향을 구하는 역전파</title>
+  <defs>
+    <marker id="fb-arw-primary" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="fb-arw-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="460" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">순전파와 역전파의 방향</text>
+
+  
+  <text x="415" y="100" font-size="15" font-weight="600" fill="#2563eb" text-anchor="middle">순전파: 예측값 계산</text>
+  <line x1="130" y1="118" x2="700" y2="118" stroke="#2563eb" stroke-width="2.5" marker-end="url(#fb-arw-primary)"/>
+
+  
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.55" fill="none">
+    <path d="M140,192L300,166M140,192L300,222M140,192L300,278M140,192L300,334"/>
+    <path d="M140,250L300,166M140,250L300,222M140,250L300,278M140,250L300,334"/>
+    <path d="M140,308L300,166M140,308L300,222M140,308L300,278M140,308L300,334"/>
+
+    <path d="M300,166L460,166M300,166L460,222M300,166L460,278M300,166L460,334"/>
+    <path d="M300,222L460,166M300,222L460,222M300,222L460,278M300,222L460,334"/>
+    <path d="M300,278L460,166M300,278L460,222M300,278L460,278M300,278L460,334"/>
+    <path d="M300,334L460,166M300,334L460,222M300,334L460,278M300,334L460,334"/>
+
+    <path d="M460,166L600,250M460,222L600,250M460,278L600,250M460,334L600,250"/>
+  </g>
+
+  
+  <line x1="622" y1="250" x2="654" y2="250" stroke="#2563eb" stroke-width="2" marker-end="url(#fb-arw-primary)"/>
+
+  
+  <g fill="#ffffff" stroke="#94a3b8" stroke-width="2">
+    <circle cx="140" cy="192" r="18"/>
+    <circle cx="140" cy="250" r="18"/>
+    <circle cx="140" cy="308" r="18"/>
+  </g>
+
+  
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="300" cy="166" r="18"/>
+    <circle cx="300" cy="222" r="18"/>
+    <circle cx="300" cy="278" r="18"/>
+    <circle cx="300" cy="334" r="18"/>
+  </g>
+
+  
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2">
+    <circle cx="460" cy="166" r="18"/>
+    <circle cx="460" cy="222" r="18"/>
+    <circle cx="460" cy="278" r="18"/>
+    <circle cx="460" cy="334" r="18"/>
+  </g>
+
+  
+  <circle cx="600" cy="250" r="18" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+
+  
+  <rect x="660" y="222" width="110" height="56" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="715" y="255" font-size="15" fill="#1a2332" text-anchor="middle">손실 계산</text>
+  <text x="715" y="300" font-size="12" fill="#94a3b8" text-anchor="middle">정답과 비교</text>
+
+  
+  <g font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="140" y="376">입력층</text>
+    <text x="300" y="376">은닉층</text>
+    <text x="460" y="376">은닉층</text>
+    <text x="600" y="376">출력층</text>
+  </g>
+
+  
+  <line x1="700" y1="404" x2="130" y2="404" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#fb-arw-accent)"/>
+  <text x="415" y="430" font-size="15" font-weight="600" fill="#f59e0b" text-anchor="middle">역전파: 오차로 가중치 수정 방향 계산</text>
+</svg><figcaption>순전파와 역전파</figcaption></figure>
+<ul>
+<li>순전파: 입력에서 출력 방향으로 계산해 예측값을 만들고, 손실 함수로 오차를 숫자 하나로 잽니다.</li>
+<li>역전파: 손실에서 거꾸로 가며 가중치 하나하나가 오차에 얼마나 기여했는지 계산합니다.</li>
+<li>손실이 줄어드는 방향으로 가중치를 조금씩 옮기는 일은 optimizer가 하며, 보폭이 학습률입니다. 이 과정은 <code>model.fit()</code> 한 줄 안에서 일어납니다.</li>
+<li>수식 유도는 시험 범위 밖입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="학습 루프: step과 epoch (3분)" aria-label="11 / 23"><div class="slide__inner"><h2>학습 루프: step과 epoch (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-loop-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <title id="ch03-loop-title">학습 한 번의 반복 루프를 시계 방향 순환 흐름도로 표현. 배치 입력, 예측, 손실 계산, 기울기 계산, 가중치 갱신의 다섯 단계가 한 바퀴 돌면 1 step이고 전체 데이터를 한 번 통과하면 1 epoch이다</title>
+  <defs>
+    <marker id="loop-arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="470" fill="#ffffff"/>
+
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#1a2332">학습 한 번의 반복 루프</text>
+
+  
+  <g stroke="#2563eb" stroke-width="2.5" fill="none" marker-end="url(#loop-arw)">
+    <line x1="254" y1="151" x2="326" y2="151"/>
+    <path d="M514,151 H650 V226"/>
+    <path d="M650,296 V371 H514"/>
+    <line x1="326" y1="371" x2="254" y2="371"/>
+    <line x1="160" y1="336" x2="160" y2="186"/>
+  </g>
+
+  
+  <g fill="#ffffff" stroke="#1a2332" stroke-width="1.5">
+    <rect x="70" y="120" width="180" height="62" rx="10"/>
+    <rect x="330" y="120" width="180" height="62" rx="10"/>
+    <rect x="560" y="230" width="180" height="62" rx="10"/>
+    <rect x="330" y="340" width="180" height="62" rx="10"/>
+    <rect x="70" y="340" width="180" height="62" rx="10"/>
+  </g>
+
+  
+  <g fill="#2563eb">
+    <circle cx="94" cy="151" r="13"/>
+    <circle cx="354" cy="151" r="13"/>
+    <circle cx="584" cy="261" r="13"/>
+    <circle cx="354" cy="371" r="13"/>
+    <circle cx="94" cy="371" r="13"/>
+  </g>
+  <g font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">
+    <text x="94" y="156">1</text>
+    <text x="354" y="156">2</text>
+    <text x="584" y="266">3</text>
+    <text x="354" y="376">4</text>
+    <text x="94" y="376">5</text>
+  </g>
+
+  
+  <g font-size="15" fill="#1a2332">
+    <text x="116" y="147">배치 입력</text>
+    <text x="376" y="147">예측</text>
+    <text x="606" y="257">손실 계산</text>
+    <text x="376" y="367">기울기 계산</text>
+    <text x="116" y="367">가중치 갱신</text>
+  </g>
+  <g font-size="12" fill="#94a3b8">
+    <text x="116" y="166">batch_size 만큼</text>
+    <text x="376" y="166">순전파</text>
+    <text x="606" y="276">정답과 비교</text>
+    <text x="376" y="386">역전파</text>
+    <text x="116" y="386">학습률만큼 이동</text>
+  </g>
+
+  
+  <rect x="270" y="206" width="280" height="92" rx="10" fill="#dbeafe"/>
+  <text x="410" y="244" font-size="17" font-weight="700" fill="#2563eb" text-anchor="middle">한 바퀴 = 1 step</text>
+  <text x="410" y="275" font-size="14" fill="#1a2332" text-anchor="middle">전체 데이터 1회 통과 = 1 epoch</text>
+
+  
+  <text x="400" y="442" font-size="12" fill="#94a3b8" text-anchor="middle">예: 데이터 1,000행에 batch_size=32이면 1 epoch은 32 step으로 이루어집니다</text>
+</svg><figcaption>학습 루프</figcaption></figure>
+<ul>
+<li>1 step: 배치 한 묶음을 넣어 예측, 채점, 수정 방향 계산, 가중치 갱신을 한 바퀴 돈 것</li>
+<li>1 epoch: 학습 데이터 전체를 한 번 다 사용한 것</li>
+<li>1,000행, <code>batch_size=32</code>: 1,000 / 32 = 31.25이고 남는 행도 한 묶음이므로 32 step입니다.</li>
+<li><code>epochs=50</code>이면 50 x 32 = 1,600번 갱신됩니다.</li>
+</ul></div></section>
+<section class="slide" data-title="층과 노드를 몇 개 둘 것인가 (2분)" aria-label="12 / 23"><div class="slide__inner"><h2>층과 노드를 몇 개 둘 것인가 (2분)</h2>
+<ul>
+<li>너무 작으면 학습 데이터에서도 성능이 낮습니다(과소적합).</li>
+<li>너무 크면 학습 데이터를 외워 평가 데이터 성능이 떨어집니다(과적합). 6회차에서 다룹니다.</li>
+<li>시험은 최적 구조를 찾는 실험을 요구하지 않고 "은닉층 2개 이상" 같은 지시를 줍니다.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>시험장 기본값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>은닉층 수</td>
+<td>2~3개 (지시가 있으면 지시 우선)</td>
+</tr>
+<tr>
+<td>노드 수</td>
+<td>64 → 32 처럼 점점 줄이기</td>
+</tr>
+<tr>
+<td>은닉층 활성화</td>
+<td>전부 <code>relu</code></td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="numpy 축소판: 순전파, 손실, 가중치 흔들기 (3분)" aria-label="13 / 23"><div class="slide__inner"><h2>numpy 축소판: 순전파, 손실, 가중치 흔들기 (3분)</h2>
+<pre><code class="language-python">rng = np.random.default_rng(42)
+X = rng.normal(size=(6, 4))
+y = np.array([0, 1, 1, 0, 1, 0])
+W1 = rng.normal(size=(4, 5)) * 0.5
+b1 = np.zeros(5)
+W2 = rng.normal(size=(5, 1)) * 0.5
+b2 = np.zeros(1)
+
+def forward(X, W1, b1, W2, b2):
+    h = relu(X @ W1 + b1)
+    out = sigmoid(h @ W2 + b2)
+    return out.ravel()
+
+pred = forward(X, W1, b1, W2, b2)
+loss = binary_crossentropy(y, pred)
+</code></pre>
+<ul>
+<li><code>relu</code>, <code>sigmoid</code>, <code>binary_crossentropy</code>는 교재 3장 코드의 정의를 씁니다.</li>
+<li><code>W2[0, 0]</code>에 0.1을 더하면 손실이 0.708에서 0.7099로 늘었습니다. 이 가중치는 줄이는 쪽으로 옮겨야 합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="자주 틀리는 지점 (2분)" aria-label="14 / 23"><div class="slide__inner"><h2>자주 틀리는 지점 (2분)</h2>
+<ul>
+<li>이진분류 출력층에 <code>Dense(1, activation='softmax')</code>를 쓰면 값이 하나뿐이라 항상 1.0이 나옵니다. 오류 없이 학습만 되지 않습니다.</li>
+<li>은닉층에 sigmoid를 쓰면 실행은 되지만 학습이 더뎌집니다. 은닉층은 relu입니다.</li>
+<li>가중치 갱신 단위는 샘플이 아니라 배치입니다. 2,000행, <code>batch_size=50</code>, <code>epochs=10</code>이면 400회이며 20,000회가 아닙니다.</li>
+<li>자투리 배치도 1 step이므로 나눗셈 결과는 올림합니다.</li>
+<li>가중치 행렬을 <code>(1, 5)</code>처럼 뒤집으면 <code>h @ W2</code>에서 shape 오류가 납니다. relu에 파이썬 <code>max</code>를 쓰면 배열에서 오류가 나므로 <code>np.maximum</code>을 씁니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 1 — 활성화 함수 세 가지를 numpy로 구현 (4분)" aria-label="15 / 23"><div class="slide__inner"><h2>함께 풀기 1 — 활성화 함수 세 가지를 numpy로 구현 (4분)</h2>
+<p>발표자는 사이트의 3장 실습 셀 <code>ch03-q1</code>을 띄우고 함께 풉니다.
+<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch03.html#drills-ch03">https://newids.github.io/dl4aice/ch03.html#drills-ch03</a></p>
+<p>문제: <code>relu</code>, <code>sigmoid</code>, <code>softmax</code>를 numpy로 구현해 <code>relu_out</code>, <code>sig_out</code>, <code>soft_out</code>에 담고 출력 범위를 확인합니다.</p>
+<pre><code class="language-python">z = np.array([-2.0, 0.5, 3.0])
+
+relu_out = np.___(0, z)
+sig_out = 1 / (1 + np.___(-z))
+soft_out = np.exp(z) / np.exp(z).___()
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유" aria-label="16 / 23"><div class="slide__inner"><h2>함께 풀기 — 답과 이유</h2>
+<pre><code class="language-python">relu_out = np.maximum(0, z)
+sig_out = 1 / (1 + np.exp(-z))
+soft_out = np.exp(z) / np.exp(z).sum()
+</code></pre>
+<ul>
+<li>relu의 최솟값은 0입니다. 배열에는 <code>np.maximum</code>을 씁니다.</li>
+<li>sigmoid는 원소마다 독립이므로 합이 1이 아닙니다.</li>
+<li>softmax는 합이 1입니다. 값 하나로는 늘 1.0이 되므로 이진분류 출력에 쓰지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 2 — 2층 신경망의 순전파와 파라미터 개수 (4분)" aria-label="17 / 23"><div class="slide__inner"><h2>함께 풀기 2 — 2층 신경망의 순전파와 파라미터 개수 (4분)</h2>
+<p>실습 셀 <code>ch03-q5</code>를 띄워 함께 풉니다. (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch03.html#drills-ch03">https://newids.github.io/dl4aice/ch03.html#drills-ch03</a>)</p>
+<p>문제: 특성 4개, 샘플 6개를 받아 은닉 5노드, 이진분류 확률 1개를 내는 순전파입니다. <code>W2</code>의 shape, 활성화 두 곳, 파라미터 총 개수에 쓸 행렬을 채웁니다.</p>
+<pre><code class="language-python">W2 = rng.normal(size=___)
+b2 = np.zeros(1)
+
+h = ___(X @ W1 + b1)
+out = ___(h @ W2 + b2)
+
+n_params = W1.size + b1.size + ___.size + b2.size
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유" aria-label="18 / 23"><div class="slide__inner"><h2>함께 풀기 — 답과 이유</h2>
+<pre><code class="language-python">W2 = rng.normal(size=(5, 1))
+h = relu(X @ W1 + b1)
+out = sigmoid(h @ W2 + b2)
+n_params = W1.size + b1.size + W2.size + b2.size
+</code></pre>
+<ul>
+<li><code>W2</code>는 (앞 층 노드 수, 뒤 층 노드 수) = (5, 1)입니다.</li>
+<li>은닉층은 relu, 이진분류 출력층은 sigmoid입니다.</li>
+<li>파라미터는 20 + 5 + 5 + 1 = 31개입니다. 편향 <code>b2</code>까지 세어야 합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="정리 (2분)" aria-label="19 / 23"><div class="slide__inner"><h2>정리 (2분)</h2>
+<ul>
+<li>뉴런은 <code>z = 가중합 + 편향</code>, <code>a = 활성화(z)</code>이고 학습으로 바뀌는 값은 가중치와 편향뿐입니다.</li>
+<li>입력층은 특성 수, 출력층은 문제 유형이 정하고, 은닉층만 설계자가 고릅니다.</li>
+<li>은닉층 relu, 이진 출력 sigmoid(1개), 다중 출력 softmax(K개), 회귀 출력은 활성화 없음.</li>
+<li>순전파로 예측하고 역전파로 수정 방향을 구해 가중치를 갱신하는 한 바퀴가 1 step이며, 데이터 전체를 한 번 도는 것이 1 epoch입니다.</li>
+<li>시험장 기본 구조는 은닉층 2~3개, relu, 64 → 32입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="다음 회차 준비" aria-label="20 / 23"><div class="slide__inner"><h2>다음 회차 준비</h2>
+<ul>
+<li>4회차: 4장 "Keras로 모델 만들기". 3장의 개념을 <code>Sequential</code>과 <code>Dense</code> 코드로 옮깁니다.</li>
+<li>4장을 읽고 실습 셀(<code>#drills-ch04</code>)을 풀어 옵니다.</li>
+<li>오늘 센 파라미터 개수(31개)를 <code>model.summary()</code>의 <code>Param #</code>과 비교해 볼 준비를 합니다.</li>
+<li>활성화 함수 표(relu, sigmoid, softmax, 없음)를 보지 않고 쓸 수 있는지 확인해 옵니다.</li>
+</ul></div></section>
+<section class="slide" data-title="토론 질문" aria-label="21 / 23"><div class="slide__inner"><h2>토론 질문</h2>
+<ol>
+<li>지시가 "은닉층 2개 이상"뿐일 때 층과 노드 수를 어떻게 정하겠습니까? 기본값(64 → 32)을 그대로 쓰는 것이 적절합니까?</li>
+<li>오류 없이 학습만 되지 않는 실수(노드 1개 + softmax, 은닉층 sigmoid)를 시험장에서 어떻게 빨리 발견하겠습니까?</li>
+<li><code>model.summary()</code>의 <code>Param #</code>을 시험 중에 손계산으로 검산할 가치가 있습니까?</li>
+</ol></div></section>
+<section class="slide" data-title="예상 질문과 답 (1)" aria-label="22 / 23"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
+<p><strong>Q1.</strong> 편향은 왜 필요합니까?
+답: 가중치가 "이 입력을 얼마나 중요하게 볼 것인가"라면 편향은 "기본적으로 얼마만큼 얹고 시작할 것인가"를 나타내는 값입니다. 노드마다 하나씩 있고 가중치와 함께 학습으로 바뀝니다. <code>Param #</code>에도 포함되므로 세지 않으면 개수가 틀립니다.</p>
+<p><strong>Q2.</strong> 은닉층에 활성화 함수를 쓰지 않으면 어떻게 됩니까?
+답: 곱하고 더하는 연산만 반복하므로 층을 아무리 쌓아도 하나의 선형식으로 합쳐집니다. 층 사이에 relu 같은 꺾인 함수가 있어야 복잡한 패턴을 배울 수 있습니다.</p>
+<p><strong>Q3.</strong> sigmoid와 softmax는 둘 다 확률인데 아무거나 써도 됩니까?
+답: 아닙니다. sigmoid는 값 1개를 0~1로 만드는 이진분류용이고, softmax는 K개 값을 합이 1인 분포로 만드는 다중분류용입니다. 이 차이가 출력층 노드 수를 결정합니다.</p></div></section>
+<section class="slide" data-title="예상 질문과 답 (2)" aria-label="23 / 23"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
+<p><strong>Q4.</strong> 노드 1개에 softmax를 쓰면 왜 학습이 안 됩니까?
+답: 값이 하나뿐이라 입력이 무엇이든 출력이 1.0이 됩니다. 출력이 입력에 반응하지 않아 수정 방향도 사라지고, 오류 메시지 없이 정확도가 제자리에 머뭅니다.</p>
+<p><strong>Q5.</strong> step과 epoch는 어떻게 다릅니까?
+답: step은 배치 한 묶음으로 가중치를 한 번 갱신하는 단위이고, epoch는 학습 데이터 전체를 한 번 도는 단위입니다. 2,000행, <code>batch_size=50</code>이면 1 epoch가 40 step이고 <code>epochs=10</code>이면 총 400번 갱신됩니다.</p>
+<p><strong>Q6.</strong> 역전파 수식을 외워야 합니까?
+답: 아닙니다. 수식 유도는 시험 범위 밖입니다. "손실이 줄어드는 방향으로 가중치가 자동으로 수정되고 그것이 <code>model.fit()</code> 안에서 일어난다"는 방향 감각이면 충분합니다.</p>
+<p><strong>Q7.</strong> 은닉층 노드를 몇 개로 해야 합니까?
+답: 시험은 최적 구조를 찾는 실험을 요구하지 않습니다. 지시가 있으면 지시를 따르고, 없으면 은닉층 2~3개, 64 → 32처럼 줄여 가는 relu 구조를 기본으로 씁니다.</p>
+<p><strong>Q8.</strong> 회귀 모델의 출력층에는 활성화 함수를 씁니까?
+답: 쓰지 않습니다. 예측한 숫자 그 자체가 출력이어야 하므로 출력 범위를 제한하지 않습니다. 이 내용은 4회차와 5회차에서 코드로 확인합니다.</p></div></section>
+</main>
+<div class="meter" aria-hidden="true"><span></span></div>
+<nav class="bar" aria-label="슬라이드 이동">
+<a class="btn" href="index.html" title="회차 목록">회차</a>
+<button class="btn" type="button" data-overview title="슬라이드 목록 (O)">목록</button>
+<span class="bar__title"></span>
+<span class="bar__time" title="발표 타이머 — 두 번 누르면 0으로 (R)"></span>
+<button class="btn" type="button" data-theme-toggle title="밝게/어둡게 (T)">명암</button>
+<button class="btn" type="button" data-full title="전체 화면 (F)">전체</button>
+<button class="btn" type="button" data-prev aria-label="이전 슬라이드">&#8592;</button>
+<span class="bar__count"></span>
+<button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
+</nav>
+<div class="ov" role="dialog" aria-label="슬라이드 목록">
+<div class="ov__head"><h2>3회차 — 딥러닝은 어떻게 배우는가</h2><span><a class="btn" href="02-ch02.html" title="이전 회차">이전 회차</a> <a class="btn" href="04-ch04.html" title="다음 회차">다음 회차</a> <button class="btn" type="button" data-close>닫기</button></span></div>
+<ol class="ov__grid">
+<li><button class="ov__item" type="button"><span class="ov__no">1</span><span>3회차 — 딥러닝은 어떻게 배우는가</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">4</span><span>뉴런 하나의 계산 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>뉴런을 numpy로 계산해 보기 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">6</span><span>층 구조와 shape (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">7</span><span>파라미터 개수 세기 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">8</span><span>활성화 함수: 어디에 무엇을 쓰는가 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>활성화 함수의 모양과 필요한 이유 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>순전파와 역전파 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>학습 루프: step과 epoch (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">12</span><span>층과 노드를 몇 개 둘 것인가 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>numpy 축소판: 순전파, 손실, 가중치 흔들기 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">14</span><span>자주 틀리는 지점 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">15</span><span>함께 풀기 1 — 활성화 함수 세 가지를 numpy로 구현 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">16</span><span>함께 풀기 — 답과 이유</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">17</span><span>함께 풀기 2 — 2층 신경망의 순전파와 파라미터 개수 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">18</span><span>함께 풀기 — 답과 이유</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">19</span><span>정리 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">20</span><span>다음 회차 준비</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">21</span><span>토론 질문</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">22</span><span>예상 질문과 답 (1)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">23</span><span>예상 질문과 답 (2)</span></button></li>
+</ol>
+<p class="help"><kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>Home</kbd> <kbd>End</kbd> 처음/끝 · <kbd>O</kbd> 목록 · <kbd>F</kbd> 전체 화면 · <kbd>T</kbd> 명암 · <kbd>R</kbd> 타이머 초기화 · 인쇄하면 한 장에 한 슬라이드씩 PDF로 저장됩니다.</p>
+</div>
+<script>/* dl4aice v2 — dl4aice-core.js
+ * 모든 v2 위젯이 공유하는 최소 런타임: 데이터 로더, localStorage 저장소, 진도 기록,
+ * 토스트, 파이썬 코드 하이라이터, 클립보드, 라이트/다크 테마.
+ * 외부 의존성 없음. file:// 로 열어도 동작하도록 데이터는 assets/data/*.js 래퍼
+ * (window.DL4AICE_DATA)에서 먼저 찾고, 없을 때만 fetch 로 JSON 을 읽는다.
+ */
+(function () {
+  "use strict";
+
+  var NS = "dl4aice.v2.";
+  var D = (window.DL4AICE = window.DL4AICE || {});
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* 문제 지문용 미니 마크업: `code`, **굵게**, 빈 줄 = 문단, 줄바꿈 = <br>, "- " 목록 */
+  function richText(text) {
+    var source = String(text == null ? "" : text).replace(/\r\n?/g, "\n");
+    /* ```코드 펜스``` 는 먼저 떼어 내어 코드 블록으로 렌더링한다 */
+    var fences = [];
+    source = source.replace(/```[a-zA-Z]*\n([\s\S]*?)\n?```/g, function (_, code) {
+      fences.push(code);
+      return "\n\n\u0000FENCE" + (fences.length - 1) + "\u0000\n\n";
+    });
+    var blocks = source.split(/\n{2,}/).filter(function (b) { return b.trim() !== ""; });
+    return blocks
+      .map(function (block) {
+        var fence = /^\u0000FENCE(\d+)\u0000$/.exec(block.trim());
+        if (fence) {
+          return '<pre class="v2-code"><code>' + highlight(fences[Number(fence[1])]) + "</code></pre>";
+        }
+        var lines = block.split("\n");
+        var inline = function (line) {
+          return escapeHtml(line)
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        };
+        if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+          return "<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*[-•]\s+/, "")) + "</li>"; }).join("") + "</ul>";
+        }
+        if (lines.every(function (l) { return /^\s*\d+[.)]\s+/.test(l); })) {
+          return "<ol>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>"; }).join("") + "</ol>";
+        }
+        return "<p>" + lines.map(inline).join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
+  var CONSTANTS = /^(?:True|False|None|self|cls)$/;
+  var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+
+  function tok(cls, text) {
+    return '<span class="v2-tok-' + cls + '">' + text + "</span>";
+  }
+
+  /* 파이썬 코드 -> 에디터식으로 색을 입힌 HTML (이스케이프 포함).
+     주석·문자열·숫자·키워드·상수·내장 함수·함수 호출·클래스·키워드 인자·데코레이터·연산자를 구분한다. */
+  function highlight(code) {
+    var src = String(code == null ? "" : code);
+    var out = "";
+    var last = 0;
+    var depth = 0;
+    var prevWord = "";
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(src))) {
+      var gap = src.slice(last, m.index);
+      for (var i = 0; i < gap.length; i++) {
+        if (gap[i] === "(" || gap[i] === "[" || gap[i] === "{") depth++;
+        else if (gap[i] === ")" || gap[i] === "]" || gap[i] === "}") depth = Math.max(0, depth - 1);
+      }
+      out += escapeHtml(gap);
+      var text = escapeHtml(m[0]);
+      var end = TOKEN_RE.lastIndex;
+      if (m[1]) out += tok("com", text);
+      else if (m[2]) out += tok("str", text);
+      else if (m[3]) out += tok("num", text);
+      else if (m[4]) out += tok("blank", text);
+      else if (m[5]) out += tok("dec", text);
+      else if (m[6]) {
+        var word = m[6];
+        var next = src[end];
+        var rest = src.slice(end, end + 3);
+        if (KEYWORDS.test(word)) out += tok("kw", text);
+        else if (CONSTANTS.test(word)) out += tok("const", text);
+        else if (prevWord === "def") out += tok("fn", text);
+        else if (prevWord === "class") out += tok("cls", text);
+        else if (next === "(") {
+          if (BUILTINS.test(word)) out += tok("builtin", text);
+          else if (/^[A-Z]/.test(word)) out += tok("cls", text);
+          else out += tok("fn", text);
+        } else if (depth > 0 && /^\s*=(?!=)/.test(rest)) out += tok("param", text);
+        else if (prevWord === "import" || prevWord === "from" || prevWord === "as") out += tok("mod", text);
+        else out += text;
+        prevWord = word;
+      } else out += tok("op", text);
+      if (!m[6] && !m[7]) prevWord = "";
+      last = end;
+    }
+    return out + escapeHtml(src.slice(last));
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === false || value == null) return;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key.slice(0, 2) === "on" && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (Array.isArray(children) ? children : children == null ? [] : [children]).forEach(function (child) {
+      if (child == null || child === false) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  /* ---------- 저장소 ---------- */
+  var memory = {};
+  var store = {
+    get: function (key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(NS + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : fallback;
+      }
+    },
+    set: function (key, value) {
+      memory[key] = value;
+      try {
+        window.localStorage.setItem(NS + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      delete memory[key];
+      try { window.localStorage.removeItem(NS + key); } catch (e) { /* 저장소 사용 불가 */ }
+    }
+  };
+
+  /* ---------- 진도 ---------- */
+  function readProgress() {
+    var p = store.get("progress", null) || {};
+    p.drills = p.drills || {};
+    p.mocks = p.mocks || {};
+    return p;
+  }
+
+  function announce() {
+    try {
+      document.dispatchEvent(new CustomEvent("dl4aice:progress", { detail: readProgress() }));
+    } catch (e) { /* 구형 브라우저 */ }
+  }
+
+  var progress = {
+    read: readProgress,
+    /* 챕터 실습 문항 통과 기록. questionId 예: "ch04-q3" */
+    markDrill: function (questionId, passed) {
+      var p = readProgress();
+      var prev = p.drills[questionId] || { attempts: 0, ok: false };
+      p.drills[questionId] = {
+        ok: prev.ok || !!passed,
+        attempts: (prev.attempts || 0) + 1,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.drills[questionId];
+    },
+    isDrillDone: function (questionId) {
+      var rec = readProgress().drills[questionId];
+      return !!(rec && rec.ok);
+    },
+    /* chapterKey 예: "ch04". questionIds 는 그 챕터 문항 id 배열 */
+    chapterStats: function (questionIds) {
+      var p = readProgress();
+      var done = (questionIds || []).filter(function (id) { return p.drills[id] && p.drills[id].ok; }).length;
+      var total = (questionIds || []).length;
+      return { done: done, total: total, percent: total ? Math.round((done / total) * 100) : 0 };
+    },
+    /* 모의고사 채점 결과 기록. detail = { parts: {preprocess:{earned,max},...}, elapsedSec } */
+    recordMock: function (mockId, score, detail) {
+      var p = readProgress();
+      var prev = p.mocks[mockId] || { best: 0, attempts: 0 };
+      p.mocks[mockId] = {
+        best: Math.max(prev.best || 0, score),
+        last: score,
+        attempts: (prev.attempts || 0) + 1,
+        detail: detail || null,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.mocks[mockId];
+    },
+    mock: function (mockId) {
+      return readProgress().mocks[mockId] || null;
+    },
+    reset: function () {
+      store.remove("progress");
+      announce();
+    }
+  };
+
+  /* ---------- 데이터 로더 ---------- */
+  var pending = {};
+  function data(name) {
+    var bag = window.DL4AICE_DATA || {};
+    if (bag[name]) return Promise.resolve(bag[name]);
+    if (!pending[name]) {
+      pending[name] = fetch("assets/data/" + name + ".json")
+        .then(function (res) {
+          if (!res.ok) throw new Error(name + ".json " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          (window.DL4AICE_DATA = window.DL4AICE_DATA || {})[name] = json;
+          return json;
+        });
+    }
+    return pending[name];
+  }
+
+  /* ---------- 토스트 ---------- */
+  function toastHost() {
+    var host = document.querySelector(".v2-toasts");
+    if (!host) {
+      host = el("div", { class: "v2-toasts", role: "status", "aria-live": "polite" });
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  /* toast("메시지", { type: "ok" | "err" | "info", title, timeout(ms), html }) */
+  function toast(message, opts) {
+    opts = opts || {};
+    var type = opts.type || "info";
+    var node = el("div", { class: "v2-toast v2-toast--" + type }, [
+      opts.title ? el("strong", { class: "v2-toast__title", text: opts.title }) : null,
+      opts.html ? el("div", { class: "v2-toast__body", html: message }) : el("div", { class: "v2-toast__body", text: message }),
+      el("button", { class: "v2-toast__close", type: "button", "aria-label": "닫기", text: "×", onclick: function () { dismiss(); } })
+    ]);
+    var timer = null;
+    function dismiss() {
+      if (timer) clearTimeout(timer);
+      if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    var host = toastHost();
+    while (host.children.length >= 3) host.removeChild(host.firstChild);
+    host.appendChild(node);
+    var timeout = opts.timeout === undefined ? (type === "err" ? 9000 : 4500) : opts.timeout;
+    if (timeout > 0) timer = setTimeout(dismiss, timeout);
+    return dismiss;
+  }
+
+  /* ---------- 클립보드 ---------- */
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var area = el("textarea", { class: "v2-sr-only", "aria-hidden": "true" });
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  /* ---------- 테마 ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+    var btn = document.querySelector(".v2-theme-toggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+  }
+
+  var theme = {
+    get: function () { return store.get("theme", "light"); },
+    set: function (value) { store.set("theme", value); applyTheme(value); },
+    toggle: function () { theme.set(theme.get() === "dark" ? "light" : "dark"); }
+  };
+
+  /* 깜빡임 방지: 스크립트 로드 즉시 적용 */
+  applyTheme(theme.get());
+
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function () {
+    var masthead = document.querySelector(".masthead");
+    if (masthead && !masthead.querySelector(".v2-theme-toggle")) {
+      var tools = masthead.querySelector(".masthead__tools");
+      if (!tools) {
+        tools = el("span", { class: "masthead__tools" });
+        var toc = masthead.querySelector(".masthead__toc");
+        masthead.appendChild(tools);
+        if (toc) tools.appendChild(toc);
+      }
+      tools.insertBefore(
+        el("button", { class: "v2-theme-toggle", type: "button", onclick: function () { theme.toggle(); } }),
+        tools.firstChild
+      );
+    }
+    applyTheme(theme.get());
+  });
+
+  /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
+  function revealHashTarget() {
+    var id = decodeURIComponent((window.location.hash || "").slice(1));
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    var opened = false;
+    for (var node = target.parentElement; node; node = node.parentElement) {
+      if (node.tagName === "DETAILS" && !node.open) { node.open = true; opened = true; }
+    }
+    if (opened) target.scrollIntoView();
+  }
+  ready(revealHashTarget);
+  window.addEventListener("hashchange", revealHashTarget);
+
+  D.escapeHtml = escapeHtml;
+  D.richText = richText;
+  D.highlight = highlight;
+  D.el = el;
+  D.store = store;
+  D.progress = progress;
+  D.data = data;
+  D.toast = toast;
+  D.copy = copy;
+  D.theme = theme;
+  D.ready = ready;
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DL4AICE || {};
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = slides.length;
+  var current = 0;
+  var bar = document.querySelector(".bar");
+  var countEl = bar.querySelector(".bar__count");
+  var titleEl = bar.querySelector(".bar__title");
+  var timeEl = bar.querySelector(".bar__time");
+  var meter = document.querySelector(".meter span");
+  var prev = bar.querySelector("[data-prev]");
+  var next = bar.querySelector("[data-next]");
+  var overview = document.querySelector(".ov");
+  var planned = Number(document.body.getAttribute("data-minutes")) || 35;
+
+  /* 파이썬 코드 색 입히기 (교재와 같은 배색) */
+  if (D.highlight) {
+    Array.prototype.forEach.call(document.querySelectorAll("pre > code.language-python"), function (code) {
+      code.innerHTML = D.highlight(code.textContent).replace(/class="v2-tok-/g, 'class="tok-');
+    });
+  }
+
+  /* 내용이 넘치면 글자를 조금 줄여 한 장에 맞춘다 */
+  function fit(slide) {
+    var inner = slide.querySelector(".slide__inner");
+    var scale = 1;
+    var fig = 1;
+    inner.style.setProperty("--scale", "1");
+    inner.style.setProperty("--fig", "1");
+    /* 먼저 도해를 줄이고(글자는 읽기 좋은 크기로 유지), 그래도 넘치면 글자를 줄인다 */
+    while (inner.scrollHeight > inner.clientHeight + 2 && (fig > 0.5 || scale > 0.56)) {
+      if (fig > 0.5 && (fig > scale - 0.1 || scale <= 0.56)) fig -= 0.05;
+      else scale -= 0.03;
+      inner.style.setProperty("--fig", fig.toFixed(2));
+      inner.style.setProperty("--scale", scale.toFixed(2));
+    }
+  }
+
+  function show(index, replace) {
+    current = Math.max(0, Math.min(count - 1, index));
+    slides.forEach(function (s, i) { s.classList.toggle("is-current", i === current); });
+    fit(slides[current]);
+    countEl.textContent = current + 1 + " / " + count;
+    titleEl.textContent = slides[current].getAttribute("data-title");
+    meter.style.width = ((current + 1) / count) * 100 + "%";
+    prev.disabled = current === 0;
+    next.disabled = current === count - 1;
+    Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+      item.setAttribute("aria-current", i === current ? "true" : "false");
+    });
+    var hash = "#" + (current + 1);
+    if (replace) history.replaceState(null, "", hash); else if (location.hash !== hash) history.pushState(null, "", hash);
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isFinite(n) ? n - 1 : 0;
+  }
+
+  /* 발표 타이머: 처음 넘길 때 시작, 계획 시간을 넘기면 색으로 알린다 */
+  var startedAt = null;
+  var timer = null;
+  function tick() {
+    var sec = Math.floor((Date.now() - startedAt) / 1000);
+    var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+    var ss = String(sec % 60).padStart(2, "0");
+    timeEl.innerHTML = "<strong>" + mm + ":" + ss + "</strong> / " + planned + "분";
+    timeEl.classList.toggle("is-over", sec > planned * 60);
+  }
+  function startTimer() {
+    if (startedAt) return;
+    startedAt = Date.now();
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    startedAt = null;
+    timeEl.innerHTML = "<strong>00:00</strong> / " + planned + "분";
+    timeEl.classList.remove("is-over");
+  }
+
+  function go(delta) { startTimer(); show(current + delta); }
+  function toggleOverview(open) {
+    var willOpen = open === undefined ? !overview.classList.contains("is-open") : open;
+    overview.classList.toggle("is-open", willOpen);
+    if (willOpen) { var cur = overview.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
+  }
+  function toggleTheme() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("dl4aice.v2.theme", JSON.stringify(dark ? "light" : "dark")); } catch (e) { /* 저장 불가 */ }
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  }
+
+  prev.addEventListener("click", function () { go(-1); });
+  next.addEventListener("click", function () { go(1); });
+  bar.querySelector("[data-overview]").addEventListener("click", function () { toggleOverview(); });
+  bar.querySelector("[data-theme-toggle]").addEventListener("click", toggleTheme);
+  bar.querySelector("[data-full]").addEventListener("click", toggleFullscreen);
+  timeEl.addEventListener("dblclick", resetTimer);
+  overview.querySelector("[data-close]").addEventListener("click", function () { toggleOverview(false); });
+  Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+    item.addEventListener("click", function () { show(i); toggleOverview(false); });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var key = event.key;
+    if (overview.classList.contains("is-open")) {
+      if (key === "Escape" || key === "o" || key === "O") { toggleOverview(false); event.preventDefault(); }
+      return;
+    }
+    if (key === "ArrowRight" || key === "PageDown" || key === " " || key === "Enter") { go(1); event.preventDefault(); }
+    else if (key === "ArrowLeft" || key === "PageUp" || key === "Backspace") { go(-1); event.preventDefault(); }
+    else if (key === "Home") { show(0); event.preventDefault(); }
+    else if (key === "End") { show(count - 1); event.preventDefault(); }
+    else if (key === "o" || key === "O") { toggleOverview(true); }
+    else if (key === "f" || key === "F") { toggleFullscreen(); }
+    else if (key === "t" || key === "T") { toggleTheme(); }
+    else if (key === "r" || key === "R") { resetTimer(); }
+  });
+
+  /* 터치: 좌우로 밀어 넘기기 */
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  window.addEventListener("resize", function () { fit(slides[current]); });
+  resetTimer();
+  show(fromHash(), true);
+})();
+</script>
+</body>
+</html>

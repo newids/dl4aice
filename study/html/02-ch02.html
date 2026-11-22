@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2회차 — 전제 지식 압축 정리: 데이터 준비와 머신러닝 — 스터디 발표 자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef1f6; --paper: #ffffff; --ink: #1a2332; --soft: #475569; --muted: #64748b;
+  --line: #cbd5e1; --line-soft: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+  --chip-bg: #eef2f7; --chip-fg: #0f2a5e; --code-bg: #0d1424; --code-fg: #d6deeb;
+  --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "D2Coding", monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0f1a; --paper: #111827; --ink: #e6eaf2; --soft: #c3cddd; --muted: #9aa8bd;
+  --line: #334155; --line-soft: #243044; --primary: #6ea8fe; --primary-soft: #1b2f4f;
+  --chip-bg: #22304a; --chip-fg: #cfe0ff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  word-break: keep-all; overflow-wrap: anywhere; overflow: hidden;
+}
+.deck { position: fixed; inset: 0 0 3.25rem 0; display: grid; place-items: center; padding: 1.2vmin; }
+.slide {
+  display: none; width: min(100%, calc((100vh - 3.25rem - 2.4vmin) * 16 / 9)); aspect-ratio: 16 / 9;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px;
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.45); overflow: hidden;
+}
+.slide.is-current { display: block; }
+.slide__inner {
+  --scale: 1; height: 100%; padding: 4.2% 5.4% 3.6%; overflow: auto;
+  font-size: calc(clamp(13px, 1.72vw, 30px) * var(--scale)); line-height: 1.55;
+}
+.slide h1, .slide h2 { margin: 0 0 0.7em; line-height: 1.28; letter-spacing: -0.02em; }
+.slide h1 { font-size: 2.1em; margin-top: 12%; }
+.slide h2 { font-size: 1.42em; padding-bottom: 0.35em; border-bottom: 1px solid var(--line-soft); }
+.slide h3 { font-size: 1.08em; margin: 0.9em 0 0.4em; }
+.slide p { margin: 0 0 0.6em; }
+.slide ul, .slide ol { margin: 0 0 0.6em; padding-left: 1.25em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li > ul, .slide li > ol { margin-top: 0.3em; }
+.slide a { color: var(--primary); }
+.slide strong { font-weight: 700; }
+.slide code {
+  font-family: var(--mono); font-size: 0.86em; padding: 0.05em 0.32em; border-radius: 5px;
+  color: var(--chip-fg); background: var(--chip-bg); font-variant-ligatures: none;
+}
+.slide pre {
+  margin: 0 0 0.7em; padding: 0.75em 0.95em; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.slide pre code { padding: 0; background: none; color: inherit; font-size: 0.8em; line-height: 1.55; white-space: pre; }
+.slide table { width: 100%; margin: 0 0 0.7em; border-collapse: collapse; font-size: 0.88em; }
+.slide th, .slide td { padding: 0.42em 0.6em; text-align: left; vertical-align: top; border: 1px solid var(--line-soft); }
+.slide thead th { background: var(--chip-bg); color: var(--chip-fg); font-weight: 700; }
+.slide blockquote {
+  margin: 0 0 0.7em; padding: 0.6em 0.9em; color: var(--soft); background: var(--chip-bg);
+  border: 1px solid var(--line-soft); border-radius: 10px;
+}
+.slide blockquote > :last-child { margin-bottom: 0; }
+.figure { margin: 0 0 0.6em; padding: 0.5em; background: #ffffff; border: 1px solid var(--line-soft); border-radius: 10px; text-align: center; }
+.figure svg { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(44vh * var(--fig, 1)); margin: 0 auto; }
+.figure figcaption { margin-top: 0.3em; font-size: 0.72em; color: #64748b; }
+.slide--title .slide__inner { display: flex; flex-direction: column; justify-content: center; }
+.slide--title h1 { margin-top: 0; }
+.slide--title ul { list-style: none; padding: 0; color: var(--soft); }
+
+.tok-kw { color: #c792ea; } .tok-const { color: #82aaff; font-style: italic; } .tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; } .tok-com { color: #7c8aa5; font-style: italic; } .tok-fn { color: #82d2ff; }
+.tok-builtin { color: #ffcb6b; } .tok-cls { color: #5eead4; } .tok-param { color: #f9a8d4; }
+.tok-mod { color: #d6deeb; } .tok-dec { color: #ffcb6b; font-style: italic; } .tok-op { color: #89ddff; }
+.tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
+
+.bar {
+  position: fixed; inset: auto 0 0 0; height: 3.25rem; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 0.8rem; background: var(--paper); border-top: 1px solid var(--line-soft); font-size: 0.86rem;
+}
+.bar__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); font-weight: 600; }
+.bar__count, .bar__time { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.bar__time strong { color: var(--ink); }
+.bar__time.is-over strong { color: #dc2626; }
+.btn {
+  min-width: 2.5rem; min-height: 2.5rem; padding: 0.3rem 0.7rem; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn:focus-visible, .ov__item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.meter { position: fixed; inset: auto 0 3.25rem 0; height: 3px; background: var(--line-soft); }
+.meter span { display: block; height: 100%; width: 0; background: var(--primary); transition: width 180ms ease-out; }
+
+.ov { position: fixed; inset: 0; z-index: 10; display: none; padding: 1.2rem; overflow: auto; background: var(--bg); }
+.ov.is-open { display: block; }
+.ov__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
+.ov__head h2 { margin: 0; font-size: 1.1rem; }
+.ov__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; }
+.ov__item {
+  display: flex; gap: 0.6rem; width: 100%; min-height: 3.2rem; padding: 0.6rem 0.8rem; font: inherit; text-align: left; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 10px; cursor: pointer;
+}
+.ov__item:hover { border-color: var(--primary); }
+.ov__item[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.ov__no { flex: none; width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.help { margin: 1rem 0 0; font-size: 0.82rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+
+.index { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; overflow: auto; height: 100%; }
+.index h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+.index p { color: var(--soft); line-height: 1.7; }
+.index ol { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.6rem; }
+.index li a {
+  display: flex; gap: 1rem; align-items: baseline; padding: 0.9rem 1.1rem; color: var(--ink); text-decoration: none;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.index li a:hover { border-color: var(--primary); }
+.index .no { flex: none; width: 3.6rem; font-weight: 700; color: var(--primary); }
+.index .meta { margin-left: auto; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .bar__title { display: none; }
+  .slide { width: 100%; aspect-ratio: auto; height: 100%; }
+  .slide__inner { font-size: calc(15px * var(--scale)); }
+}
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .bar, .meter, .ov { display: none !important; }
+  .deck { position: static; display: block; padding: 0; }
+  .slide { display: block !important; width: 297mm; height: 167mm; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; break-after: page; }
+  .slide__inner { font-size: 15pt; overflow: hidden; }
+}
+</style>
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body data-minutes="36">
+<main class="deck" aria-live="polite">
+<section class="slide slide--title" data-title="2회차 — 전제 지식 압축 정리: 데이터 준비와 머신러닝" aria-label="1 / 25"><div class="slide__inner"><h1>2회차 — 전제 지식 압축 정리: 데이터 준비와 머신러닝</h1>
+<ul>
+<li>범위: 2장 (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch02.html">https://newids.github.io/dl4aice/ch02.html</a>)</li>
+<li>발표 35분 안팎 + 질의응답 20분</li>
+<li>사전 준비: 챕터 읽기 + 실습 셀 풀기 (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch02.html#drills-ch02">https://newids.github.io/dl4aice/ch02.html#drills-ch02</a>)</li>
+</ul></div></section>
+<section class="slide" data-title="오늘의 목표" aria-label="2 / 25"><div class="slide__inner"><h2>오늘의 목표</h2>
+<ol>
+<li>결측치, 이상치, 인코딩, 스케일링을 문항 지시에 맞는 함수로 처리한다.</li>
+<li>인코딩은 분리 전에, 스케일링은 분리 후에 하는 순서를 이유와 함께 설명한다.</li>
+<li>머신러닝 3줄 패턴과 딥러닝 4단계의 차이, 그리고 딥러닝으로 넘어가기 전 점검 항목을 말한다.</li>
+</ol></div></section>
+<section class="slide" data-title="진행 순서" aria-label="3 / 25"><div class="slide__inner"><h2>진행 순서</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>내용</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>데이터 준비 흐름과 탐색</td>
+<td>다섯 단계, 탐색과 시각화</td>
+<td>4분</td>
+</tr>
+<tr>
+<td>결측치, 이상치, 인코딩</td>
+<td>함수 선택과 대입 규칙</td>
+<td>7분</td>
+</tr>
+<tr>
+<td>스케일링과 분리</td>
+<td>데이터 누수와 순서 규칙</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>머신러닝과 평가지표</td>
+<td>3줄 패턴, 지표 고르기</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>딥러닝으로 넘어가는 지점</td>
+<td>인계 점검, 자주 틀리는 지점</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>함께 풀기</td>
+<td>실습 셀 두 문항</td>
+<td>8분</td>
+</tr>
+<tr>
+<td>정리</td>
+<td>기억할 내용 정리</td>
+<td>2분</td>
+</tr>
+<tr>
+<td>질의응답</td>
+<td>토론 질문과 질문 받기</td>
+<td>20분</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="데이터 준비는 다섯 단계 (2분)" aria-label="4 / 25"><div class="slide__inner"><h2>데이터 준비는 다섯 단계 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 262" width="800" height="262" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>데이터 준비 5단계 파이프라인 — 로딩, 탐색, 결측 및 이상치 처리, 인코딩과 스케일링, 분리 순서와 각 단계의 대표 함수</title>
+  <defs>
+    <marker id="ch02dp-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="262" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">데이터 준비 5단계 파이프라인</text>
+
+  
+  <rect x="25" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="90" y="128" font-size="15" text-anchor="middle" fill="#1a2332">로딩</text>
+  <text x="90" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">read_csv</text>
+
+  <line x1="157" y1="122" x2="176" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  
+  <rect x="180" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="245" y="128" font-size="15" text-anchor="middle" fill="#1a2332">탐색</text>
+  <text x="245" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">info</text>
+
+  <line x1="312" y1="122" x2="331" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  
+  <rect x="335" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="400" y="114" font-size="15" text-anchor="middle" fill="#1a2332">결측 · 이상치</text>
+  <text x="400" y="138" font-size="15" text-anchor="middle" fill="#1a2332">처리</text>
+  <text x="400" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna</text>
+
+  <line x1="467" y1="122" x2="486" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  
+  <rect x="490" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="555" y="114" font-size="15" text-anchor="middle" fill="#1a2332">인코딩</text>
+  <text x="555" y="138" font-size="15" text-anchor="middle" fill="#1a2332">스케일링</text>
+  <text x="555" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">get_dummies</text>
+
+  <line x1="622" y1="122" x2="641" y2="122" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02dp-arrow)"/>
+
+  
+  <rect x="645" y="80" width="130" height="84" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="710" y="128" font-size="15" text-anchor="middle" fill="#1a2332">분리</text>
+  <text x="710" y="186" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split</text>
+
+  
+  <rect x="216" y="206" width="368" height="32" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="400" y="227" font-size="13" text-anchor="middle" fill="#1a2332">순서 규칙 — 인코딩은 분리 전, 스케일링은 분리 후</text>
+</svg><figcaption>데이터 준비 파이프라인</figcaption></figure>
+<ul>
+<li>읽고, 보고, 고치고, 숫자로 바꾸고, 나눕니다. 단계마다 대표 함수가 정해져 있습니다.</li>
+<li>문항은 이 순서로 출제되고, 앞 문항에서 만든 <code>df</code>를 뒤 문항이 이어받습니다.</li>
+<li>변수를 덮어쓸지 새 이름을 줄지 미리 정해 둡니다.</li>
+</ul></div></section>
+<section class="slide" data-title="먼저 데이터를 본다: 탐색과 시각화 (2분)" aria-label="5 / 25"><div class="slide__inner"><h2>먼저 데이터를 본다: 탐색과 시각화 (2분)</h2>
+<pre><code class="language-python">print(df.info())                    # 자료형과 결측 여부
+print(df.describe())                # 수치형 분포 요약
+print(df.isnull().sum())            # 컬럼별 결측 개수
+print(df['churn'].value_counts())   # 타깃 클래스 분포
+</code></pre>
+<ul>
+<li>시각화는 네 가지: <code>countplot</code>(범주 분포), <code>histplot</code>(수치 분포), <code>heatmap</code>(상관관계), <code>boxplot</code>(그룹별 분포 비교)</li>
+<li>클래스 분포는 뒤에서 <code>stratify</code>와 평가지표를 정하는 근거입니다.</li>
+<li><code>heatmap</code>은 문자열 컬럼이 섞이면 오류가 나므로 <code>df.select_dtypes(include='number').corr()</code>를 씁니다.</li>
+</ul></div></section>
+<section class="slide" data-title="결측치: 지울 것인가 채울 것인가 (3분)" aria-label="6 / 25"><div class="slide__inner"><h2>결측치: 지울 것인가 채울 것인가 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="800" height="460" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>결측치 처리 방법 선택 분기 — 결측 비율이 크면 컬럼 삭제, 그렇지 않으면 수치형은 평균이나 중앙값, 범주형은 최빈값으로 대체</title>
+  <defs>
+    <marker id="ch02ms-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="460" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">결측치 처리 방법 선택 분기</text>
+
+  
+  <polygon points="300,68 470,112 300,156 130,112" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="300" y="118" font-size="15" text-anchor="middle" fill="#1a2332">결측 비율이 매우 큰가?</text>
+
+  
+  <line x1="470" y1="112" x2="558" y2="112" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="514" y="103" font-size="12" text-anchor="middle" fill="#94a3b8">예</text>
+
+  <rect x="560" y="80" width="216" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="668" y="108" font-size="15" text-anchor="middle" fill="#1a2332">컬럼 삭제</text>
+  <text x="668" y="130" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">drop(columns=[...])</text>
+
+  
+  <line x1="300" y1="156" x2="300" y2="212" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="312" y="190" font-size="12" fill="#94a3b8">아니오</text>
+
+  
+  <polygon points="300,214 440,256 300,298 160,256" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+  <text x="300" y="262" font-size="15" text-anchor="middle" fill="#1a2332">수치형인가?</text>
+
+  
+  <line x1="440" y1="256" x2="538" y2="256" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="489" y="247" font-size="12" text-anchor="middle" fill="#94a3b8">예</text>
+
+  <rect x="540" y="224" width="236" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="658" y="252" font-size="15" text-anchor="middle" fill="#1a2332">평균 · 중앙값 대체</text>
+  <text x="658" y="274" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna(median)</text>
+
+  
+  <line x1="300" y1="298" x2="300" y2="342" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ms-arrow)"/>
+  <text x="312" y="326" font-size="12" fill="#94a3b8">아니오</text>
+
+  <rect x="182" y="344" width="236" height="64" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="300" y="372" font-size="15" text-anchor="middle" fill="#1a2332">최빈값 대체</text>
+  <text x="300" y="394" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fillna(mode()[0])</text>
+
+  <text x="24" y="436" font-size="12" fill="#94a3b8">실기 시험에서는 문항이 처리 방법을 직접 지정하는 경우가 대부분입니다.</text>
+</svg><figcaption>결측치 판단 분기</figcaption></figure>
+<pre><code class="language-python">df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+df['contract_type'] = df['contract_type'].fillna(df['contract_type'].mode()[0])
+</code></pre>
+<ul>
+<li>문항이 방법을 지정하면 그대로 따릅니다. 이상치가 있거나 치우친 분포는 중앙값이 안전합니다.</li>
+<li><code>fillna</code>는 새 Series를 반환하므로 반드시 다시 대입합니다. <code>mode()</code>는 Series를 반환하므로 <code>[0]</code>이 필요합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="이상치: IQR로 찾고 지시대로 처리 (2분)" aria-label="7 / 25"><div class="slide__inner"><h2>이상치: IQR로 찾고 지시대로 처리 (2분)</h2>
+<pre><code class="language-python">q1 = df['monthly_fee'].quantile(0.25)
+q3 = df['monthly_fee'].quantile(0.75)
+iqr = q3 - q1
+lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+
+outliers = df[(df['monthly_fee'] &lt; lower) | (df['monthly_fee'] &gt; upper)]
+print('이상치 개수:', len(outliers))
+df['monthly_fee'] = df['monthly_fee'].clip(lower, upper)
+</code></pre>
+<ul>
+<li><code>Q1 - 1.5*IQR</code> 미만, <code>Q3 + 1.5*IQR</code> 초과가 이상치입니다.</li>
+<li>"삭제하시오"인지 "경계값으로 대체하시오"인지 먼저 읽습니다. 삭제하면 바로 다음 줄에서 <code>reset_index(drop=True)</code>를 합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="인코딩: 문자열을 숫자로 (2분)" aria-label="8 / 25"><div class="slide__inner"><h2>인코딩: 문자열을 숫자로 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>라벨 인코딩과 원-핫 인코딩의 결과 차이 — 라벨 인코딩은 없던 크기 관계를 만들고, 원-핫 인코딩은 0과 1 컬럼으로 나누어 크기 오해가 없다</title>
+  <defs>
+    <marker id="ch02ec-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="520" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">라벨 인코딩과 원-핫 인코딩의 결과 차이</text>
+
+  
+  <text x="36" y="92" font-size="15" font-weight="bold" fill="#1a2332">원본 (문자열)</text>
+
+  <rect x="36" y="108" width="200" height="120" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <line x1="36" y1="138" x2="236" y2="138" stroke="#1a2332" stroke-width="2"/>
+  <line x1="36" y1="168" x2="236" y2="168" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="36" y1="198" x2="236" y2="198" stroke="#94a3b8" stroke-width="1"/>
+  <text x="136" y="128" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">contract_type</text>
+  <text x="136" y="159" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">month</text>
+  <text x="136" y="189" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">one_year</text>
+  <text x="136" y="219" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">two_year</text>
+
+  
+  <line x1="244" y1="168" x2="384" y2="168" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ec-arrow)"/>
+  <path d="M244,210 H300 V390 H384" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02ec-arrow)"/>
+
+  
+  <text x="390" y="92" font-size="15" font-weight="bold" fill="#dc2626">라벨 인코딩</text>
+
+  <rect x="390" y="108" width="170" height="120" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <line x1="390" y1="138" x2="560" y2="138" stroke="#1a2332" stroke-width="2"/>
+  <line x1="390" y1="168" x2="560" y2="168" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="390" y1="198" x2="560" y2="198" stroke="#94a3b8" stroke-width="1"/>
+  <text x="475" y="128" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">contract_type</text>
+  <text x="475" y="159" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="475" y="189" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="475" y="219" font-size="13" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">2</text>
+
+  <text x="390" y="254" font-size="12.5" fill="#dc2626">없던 크기 관계가 생김 — 0 &lt; 1 &lt; 2</text>
+
+  
+  <line x1="310" y1="282" x2="776" y2="282" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  
+  <text x="390" y="314" font-size="15" font-weight="bold" fill="#059669">원-핫 인코딩 — get_dummies</text>
+
+  <rect x="390" y="330" width="386" height="120" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <line x1="390" y1="360" x2="776" y2="360" stroke="#1a2332" stroke-width="2"/>
+  <line x1="390" y1="390" x2="776" y2="390" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="390" y1="420" x2="776" y2="420" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="519" y1="330" x2="519" y2="450" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="647" y1="330" x2="647" y2="450" stroke="#94a3b8" stroke-width="1"/>
+
+  <text x="454" y="350" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">_month</text>
+  <text x="583" y="350" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">_one_year</text>
+  <text x="712" y="350" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">_two_year</text>
+
+  <text x="454" y="381" font-size="13" text-anchor="middle" fill="#059669" font-weight="bold" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="583" y="381" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="712" y="381" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+
+  <text x="454" y="411" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="583" y="411" font-size="13" text-anchor="middle" fill="#059669" font-weight="bold" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+  <text x="712" y="411" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+
+  <text x="454" y="441" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="583" y="441" font-size="13" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">0</text>
+  <text x="712" y="441" font-size="13" text-anchor="middle" fill="#059669" font-weight="bold" font-family="'SFMono-Regular', Menlo, Consolas, monospace">1</text>
+
+  <text x="390" y="476" font-size="12.5" fill="#059669">크기 오해 없음 — 시험 기본 선택</text>
+  <text x="390" y="496" font-size="12" fill="#94a3b8">(열 이름의 contract_type 접두사는 생략해 표기)</text>
+</svg><figcaption>인코딩 비교</figcaption></figure>
+<pre><code class="language-python">df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+</code></pre>
+<ul>
+<li>순서 없는 범주는 원-핫이 기본입니다. 라벨 인코딩은 없던 크기 관계를 만듭니다.</li>
+<li><code>dtype=int</code>를 빼면 pandas 2.x 이상에서 True/False가 됩니다. <code>columns=[...]</code>를 빼면 문자 컬럼 전체가 변환됩니다.</li>
+</ul></div></section>
+<section class="slide" data-title="스케일링: 특성의 크기를 맞춘다 (1분)" aria-label="9 / 25"><div class="slide__inner"><h2>스케일링: 특성의 크기를 맞춘다 (1분)</h2>
+<table>
+<thead>
+<tr>
+<th>스케일러</th>
+<th>변환 결과</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StandardScaler</code></td>
+<td>평균 0, 표준편차 1</td>
+<td>지정이 없을 때의 기본 선택</td>
+</tr>
+<tr>
+<td><code>MinMaxScaler</code></td>
+<td>최소 0, 최대 1</td>
+<td>0~1 범위로 맞추라는 지시가 있을 때</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>딥러닝에서는 스케일링이 사실상 필수입니다. 크기가 다르면 학습이 느려지거나 손실이 발산할 수 있습니다.</li>
+<li>트리 계열 모델은 스케일링의 영향이 거의 없지만, 파이프라인을 하나로 통일해 두면 편합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="분리와 데이터 누수 (5분)" aria-label="10 / 25"><div class="slide__inner"><h2>분리와 데이터 누수 (5분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 430" width="800" height="430" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>스케일러 fit 시점과 데이터 누수 — 전체 데이터에 fit하면 누수가 생기고, 먼저 분리한 뒤 학습 데이터에만 fit_transform, 평가 데이터에는 transform만 해야 한다</title>
+  <defs>
+    <marker id="ch02sl-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="430" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">스케일러 fit 시점과 데이터 누수</text>
+
+  
+  <circle cx="34" cy="72" r="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <line x1="29.5" y1="67.5" x2="38.5" y2="76.5" stroke="#dc2626" stroke-width="2"/>
+  <line x1="38.5" y1="67.5" x2="29.5" y2="76.5" stroke="#dc2626" stroke-width="2"/>
+  <text x="52" y="78" font-size="15" font-weight="bold" fill="#dc2626">누수가 생기는 순서</text>
+
+  <rect x="60" y="96" width="170" height="64" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="145" y="133" font-size="15" text-anchor="middle" fill="#1a2332">전체 데이터</text>
+
+  <line x1="230" y1="128" x2="266" y2="128" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="268" y="96" width="252" height="64" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+  <text x="394" y="122" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#dc2626">전체 데이터로 fit</text>
+  <text x="394" y="146" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">scaler.fit_transform(X)</text>
+
+  <line x1="520" y1="128" x2="556" y2="128" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="558" y="96" width="218" height="64" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="667" y="122" font-size="14.5" text-anchor="middle" fill="#1a2332">그다음 분리</text>
+  <text x="667" y="146" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split(...)</text>
+
+  <text x="60" y="190" font-size="12.5" fill="#dc2626">평가 데이터의 평균 · 표준편차가 변환 규칙에 섞여 들어감 = 데이터 누수</text>
+
+  <line x1="24" y1="214" x2="776" y2="214" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+  
+  <circle cx="34" cy="246" r="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <path d="M29,246 L33,251 L40,241" fill="none" stroke="#059669" stroke-width="2"/>
+  <text x="52" y="252" font-size="15" font-weight="bold" fill="#059669">올바른 순서</text>
+
+  <rect x="60" y="268" width="170" height="64" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="145" y="305" font-size="15" text-anchor="middle" fill="#1a2332">전체 데이터</text>
+
+  <line x1="230" y1="300" x2="266" y2="300" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="268" y="268" width="218" height="64" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="377" y="294" font-size="14.5" font-weight="bold" text-anchor="middle" fill="#059669">먼저 분리</text>
+  <text x="377" y="318" font-size="12.5" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">train_test_split(...)</text>
+
+  <path d="M486,300 H514 V264 H554" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+  <path d="M486,300 H514 V336 H554" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02sl-arrow)"/>
+
+  <rect x="556" y="234" width="220" height="60" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="666" y="260" font-size="14" text-anchor="middle" fill="#1a2332">학습 데이터 — 계산 + 변환</text>
+  <text x="666" y="282" font-size="12.5" text-anchor="middle" fill="#059669" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fit_transform(X_train)</text>
+
+  <rect x="556" y="306" width="220" height="60" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+  <text x="666" y="332" font-size="14" text-anchor="middle" fill="#1a2332">평가 데이터 — 변환만</text>
+  <text x="666" y="354" font-size="12.5" text-anchor="middle" fill="#059669" font-family="'SFMono-Regular', Menlo, Consolas, monospace">transform(X_test)</text>
+
+  <text x="60" y="398" font-size="12.5" fill="#059669">학습 데이터에서 계산한 평균 · 표준편차만 사용 = 누수 없음</text>
+</svg><figcaption>분리 순서와 누수</figcaption></figure>
+<pre><code class="language-python">X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # 계산 + 변환
+X_test_scaled = scaler.transform(X_test)         # 변환만
+</code></pre>
+<ul>
+<li>인코딩은 분리 전, 스케일링은 분리 후입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="순서 규칙의 이유 (이어서)" aria-label="11 / 25"><div class="slide__inner"><h2>순서 규칙의 이유 (이어서)</h2>
+<ul>
+<li>인코딩을 분리 후에 따로 하면, 한쪽에만 있는 범주 때문에 컬럼 구성이 달라져 입력 shape이 어긋납니다.</li>
+<li>스케일링을 분리 전에 하면, 평가 데이터의 평균과 표준편차가 변환 기준에 섞입니다. 이것이 데이터 누수입니다.</li>
+<li>누수가 있어도 평가 점수는 오히려 좋아 보이므로 스스로 발견하기 어렵습니다.</li>
+<li><code>test_size</code>는 평가 몫입니다. 8:2는 0.2, 7:3은 0.3입니다.</li>
+<li><code>stratify=y</code>는 클래스 비율을 학습과 평가에 똑같이 유지합니다. 회귀에는 쓰지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="머신러닝 3줄 패턴과 딥러닝 4단계 (2분)" aria-label="12 / 25"><div class="slide__inner"><h2>머신러닝 3줄 패턴과 딥러닝 4단계 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 510" width="800" height="510" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <title>머신러닝 3줄 패턴과 딥러닝 4단계 패턴 — 같은 입력 데이터에서 sklearn은 생성, 학습, 예측 세 단계, Keras는 구성, 컴파일, 학습, 평가 네 단계로 갈린다</title>
+  <defs>
+    <marker id="ch02md-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a2332"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="510" fill="#ffffff"/>
+
+  <text x="24" y="40" font-size="20" font-weight="bold" fill="#1a2332">머신러닝 3줄 패턴과 딥러닝 4단계 패턴</text>
+
+  
+  <rect x="250" y="66" width="300" height="56" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="400" y="90" font-size="14" text-anchor="middle" fill="#1a2332">공통 입력 데이터</text>
+  <text x="400" y="112" font-size="12.5" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">X_train_scaled, y_train</text>
+
+  <path d="M400,122 V146 H60 V202" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02md-arrow)"/>
+  <path d="M400,122 V146 H740 V202" fill="none" stroke="#1a2332" stroke-width="2" marker-end="url(#ch02md-arrow)"/>
+
+  <text x="78" y="190" font-size="15" font-weight="bold" fill="#1a2332">머신러닝 (sklearn) — 3줄</text>
+  <text x="722" y="190" font-size="15" font-weight="bold" text-anchor="end" fill="#2563eb">딥러닝 (Keras) — 4단계</text>
+
+  
+  <rect x="48" y="204" width="284" height="54" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="190" y="228" font-size="14.5" text-anchor="middle" fill="#1a2332">모델 생성</text>
+  <text x="190" y="248" font-size="12" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">RandomForestClassifier(...)</text>
+
+  <rect x="468" y="204" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="228" font-size="14.5" text-anchor="middle" fill="#1a2332">구성</text>
+  <text x="610" y="248" font-size="12" text-anchor="middle" fill="#1a2332">층을 쌓는다</text>
+  <text x="742" y="220" font-size="11.5" text-anchor="end" fill="#2563eb">Ch04</text>
+
+  <circle cx="400" cy="231" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="236" font-size="13" text-anchor="middle" fill="#94a3b8">1</text>
+
+  
+  <rect x="48" y="268" width="284" height="54" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="190" y="300" font-size="14" text-anchor="middle" fill="#94a3b8">해당 없음</text>
+
+  <rect x="468" y="268" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="292" font-size="14.5" text-anchor="middle" fill="#1a2332">컴파일</text>
+  <text x="610" y="312" font-size="12" text-anchor="middle" fill="#1a2332">optimizer · 손실 함수 · metrics</text>
+  <text x="742" y="284" font-size="11.5" text-anchor="end" fill="#2563eb">Ch05</text>
+
+  <circle cx="400" cy="295" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="300" font-size="13" text-anchor="middle" fill="#94a3b8">2</text>
+
+  
+  <rect x="48" y="332" width="284" height="54" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="190" y="356" font-size="14.5" text-anchor="middle" fill="#1a2332">학습</text>
+  <text x="190" y="376" font-size="12" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.fit(X_train_scaled, y_train)</text>
+
+  <rect x="468" y="332" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="356" font-size="14.5" text-anchor="middle" fill="#1a2332">학습</text>
+  <text x="610" y="376" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">fit(epochs, batch_size)</text>
+  <text x="742" y="348" font-size="11.5" text-anchor="end" fill="#2563eb">Ch05</text>
+
+  <circle cx="400" cy="359" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="364" font-size="13" text-anchor="middle" fill="#94a3b8">3</text>
+
+  
+  <rect x="48" y="396" width="284" height="54" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+  <text x="190" y="420" font-size="14.5" text-anchor="middle" fill="#1a2332">예측</text>
+  <text x="190" y="440" font-size="12" text-anchor="middle" fill="#94a3b8" font-family="'SFMono-Regular', Menlo, Consolas, monospace">model.predict(X_test_scaled)</text>
+
+  <rect x="468" y="396" width="284" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="610" y="420" font-size="14.5" text-anchor="middle" fill="#1a2332">평가 · 예측</text>
+  <text x="610" y="440" font-size="12" text-anchor="middle" fill="#1a2332" font-family="'SFMono-Regular', Menlo, Consolas, monospace">evaluate, predict</text>
+  <text x="742" y="412" font-size="11.5" text-anchor="end" fill="#2563eb">Ch07</text>
+
+  <circle cx="400" cy="423" r="15" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="400" y="428" font-size="13" text-anchor="middle" fill="#94a3b8">4</text>
+
+  <text x="24" y="484" font-size="12.5" fill="#94a3b8">딥러닝은 머신러닝에 구성과 컴파일 두 단계가 더 붙습니다 — 실제 코드는 Ch04부터 작성합니다.</text>
+</svg><figcaption>머신러닝과 딥러닝 비교</figcaption></figure>
+<ul>
+<li>sklearn: 생성, <code>fit</code>, <code>predict</code></li>
+<li>Keras: 구성(Ch04), 컴파일(Ch05), 학습(Ch05), 평가·예측(Ch07)</li>
+<li>베이스라인의 목적은 최고 성능이 아니라 기준선입니다. 딥러닝 점수가 터무니없이 낮으면 전처리나 설정을 의심합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="평가지표 지도 (1분)" aria-label="13 / 25"><div class="slide__inner"><h2>평가지표 지도 (1분)</h2>
+<table>
+<thead>
+<tr>
+<th>문제 유형</th>
+<th>대표 지표</th>
+<th>sklearn 함수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>분류</td>
+<td>accuracy, precision, recall, f1</td>
+<td><code>classification_report</code>, <code>accuracy_score</code></td>
+</tr>
+<tr>
+<td>분류 (예측 분포)</td>
+<td>혼동 행렬</td>
+<td><code>confusion_matrix</code></td>
+</tr>
+<tr>
+<td>회귀</td>
+<td>mse, mae, r2</td>
+<td><code>mean_squared_error</code>, <code>mean_absolute_error</code>, <code>r2_score</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>지표는 타깃 컬럼의 성질이 정합니다. 0/1이면 분류, 연속된 숫자면 회귀입니다.</li>
+<li>불균형 데이터에서는 정확도만 보지 않고 클래스별 precision과 recall을 함께 봅니다.</li>
+<li>자세한 계산과 해석은 7회차(Ch07)에서 다룹니다.</li>
+</ul></div></section>
+<section class="slide" data-title="10번에서 11번으로: 데이터 인계 문제 (4분)" aria-label="14 / 25"><div class="slide__inner"><h2>10번에서 11번으로: 데이터 인계 문제 (4분)</h2>
+<p>sklearn은 관대해서 10번까지 통과한 데이터가 Keras에서 거부될 수 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>inconsistent numbers of samples</code>, 이유 모를 <code>NaN</code></td>
+<td>행 삭제 뒤 인덱스가 건너뜀</td>
+<td>삭제 직후 <code>reset_index(drop=True)</code>, 같은 <code>df</code>에서 X, y 생성</td>
+</tr>
+<tr>
+<td><code>Invalid dtype: object</code></td>
+<td><code>bool</code>이 섞인 <code>to_numpy()</code>, 문자열 컬럼 인코딩 누락</td>
+<td><code>get_dummies(..., dtype=int)</code>, <code>X.astype('float32')</code></td>
+</tr>
+<tr>
+<td>정확도가 이상함, <code>(N, N)</code></td>
+<td><code>(N, 1)</code>과 <code>(N,)</code> 방송</td>
+<td><code>.ravel()</code>, 라벨 모양과 loss 이름 짝 맞추기</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="모델 구성 전 5줄 점검 셀 (이어서)" aria-label="15 / 25"><div class="slide__inner"><h2>모델 구성 전 5줄 점검 셀 (이어서)</h2>
+<pre><code class="language-python">print(X_train_scaled.shape, y_train.shape, X_train_scaled.dtype)
+print(np.isnan(X_train_scaled).sum(), np.isnan(X_test_scaled).sum())
+print(len(X_train_scaled) == len(y_train), len(X_test_scaled) == len(y_test))
+print(X_train.index.equals(y_train.index), y_train.ndim)
+print(y_train.nunique(), sorted(y_train.unique().tolist()))
+</code></pre>
+<ul>
+<li>5번의 클래스 수가 2이면 <code>Dense(1, 'sigmoid')</code>, 3 이상이면 <code>Dense(K, 'softmax')</code>, 연속값이면 <code>Dense(1)</code>입니다.</li>
+<li>11번 첫 셀은 모델 구성이 아니라 이 점검 셀로 시작합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="자주 틀리는 지점 (2분)" aria-label="16 / 25"><div class="slide__inner"><h2>자주 틀리는 지점 (2분)</h2>
+<ul>
+<li><code>df['col'].fillna(...)</code>의 결과를 다시 대입하지 않으면 결측이 그대로 남습니다.</li>
+<li>전체 <code>X</code>에 <code>fit_transform</code>한 뒤 분리하면 누수입니다. 오류가 나지 않아 발견하기 어렵습니다.</li>
+<li>올바른 코드에서도 평가 데이터의 스케일 결과가 0보다 작거나 1보다 클 수 있습니다. 오류가 아니므로 고치려다 누수를 만들지 않습니다.</li>
+<li>결측 처리 없이 스케일링하면 <code>NaN</code>이 조용히 남아 딥러닝에서 <code>loss: nan</code>이 됩니다. 스케일링 직후 <code>np.isnan(...).sum()</code>이 0인지 봅니다.</li>
+<li><code>stratify</code>에는 <code>y_train</code>이 아니라 분리 대상 전체 <code>y</code>를 넣습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 1 — 데이터 준비 순서 (3분)" aria-label="17 / 25"><div class="slide__inner"><h2>함께 풀기 1 — 데이터 준비 순서 (3분)</h2>
+<p>발표자는 사이트의 2장 실습 셀 <code>ch02-q1</code>을 띄우고 함께 풉니다.
+<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch02.html#drills-ch02">https://newids.github.io/dl4aice/ch02.html#drills-ch02</a></p>
+<p>문제: 인코딩 후 분리하고, 학습 데이터는 계산 + 변환, 평가 데이터는 변환만 하는 순서의 빈칸을 채웁니다. (데이터 생성 코드는 사이트에 있습니다.)</p>
+<pre><code class="language-python">df_enc = pd.___(df, columns=['contract_type'], dtype=int)
+X = df_enc.drop(columns=['churn'])
+y = df_enc['churn']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+scaler = StandardScaler()
+X_train_scaled = scaler.___(X_train)
+X_test_scaled = scaler.___(X_test)
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유" aria-label="18 / 25"><div class="slide__inner"><h2>함께 풀기 — 답과 이유</h2>
+<pre><code class="language-python">df_enc = pd.get_dummies(df, columns=['contract_type'], dtype=int)
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+</code></pre>
+<ul>
+<li>인코딩은 분리 전에, 스케일러의 <code>fit</code>은 학습 데이터에서만 합니다.</li>
+<li>평가 데이터에 <code>fit_transform</code>을 쓰면 평가 데이터의 통계가 변환 기준에 섞입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 2 — 오류 2곳 고치기 (3분)" aria-label="19 / 25"><div class="slide__inner"><h2>함께 풀기 2 — 오류 2곳 고치기 (3분)</h2>
+<p>실습 셀 <code>ch02-q6</code>을 띄워 함께 풉니다. (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch02.html#drills-ch02">https://newids.github.io/dl4aice/ch02.html#drills-ch02</a>)</p>
+<p>문제: 오류 없이 실행되지만, 결측이 그대로 남고 평가 데이터의 클래스 비율이 원본과 어긋납니다. 두 곳을 고칩니다. 소수 클래스는 10%입니다.</p>
+<pre><code class="language-python">___ = df['monthly_fee'].fillna(df['monthly_fee'].median())
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, ___=y)
+
+print(df['monthly_fee'].isnull().sum())
+print(y_test.value_counts(normalize=True).round(3).to_dict())
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유" aria-label="20 / 25"><div class="slide__inner"><h2>함께 풀기 — 답과 이유</h2>
+<pre><code class="language-python">df['monthly_fee'] = df['monthly_fee'].fillna(df['monthly_fee'].median())
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+</code></pre>
+<ul>
+<li><code>fillna</code>는 원본을 바꾸지 않으므로 좌변에 <code>df['monthly_fee']</code>를 다시 대입해야 결측 개수가 0이 됩니다.</li>
+<li>분류에서 클래스가 불균형하면 <code>stratify=y</code>가 없을 때 평가 데이터의 비율이 어긋날 수 있습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="정리 (2분)" aria-label="21 / 25"><div class="slide__inner"><h2>정리 (2분)</h2>
+<ul>
+<li>순서: 읽기, 탐색, 결측·이상치, 인코딩, 분리, 스케일링, 모델링.</li>
+<li>인코딩은 분리 전, 스케일링은 분리 후이며 <code>fit_transform</code>은 학습 데이터에만 씁니다.</li>
+<li><code>fillna</code> 결과는 다시 대입하고, <code>get_dummies</code>에는 <code>columns</code>와 <code>dtype=int</code>를 씁니다.</li>
+<li>분리 인자는 <code>test_size</code>, <code>random_state</code>, <code>stratify=y</code> 세 가지입니다.</li>
+<li>딥러닝 전에는 shape, NaN, dtype, 인덱스, 클래스 수를 5줄로 점검합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="다음 회차 준비" aria-label="22 / 25"><div class="slide__inner"><h2>다음 회차 준비</h2>
+<ul>
+<li>3회차: 3장 "딥러닝은 어떻게 배우는가". Keras 없이 numpy만 사용합니다.</li>
+<li>3장을 읽고 실습 셀 5문항(<code>#drills-ch03</code>)을 풀어 옵니다.</li>
+<li>뉴런의 계산(가중합 + 편향 → 활성화)을 손으로 한 번 따라 써 옵니다.</li>
+<li>오늘 막힌 문항이 있으면 질의응답 때 가져옵니다.</li>
+</ul></div></section>
+<section class="slide" data-title="토론 질문" aria-label="23 / 25"><div class="slide__inner"><h2>토론 질문</h2>
+<ol>
+<li>결측이 매우 많은 컬럼을 버릴 것인가 채울 것인가? 교재는 "압도적으로 많으면 버린다"고만 하는데, 자기 기준은 어디입니까?</li>
+<li>지시가 없을 때 이상치를 삭제하겠습니까, 경계값으로 대체하겠습니까? 뒤 문항에 미치는 영향은 무엇입니까?</li>
+<li>10번과 11번 사이의 5줄 점검 셀을 90분 안에서 어디에 놓고 얼마나 할애하겠습니까?</li>
+</ol></div></section>
+<section class="slide" data-title="예상 질문과 답 (1)" aria-label="24 / 25"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
+<p><strong>Q1.</strong> 평균과 중앙값 중 어느 것으로 채웁니까?
+답: 실기에서는 대체로 문항이 통계량을 지정하므로 지시된 것을 씁니다. 지시가 없으면 분포가 치우쳤거나 이상치가 있을 때 평균이 끌려가므로 중앙값이 안전합니다.</p>
+<p><strong>Q2.</strong> 라벨 인코딩과 원-핫 인코딩은 언제 구분해서 씁니까?
+답: 순서가 있는 범주(저, 중, 고)는 라벨 인코딩이 자연스럽고, 순서가 없는 범주는 원-핫이 맞습니다. 시험에서는 <code>pd.get_dummies</code>가 압도적으로 자주 요구됩니다.</p>
+<p><strong>Q3.</strong> 인코딩은 분리 전, 스케일링은 분리 후인 이유가 무엇입니까?
+답: 분리 후 각각 인코딩하면 한쪽에만 있는 범주 때문에 컬럼 구성이 어긋납니다. 스케일링은 평균과 표준편차를 계산하는 <code>fit</code>이 평가 데이터를 보면 누수가 되므로 학습 데이터로만 합니다.</p></div></section>
+<section class="slide" data-title="예상 질문과 답 (2)" aria-label="25 / 25"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
+<p><strong>Q4.</strong> 평가 데이터를 변환했더니 평균이 0이 아니고 값이 0~1을 벗어납니다. 잘못된 것입니까?
+답: 정상입니다. 평가 데이터는 학습 데이터의 기준을 빌려 변환되므로 0 근처의 값으로 흩어지거나 <code>MinMaxScaler</code>에서 범위를 벗어날 수 있습니다. 오히려 평균이 정확히 0이면 누수를 의심합니다.</p>
+<p><strong>Q5.</strong> <code>stratify</code>는 항상 씁니까?
+답: 분류 문제에서 클래스 비율을 유지하려는 지시가 있거나 클래스가 불균형할 때 씁니다. 연속형 타깃인 회귀에는 클래스가 없어 오류가 나므로 쓰지 않습니다.</p>
+<p><strong>Q6.</strong> 정확도만 보면 안 됩니까?
+답: 이탈 고객이 10%라면 전부 "이탈 아님"으로 찍어도 정확도가 90%입니다. 그래서 <code>classification_report</code>로 클래스별 precision과 recall을 함께 봅니다.</p>
+<p><strong>Q7.</strong> 랜덤 포레스트는 스케일링이 필요 없다는데 왜 합니까?
+답: 트리 계열은 값의 순서만 보므로 성능 영향이 거의 없습니다. 다만 같은 입력을 딥러닝 문항에도 이어서 쓰므로 파이프라인을 하나로 통일해 두면 다시 손댈 일이 없습니다.</p></div></section>
+</main>
+<div class="meter" aria-hidden="true"><span></span></div>
+<nav class="bar" aria-label="슬라이드 이동">
+<a class="btn" href="index.html" title="회차 목록">회차</a>
+<button class="btn" type="button" data-overview title="슬라이드 목록 (O)">목록</button>
+<span class="bar__title"></span>
+<span class="bar__time" title="발표 타이머 — 두 번 누르면 0으로 (R)"></span>
+<button class="btn" type="button" data-theme-toggle title="밝게/어둡게 (T)">명암</button>
+<button class="btn" type="button" data-full title="전체 화면 (F)">전체</button>
+<button class="btn" type="button" data-prev aria-label="이전 슬라이드">&#8592;</button>
+<span class="bar__count"></span>
+<button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
+</nav>
+<div class="ov" role="dialog" aria-label="슬라이드 목록">
+<div class="ov__head"><h2>2회차 — 전제 지식 압축 정리: 데이터 준비와 머신러닝</h2><span><a class="btn" href="01-ch01.html" title="이전 회차">이전 회차</a> <a class="btn" href="03-ch03.html" title="다음 회차">다음 회차</a> <button class="btn" type="button" data-close>닫기</button></span></div>
+<ol class="ov__grid">
+<li><button class="ov__item" type="button"><span class="ov__no">1</span><span>2회차 — 전제 지식 압축 정리: 데이터 준비와 머신러닝</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">4</span><span>데이터 준비는 다섯 단계 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>먼저 데이터를 본다: 탐색과 시각화 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">6</span><span>결측치: 지울 것인가 채울 것인가 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">7</span><span>이상치: IQR로 찾고 지시대로 처리 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">8</span><span>인코딩: 문자열을 숫자로 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>스케일링: 특성의 크기를 맞춘다 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>분리와 데이터 누수 (5분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>순서 규칙의 이유 (이어서)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">12</span><span>머신러닝 3줄 패턴과 딥러닝 4단계 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>평가지표 지도 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">14</span><span>10번에서 11번으로: 데이터 인계 문제 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">15</span><span>모델 구성 전 5줄 점검 셀 (이어서)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">16</span><span>자주 틀리는 지점 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">17</span><span>함께 풀기 1 — 데이터 준비 순서 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">18</span><span>함께 풀기 — 답과 이유</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">19</span><span>함께 풀기 2 — 오류 2곳 고치기 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">20</span><span>함께 풀기 — 답과 이유</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">21</span><span>정리 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">22</span><span>다음 회차 준비</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">23</span><span>토론 질문</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">24</span><span>예상 질문과 답 (1)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">25</span><span>예상 질문과 답 (2)</span></button></li>
+</ol>
+<p class="help"><kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>Home</kbd> <kbd>End</kbd> 처음/끝 · <kbd>O</kbd> 목록 · <kbd>F</kbd> 전체 화면 · <kbd>T</kbd> 명암 · <kbd>R</kbd> 타이머 초기화 · 인쇄하면 한 장에 한 슬라이드씩 PDF로 저장됩니다.</p>
+</div>
+<script>/* dl4aice v2 — dl4aice-core.js
+ * 모든 v2 위젯이 공유하는 최소 런타임: 데이터 로더, localStorage 저장소, 진도 기록,
+ * 토스트, 파이썬 코드 하이라이터, 클립보드, 라이트/다크 테마.
+ * 외부 의존성 없음. file:// 로 열어도 동작하도록 데이터는 assets/data/*.js 래퍼
+ * (window.DL4AICE_DATA)에서 먼저 찾고, 없을 때만 fetch 로 JSON 을 읽는다.
+ */
+(function () {
+  "use strict";
+
+  var NS = "dl4aice.v2.";
+  var D = (window.DL4AICE = window.DL4AICE || {});
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* 문제 지문용 미니 마크업: `code`, **굵게**, 빈 줄 = 문단, 줄바꿈 = <br>, "- " 목록 */
+  function richText(text) {
+    var source = String(text == null ? "" : text).replace(/\r\n?/g, "\n");
+    /* ```코드 펜스``` 는 먼저 떼어 내어 코드 블록으로 렌더링한다 */
+    var fences = [];
+    source = source.replace(/```[a-zA-Z]*\n([\s\S]*?)\n?```/g, function (_, code) {
+      fences.push(code);
+      return "\n\n\u0000FENCE" + (fences.length - 1) + "\u0000\n\n";
+    });
+    var blocks = source.split(/\n{2,}/).filter(function (b) { return b.trim() !== ""; });
+    return blocks
+      .map(function (block) {
+        var fence = /^\u0000FENCE(\d+)\u0000$/.exec(block.trim());
+        if (fence) {
+          return '<pre class="v2-code"><code>' + highlight(fences[Number(fence[1])]) + "</code></pre>";
+        }
+        var lines = block.split("\n");
+        var inline = function (line) {
+          return escapeHtml(line)
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        };
+        if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+          return "<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*[-•]\s+/, "")) + "</li>"; }).join("") + "</ul>";
+        }
+        if (lines.every(function (l) { return /^\s*\d+[.)]\s+/.test(l); })) {
+          return "<ol>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>"; }).join("") + "</ol>";
+        }
+        return "<p>" + lines.map(inline).join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
+  var CONSTANTS = /^(?:True|False|None|self|cls)$/;
+  var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+
+  function tok(cls, text) {
+    return '<span class="v2-tok-' + cls + '">' + text + "</span>";
+  }
+
+  /* 파이썬 코드 -> 에디터식으로 색을 입힌 HTML (이스케이프 포함).
+     주석·문자열·숫자·키워드·상수·내장 함수·함수 호출·클래스·키워드 인자·데코레이터·연산자를 구분한다. */
+  function highlight(code) {
+    var src = String(code == null ? "" : code);
+    var out = "";
+    var last = 0;
+    var depth = 0;
+    var prevWord = "";
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(src))) {
+      var gap = src.slice(last, m.index);
+      for (var i = 0; i < gap.length; i++) {
+        if (gap[i] === "(" || gap[i] === "[" || gap[i] === "{") depth++;
+        else if (gap[i] === ")" || gap[i] === "]" || gap[i] === "}") depth = Math.max(0, depth - 1);
+      }
+      out += escapeHtml(gap);
+      var text = escapeHtml(m[0]);
+      var end = TOKEN_RE.lastIndex;
+      if (m[1]) out += tok("com", text);
+      else if (m[2]) out += tok("str", text);
+      else if (m[3]) out += tok("num", text);
+      else if (m[4]) out += tok("blank", text);
+      else if (m[5]) out += tok("dec", text);
+      else if (m[6]) {
+        var word = m[6];
+        var next = src[end];
+        var rest = src.slice(end, end + 3);
+        if (KEYWORDS.test(word)) out += tok("kw", text);
+        else if (CONSTANTS.test(word)) out += tok("const", text);
+        else if (prevWord === "def") out += tok("fn", text);
+        else if (prevWord === "class") out += tok("cls", text);
+        else if (next === "(") {
+          if (BUILTINS.test(word)) out += tok("builtin", text);
+          else if (/^[A-Z]/.test(word)) out += tok("cls", text);
+          else out += tok("fn", text);
+        } else if (depth > 0 && /^\s*=(?!=)/.test(rest)) out += tok("param", text);
+        else if (prevWord === "import" || prevWord === "from" || prevWord === "as") out += tok("mod", text);
+        else out += text;
+        prevWord = word;
+      } else out += tok("op", text);
+      if (!m[6] && !m[7]) prevWord = "";
+      last = end;
+    }
+    return out + escapeHtml(src.slice(last));
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === false || value == null) return;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key.slice(0, 2) === "on" && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (Array.isArray(children) ? children : children == null ? [] : [children]).forEach(function (child) {
+      if (child == null || child === false) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  /* ---------- 저장소 ---------- */
+  var memory = {};
+  var store = {
+    get: function (key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(NS + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : fallback;
+      }
+    },
+    set: function (key, value) {
+      memory[key] = value;
+      try {
+        window.localStorage.setItem(NS + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      delete memory[key];
+      try { window.localStorage.removeItem(NS + key); } catch (e) { /* 저장소 사용 불가 */ }
+    }
+  };
+
+  /* ---------- 진도 ---------- */
+  function readProgress() {
+    var p = store.get("progress", null) || {};
+    p.drills = p.drills || {};
+    p.mocks = p.mocks || {};
+    return p;
+  }
+
+  function announce() {
+    try {
+      document.dispatchEvent(new CustomEvent("dl4aice:progress", { detail: readProgress() }));
+    } catch (e) { /* 구형 브라우저 */ }
+  }
+
+  var progress = {
+    read: readProgress,
+    /* 챕터 실습 문항 통과 기록. questionId 예: "ch04-q3" */
+    markDrill: function (questionId, passed) {
+      var p = readProgress();
+      var prev = p.drills[questionId] || { attempts: 0, ok: false };
+      p.drills[questionId] = {
+        ok: prev.ok || !!passed,
+        attempts: (prev.attempts || 0) + 1,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.drills[questionId];
+    },
+    isDrillDone: function (questionId) {
+      var rec = readProgress().drills[questionId];
+      return !!(rec && rec.ok);
+    },
+    /* chapterKey 예: "ch04". questionIds 는 그 챕터 문항 id 배열 */
+    chapterStats: function (questionIds) {
+      var p = readProgress();
+      var done = (questionIds || []).filter(function (id) { return p.drills[id] && p.drills[id].ok; }).length;
+      var total = (questionIds || []).length;
+      return { done: done, total: total, percent: total ? Math.round((done / total) * 100) : 0 };
+    },
+    /* 모의고사 채점 결과 기록. detail = { parts: {preprocess:{earned,max},...}, elapsedSec } */
+    recordMock: function (mockId, score, detail) {
+      var p = readProgress();
+      var prev = p.mocks[mockId] || { best: 0, attempts: 0 };
+      p.mocks[mockId] = {
+        best: Math.max(prev.best || 0, score),
+        last: score,
+        attempts: (prev.attempts || 0) + 1,
+        detail: detail || null,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.mocks[mockId];
+    },
+    mock: function (mockId) {
+      return readProgress().mocks[mockId] || null;
+    },
+    reset: function () {
+      store.remove("progress");
+      announce();
+    }
+  };
+
+  /* ---------- 데이터 로더 ---------- */
+  var pending = {};
+  function data(name) {
+    var bag = window.DL4AICE_DATA || {};
+    if (bag[name]) return Promise.resolve(bag[name]);
+    if (!pending[name]) {
+      pending[name] = fetch("assets/data/" + name + ".json")
+        .then(function (res) {
+          if (!res.ok) throw new Error(name + ".json " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          (window.DL4AICE_DATA = window.DL4AICE_DATA || {})[name] = json;
+          return json;
+        });
+    }
+    return pending[name];
+  }
+
+  /* ---------- 토스트 ---------- */
+  function toastHost() {
+    var host = document.querySelector(".v2-toasts");
+    if (!host) {
+      host = el("div", { class: "v2-toasts", role: "status", "aria-live": "polite" });
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  /* toast("메시지", { type: "ok" | "err" | "info", title, timeout(ms), html }) */
+  function toast(message, opts) {
+    opts = opts || {};
+    var type = opts.type || "info";
+    var node = el("div", { class: "v2-toast v2-toast--" + type }, [
+      opts.title ? el("strong", { class: "v2-toast__title", text: opts.title }) : null,
+      opts.html ? el("div", { class: "v2-toast__body", html: message }) : el("div", { class: "v2-toast__body", text: message }),
+      el("button", { class: "v2-toast__close", type: "button", "aria-label": "닫기", text: "×", onclick: function () { dismiss(); } })
+    ]);
+    var timer = null;
+    function dismiss() {
+      if (timer) clearTimeout(timer);
+      if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    var host = toastHost();
+    while (host.children.length >= 3) host.removeChild(host.firstChild);
+    host.appendChild(node);
+    var timeout = opts.timeout === undefined ? (type === "err" ? 9000 : 4500) : opts.timeout;
+    if (timeout > 0) timer = setTimeout(dismiss, timeout);
+    return dismiss;
+  }
+
+  /* ---------- 클립보드 ---------- */
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var area = el("textarea", { class: "v2-sr-only", "aria-hidden": "true" });
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  /* ---------- 테마 ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+    var btn = document.querySelector(".v2-theme-toggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+  }
+
+  var theme = {
+    get: function () { return store.get("theme", "light"); },
+    set: function (value) { store.set("theme", value); applyTheme(value); },
+    toggle: function () { theme.set(theme.get() === "dark" ? "light" : "dark"); }
+  };
+
+  /* 깜빡임 방지: 스크립트 로드 즉시 적용 */
+  applyTheme(theme.get());
+
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function () {
+    var masthead = document.querySelector(".masthead");
+    if (masthead && !masthead.querySelector(".v2-theme-toggle")) {
+      var tools = masthead.querySelector(".masthead__tools");
+      if (!tools) {
+        tools = el("span", { class: "masthead__tools" });
+        var toc = masthead.querySelector(".masthead__toc");
+        masthead.appendChild(tools);
+        if (toc) tools.appendChild(toc);
+      }
+      tools.insertBefore(
+        el("button", { class: "v2-theme-toggle", type: "button", onclick: function () { theme.toggle(); } }),
+        tools.firstChild
+      );
+    }
+    applyTheme(theme.get());
+  });
+
+  /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
+  function revealHashTarget() {
+    var id = decodeURIComponent((window.location.hash || "").slice(1));
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    var opened = false;
+    for (var node = target.parentElement; node; node = node.parentElement) {
+      if (node.tagName === "DETAILS" && !node.open) { node.open = true; opened = true; }
+    }
+    if (opened) target.scrollIntoView();
+  }
+  ready(revealHashTarget);
+  window.addEventListener("hashchange", revealHashTarget);
+
+  D.escapeHtml = escapeHtml;
+  D.richText = richText;
+  D.highlight = highlight;
+  D.el = el;
+  D.store = store;
+  D.progress = progress;
+  D.data = data;
+  D.toast = toast;
+  D.copy = copy;
+  D.theme = theme;
+  D.ready = ready;
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DL4AICE || {};
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = slides.length;
+  var current = 0;
+  var bar = document.querySelector(".bar");
+  var countEl = bar.querySelector(".bar__count");
+  var titleEl = bar.querySelector(".bar__title");
+  var timeEl = bar.querySelector(".bar__time");
+  var meter = document.querySelector(".meter span");
+  var prev = bar.querySelector("[data-prev]");
+  var next = bar.querySelector("[data-next]");
+  var overview = document.querySelector(".ov");
+  var planned = Number(document.body.getAttribute("data-minutes")) || 35;
+
+  /* 파이썬 코드 색 입히기 (교재와 같은 배색) */
+  if (D.highlight) {
+    Array.prototype.forEach.call(document.querySelectorAll("pre > code.language-python"), function (code) {
+      code.innerHTML = D.highlight(code.textContent).replace(/class="v2-tok-/g, 'class="tok-');
+    });
+  }
+
+  /* 내용이 넘치면 글자를 조금 줄여 한 장에 맞춘다 */
+  function fit(slide) {
+    var inner = slide.querySelector(".slide__inner");
+    var scale = 1;
+    var fig = 1;
+    inner.style.setProperty("--scale", "1");
+    inner.style.setProperty("--fig", "1");
+    /* 먼저 도해를 줄이고(글자는 읽기 좋은 크기로 유지), 그래도 넘치면 글자를 줄인다 */
+    while (inner.scrollHeight > inner.clientHeight + 2 && (fig > 0.5 || scale > 0.56)) {
+      if (fig > 0.5 && (fig > scale - 0.1 || scale <= 0.56)) fig -= 0.05;
+      else scale -= 0.03;
+      inner.style.setProperty("--fig", fig.toFixed(2));
+      inner.style.setProperty("--scale", scale.toFixed(2));
+    }
+  }
+
+  function show(index, replace) {
+    current = Math.max(0, Math.min(count - 1, index));
+    slides.forEach(function (s, i) { s.classList.toggle("is-current", i === current); });
+    fit(slides[current]);
+    countEl.textContent = current + 1 + " / " + count;
+    titleEl.textContent = slides[current].getAttribute("data-title");
+    meter.style.width = ((current + 1) / count) * 100 + "%";
+    prev.disabled = current === 0;
+    next.disabled = current === count - 1;
+    Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+      item.setAttribute("aria-current", i === current ? "true" : "false");
+    });
+    var hash = "#" + (current + 1);
+    if (replace) history.replaceState(null, "", hash); else if (location.hash !== hash) history.pushState(null, "", hash);
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isFinite(n) ? n - 1 : 0;
+  }
+
+  /* 발표 타이머: 처음 넘길 때 시작, 계획 시간을 넘기면 색으로 알린다 */
+  var startedAt = null;
+  var timer = null;
+  function tick() {
+    var sec = Math.floor((Date.now() - startedAt) / 1000);
+    var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+    var ss = String(sec % 60).padStart(2, "0");
+    timeEl.innerHTML = "<strong>" + mm + ":" + ss + "</strong> / " + planned + "분";
+    timeEl.classList.toggle("is-over", sec > planned * 60);
+  }
+  function startTimer() {
+    if (startedAt) return;
+    startedAt = Date.now();
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    startedAt = null;
+    timeEl.innerHTML = "<strong>00:00</strong> / " + planned + "분";
+    timeEl.classList.remove("is-over");
+  }
+
+  function go(delta) { startTimer(); show(current + delta); }
+  function toggleOverview(open) {
+    var willOpen = open === undefined ? !overview.classList.contains("is-open") : open;
+    overview.classList.toggle("is-open", willOpen);
+    if (willOpen) { var cur = overview.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
+  }
+  function toggleTheme() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("dl4aice.v2.theme", JSON.stringify(dark ? "light" : "dark")); } catch (e) { /* 저장 불가 */ }
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  }
+
+  prev.addEventListener("click", function () { go(-1); });
+  next.addEventListener("click", function () { go(1); });
+  bar.querySelector("[data-overview]").addEventListener("click", function () { toggleOverview(); });
+  bar.querySelector("[data-theme-toggle]").addEventListener("click", toggleTheme);
+  bar.querySelector("[data-full]").addEventListener("click", toggleFullscreen);
+  timeEl.addEventListener("dblclick", resetTimer);
+  overview.querySelector("[data-close]").addEventListener("click", function () { toggleOverview(false); });
+  Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+    item.addEventListener("click", function () { show(i); toggleOverview(false); });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var key = event.key;
+    if (overview.classList.contains("is-open")) {
+      if (key === "Escape" || key === "o" || key === "O") { toggleOverview(false); event.preventDefault(); }
+      return;
+    }
+    if (key === "ArrowRight" || key === "PageDown" || key === " " || key === "Enter") { go(1); event.preventDefault(); }
+    else if (key === "ArrowLeft" || key === "PageUp" || key === "Backspace") { go(-1); event.preventDefault(); }
+    else if (key === "Home") { show(0); event.preventDefault(); }
+    else if (key === "End") { show(count - 1); event.preventDefault(); }
+    else if (key === "o" || key === "O") { toggleOverview(true); }
+    else if (key === "f" || key === "F") { toggleFullscreen(); }
+    else if (key === "t" || key === "T") { toggleTheme(); }
+    else if (key === "r" || key === "R") { resetTimer(); }
+  });
+
+  /* 터치: 좌우로 밀어 넘기기 */
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  window.addEventListener("resize", function () { fit(slides[current]); });
+  resetTimer();
+  show(fromHash(), true);
+})();
+</script>
+</body>
+</html>

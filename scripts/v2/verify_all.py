@@ -56,6 +56,8 @@ def main() -> int:
     results = [check_syntax()]
     results.append(run("채점기 단위 테스트 (모범 답안·변형·오답)", ["node", "scripts/v2/test_grader.js"]))
     results.append(run("부록 연습 채점 규칙", [sys.executable, "scripts/v2/appendix_memorize.py", "--verify-rules"]))
+    results.append(run("스터디 발표 자료 형식", [sys.executable, "scripts/v2/check_study.py"]))
+    results.append(run("스터디 슬라이드 HTML 생성", [sys.executable, "scripts/v2/build_study_slides.py"]))
     results.append(run("금지 장식 검사 (한쪽 가장자리 색 띠)", [sys.executable, "scripts/v2/check_no_edge_stripes.py"]))
     results.append(run("빌드 + 내부 링크·스크립트·도해·목차 검증", [sys.executable, "scripts/build_ebook.py"]))
     for target in ("book", "docs"):
@@ -64,6 +66,8 @@ def main() -> int:
         )
     if "--no-browser" not in sys.argv:
         results.append(run("브라우저 통합 검증 (전 페이지·실습 셀·CBT·오픈북)", ["node", "scripts/v2/e2e_browser.js"]))
+    if "--no-browser" not in sys.argv:
+        results.append(run("스터디 슬라이드 브라우저 검사", ["node", "scripts/v2/e2e_study.js"]))
     if "--with-python" in sys.argv:
         results.append(run("모의고사 답안 파이프라인 실제 실행", [sys.executable, "scripts/v2/run_mock_answers.py"]))
         results.append(run("부록 코드 실제 실행", [sys.executable, "scripts/v2/appendix_memorize.py", "--verify"]))

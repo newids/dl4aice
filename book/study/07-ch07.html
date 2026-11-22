@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>7회차 — 평가와 예측 — 스터디 발표 자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef1f6; --paper: #ffffff; --ink: #1a2332; --soft: #475569; --muted: #64748b;
+  --line: #cbd5e1; --line-soft: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+  --chip-bg: #eef2f7; --chip-fg: #0f2a5e; --code-bg: #0d1424; --code-fg: #d6deeb;
+  --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "D2Coding", monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0f1a; --paper: #111827; --ink: #e6eaf2; --soft: #c3cddd; --muted: #9aa8bd;
+  --line: #334155; --line-soft: #243044; --primary: #6ea8fe; --primary-soft: #1b2f4f;
+  --chip-bg: #22304a; --chip-fg: #cfe0ff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  word-break: keep-all; overflow-wrap: anywhere; overflow: hidden;
+}
+.deck { position: fixed; inset: 0 0 3.25rem 0; display: grid; place-items: center; padding: 1.2vmin; }
+.slide {
+  display: none; width: min(100%, calc((100vh - 3.25rem - 2.4vmin) * 16 / 9)); aspect-ratio: 16 / 9;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px;
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.45); overflow: hidden;
+}
+.slide.is-current { display: block; }
+.slide__inner {
+  --scale: 1; height: 100%; padding: 4.2% 5.4% 3.6%; overflow: auto;
+  font-size: calc(clamp(13px, 1.72vw, 30px) * var(--scale)); line-height: 1.55;
+}
+.slide h1, .slide h2 { margin: 0 0 0.7em; line-height: 1.28; letter-spacing: -0.02em; }
+.slide h1 { font-size: 2.1em; margin-top: 12%; }
+.slide h2 { font-size: 1.42em; padding-bottom: 0.35em; border-bottom: 1px solid var(--line-soft); }
+.slide h3 { font-size: 1.08em; margin: 0.9em 0 0.4em; }
+.slide p { margin: 0 0 0.6em; }
+.slide ul, .slide ol { margin: 0 0 0.6em; padding-left: 1.25em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li > ul, .slide li > ol { margin-top: 0.3em; }
+.slide a { color: var(--primary); }
+.slide strong { font-weight: 700; }
+.slide code {
+  font-family: var(--mono); font-size: 0.86em; padding: 0.05em 0.32em; border-radius: 5px;
+  color: var(--chip-fg); background: var(--chip-bg); font-variant-ligatures: none;
+}
+.slide pre {
+  margin: 0 0 0.7em; padding: 0.75em 0.95em; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.slide pre code { padding: 0; background: none; color: inherit; font-size: 0.8em; line-height: 1.55; white-space: pre; }
+.slide table { width: 100%; margin: 0 0 0.7em; border-collapse: collapse; font-size: 0.88em; }
+.slide th, .slide td { padding: 0.42em 0.6em; text-align: left; vertical-align: top; border: 1px solid var(--line-soft); }
+.slide thead th { background: var(--chip-bg); color: var(--chip-fg); font-weight: 700; }
+.slide blockquote {
+  margin: 0 0 0.7em; padding: 0.6em 0.9em; color: var(--soft); background: var(--chip-bg);
+  border: 1px solid var(--line-soft); border-radius: 10px;
+}
+.slide blockquote > :last-child { margin-bottom: 0; }
+.figure { margin: 0 0 0.6em; padding: 0.5em; background: #ffffff; border: 1px solid var(--line-soft); border-radius: 10px; text-align: center; }
+.figure svg { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(44vh * var(--fig, 1)); margin: 0 auto; }
+.figure figcaption { margin-top: 0.3em; font-size: 0.72em; color: #64748b; }
+.slide--title .slide__inner { display: flex; flex-direction: column; justify-content: center; }
+.slide--title h1 { margin-top: 0; }
+.slide--title ul { list-style: none; padding: 0; color: var(--soft); }
+
+.tok-kw { color: #c792ea; } .tok-const { color: #82aaff; font-style: italic; } .tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; } .tok-com { color: #7c8aa5; font-style: italic; } .tok-fn { color: #82d2ff; }
+.tok-builtin { color: #ffcb6b; } .tok-cls { color: #5eead4; } .tok-param { color: #f9a8d4; }
+.tok-mod { color: #d6deeb; } .tok-dec { color: #ffcb6b; font-style: italic; } .tok-op { color: #89ddff; }
+.tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
+
+.bar {
+  position: fixed; inset: auto 0 0 0; height: 3.25rem; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 0.8rem; background: var(--paper); border-top: 1px solid var(--line-soft); font-size: 0.86rem;
+}
+.bar__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); font-weight: 600; }
+.bar__count, .bar__time { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.bar__time strong { color: var(--ink); }
+.bar__time.is-over strong { color: #dc2626; }
+.btn {
+  min-width: 2.5rem; min-height: 2.5rem; padding: 0.3rem 0.7rem; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn:focus-visible, .ov__item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.meter { position: fixed; inset: auto 0 3.25rem 0; height: 3px; background: var(--line-soft); }
+.meter span { display: block; height: 100%; width: 0; background: var(--primary); transition: width 180ms ease-out; }
+
+.ov { position: fixed; inset: 0; z-index: 10; display: none; padding: 1.2rem; overflow: auto; background: var(--bg); }
+.ov.is-open { display: block; }
+.ov__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
+.ov__head h2 { margin: 0; font-size: 1.1rem; }
+.ov__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; }
+.ov__item {
+  display: flex; gap: 0.6rem; width: 100%; min-height: 3.2rem; padding: 0.6rem 0.8rem; font: inherit; text-align: left; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 10px; cursor: pointer;
+}
+.ov__item:hover { border-color: var(--primary); }
+.ov__item[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.ov__no { flex: none; width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.help { margin: 1rem 0 0; font-size: 0.82rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+
+.index { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; overflow: auto; height: 100%; }
+.index h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+.index p { color: var(--soft); line-height: 1.7; }
+.index ol { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.6rem; }
+.index li a {
+  display: flex; gap: 1rem; align-items: baseline; padding: 0.9rem 1.1rem; color: var(--ink); text-decoration: none;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.index li a:hover { border-color: var(--primary); }
+.index .no { flex: none; width: 3.6rem; font-weight: 700; color: var(--primary); }
+.index .meta { margin-left: auto; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .bar__title { display: none; }
+  .slide { width: 100%; aspect-ratio: auto; height: 100%; }
+  .slide__inner { font-size: calc(15px * var(--scale)); }
+}
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .bar, .meter, .ov { display: none !important; }
+  .deck { position: static; display: block; padding: 0; }
+  .slide { display: block !important; width: 297mm; height: 167mm; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; break-after: page; }
+  .slide__inner { font-size: 15pt; overflow: hidden; }
+}
+</style>
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body data-minutes="35">
+<main class="deck" aria-live="polite">
+<section class="slide slide--title" data-title="7회차 — 평가와 예측" aria-label="1 / 25"><div class="slide__inner"><h1>7회차 — 평가와 예측</h1>
+<ul>
+<li>범위: 교재 7장 평가와 예측 (<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch07.html">https://newids.github.io/dl4aice/ch07.html</a>)</li>
+<li>발표 35분 안팎 + 질의응답 20분</li>
+<li>사전 준비: 챕터 읽기 + 실습 셀 풀기</li>
+</ul></div></section>
+<section class="slide" data-title="오늘의 목표" aria-label="2 / 25"><div class="slide__inner"><h2>오늘의 목표</h2>
+<ol>
+<li><code>evaluate</code>와 <code>predict</code>가 돌려주는 값의 차이를 설명하고, 문제 유형에 맞게 예측값을 정답과 비교할 수 있는 모양으로 바꾸는 코드를 쓴다.</li>
+<li>혼동 행렬과 <code>classification_report</code>의 숫자를 서로 계산해 가며 읽는다.</li>
+<li>시험 14번 문항 유형인 "새 입력 한 건 예측" 코드를 순서대로 쓴다.</li>
+</ol></div></section>
+<section class="slide" data-title="진행 순서" aria-label="3 / 25"><div class="slide__inner"><h2>진행 순서</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>내용</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7.1</td>
+<td>evaluate와 predict</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>7.2</td>
+<td>확률을 클래스로 바꾸기</td>
+<td>5분</td>
+</tr>
+<tr>
+<td>7.3</td>
+<td>혼동 행렬</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>7.4~7.5</td>
+<td>정밀도, 재현율, classification_report</td>
+<td>7분</td>
+</tr>
+<tr>
+<td>7.6~7.7</td>
+<td>회귀 지표와 학습 곡선</td>
+<td>5분</td>
+</tr>
+<tr>
+<td>14번 유형</td>
+<td>새 입력 예측과 자주 틀리는 지점</td>
+<td>5분</td>
+</tr>
+<tr>
+<td>함께 풀기</td>
+<td>실습 셀 두 개</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>정리</td>
+<td>기억할 내용</td>
+<td>1분</td>
+</tr>
+<tr>
+<td>질의응답</td>
+<td>토론 질문과 질문 받기</td>
+<td>20분</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="7.1 evaluate와 predict의 반환값 (2분)" aria-label="4 / 25"><div class="slide__inner"><h2>7.1 evaluate와 predict의 반환값 (2분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 464" width="800" height="464" role="img" aria-label="evaluate와 predict의 반환값 차이">
+  <title>evaluate와 predict의 반환값 차이 — 같은 학습된 모델에 X_test_scaled를 넣어도 evaluate는 loss와 metrics 점수 몇 개를 돌려주고, predict는 샘플 수만큼의 확률 배열을 돌려준다.</title>
+  <defs>
+    <marker id="ch07ep-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="464" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">evaluate 와 predict 의 반환값 차이</text>
+
+    
+    <rect x="164" y="72" width="120" height="38" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="224" y="96" font-size="14" fill="#1a2332" text-anchor="middle">X_test_scaled</text>
+    <line x1="284" y1="91" x2="310" y2="91" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+
+    
+    <rect x="316" y="64" width="168" height="54" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="400" y="97" font-size="16" font-weight="700" fill="#1a2332" text-anchor="middle">학습된 모델</text>
+
+    
+    <path d="M400 118 L400 142 M200 142 L600 142" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="200" y1="142" x2="200" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+    <line x1="600" y1="142" x2="600" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07ep-arrow)"/>
+
+    
+    <rect x="48" y="176" width="304" height="234" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <rect x="64" y="192" width="272" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="200" y="213" font-size="13" fill="#1a2332" text-anchor="middle">model.evaluate(X_test_scaled, y_test)</text>
+    <text x="200" y="243" font-size="12" fill="#94a3b8" text-anchor="middle">입력 + 정답 필요</text>
+
+    <rect x="96" y="256" width="208" height="44" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="200" y="285" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">[0.075, 0.9708]</text>
+
+    <g stroke="#2563eb" stroke-width="1.5">
+      <line x1="152" y1="300" x2="152" y2="310"/>
+      <line x1="252" y1="300" x2="252" y2="310"/>
+    </g>
+    <text x="152" y="326" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">loss</text>
+    <text x="252" y="326" font-size="13" font-weight="700" fill="#2563eb" text-anchor="middle">accuracy</text>
+
+    <text x="200" y="372" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">점수 몇 개</text>
+    <text x="200" y="392" font-size="12" fill="#94a3b8" text-anchor="middle">metrics 개수가 길이를 정함</text>
+
+    
+    <rect x="448" y="176" width="304" height="234" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <rect x="464" y="192" width="272" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="600" y="213" font-size="13" fill="#1a2332" text-anchor="middle">model.predict(X_test_scaled)</text>
+    <text x="600" y="243" font-size="12" fill="#94a3b8" text-anchor="middle">입력만 필요 — 정답 없이 동작</text>
+
+    <rect x="528" y="256" width="144" height="90" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="600" y="278" font-size="14" fill="#1a2332" text-anchor="middle">0.005</text>
+    <text x="600" y="300" font-size="14" fill="#1a2332" text-anchor="middle">0.871</text>
+    <text x="600" y="322" font-size="14" fill="#1a2332" text-anchor="middle">0.952</text>
+    <text x="600" y="338" font-size="13" fill="#94a3b8" text-anchor="middle">...</text>
+
+    <text x="600" y="372" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">shape (171, 1)</text>
+    <text x="600" y="392" font-size="12" fill="#94a3b8" text-anchor="middle">(샘플 수, 출력 노드 수)</text>
+
+    <text x="32" y="436" font-size="12" fill="#94a3b8">숫자는 7.1 예제의 출력입니다 — 환경과 난수에 따라 조금 달라집니다.</text>
+  </g>
+</svg><figcaption>evaluate는 점수 리스트, predict는 샘플별 예측 배열을 돌려줍니다</figcaption></figure>
+<ul>
+<li><code>evaluate(X_test_scaled, y_test)</code>: 정답이 필요하고 <code>[loss, 지표...]</code> 리스트를 돌려줍니다.</li>
+<li><code>predict(X_test_scaled)</code>: 입력만 받고 <code>(샘플 수, 출력 노드 수)</code> 배열을 돌려줍니다.</li>
+<li>반환값 개수는 <code>compile</code>의 <code>metrics</code>가 정합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.1 반환값 순서와 확률의 의미 (1분)" aria-label="5 / 25"><div class="slide__inner"><h2>7.1 반환값 순서와 확률의 의미 (1분)</h2>
+<pre><code class="language-python">loss, acc = model.evaluate(X_test_scaled, y_test, verbose=0)
+pred = model.predict(X_test_scaled, verbose=0)
+print('predict 결과 shape:', pred.shape)    # (171, 1)
+</code></pre>
+<ul>
+<li>교재 예시에서 <code>predict</code> 결과의 shape는 <code>(171, 1)</code>이고, 값은 라벨이 아니라 클래스 1일 확률입니다. 앞 5개는 <code>[0.005 0.871 0.952 0.002 0.258]</code>입니다.</li>
+<li><code>evaluate</code>는 항상 loss가 먼저입니다. <code>acc, loss = ...</code>로 받으면 오류 없이 값만 바뀝니다.</li>
+<li><code>metrics</code>를 지정하지 않으면 반환값이 loss 하나뿐이라 <code>loss, acc = ...</code>가 오류를 냅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.2 확률을 클래스로 (3분)" aria-label="6 / 25"><div class="slide__inner"><h2>7.2 확률을 클래스로 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 484" width="800" height="484" role="img" aria-label="확률 예측값을 클래스로 바꾸는 방법">
+  <title>확률 예측값을 클래스로 바꾸는 방법 — 이진분류는 임계값 0.5로, 다중분류는 argmax로 확률을 클래스 라벨로 변환한다.</title>
+  <defs>
+    <marker id="ch07pc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="484" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">확률 예측값을 클래스로 바꾸는 방법</text>
+
+    
+    <rect x="32" y="108" width="112" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="88" y="134" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">이진분류</text>
+    <text x="88" y="156" font-size="12" fill="#94a3b8" text-anchor="middle">출력 1개</text>
+
+    <text x="250" y="104" font-size="12" fill="#94a3b8" text-anchor="middle">확률</text>
+    <rect x="206" y="114" width="88" height="52" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="250" y="148" font-size="18" font-weight="700" fill="#2563eb" text-anchor="middle">0.83</text>
+
+    <line x1="332" y1="140" x2="370" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="378" y="106" width="208" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="482" y="136" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">0.5 보다 큰가</text>
+    <text x="482" y="158" font-size="12" fill="#94a3b8" text-anchor="middle">임계값 판정</text>
+
+    <line x1="586" y1="140" x2="624" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <text x="678" y="104" font-size="12" fill="#94a3b8" text-anchor="middle">라벨</text>
+    <rect x="632" y="114" width="92" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+    <text x="678" y="149" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">1</text>
+
+    <rect x="168" y="190" width="418" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="188" y="211" font-size="13" fill="#1a2332">(pred &gt; 0.5).astype(int).flatten()</text>
+
+    
+    <line x1="32" y1="250" x2="768" y2="250" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    
+    <rect x="32" y="312" width="112" height="64" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="88" y="338" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">다중분류</text>
+    <text x="88" y="360" font-size="12" fill="#94a3b8" text-anchor="middle">출력 3개</text>
+
+    <text x="250" y="298" font-size="12" fill="#94a3b8" text-anchor="middle">클래스별 확률</text>
+
+    <text x="178" y="322" font-size="13" fill="#94a3b8" text-anchor="end">0</text>
+    <rect x="186" y="309" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="309" width="11" height="18" rx="4" fill="#94a3b8"/>
+    <text x="328" y="322" font-size="13" fill="#1a2332" text-anchor="end">0.1</text>
+
+    <text x="178" y="348" font-size="13" font-weight="700" fill="#2563eb" text-anchor="end">1</text>
+    <rect x="186" y="335" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="335" width="77" height="18" rx="4" fill="#2563eb"/>
+    <text x="328" y="348" font-size="13" font-weight="700" fill="#2563eb" text-anchor="end">0.7</text>
+
+    <text x="178" y="374" font-size="13" fill="#94a3b8" text-anchor="end">2</text>
+    <rect x="186" y="361" width="110" height="18" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <rect x="186" y="361" width="22" height="18" rx="4" fill="#94a3b8"/>
+    <text x="328" y="374" font-size="13" fill="#1a2332" text-anchor="end">0.2</text>
+
+    <line x1="332" y1="344" x2="370" y2="344" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="378" y="310" width="208" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="482" y="340" font-size="15" font-weight="700" fill="#1a2332" text-anchor="middle">가장 큰 값의 위치</text>
+    <text x="482" y="362" font-size="12" fill="#94a3b8" text-anchor="middle">argmax</text>
+
+    <line x1="586" y1="344" x2="624" y2="344" stroke="#94a3b8" stroke-width="2" marker-end="url(#ch07pc-arrow)"/>
+
+    <rect x="632" y="318" width="92" height="52" rx="10" fill="#ffffff" stroke="#1a2332" stroke-width="2"/>
+    <text x="678" y="353" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">1</text>
+
+    <rect x="168" y="396" width="418" height="32" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="188" y="417" font-size="13" fill="#1a2332">np.argmax(pred, axis=1)</text>
+
+    <text x="32" y="458" font-size="12" fill="#f59e0b">axis=1 은 한 샘플 안의 클래스들 중 최댓값 위치입니다 — axis=0 을 주면 결과 길이가 클래스 수로 바뀝니다.</text>
+  </g>
+</svg><figcaption>이진분류는 임계값, 다중분류는 argmax로 확률을 라벨로 바꿉니다</figcaption></figure>
+<table>
+<thead>
+<tr>
+<th>문제 유형</th>
+<th>predict shape</th>
+<th>변환 코드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이진분류</td>
+<td><code>(N, 1)</code></td>
+<td><code>(pred &gt; 0.5).astype(int).flatten()</code></td>
+</tr>
+<tr>
+<td>다중분류</td>
+<td><code>(N, K)</code></td>
+<td><code>np.argmax(pred, axis=1)</code></td>
+</tr>
+<tr>
+<td>회귀</td>
+<td><code>(N, 1)</code></td>
+<td><code>pred.flatten()</code> (모양만 정리)</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="slide" data-title="7.2 변환 코드와 axis (2분)" aria-label="7 / 25"><div class="slide__inner"><h2>7.2 변환 코드와 axis (2분)</h2>
+<pre><code class="language-python">binary_pred = np.array([[0.83], [0.12], [0.50], [0.91]])
+y_pred_bin = (binary_pred &gt; 0.5).astype(int).flatten()
+print(y_pred_bin)            # [1 0 0 1]
+
+y_pred_multi = np.argmax(multi_pred, axis=1)
+print(y_pred_multi, y_pred_multi.shape)  # [1 0 2 1] (4,)
+wrong = np.argmax(multi_pred, axis=0)
+print(wrong, wrong.shape)                # [1 0 2] (3,)
+</code></pre>
+<ul>
+<li><code>multi_pred</code>는 샘플 4개, 클래스 3개짜리 softmax 출력입니다.</li>
+<li><code>axis=1</code>은 한 샘플 안에서 가장 큰 클래스를 찾습니다. <code>axis=0</code>이면 길이가 클래스 수가 되어 정답과 길이가 맞지 않습니다.</li>
+<li>0.50은 <code>&gt; 0.5</code>가 아니므로 0이 됩니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.3 혼동 행렬 (3분)" aria-label="8 / 25"><div class="slide__inner"><h2>7.3 혼동 행렬 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 456" width="800" height="456" role="img" aria-label="혼동 행렬의 네 칸 읽는 법">
+  <title>혼동 행렬의 네 칸 읽는 법 — 행은 실제, 열은 예측이며 배치는 왼쪽 위부터 TN, FP, FN, TP 순이다. 정밀도는 예측 1 열, 재현율은 실제 1 행 방향으로 계산한다.</title>
+  <defs>
+    <marker id="ch07cm-arrow-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ch07cm-arrow-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="456" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">혼동 행렬의 네 칸 읽는 법</text>
+    <text x="32" y="62" font-size="13" fill="#94a3b8">confusion_matrix(y_test, y_pred) — 행은 실제, 열은 예측. 배치는 [[TN, FP], [FN, TP]]</text>
+
+    
+    <text x="350" y="96" font-size="13" fill="#94a3b8" text-anchor="middle">예측 (predicted)</text>
+    <text x="265" y="124" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">예측 0</text>
+    <text x="435" y="124" font-size="14" font-weight="700" fill="#1a2332" text-anchor="middle">예측 1</text>
+    <text x="112" y="238" font-size="13" fill="#94a3b8" text-anchor="middle" transform="rotate(-90 112 238)">실제 (actual)</text>
+    <text x="170" y="194" font-size="14" font-weight="700" fill="#1a2332" text-anchor="end">실제 0</text>
+    <text x="170" y="292" font-size="14" font-weight="700" fill="#1a2332" text-anchor="end">실제 1</text>
+
+    
+    <rect x="182" y="142" width="166" height="94" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="265" y="170" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">TN</text>
+    <text x="265" y="194" font-size="12" fill="#94a3b8" text-anchor="middle">실제 0 을 0 으로 맞힘</text>
+    <text x="265" y="224" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">63</text>
+
+    
+    <rect x="352" y="142" width="166" height="94" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="435" y="170" font-size="17" font-weight="700" fill="#dc2626" text-anchor="middle">FP</text>
+    <text x="435" y="194" font-size="12" fill="#dc2626" text-anchor="middle">실제 0 인데 1 로 잘못 봄</text>
+    <text x="435" y="224" font-size="20" font-weight="700" fill="#dc2626" text-anchor="middle">1</text>
+
+    
+    <rect x="182" y="240" width="166" height="94" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="265" y="268" font-size="17" font-weight="700" fill="#dc2626" text-anchor="middle">FN</text>
+    <text x="265" y="292" font-size="12" fill="#dc2626" text-anchor="middle">실제 1 인데 0 으로 놓침</text>
+    <text x="265" y="322" font-size="20" font-weight="700" fill="#dc2626" text-anchor="middle">4</text>
+
+    
+    <rect x="352" y="240" width="166" height="94" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="435" y="268" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">TP</text>
+    <text x="435" y="292" font-size="12" fill="#94a3b8" text-anchor="middle">실제 1 을 1 로 맞힘</text>
+    <text x="435" y="322" font-size="20" font-weight="700" fill="#1a2332" text-anchor="middle">103</text>
+
+    
+    <line x1="546" y1="152" x2="546" y2="324" stroke="#2563eb" stroke-width="2"
+          marker-start="url(#ch07cm-arrow-p)" marker-end="url(#ch07cm-arrow-p)"/>
+    <text x="572" y="214" font-size="15" font-weight="700" fill="#2563eb">정밀도</text>
+    <text x="572" y="238" font-size="14" fill="#1a2332">TP / (TP + FP)</text>
+    <text x="572" y="260" font-size="12" fill="#94a3b8">예측 1 열 기준</text>
+
+    
+    <line x1="194" y1="352" x2="506" y2="352" stroke="#f59e0b" stroke-width="2"
+          marker-start="url(#ch07cm-arrow-a)" marker-end="url(#ch07cm-arrow-a)"/>
+    <text x="350" y="380" font-size="14" text-anchor="middle"><tspan fill="#f59e0b" font-weight="700">재현율</tspan><tspan fill="#1a2332"> = TP / (TP + FN)</tspan></text>
+    <text x="350" y="400" font-size="12" fill="#94a3b8" text-anchor="middle">실제 1 행 기준</text>
+
+    <text x="32" y="430" font-size="12" fill="#94a3b8">숫자는 7.3 예제의 결과입니다. 인자 순서를 바꾸면 행렬이 전치되어 FP 와 FN 이 뒤바뀝니다.</text>
+  </g>
+</svg><figcaption>혼동 행렬은 실제 라벨과 예측 라벨의 개수를 세어 놓은 표입니다</figcaption></figure>
+<ul>
+<li><code>confusion_matrix(y_test, y_pred)</code>: 행이 실제, 열이 예측이며 배치는 <code>[[TN, FP], [FN, TP]]</code>입니다.</li>
+<li>교재 예시는 <code>[[63, 1], [4, 103]]</code>입니다. 맞힌 것은 63 + 103 = 166건이고 166 / 171 = 0.9708이라 <code>evaluate</code>의 accuracy와 같습니다.</li>
+<li><code>tn, fp, fn, tp = cm.ravel()</code>은 2x2(이진분류)에서만 됩니다.</li>
+<li>인자 순서를 바꾸면 행렬이 전치되어 FP와 FN이 바뀝니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.4 정밀도와 재현율 (3분)" aria-label="9 / 25"><div class="slide__inner"><h2>7.4 정밀도와 재현율 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" role="img" aria-label="정밀도와 재현율이 중요해지는 상황">
+  <title>정밀도와 재현율이 중요해지는 상황 — 스팸 필터는 정상 메일을 스팸으로 보내는 FP가 치명적이라 정밀도를, 질병 검진은 환자를 정상으로 놓치는 FN이 치명적이라 재현율을 중시한다.</title>
+  <defs>
+    <marker id="ch07pr-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="400" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">정밀도와 재현율이 중요해지는 상황</text>
+
+    <line x1="400" y1="66" x2="400" y2="344" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    
+    <text x="208" y="88" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">스팸 필터</text>
+
+    <rect x="76" y="112" width="76" height="50" rx="6" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <path d="M76 118 L114 144 L152 118" fill="none" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="114" y="182" font-size="12" fill="#94a3b8" text-anchor="middle">정상 메일</text>
+
+    <text x="202" y="126" font-size="12" fill="#dc2626" text-anchor="middle">오분류</text>
+    <line x1="160" y1="137" x2="242" y2="137" stroke="#dc2626" stroke-width="2" marker-end="url(#ch07pr-arrow)"/>
+
+    <rect x="250" y="112" width="96" height="50" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="298" y="143" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">스팸함</text>
+
+    <text x="208" y="210" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">FP — 실제 0 을 1 로 잘못 예측</text>
+    <text x="208" y="238" font-size="14" fill="#1a2332" text-anchor="middle">중요한 메일을 잃습니다</text>
+
+    <rect x="56" y="266" width="304" height="64" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+    <text x="208" y="295" font-size="16" font-weight="700" fill="#2563eb" text-anchor="middle">정밀도 (precision) 중시</text>
+    <text x="208" y="317" font-size="13" fill="#1a2332" text-anchor="middle">TP / (TP + FP)</text>
+
+    
+    <text x="592" y="88" font-size="17" font-weight="700" fill="#1a2332" text-anchor="middle">질병 검진</text>
+
+    <circle cx="478" cy="124" r="12" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <path d="M460 162 c0 -24 36 -24 36 0 z" fill="#ffffff" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="478" y="182" font-size="12" fill="#94a3b8" text-anchor="middle">환자</text>
+
+    <text x="548" y="126" font-size="12" fill="#dc2626" text-anchor="middle">놓침</text>
+    <line x1="508" y1="137" x2="588" y2="137" stroke="#dc2626" stroke-width="2" marker-end="url(#ch07pr-arrow)"/>
+
+    <rect x="596" y="112" width="110" height="50" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <text x="651" y="143" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">정상 판정</text>
+
+    <text x="592" y="210" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">FN — 실제 1 을 0 으로 놓침</text>
+    <text x="592" y="238" font-size="14" fill="#1a2332" text-anchor="middle">치료 시기를 놓칩니다</text>
+
+    <rect x="440" y="266" width="304" height="64" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2.5"/>
+    <text x="592" y="295" font-size="16" font-weight="700" fill="#f59e0b" text-anchor="middle">재현율 (recall) 중시</text>
+    <text x="592" y="317" font-size="13" fill="#1a2332" text-anchor="middle">TP / (TP + FN)</text>
+
+    <text x="32" y="372" font-size="12" fill="#94a3b8">두 지표는 대체로 상충합니다 — 임계값을 낮추면 재현율은 오르고 정밀도는 내려갑니다.</text>
+  </g>
+</svg><figcaption>스팸 필터는 정밀도, 질병 검진은 재현율이 중요합니다</figcaption></figure>
+<ul>
+<li>정밀도 = TP / (TP + FP): 1이라고 예측한 것 중 진짜 비율입니다.</li>
+<li>재현율 = TP / (TP + FN): 실제 1 중에서 찾아낸 비율입니다.</li>
+<li>예시 계산: 정밀도 103 / 104 = 0.990, 재현율 103 / 107 = 0.963입니다.</li>
+<li>임계값을 낮추면 재현율은 오르고 정밀도는 내려갑니다. 지시가 없으면 0.5를 씁니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.5 classification_report 읽는 순서 (3분)" aria-label="10 / 25"><div class="slide__inner"><h2>7.5 classification_report 읽는 순서 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 456" width="800" height="456" role="img" aria-label="classification_report 읽는 순서">
+  <title>classification_report 읽는 순서 — 클래스별 행을 먼저 보고, support로 불균형을 확인한 뒤, macro avg와 weighted avg의 차이를 본다.</title>
+
+  <rect x="0" y="0" width="800" height="456" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">classification_report 읽는 순서</text>
+    <text x="32" y="62" font-size="12" fill="#94a3b8">예시 — 90 대 10 불균형 데이터에서 모델이 전부 0 으로만 예측한 경우</text>
+
+    
+    <rect x="88" y="80" width="584" height="232" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <g font-size="13" fill="#94a3b8" text-anchor="end">
+      <text x="370" y="108">precision</text>
+      <text x="466" y="108">recall</text>
+      <text x="562" y="108">f1-score</text>
+      <text x="650" y="108">support</text>
+    </g>
+    <line x1="104" y1="120" x2="656" y2="120" stroke="#94a3b8" stroke-width="1"/>
+
+    
+    <g font-size="14" fill="#1a2332" text-anchor="end">
+      <text x="290" y="150" font-weight="700">0</text>
+      <text x="370" y="150">0.90</text>
+      <text x="466" y="150">1.00</text>
+      <text x="562" y="150">0.95</text>
+      <text x="650" y="150">90</text>
+    </g>
+
+    
+    <g font-size="14" fill="#dc2626" font-weight="700" text-anchor="end">
+      <text x="290" y="180">1</text>
+      <text x="370" y="180">0.00</text>
+      <text x="466" y="180">0.00</text>
+      <text x="562" y="180">0.00</text>
+      <text x="650" y="180">10</text>
+    </g>
+
+    <line x1="104" y1="198" x2="656" y2="198" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 4"/>
+
+    <g font-size="14" fill="#1a2332" text-anchor="end">
+      <text x="290" y="226">accuracy</text>
+      <text x="562" y="226">0.90</text>
+      <text x="650" y="226">100</text>
+
+      <text x="290" y="254">macro avg</text>
+      <text x="370" y="254">0.45</text>
+      <text x="466" y="254">0.50</text>
+      <text x="562" y="254">0.47</text>
+      <text x="650" y="254">100</text>
+
+      <text x="290" y="282">weighted avg</text>
+      <text x="370" y="282">0.81</text>
+      <text x="466" y="282">0.90</text>
+      <text x="562" y="282">0.85</text>
+      <text x="650" y="282">100</text>
+    </g>
+
+    
+    <rect x="78" y="136" width="3" height="58" fill="#2563eb"/>
+    <circle cx="58" cy="165" r="13" fill="#2563eb"/>
+    <text x="58" y="170" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+
+    
+    <rect x="596" y="92" width="66" height="104" rx="10" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <line x1="666" y1="144" x2="694" y2="144" stroke="#2563eb" stroke-width="1.5"/>
+    <circle cx="712" cy="144" r="13" fill="#2563eb"/>
+    <text x="712" y="149" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+
+    
+    <rect x="78" y="240" width="3" height="56" fill="#2563eb"/>
+    <circle cx="58" cy="268" r="13" fill="#2563eb"/>
+    <text x="58" y="273" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+
+    
+    <circle cx="44" cy="336" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="341" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">1</text>
+    <text x="66" y="341" font-size="13" fill="#1a2332">클래스별 precision / recall / f1 부터 봅니다</text>
+
+    <circle cx="44" cy="364" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="369" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">2</text>
+    <text x="66" y="369" font-size="13" fill="#1a2332">support 로 클래스 불균형을 확인합니다</text>
+
+    <circle cx="44" cy="392" r="11" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="44" y="397" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">3</text>
+    <text x="66" y="397" font-size="13" fill="#1a2332">macro avg 와 weighted avg 의 차이를 봅니다</text>
+
+    <rect x="32" y="414" width="3" height="18" fill="#f59e0b"/>
+    <text x="46" y="428" font-size="13" fill="#f59e0b">accuracy 는 0.90 이지만 클래스 1 의 recall 은 0.00 — 불균형에서 accuracy 만 보면 안 됩니다.</text>
+  </g>
+</svg><figcaption>classification_report를 읽는 세 단계</figcaption></figure>
+<ol>
+<li>클래스별 precision, recall, f1 행을 먼저 봅니다.</li>
+<li>support로 클래스 불균형을 확인합니다.</li>
+<li>macro avg(단순 평균)와 weighted avg(support 가중 평균)를 비교합니다.</li>
+</ol>
+<ul>
+<li>리포트의 숫자는 모두 혼동 행렬 네 칸에서 계산할 수 있습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.5 정확도가 잘못 보이는 경우 (1분)" aria-label="11 / 25"><div class="slide__inner"><h2>7.5 정확도가 잘못 보이는 경우 (1분)</h2>
+<p>90:10 데이터에서 모델이 전부 0으로 예측한 경우입니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>accuracy</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>클래스 1 recall</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>macro avg f1</td>
+<td>0.47</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>정확도만 보면 높지만 찾아야 할 클래스 1을 하나도 찾지 못했습니다.</li>
+<li>"성능을 출력하시오"에는 <code>evaluate</code>, <code>classification_report</code>, <code>confusion_matrix</code>를 함께 <code>print()</code>합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.6 회귀 지표 (3분)" aria-label="12 / 25"><div class="slide__inner"><h2>7.6 회귀 지표 (3분)</h2>
+<figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 424" width="800" height="424" role="img" aria-label="회귀 지표 mse, mae, r2 의 초점 차이">
+  <title>회귀 지표 mse, mae, r2의 초점 차이 — 실제값 대비 예측값 산점도에서 기준선까지의 세로 거리가 잔차이며, mse는 큰 오차에 크게 반응하고 mae는 평균 오차 크기를, r2는 설명력을 나타낸다.</title>
+
+  <rect x="0" y="0" width="800" height="424" fill="#ffffff"/>
+
+  <g font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+
+    <text x="32" y="38" font-size="20" font-weight="700" fill="#1a2332">회귀 지표 mse, mae, r2 의 초점 차이</text>
+
+    
+    <text x="312" y="88" font-size="12" fill="#94a3b8" text-anchor="end">예측 = 실제 기준선</text>
+
+    <line x1="80" y1="90" x2="80" y2="320" stroke="#1a2332" stroke-width="1.5"/>
+    <line x1="80" y1="320" x2="356" y2="320" stroke="#1a2332" stroke-width="1.5"/>
+    <text x="218" y="346" font-size="13" fill="#1a2332" text-anchor="middle">실제값</text>
+    <text x="54" y="205" font-size="13" fill="#1a2332" text-anchor="middle" transform="rotate(-90 54 205)">예측값</text>
+
+    <line x1="95" y1="315" x2="315" y2="95" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+    
+    <g stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3">
+      <line x1="125" y1="285" x2="125" y2="268"/>
+      <line x1="160" y1="250" x2="160" y2="262"/>
+      <line x1="195" y1="215" x2="195" y2="204"/>
+      <line x1="230" y1="180" x2="230" y2="196"/>
+      <line x1="265" y1="145" x2="265" y2="133"/>
+    </g>
+    <line x1="300" y1="110" x2="300" y2="156" stroke="#dc2626" stroke-width="2.5"/>
+
+    
+    <g fill="#2563eb">
+      <circle cx="125" cy="268" r="5"/>
+      <circle cx="160" cy="262" r="5"/>
+      <circle cx="195" cy="204" r="5"/>
+      <circle cx="230" cy="196" r="5"/>
+      <circle cx="265" cy="133" r="5"/>
+    </g>
+    <circle cx="300" cy="156" r="5" fill="#dc2626"/>
+    <text x="300" y="180" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">잔차가 큰 샘플</text>
+
+    
+    <rect x="404" y="88" width="364" height="78" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="428" y="114" font-size="17" font-weight="700" fill="#2563eb">mse</text>
+    <text x="428" y="138" font-size="13" fill="#1a2332">잔차를 제곱해 평균 — 큰 오차에 크게 반응</text>
+    <text x="428" y="158" font-size="12" fill="#94a3b8">작을수록 좋음</text>
+
+    <rect x="404" y="174" width="364" height="78" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="428" y="200" font-size="17" font-weight="700" fill="#2563eb">mae</text>
+    <text x="428" y="224" font-size="13" fill="#1a2332">잔차의 절댓값 평균 — 평균적인 오차 크기</text>
+    <text x="428" y="244" font-size="12" fill="#94a3b8">작을수록 좋음</text>
+
+    <rect x="404" y="260" width="364" height="78" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="428" y="286" font-size="17" font-weight="700" fill="#2563eb">r2</text>
+    <text x="428" y="310" font-size="13" fill="#1a2332">타깃 분산 중 모델이 설명한 비율</text>
+    <text x="428" y="330" font-size="12" fill="#94a3b8">1 에 가까울수록 좋음, 음수도 가능</text>
+
+    <text x="32" y="376" font-size="13" fill="#1a2332">잔차가 큰 샘플 하나에 mse 는 크게 반응하고, mae 는 완만하게 반응합니다.</text>
+    <text x="32" y="398" font-size="12" fill="#94a3b8">왼쪽 그림은 개략도입니다 — 실제 데이터가 아닙니다.</text>
+  </g>
+</svg><figcaption>회귀 지표 mse, mae, r2의 초점 차이</figcaption></figure>
+<ul>
+<li>mse: 오차를 제곱해 평균합니다. 큰 오차에 민감하고 단위가 제곱입니다.</li>
+<li>mae: 오차 절댓값의 평균이라 "평균 몇 정도 빗나간다"로 읽습니다.</li>
+<li>r2: 1에 가까울수록 좋고, 평균으로 찍는 것보다 못하면 음수가 됩니다.</li>
+<li>rmse는 <code>np.sqrt(mse)</code>로 구합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.6 회귀에서 predict 결과 정리 (1분)" aria-label="13 / 25"><div class="slide__inner"><h2>7.6 회귀에서 predict 결과 정리 (1분)</h2>
+<pre><code class="language-python">y_pred_reg = reg.predict(Xr_test_scaled, verbose=0).flatten()   # (N,1) -&gt; (N,)
+mse = mean_squared_error(yr_test, y_pred_reg)
+mae = mean_absolute_error(yr_test, y_pred_reg)
+r2 = r2_score(yr_test, y_pred_reg)
+</code></pre>
+<ul>
+<li><code>loss='mse'</code>로 컴파일하면 <code>evaluate</code>의 loss와 sklearn의 mse가 같은 값입니다.</li>
+<li><code>(N, 1)</code>과 <code>(N,)</code>이 섞이면 잔차 계산이 <code>(N, N)</code>이 되거나 DataFrame을 만들 때 <code>ValueError</code>가 납니다.</li>
+<li>sklearn 지표 함수는 모두 정답이 먼저입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="7.7 학습 곡선과 fit 재호출 (1분)" aria-label="14 / 25"><div class="slide__inner"><h2>7.7 학습 곡선과 fit 재호출 (1분)</h2>
+<ul>
+<li><code>history.history.keys()</code>로 키 이름을 먼저 확인합니다. 회귀를 <code>metrics=['mae']</code>로 컴파일했다면 키는 <code>mae</code>, <code>val_mae</code>입니다.</li>
+<li><code>fit</code>은 가중치를 초기화하지 않습니다. 학습을 마친 모델에 다시 <code>fit</code>하면 이어서 학습합니다.</li>
+<li>곡선을 새로 뽑으려면 모델을 새로 만든 뒤 학습합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="14번 유형: 새 입력 한 건 예측 (3분)" aria-label="15 / 25"><div class="slide__inner"><h2>14번 유형: 새 입력 한 건 예측 (3분)</h2>
+<p>학습 때와 같은 길을 지나게 하는 다섯 단계입니다. <code>X</code>는 학습 특성 표, <code>scaler</code>는 학습 데이터로 맞춘 스케일러입니다.</p>
+<pre><code class="language-python">new_data = {'age': 35, 'monthly_fee': 70.0, 'contract': 'month'}
+new_df = pd.DataFrame([new_data])
+new_df = pd.get_dummies(new_df, columns=['contract'], dtype=int)
+new_df = new_df.reindex(columns=X.columns, fill_value=0)
+new_scaled = scaler.transform(new_df)
+new_pred = model.predict(new_scaled)
+print(new_pred[0][0], int(new_pred[0][0] &gt; 0.5))
+</code></pre>
+<ul>
+<li>새 입력에는 <code>fit</code>이나 <code>fit_transform</code>을 쓰지 않습니다.</li>
+<li>다중분류는 <code>np.argmax</code>, 회귀는 <code>new_pred[0][0]</code> 값 그대로 읽습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="자주 틀리는 지점 (1) 예측값 변환 (1분)" aria-label="16 / 25"><div class="slide__inner"><h2>자주 틀리는 지점 (1) 예측값 변환 (1분)</h2>
+<ul>
+<li>확률을 그대로 <code>classification_report</code>에 넣으면 <code>ValueError</code>가 납니다. <code>predict</code> 다음 줄에는 변환 한 줄이 필요합니다.</li>
+<li><code>pred.flatten()</code>만 하고 임계값 판정을 하지 않으면 같은 오류가 납니다. flatten은 모양만 펴 줍니다.</li>
+<li>이진분류에 <code>argmax</code>를 쓰면 한 행에 값이 하나뿐이라 전부 0이 됩니다.</li>
+<li>다중분류에서 <code>axis</code>를 빼거나 0으로 쓰면 길이가 달라집니다.</li>
+</ul></div></section>
+<section class="slide" data-title="자주 틀리는 지점 (2) 평가 함수 인자 (1분)" aria-label="17 / 25"><div class="slide__inner"><h2>자주 틀리는 지점 (2) 평가 함수 인자 (1분)</h2>
+<ul>
+<li><code>confusion_matrix(y_pred, y_test)</code>처럼 순서를 바꾸면 오류 없이 FP와 FN이 바뀝니다.</li>
+<li>FP와 FN이 우연히 같으면 뒤바뀐 행렬이 정상 행렬과 똑같이 보입니다. 눈으로 확인할 수 없으므로 <code>(y_test, y_pred)</code> 순서를 손에 익힙니다.</li>
+<li>오류를 하나 고치고 끝내지 않습니다. 앞의 오류에서 멈춘 코드는 뒤의 오류가 실행되지 않아 드러나지 않습니다.</li>
+<li>결과를 <code>print()</code>하지 않으면 채점자가 확인하기 어렵습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 1 — 예측값 변환과 회귀 지표 (2분)" aria-label="18 / 25"><div class="slide__inner"><h2>함께 풀기 1 — 예측값 변환과 회귀 지표 (2분)</h2>
+<p>사이트의 실습 셀 ch07-q4를 열어 함께 풉니다. 발표자는 <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch07.html#drills-ch07">https://newids.github.io/dl4aice/ch07.html#drills-ch07</a> 에서 해당 셀을 띄우고, 참가자와 함께 라이브로 풉니다.</p>
+<p>세 모델의 <code>predict</code> 결과가 주어졌습니다. 유형에 맞는 변환 한 줄씩을 채우고 회귀 지표를 계산합니다.</p>
+<pre><code class="language-python">bin_pred = np.array([[0.83], [0.12], [0.50], [0.91], [0.46]])   # Dense(1, 'sigmoid')
+multi_pred = np.array([[0.1, 0.7, 0.2], [0.6, 0.3, 0.1], [0.2, 0.2, 0.6],
+                       [0.3, 0.5, 0.2], [0.8, 0.1, 0.1]])        # Dense(3, 'softmax')
+reg_pred = np.array([[151.2], [74.8], [140.5], [205.9], [134.7]])
+y_reg_true = np.array([155.0, 70.0, 145.0, 200.0, 130.0])
+
+y_bin = ___
+y_mul = ___
+y_reg = ___
+print('mse:', round(___, 3))
+print('r2 :', round(___, 4))
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 2 — 혼동 행렬과 재현율 (2분)" aria-label="19 / 25"><div class="slide__inner"><h2>함께 풀기 2 — 혼동 행렬과 재현율 (2분)</h2>
+<p>사이트의 실습 셀 ch07-q2를 열어 함께 풉니다. 주소는 <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch07.html#drills-ch07">https://newids.github.io/dl4aice/ch07.html#drills-ch07</a> 입니다.</p>
+<p>정답 <code>y_test</code>와 예측 <code>y_pred</code>가 주어졌습니다. 인자 순서에 주의해 혼동 행렬과 재현율을 계산합니다. 정상 행렬은 <code>[[80 20] [10 90]]</code>입니다.</p>
+<pre><code class="language-python">y_test = np.array([0] * 100 + [1] * 100)
+y_pred = np.array([0] * 80 + [1] * 20 + [0] * 10 + [1] * 90)
+
+cm = ___
+tn, fp, fn, tp = ___
+recall = ___
+precision = tp / (tp + fp)
+</code></pre></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유 (2분)" aria-label="20 / 25"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (2분)</h2>
+<p><strong>문제 1 (ch07-q4)</strong></p>
+<pre><code class="language-python">y_bin = (bin_pred &gt; 0.5).astype(int).flatten()     # [1 0 0 1 0]
+y_mul = np.argmax(multi_pred, axis=1)              # [1 0 2 1 0]
+y_reg = reg_pred.flatten()
+</code></pre>
+<ul>
+<li>mse는 <code>mean_squared_error(y_reg_true, y_reg)</code>, r2는 <code>r2_score(y_reg_true, y_reg)</code>입니다. 퀴즈 해설의 값은 mse 22.926, r2 0.987입니다.</li>
+<li>0.50은 초과가 아니므로 0입니다. <code>axis=1</code>은 한 샘플 안의 최댓값 위치입니다.</li>
+</ul>
+<p><strong>문제 2 (ch07-q2)</strong></p>
+<pre><code class="language-python">cm = confusion_matrix(y_test, y_pred)
+tn, fp, fn, tp = cm.ravel()
+recall = tp / (tp + fn)                            # 90 / 100 = 0.9
+</code></pre>
+<ul>
+<li>인자 순서를 바꾸면 행렬이 전치되어 같은 식이 0.8182(정밀도 값)를 냅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="정리" aria-label="21 / 25"><div class="slide__inner"><h2>정리</h2>
+<ul>
+<li><code>evaluate</code>는 <code>[loss, 지표]</code>(loss가 먼저), <code>predict</code>는 확률이나 예측값 배열입니다.</li>
+<li>변환은 출력층 모양에서 나옵니다. 이진 <code>(pred &gt; 0.5).astype(int).flatten()</code>, 다중 <code>np.argmax(pred, axis=1)</code>, 회귀 <code>flatten()</code>입니다.</li>
+<li>sklearn 평가 함수는 정답이 먼저입니다. 혼동 행렬 배치는 <code>[[TN, FP], [FN, TP]]</code>입니다.</li>
+<li>리포트는 클래스별 행, support, macro avg와 weighted avg 순서로 읽습니다.</li>
+<li>새 입력은 1행 표, 같은 인코딩, <code>reindex</code>, <code>scaler.transform</code>, <code>predict</code> 순서이고 <code>fit</code>은 하지 않습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="다음 회차 준비" aria-label="22 / 25"><div class="slide__inner"><h2>다음 회차 준비</h2>
+<ul>
+<li>다음 회차(8회차)는 8장 문제 유형별 완성 코드와 시험장 전략입니다: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch08.html">https://newids.github.io/dl4aice/ch08.html</a></li>
+<li>8장을 읽고 실습 셀(ch08-q1 ~ q5)을 풀어 옵니다.</li>
+<li>7장의 시험장 표준 코드를 이진분류와 회귀로 한 번씩 직접 실행해 봅니다.</li>
+<li>부록 A(<a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/appendix.html">https://newids.github.io/dl4aice/appendix.html</a>)의 "새 입력 한 건 예측" 묶음을 보지 않고 써 봅니다.</li>
+</ul></div></section>
+<section class="slide" data-title="토론 질문" aria-label="23 / 25"><div class="slide__inner"><h2>토론 질문</h2>
+<ol>
+<li>소수 클래스가 중요한 문제(불량 검출 등)에서 임계값을 0.5에서 옮기겠습니까? 시험에서 지시가 없을 때와 실무에서 판단이 어떻게 달라야 합니까?</li>
+<li>평가 문항에서 <code>evaluate</code>, <code>classification_report</code>, <code>confusion_matrix</code>를 모두 출력하는 것과 시간이 부족할 때 하나만 출력하는 것 중, 부분 점수 관점에서 어느 쪽이 유리합니까?</li>
+<li>14번 문항의 새 입력에서 <code>reindex</code> 없이 <code>get_dummies</code>만 쓰면 어떤 일이 생깁니까? 컬럼 수가 같아 보여도 안전하지 않은 경우가 있습니까?</li>
+</ol></div></section>
+<section class="slide" data-title="예상 질문과 답 (1)" aria-label="24 / 25"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
+<p><strong>Q1.</strong> <code>evaluate</code>의 accuracy와 <code>classification_report</code>의 accuracy가 다르게 나올 수 있습니까?
+답: 같은 데이터와 같은 임계값 0.5를 쓰면 같아야 합니다. 다르다면 변환 과정(임계값, <code>axis</code>)이나 <code>y_test</code>와 <code>y_pred</code>의 길이가 어긋난 것은 아닌지 확인합니다.</p>
+<p><strong>Q2.</strong> 정밀도와 재현율 중 시험에서는 어느 쪽을 봐야 합니까?
+답: 지시문이 요구하는 지표를 출력하는 것이 우선이고, 지시가 없으면 리포트 전체를 출력합니다. 스팸 필터는 정밀도, 질병 검진은 재현율처럼 오류의 비용으로 설명할 수 있어야 합니다.</p>
+<p><strong>Q3.</strong> 회귀에서 r2가 0.38이면 모델이 잘못된 것입니까?
+답: 교재의 당뇨 데이터는 원래 예측이 어려워 0.38 안팎이 나옵니다. 다만 -4처럼 크게 음수라면 출력층 활성화나 지표 설정 같은 코드 문제를 먼저 의심합니다.</p></div></section>
+<section class="slide" data-title="예상 질문과 답 (2)" aria-label="25 / 25"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
+<p><strong>Q4.</strong> 실행할 때마다 accuracy와 혼동 행렬이 조금씩 달라지는데 괜찮습니까?
+답: 시드를 고정해도 TensorFlow 연산에는 미세한 비결정성이 남아 값이 달라질 수 있습니다. 교재도 학습에 의존하는 값에는 변동 범위를 적어 두었으므로, 절차를 지켰는지가 중요합니다.</p>
+<p><strong>Q5.</strong> <code>flatten()</code>, <code>ravel()</code>, <code>reshape(-1)</code> 중 무엇을 써도 됩니까?
+답: 세 가지 모두 <code>(N, 1)</code>을 <code>(N,)</code>로 펴는 같은 결과를 냅니다. 시험에서는 손에 익은 하나로 통일하면 됩니다.</p>
+<p><strong>Q6.</strong> 새 입력 한 건에 <code>scaler.fit_transform</code>을 쓰면 왜 안 됩니까?
+답: 한 건의 평균과 표준편차로 다시 맞추면 학습 때와 전혀 다른 기준의 값이 됩니다. 학습 데이터로 맞춘 스케일러를 그대로 두고 <code>transform</code>만 합니다.</p>
+<p><strong>Q7.</strong> 다중분류에서 <code>ravel()</code>로 TN, FP, FN, TP를 꺼낼 수 있습니까?
+답: 안 됩니다. 행렬이 K x K라 값이 K*K개이므로 표 전체를 출력해 클래스별 행으로 읽습니다.</p></div></section>
+</main>
+<div class="meter" aria-hidden="true"><span></span></div>
+<nav class="bar" aria-label="슬라이드 이동">
+<a class="btn" href="index.html" title="회차 목록">회차</a>
+<button class="btn" type="button" data-overview title="슬라이드 목록 (O)">목록</button>
+<span class="bar__title"></span>
+<span class="bar__time" title="발표 타이머 — 두 번 누르면 0으로 (R)"></span>
+<button class="btn" type="button" data-theme-toggle title="밝게/어둡게 (T)">명암</button>
+<button class="btn" type="button" data-full title="전체 화면 (F)">전체</button>
+<button class="btn" type="button" data-prev aria-label="이전 슬라이드">&#8592;</button>
+<span class="bar__count"></span>
+<button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
+</nav>
+<div class="ov" role="dialog" aria-label="슬라이드 목록">
+<div class="ov__head"><h2>7회차 — 평가와 예측</h2><span><a class="btn" href="06-ch06.html" title="이전 회차">이전 회차</a> <a class="btn" href="08-ch08.html" title="다음 회차">다음 회차</a> <button class="btn" type="button" data-close>닫기</button></span></div>
+<ol class="ov__grid">
+<li><button class="ov__item" type="button"><span class="ov__no">1</span><span>7회차 — 평가와 예측</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">4</span><span>7.1 evaluate와 predict의 반환값 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>7.1 반환값 순서와 확률의 의미 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">6</span><span>7.2 확률을 클래스로 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">7</span><span>7.2 변환 코드와 axis (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">8</span><span>7.3 혼동 행렬 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>7.4 정밀도와 재현율 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>7.5 classification_report 읽는 순서 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>7.5 정확도가 잘못 보이는 경우 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">12</span><span>7.6 회귀 지표 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>7.6 회귀에서 predict 결과 정리 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">14</span><span>7.7 학습 곡선과 fit 재호출 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">15</span><span>14번 유형: 새 입력 한 건 예측 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">16</span><span>자주 틀리는 지점 (1) 예측값 변환 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">17</span><span>자주 틀리는 지점 (2) 평가 함수 인자 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">18</span><span>함께 풀기 1 — 예측값 변환과 회귀 지표 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">19</span><span>함께 풀기 2 — 혼동 행렬과 재현율 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">20</span><span>함께 풀기 — 답과 이유 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">21</span><span>정리</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">22</span><span>다음 회차 준비</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">23</span><span>토론 질문</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">24</span><span>예상 질문과 답 (1)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">25</span><span>예상 질문과 답 (2)</span></button></li>
+</ol>
+<p class="help"><kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>Home</kbd> <kbd>End</kbd> 처음/끝 · <kbd>O</kbd> 목록 · <kbd>F</kbd> 전체 화면 · <kbd>T</kbd> 명암 · <kbd>R</kbd> 타이머 초기화 · 인쇄하면 한 장에 한 슬라이드씩 PDF로 저장됩니다.</p>
+</div>
+<script>/* dl4aice v2 — dl4aice-core.js
+ * 모든 v2 위젯이 공유하는 최소 런타임: 데이터 로더, localStorage 저장소, 진도 기록,
+ * 토스트, 파이썬 코드 하이라이터, 클립보드, 라이트/다크 테마.
+ * 외부 의존성 없음. file:// 로 열어도 동작하도록 데이터는 assets/data/*.js 래퍼
+ * (window.DL4AICE_DATA)에서 먼저 찾고, 없을 때만 fetch 로 JSON 을 읽는다.
+ */
+(function () {
+  "use strict";
+
+  var NS = "dl4aice.v2.";
+  var D = (window.DL4AICE = window.DL4AICE || {});
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* 문제 지문용 미니 마크업: `code`, **굵게**, 빈 줄 = 문단, 줄바꿈 = <br>, "- " 목록 */
+  function richText(text) {
+    var source = String(text == null ? "" : text).replace(/\r\n?/g, "\n");
+    /* ```코드 펜스``` 는 먼저 떼어 내어 코드 블록으로 렌더링한다 */
+    var fences = [];
+    source = source.replace(/```[a-zA-Z]*\n([\s\S]*?)\n?```/g, function (_, code) {
+      fences.push(code);
+      return "\n\n\u0000FENCE" + (fences.length - 1) + "\u0000\n\n";
+    });
+    var blocks = source.split(/\n{2,}/).filter(function (b) { return b.trim() !== ""; });
+    return blocks
+      .map(function (block) {
+        var fence = /^\u0000FENCE(\d+)\u0000$/.exec(block.trim());
+        if (fence) {
+          return '<pre class="v2-code"><code>' + highlight(fences[Number(fence[1])]) + "</code></pre>";
+        }
+        var lines = block.split("\n");
+        var inline = function (line) {
+          return escapeHtml(line)
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        };
+        if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+          return "<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*[-•]\s+/, "")) + "</li>"; }).join("") + "</ul>";
+        }
+        if (lines.every(function (l) { return /^\s*\d+[.)]\s+/.test(l); })) {
+          return "<ol>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>"; }).join("") + "</ol>";
+        }
+        return "<p>" + lines.map(inline).join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
+  var CONSTANTS = /^(?:True|False|None|self|cls)$/;
+  var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+
+  function tok(cls, text) {
+    return '<span class="v2-tok-' + cls + '">' + text + "</span>";
+  }
+
+  /* 파이썬 코드 -> 에디터식으로 색을 입힌 HTML (이스케이프 포함).
+     주석·문자열·숫자·키워드·상수·내장 함수·함수 호출·클래스·키워드 인자·데코레이터·연산자를 구분한다. */
+  function highlight(code) {
+    var src = String(code == null ? "" : code);
+    var out = "";
+    var last = 0;
+    var depth = 0;
+    var prevWord = "";
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(src))) {
+      var gap = src.slice(last, m.index);
+      for (var i = 0; i < gap.length; i++) {
+        if (gap[i] === "(" || gap[i] === "[" || gap[i] === "{") depth++;
+        else if (gap[i] === ")" || gap[i] === "]" || gap[i] === "}") depth = Math.max(0, depth - 1);
+      }
+      out += escapeHtml(gap);
+      var text = escapeHtml(m[0]);
+      var end = TOKEN_RE.lastIndex;
+      if (m[1]) out += tok("com", text);
+      else if (m[2]) out += tok("str", text);
+      else if (m[3]) out += tok("num", text);
+      else if (m[4]) out += tok("blank", text);
+      else if (m[5]) out += tok("dec", text);
+      else if (m[6]) {
+        var word = m[6];
+        var next = src[end];
+        var rest = src.slice(end, end + 3);
+        if (KEYWORDS.test(word)) out += tok("kw", text);
+        else if (CONSTANTS.test(word)) out += tok("const", text);
+        else if (prevWord === "def") out += tok("fn", text);
+        else if (prevWord === "class") out += tok("cls", text);
+        else if (next === "(") {
+          if (BUILTINS.test(word)) out += tok("builtin", text);
+          else if (/^[A-Z]/.test(word)) out += tok("cls", text);
+          else out += tok("fn", text);
+        } else if (depth > 0 && /^\s*=(?!=)/.test(rest)) out += tok("param", text);
+        else if (prevWord === "import" || prevWord === "from" || prevWord === "as") out += tok("mod", text);
+        else out += text;
+        prevWord = word;
+      } else out += tok("op", text);
+      if (!m[6] && !m[7]) prevWord = "";
+      last = end;
+    }
+    return out + escapeHtml(src.slice(last));
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === false || value == null) return;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key.slice(0, 2) === "on" && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (Array.isArray(children) ? children : children == null ? [] : [children]).forEach(function (child) {
+      if (child == null || child === false) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  /* ---------- 저장소 ---------- */
+  var memory = {};
+  var store = {
+    get: function (key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(NS + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : fallback;
+      }
+    },
+    set: function (key, value) {
+      memory[key] = value;
+      try {
+        window.localStorage.setItem(NS + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      delete memory[key];
+      try { window.localStorage.removeItem(NS + key); } catch (e) { /* 저장소 사용 불가 */ }
+    }
+  };
+
+  /* ---------- 진도 ---------- */
+  function readProgress() {
+    var p = store.get("progress", null) || {};
+    p.drills = p.drills || {};
+    p.mocks = p.mocks || {};
+    return p;
+  }
+
+  function announce() {
+    try {
+      document.dispatchEvent(new CustomEvent("dl4aice:progress", { detail: readProgress() }));
+    } catch (e) { /* 구형 브라우저 */ }
+  }
+
+  var progress = {
+    read: readProgress,
+    /* 챕터 실습 문항 통과 기록. questionId 예: "ch04-q3" */
+    markDrill: function (questionId, passed) {
+      var p = readProgress();
+      var prev = p.drills[questionId] || { attempts: 0, ok: false };
+      p.drills[questionId] = {
+        ok: prev.ok || !!passed,
+        attempts: (prev.attempts || 0) + 1,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.drills[questionId];
+    },
+    isDrillDone: function (questionId) {
+      var rec = readProgress().drills[questionId];
+      return !!(rec && rec.ok);
+    },
+    /* chapterKey 예: "ch04". questionIds 는 그 챕터 문항 id 배열 */
+    chapterStats: function (questionIds) {
+      var p = readProgress();
+      var done = (questionIds || []).filter(function (id) { return p.drills[id] && p.drills[id].ok; }).length;
+      var total = (questionIds || []).length;
+      return { done: done, total: total, percent: total ? Math.round((done / total) * 100) : 0 };
+    },
+    /* 모의고사 채점 결과 기록. detail = { parts: {preprocess:{earned,max},...}, elapsedSec } */
+    recordMock: function (mockId, score, detail) {
+      var p = readProgress();
+      var prev = p.mocks[mockId] || { best: 0, attempts: 0 };
+      p.mocks[mockId] = {
+        best: Math.max(prev.best || 0, score),
+        last: score,
+        attempts: (prev.attempts || 0) + 1,
+        detail: detail || null,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.mocks[mockId];
+    },
+    mock: function (mockId) {
+      return readProgress().mocks[mockId] || null;
+    },
+    reset: function () {
+      store.remove("progress");
+      announce();
+    }
+  };
+
+  /* ---------- 데이터 로더 ---------- */
+  var pending = {};
+  function data(name) {
+    var bag = window.DL4AICE_DATA || {};
+    if (bag[name]) return Promise.resolve(bag[name]);
+    if (!pending[name]) {
+      pending[name] = fetch("assets/data/" + name + ".json")
+        .then(function (res) {
+          if (!res.ok) throw new Error(name + ".json " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          (window.DL4AICE_DATA = window.DL4AICE_DATA || {})[name] = json;
+          return json;
+        });
+    }
+    return pending[name];
+  }
+
+  /* ---------- 토스트 ---------- */
+  function toastHost() {
+    var host = document.querySelector(".v2-toasts");
+    if (!host) {
+      host = el("div", { class: "v2-toasts", role: "status", "aria-live": "polite" });
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  /* toast("메시지", { type: "ok" | "err" | "info", title, timeout(ms), html }) */
+  function toast(message, opts) {
+    opts = opts || {};
+    var type = opts.type || "info";
+    var node = el("div", { class: "v2-toast v2-toast--" + type }, [
+      opts.title ? el("strong", { class: "v2-toast__title", text: opts.title }) : null,
+      opts.html ? el("div", { class: "v2-toast__body", html: message }) : el("div", { class: "v2-toast__body", text: message }),
+      el("button", { class: "v2-toast__close", type: "button", "aria-label": "닫기", text: "×", onclick: function () { dismiss(); } })
+    ]);
+    var timer = null;
+    function dismiss() {
+      if (timer) clearTimeout(timer);
+      if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    var host = toastHost();
+    while (host.children.length >= 3) host.removeChild(host.firstChild);
+    host.appendChild(node);
+    var timeout = opts.timeout === undefined ? (type === "err" ? 9000 : 4500) : opts.timeout;
+    if (timeout > 0) timer = setTimeout(dismiss, timeout);
+    return dismiss;
+  }
+
+  /* ---------- 클립보드 ---------- */
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var area = el("textarea", { class: "v2-sr-only", "aria-hidden": "true" });
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  /* ---------- 테마 ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+    var btn = document.querySelector(".v2-theme-toggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+  }
+
+  var theme = {
+    get: function () { return store.get("theme", "light"); },
+    set: function (value) { store.set("theme", value); applyTheme(value); },
+    toggle: function () { theme.set(theme.get() === "dark" ? "light" : "dark"); }
+  };
+
+  /* 깜빡임 방지: 스크립트 로드 즉시 적용 */
+  applyTheme(theme.get());
+
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function () {
+    var masthead = document.querySelector(".masthead");
+    if (masthead && !masthead.querySelector(".v2-theme-toggle")) {
+      var tools = masthead.querySelector(".masthead__tools");
+      if (!tools) {
+        tools = el("span", { class: "masthead__tools" });
+        var toc = masthead.querySelector(".masthead__toc");
+        masthead.appendChild(tools);
+        if (toc) tools.appendChild(toc);
+      }
+      tools.insertBefore(
+        el("button", { class: "v2-theme-toggle", type: "button", onclick: function () { theme.toggle(); } }),
+        tools.firstChild
+      );
+    }
+    applyTheme(theme.get());
+  });
+
+  /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
+  function revealHashTarget() {
+    var id = decodeURIComponent((window.location.hash || "").slice(1));
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    var opened = false;
+    for (var node = target.parentElement; node; node = node.parentElement) {
+      if (node.tagName === "DETAILS" && !node.open) { node.open = true; opened = true; }
+    }
+    if (opened) target.scrollIntoView();
+  }
+  ready(revealHashTarget);
+  window.addEventListener("hashchange", revealHashTarget);
+
+  D.escapeHtml = escapeHtml;
+  D.richText = richText;
+  D.highlight = highlight;
+  D.el = el;
+  D.store = store;
+  D.progress = progress;
+  D.data = data;
+  D.toast = toast;
+  D.copy = copy;
+  D.theme = theme;
+  D.ready = ready;
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DL4AICE || {};
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = slides.length;
+  var current = 0;
+  var bar = document.querySelector(".bar");
+  var countEl = bar.querySelector(".bar__count");
+  var titleEl = bar.querySelector(".bar__title");
+  var timeEl = bar.querySelector(".bar__time");
+  var meter = document.querySelector(".meter span");
+  var prev = bar.querySelector("[data-prev]");
+  var next = bar.querySelector("[data-next]");
+  var overview = document.querySelector(".ov");
+  var planned = Number(document.body.getAttribute("data-minutes")) || 35;
+
+  /* 파이썬 코드 색 입히기 (교재와 같은 배색) */
+  if (D.highlight) {
+    Array.prototype.forEach.call(document.querySelectorAll("pre > code.language-python"), function (code) {
+      code.innerHTML = D.highlight(code.textContent).replace(/class="v2-tok-/g, 'class="tok-');
+    });
+  }
+
+  /* 내용이 넘치면 글자를 조금 줄여 한 장에 맞춘다 */
+  function fit(slide) {
+    var inner = slide.querySelector(".slide__inner");
+    var scale = 1;
+    var fig = 1;
+    inner.style.setProperty("--scale", "1");
+    inner.style.setProperty("--fig", "1");
+    /* 먼저 도해를 줄이고(글자는 읽기 좋은 크기로 유지), 그래도 넘치면 글자를 줄인다 */
+    while (inner.scrollHeight > inner.clientHeight + 2 && (fig > 0.5 || scale > 0.56)) {
+      if (fig > 0.5 && (fig > scale - 0.1 || scale <= 0.56)) fig -= 0.05;
+      else scale -= 0.03;
+      inner.style.setProperty("--fig", fig.toFixed(2));
+      inner.style.setProperty("--scale", scale.toFixed(2));
+    }
+  }
+
+  function show(index, replace) {
+    current = Math.max(0, Math.min(count - 1, index));
+    slides.forEach(function (s, i) { s.classList.toggle("is-current", i === current); });
+    fit(slides[current]);
+    countEl.textContent = current + 1 + " / " + count;
+    titleEl.textContent = slides[current].getAttribute("data-title");
+    meter.style.width = ((current + 1) / count) * 100 + "%";
+    prev.disabled = current === 0;
+    next.disabled = current === count - 1;
+    Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+      item.setAttribute("aria-current", i === current ? "true" : "false");
+    });
+    var hash = "#" + (current + 1);
+    if (replace) history.replaceState(null, "", hash); else if (location.hash !== hash) history.pushState(null, "", hash);
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isFinite(n) ? n - 1 : 0;
+  }
+
+  /* 발표 타이머: 처음 넘길 때 시작, 계획 시간을 넘기면 색으로 알린다 */
+  var startedAt = null;
+  var timer = null;
+  function tick() {
+    var sec = Math.floor((Date.now() - startedAt) / 1000);
+    var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+    var ss = String(sec % 60).padStart(2, "0");
+    timeEl.innerHTML = "<strong>" + mm + ":" + ss + "</strong> / " + planned + "분";
+    timeEl.classList.toggle("is-over", sec > planned * 60);
+  }
+  function startTimer() {
+    if (startedAt) return;
+    startedAt = Date.now();
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    startedAt = null;
+    timeEl.innerHTML = "<strong>00:00</strong> / " + planned + "분";
+    timeEl.classList.remove("is-over");
+  }
+
+  function go(delta) { startTimer(); show(current + delta); }
+  function toggleOverview(open) {
+    var willOpen = open === undefined ? !overview.classList.contains("is-open") : open;
+    overview.classList.toggle("is-open", willOpen);
+    if (willOpen) { var cur = overview.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
+  }
+  function toggleTheme() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("dl4aice.v2.theme", JSON.stringify(dark ? "light" : "dark")); } catch (e) { /* 저장 불가 */ }
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  }
+
+  prev.addEventListener("click", function () { go(-1); });
+  next.addEventListener("click", function () { go(1); });
+  bar.querySelector("[data-overview]").addEventListener("click", function () { toggleOverview(); });
+  bar.querySelector("[data-theme-toggle]").addEventListener("click", toggleTheme);
+  bar.querySelector("[data-full]").addEventListener("click", toggleFullscreen);
+  timeEl.addEventListener("dblclick", resetTimer);
+  overview.querySelector("[data-close]").addEventListener("click", function () { toggleOverview(false); });
+  Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+    item.addEventListener("click", function () { show(i); toggleOverview(false); });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var key = event.key;
+    if (overview.classList.contains("is-open")) {
+      if (key === "Escape" || key === "o" || key === "O") { toggleOverview(false); event.preventDefault(); }
+      return;
+    }
+    if (key === "ArrowRight" || key === "PageDown" || key === " " || key === "Enter") { go(1); event.preventDefault(); }
+    else if (key === "ArrowLeft" || key === "PageUp" || key === "Backspace") { go(-1); event.preventDefault(); }
+    else if (key === "Home") { show(0); event.preventDefault(); }
+    else if (key === "End") { show(count - 1); event.preventDefault(); }
+    else if (key === "o" || key === "O") { toggleOverview(true); }
+    else if (key === "f" || key === "F") { toggleFullscreen(); }
+    else if (key === "t" || key === "T") { toggleTheme(); }
+    else if (key === "r" || key === "R") { resetTimer(); }
+  });
+
+  /* 터치: 좌우로 밀어 넘기기 */
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  window.addEventListener("resize", function () { fit(slides[current]); });
+  resetTimer();
+  show(fromHash(), true);
+})();
+</script>
+</body>
+</html>
