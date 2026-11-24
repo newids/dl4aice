@@ -18,10 +18,10 @@
 <h1>컴파일과 학습</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>문제 유형과 라벨 형태에 맞는 손실 함수를 선택할 수 있다</li><li>fit의 epochs·batch_size·validation 인자를 의도에 맞게 설정할 수 있다</li><li>history로 학습 곡선을 그리고 학습 진행 상태를 읽을 수 있다</li></ul></aside>
 <blockquote class="callout callout--note">
-<p><strong>이 챕터에서 배우는 것</strong> — Ch04에서 만든 빈 모델에 "무엇을 줄일지(loss)", "어떻게 줄일지(optimizer)", "무엇을 보여줄지(metrics)"를 정해 준 뒤 실제로 학습을 돌립니다. 특히 <strong>손실 함수 선택 규칙</strong>은 이 교재 전체에서 가장 자주 출제되는 단일 지점이며, 이 챕터의 분기도가 그 정본입니다.</p>
+<p><strong>이 챕터에서 배우는 것</strong> — Ch04에서 만든 빈 모델에 "무엇을 줄일지(loss)", "어떻게 줄일지(optimizer)", "무엇을 보여줄지(metrics)"를 정해 준 뒤 실제로 학습을 돌립니다. 특히 <strong>손실 함수 선택 규칙</strong>은 이 교재 전체에서 가장 자주 출제되는 부분이며, 이 챕터의 분기도가 그 기준입니다.</p>
 </blockquote>
 <p>Ch04까지 우리는 층을 쌓았습니다. 그런데 층을 쌓기만 한 모델은 아직 아무것도 배우지 못한 상태입니다. <code>model.summary()</code>가 보여 주는 파라미터 수만큼의 가중치가 무작위 값으로 채워져 있을 뿐입니다.</p>
-<p>이 가중치들을 데이터에 맞게 고쳐 나가려면 두 가지를 먼저 정해야 합니다. <strong>틀린 정도를 재는 자</strong>와 <strong>재어 본 뒤 가중치를 고치는 방법</strong>입니다. 이 두 가지를 모델에 붙이는 단계가 <code>compile</code>이고, 붙인 뒤 실제로 데이터를 흘려보내는 단계가 <code>fit</code>입니다.</p>
+<p>이 가중치들을 데이터에 맞게 고쳐 나가려면 두 가지를 먼저 정해야 합니다. <strong>틀린 정도를 재는 기준</strong>(손실 함수)과 <strong>틀린 정도를 잰 뒤 가중치를 고치는 방법</strong>(optimizer)입니다. 이 두 가지를 모델에 붙이는 단계가 <code>compile</code>이고, 붙인 뒤 실제로 데이터를 흘려보내는 단계가 <code>fit</code>입니다.</p>
 <hr />
 <h2 id="1-compile이-정하는-세-가지">1. compile이 정하는 세 가지</h2>
 <figure class="diagram" id="fig-ch05_compile-triple"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 376" width="800" height="376" role="img" aria-label="compile의 세 인자와 역할">
@@ -80,7 +80,7 @@
     <text x="32" y="352" font-size="12" fill="#94a3b8">모델이 줄이는 값은 loss 하나뿐입니다. metrics를 바꿔도 학습 방향은 달라지지 않습니다.</text>
   </g>
 </svg></div><figcaption><span class="diagram__num">그림 5-1</span><span class="diagram__caption">compile의 세 인자와 역할</span></figcaption></figure>
-<p><strong>한 줄 요약:</strong> <code>compile</code>은 <strong>loss</strong>(무엇을 줄일지), <strong>optimizer</strong>(어떻게 줄일지), <strong>metrics</strong>(사람이 볼 성적표)를 모델에 등록하는 한 줄짜리 설정 단계입니다.</p>
+<p><strong>한 줄 요약:</strong> <code>compile</code>은 <strong>loss</strong>(무엇을 줄일지), <strong>optimizer</strong>(어떻게 줄일지), <strong>metrics</strong>(사람이 확인할 지표)를 모델에 등록하는 한 줄짜리 설정 단계입니다.</p>
 <pre><code class="language-python">model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
@@ -116,7 +116,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>여기서 가장 자주 오해가 생기는 지점이 <code>metrics</code>입니다. <code>metrics</code>에 무엇을 넣든 <strong>모델이 학습하는 방향은 달라지지 않습니다.</strong> 모델은 오직 <code>loss</code>만 줄입니다. <code>metrics</code>는 그 과정을 사람이 읽을 수 있는 숫자로 옆에 띄워 주는 계기판일 뿐입니다.</p>
+<p>여기서 가장 자주 오해가 생기는 지점이 <code>metrics</code>입니다. <code>metrics</code>에 무엇을 넣든 <strong>모델이 학습하는 방향은 달라지지 않습니다.</strong> 모델은 오직 <code>loss</code>만 줄입니다. <code>metrics</code>는 그 과정을 사람이 읽을 수 있는 숫자로 옆에 함께 표시해 주는 참고 값일 뿐입니다.</p>
 <blockquote class="callout callout--warn">
 <p>⚠️ <strong>시험 포인트 — <code>loss</code>와 <code>metrics</code>를 바꿔 넣지 마십시오</strong><br />
 <code>loss='accuracy'</code>는 동작하지 않습니다. 정확도는 "맞았다/틀렸다"를 세는 계단식 값이라 미세하게 미분할 수 없고, 그래서 가중치를 고치는 기준이 될 수 없습니다. <code>compile()</code>은 통과하더라도 <code>fit()</code>을 부르는 순간 <code>ValueError: Could not interpret loss identifier: accuracy</code>가 납니다. 반대로 <code>metrics=['binary_crossentropy']</code>처럼 손실 함수를 지표 자리에 넣으면, <code>compile()</code>은 통과하지만 <code>fit()</code>에서 타깃 shape가 맞지 않아 오류가 나거나 통과하더라도 의미가 없습니다. <strong><code>loss</code>와 <code>metrics</code>는 서로의 자리에 넣는 값이 아닙니다.</strong> 줄일 대상은 <code>loss</code>, 볼 대상은 <code>metrics</code>로 자리를 고정해 외우십시오.</p>
@@ -222,8 +222,8 @@
     <text x="32" y="568" font-size="12" fill="#94a3b8">출력층과 loss는 항상 짝으로 움직입니다. 한쪽만 바꾸면 shape 오류가 나거나 학습이 조용히 망가집니다.</text>
   </g>
 </svg></div><figcaption><span class="diagram__num">그림 5-2</span><span class="diagram__caption">손실 함수와 출력층 짝 선택 분기</span></figcaption></figure>
-<p><strong>한 줄 요약:</strong> 손실 함수는 취향이 아니라 <strong>타깃의 형태가 결정합니다.</strong> 위 분기도의 질문 두 개("숫자인가 범주인가", "클래스가 2개인가", 다중이면 "정수인가 원-핫인가")에 답하면 loss와 출력층이 한 짝으로 정해집니다.</p>
-<p>이 분기도가 교재 전체에서 손실 함수 판단의 유일한 기준입니다. Ch04에서 본 출력층 선택 분기도는 출력층만 다뤘고, 그 짝이 되는 loss는 여기서 확정합니다.</p>
+<p><strong>한 줄 요약:</strong> 손실 함수는 <strong>타깃의 형태에 따라 정해집니다.</strong> 위 분기도의 질문 두 개("숫자인가 범주인가", "클래스가 2개인가", 다중이면 "정수인가 원-핫인가")에 답하면 loss와 출력층이 한 짝으로 정해집니다.</p>
+<p>이 교재에서 손실 함수는 이 분기도로 판단합니다. Ch04에서 본 출력층 선택 분기도는 출력층만 다뤘고, 그 짝이 되는 loss는 여기서 확정합니다.</p>
 <p>표로 다시 정리하면 이렇습니다. 딥러닝 문항에서 출력층과 손실 함수를 고를 때 이 표를 기준으로 삼습니다.</p>
 <div class="table-scroll" role="region" tabindex="0"><table>
 <thead>
@@ -266,7 +266,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>출력층과 loss는 <strong>반드시 짝으로 움직입니다.</strong> 한쪽만 바꾸면 학습이 조용히 망가지거나 오류가 납니다. 유형이 바뀌었을 때 손대야 하는 곳은 항상 이 두 줄(그리고 metrics 한 줄)입니다.</p>
+<p>출력층과 loss는 <strong>항상 짝으로 맞춰야 합니다.</strong> 한쪽만 바꾸면 학습이 제대로 되지 않거나 오류가 납니다. 유형이 바뀌었을 때 손대야 하는 곳은 항상 이 두 줄(그리고 metrics 한 줄)입니다.</p>
 <pre><code class="language-python"># 이진분류
 model.add(Dense(1, activation='sigmoid'))
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
@@ -287,7 +287,7 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 <p>회귀에서 <code>mse</code>(mean squared error, 평균제곱오차)와 <code>mae</code>(mean absolute error, 평균절대오차) 중 무엇을 쓸지 묻는다면, 문제에 지시가 없는 한 <code>loss='mse'</code>를 기본으로 하고 <code>metrics=['mae']</code>로 사람이 읽기 쉬운 지표를 함께 띄우는 조합이 무난합니다. <code>mse</code>는 오차를 제곱하므로 큰 오차에 더 크게 반응하고, <code>mae</code>는 이상치의 영향을 덜 받습니다.</p>
 <blockquote class="callout callout--warn">
 <p>⚠️ <strong>시험 포인트 — 회귀 출력층에 활성화 함수를 넣지 마십시오</strong><br />
-회귀 출력층은 <code>Dense(1)</code>입니다. 여기에 <code>activation='sigmoid'</code>를 붙이면 출력이 0~1로 눌려 집값이나 잔여 수명처럼 범위가 넓은 값을 절대 맞힐 수 없게 됩니다. 손실은 줄어들지 않고 <code>mae</code>가 큰 값에서 멈춥니다. 분류 코드를 복사해 회귀로 고칠 때 loss만 <code>mse</code>로 바꾸고 출력층의 <code>sigmoid</code>를 지우지 않는 실수가 특히 잦습니다.</p>
+회귀 출력층은 <code>Dense(1)</code>입니다. 여기에 <code>activation='sigmoid'</code>를 붙이면 출력이 0~1 사이의 값으로 제한되어 집값이나 잔여 수명처럼 범위가 넓은 값을 예측할 수 없습니다. 손실은 줄어들지 않고 <code>mae</code>가 큰 값에서 멈춥니다. 분류 코드를 복사해 회귀로 고칠 때 loss만 <code>mse</code>로 바꾸고 출력층의 <code>sigmoid</code>를 지우지 않는 실수가 특히 잦습니다.</p>
 </blockquote>
 <hr />
 <h3 id="직접-바꿔-보기-문제-유형이-바꾸는-compile-한-줄">직접 바꿔 보기 — 문제 유형이 바꾸는 compile 한 줄</h3>
@@ -363,7 +363,7 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])
     <text x="32" y="338" font-size="12" fill="#94a3b8">학습률은 한 걸음의 보폭입니다. 시험에서는 optimizer='adam' 기본값을 그대로 쓰십시오.</text>
   </g>
 </svg></div><figcaption><span class="diagram__num">그림 5-3</span><span class="diagram__caption">학습률에 따른 수렴 모습</span></figcaption></figure>
-<p><strong>한 줄 요약:</strong> optimizer는 손실이라는 골짜기를 내려가는 방법이고, <strong>학습률(learning rate)은 한 걸음의 보폭</strong>입니다. 보폭이 너무 작으면 느리고, 너무 크면 골짜기 바닥을 지나쳐 튕겨 나갑니다.</p>
+<p><strong>한 줄 요약:</strong> optimizer는 손실이 작아지는 방향으로 가중치를 조금씩 고치는 방법이고, <strong>학습률(learning rate)은 한 번에 고치는 크기</strong>입니다. 학습률이 너무 작으면 손실이 천천히 줄고, 너무 크면 손실이 최솟값 근처에서 오르내리거나 오히려 커집니다.</p>
 <p>시험에서는 사실상 <code>optimizer='adam'</code> 하나만 알면 됩니다. Adam은 학습이 진행되는 동안 보폭을 스스로 조절해 주기 때문에, 대부분의 정형 데이터 문제에서 기본값으로 무난하게 수렴합니다. 지시가 없다면 문자열 <code>'adam'</code>을 그대로 쓰십시오.</p>
 <p>학습률을 직접 조절해야 할 때만 객체 형태로 바꿔 씁니다. Adam의 기본 학습률은 <code>0.001</code>입니다.</p>
 <pre><code class="language-python">from tensorflow.keras.optimizers import Adam
@@ -372,7 +372,7 @@ model.compile(optimizer=Adam(learning_rate=0.001),
               loss='binary_crossentropy',
               metrics=['accuracy'])
 </code></pre>
-<p>손실이 전혀 줄지 않거나 <code>nan</code>으로 튀면 학습률이 너무 큰 경우를 의심하고 <code>0.0001</code> 수준으로 낮춰 봅니다. 반대로 손실이 아주 느리게만 줄어든다면 학습률을 키우거나 epochs를 늘립니다. 다만 시험 시간 안에서는 <strong>학습률을 튜닝하기보다 <code>'adam'</code> 기본값으로 두고 다음 문항으로 넘어가는 편</strong>이 점수에 유리합니다.</p>
+<p>손실이 전혀 줄지 않거나 <code>nan</code>이 나오면 학습률이 너무 큰 경우를 의심하고 <code>0.0001</code> 수준으로 낮춰 봅니다. 반대로 손실이 아주 느리게만 줄어든다면 학습률을 키우거나 epochs를 늘립니다. 다만 시험 시간 안에서는 <strong>학습률을 튜닝하기보다 <code>'adam'</code> 기본값으로 두고 다음 문항으로 넘어가는 편</strong>이 점수에 유리합니다.</p>
 <hr />
 <h2 id="4-fit-epochs-batch-size-step">4. fit — epochs, batch_size, step</h2>
 <figure class="diagram" id="fig-ch05_epoch-batch"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 336" width="800" height="336" role="img" aria-label="epoch, batch_size, step의 관계">
@@ -494,7 +494,7 @@ model.compile(optimizer=Adam(learning_rate=0.001),
 <p><code>batch_size</code>를 지정하지 않으면 기본값 <code>32</code>가 쓰입니다. 문제에서 값을 지시했다면 그 숫자를 그대로 옮겨 적으십시오.</p>
 <blockquote class="callout callout--warn">
 <p>⚠️ <strong>시험 포인트 — <code>epochs</code>를 무작정 늘리는 것은 대책이 아닙니다</strong><br />
-"성능이 안 나오니 <code>epochs=500</code>으로 올린다"는 흔한 유혹인데, 어느 지점을 지나면 학습 데이터에만 맞춰지는 <strong>과적합</strong>이 시작되어 평가(테스트) 데이터 성능은 오히려 떨어집니다. 올바른 대응은 <code>epochs</code>를 넉넉히 주되 <strong><code>EarlyStopping</code> 콜백으로 알아서 멈추게 하는 것</strong>이며, 이는 Ch06에서 다룹니다. 이 챕터에서는 "몇 epoch가 적절한지는 학습 곡선을 보고 판단한다"까지만 기억하면 됩니다.</p>
+"성능이 안 나오니 <code>epochs=500</code>으로 올린다"는 흔한 생각인데, 어느 지점을 지나면 학습 데이터에만 맞춰지는 <strong>과적합</strong>이 시작되어 평가(테스트) 데이터 성능은 오히려 떨어집니다. 올바른 대응은 <code>epochs</code>를 넉넉히 주되 <strong><code>EarlyStopping</code> 콜백으로 자동으로 멈추게 하는 것</strong>이며, 이는 Ch06에서 다룹니다. 이 챕터에서는 "몇 epoch가 적절한지는 학습 곡선을 보고 판단한다"까지만 기억하면 됩니다.</p>
 </blockquote>
 <hr />
 <h2 id="5-검증-데이터를-떼어내는-두-가지-방법">5. 검증 데이터를 떼어내는 두 가지 방법</h2>
@@ -579,7 +579,7 @@ model.compile(optimizer=Adam(learning_rate=0.001),
 </tr>
 </tbody>
 </table></div>
-<p>검증 데이터를 지정하지 않으면 <code>history</code>에 <code>val_loss</code>가 생기지 않고, 학습 곡선을 두 줄로 그릴 수 없으며, Ch06의 <code>EarlyStopping</code>도 감시할 대상을 잃습니다. <strong>딥러닝 학습 문항에서 <code>validation_split</code>(또는 <code>validation_data</code>)은 사실상 필수 인자로 보십시오.</strong></p>
+<p>검증 데이터를 지정하지 않으면 <code>history</code>에 <code>val_loss</code>가 생기지 않고, 학습 곡선을 두 줄로 그릴 수 없으며, Ch06의 <code>EarlyStopping</code>도 감시할 값이 없어집니다. <strong>딥러닝 학습 문항에서 <code>validation_split</code>(또는 <code>validation_data</code>)은 사실상 필수 인자로 보십시오.</strong></p>
 <p>떼어낸 검증 데이터는 <strong>가중치를 고치는 데 쓰이지 않는다</strong>는 점을 기억하십시오. §4에서 본 step 수를 검증분을 뺀 행 수로 세는 이유가 여기 있습니다.</p>
 <p>떼어내는 방법은 두 가지입니다.</p>
 <pre><code class="language-python"># 방법 A — 비율만 지정 (시험 기본형)
@@ -647,7 +647,7 @@ print(history.history.keys())
 <li><code>val_</code> 접두어가 붙은 것 — <strong>검증 데이터</strong>에서 잰 값 (검증을 지정했을 때만 생김)</li>
 <li><code>accuracy</code> 자리는 <code>compile</code>의 <code>metrics</code>에 넣은 이름 그대로입니다. 회귀에서 <code>metrics=['mae']</code>로 했다면 키는 <code>mae</code>, <code>val_mae</code>가 됩니다.</li>
 </ul>
-<p>각 값은 epoch 수만큼의 길이를 가진 리스트이므로 그대로 그래프로 그릴 수 있습니다. 아래는 <strong>모든 문제 유형에서 재사용할 수 있는 학습 곡선 플롯 함수</strong>입니다.</p>
+<p>각 값은 epoch 수만큼의 원소가 들어 있는 리스트이므로 그대로 그래프로 그릴 수 있습니다. 아래는 <strong>모든 문제 유형에서 재사용할 수 있는 학습 곡선 플롯 함수</strong>입니다.</p>
 <pre><code class="language-python">import matplotlib.pyplot as plt
 
 def plot_history(history):
@@ -691,7 +691,7 @@ print('총 학습 epoch 수:', len(history.history['loss']))
 <p>마지막 줄은 Ch06에서 <code>EarlyStopping</code>이 실제로 몇 epoch에서 멈췄는지 확인할 때 유용합니다.</p>
 <hr />
 <h2 id="시험장-표준-코드">시험장 표준 코드</h2>
-<p>아래는 <strong>컴파일부터 학습, 곡선 확인까지 한 벌로 도는 완결 코드</strong>입니다. 데이터는 sklearn 내장 유방암 진단 데이터(이진분류)를 씁니다. 시험장에서는 데이터 로딩 부분만 문제의 데이터로 바꾸고, 유형이 다르면 표시해 둔 <strong>교체 지점 세 줄</strong>만 고치면 됩니다.</p>
+<p>아래는 <strong>컴파일부터 학습, 곡선 확인까지 한 번에 실행되는 완결 코드</strong>입니다. 데이터는 sklearn 내장 유방암 진단 데이터(이진분류)를 씁니다. 시험장에서는 데이터 로딩 부분만 문제의 데이터로 바꾸고, 유형이 다르면 표시해 둔 <strong>교체 지점 세 줄</strong>만 고치면 됩니다.</p>
 <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -740,7 +740,7 @@ print(history.history.keys())
 print('마지막 val_loss:', round(history.history['val_loss'][-1], 4))
 print('마지막 val_accuracy:', round(history.history['val_accuracy'][-1], 4))
 </code></pre>
-<p>출력 요지: <code>X shape: (569, 30) / y 앞 5개: [0 0 0 0 0]</code>이 먼저 찍히고, epoch마다 <code>loss</code>, <code>accuracy</code>, <code>val_loss</code>, <code>val_accuracy</code> 네 값이 한 줄씩 50줄 출력됩니다. 마지막에 <code>dict_keys([...])</code>와 검증 성적 두 줄이 나옵니다. 검증 정확도는 <strong>0.98~1.00 구간</strong>에서 형성됩니다(학습 데이터 398행의 20%인 검증 세트가 80건뿐이라 정확도 눈금이 <code>1/80 = 0.0125</code> 단위로 성깁니다). 라이브러리 버전과 실행 시점에 따라 소수점 아래는 달라지므로, 자기 결과가 이 구간 안에 들어오는지만 확인하면 됩니다.</p>
+<p>출력 요지: <code>X shape: (569, 30) / y 앞 5개: [0 0 0 0 0]</code>이 먼저 찍히고, epoch마다 <code>loss</code>, <code>accuracy</code>, <code>val_loss</code>, <code>val_accuracy</code> 네 값이 한 줄씩 50줄 출력됩니다. 마지막에 <code>dict_keys([...])</code>와 검증 성적 두 줄이 나옵니다. 검증 정확도는 <strong>0.98~1.00 구간</strong>에서 나옵니다(학습 데이터 398행의 20%인 검증 세트가 80건뿐이라 정확도 눈금이 <code>1/80 = 0.0125</code> 단위로 성깁니다). 라이브러리 버전과 실행 시점에 따라 소수점 아래는 달라지므로, 자기 결과가 이 구간 안에 들어오는지만 확인하면 됩니다.</p>
 <p><strong>유형을 바꿀 때 손대는 곳은 위 세 줄뿐입니다.</strong></p>
 <pre><code class="language-python"># 다중분류 (K=3, y가 0/1/2 정수 라벨일 때)
 model.add(Dense(3, activation='softmax'))                 # (1)
@@ -799,8 +799,8 @@ model.compile(optimizer='adam',
 </tbody>
 </table></div>
 <section class="v2-drills" id="drills-ch05" data-v2-drills data-chapter="5" aria-label="Ch05 실습 셀 — 코드 빈칸 채우기"></section>
-<noscript><p class="v2-noscript">실습 셀 6문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
-<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch05">
+<noscript><p class="v2-noscript">실습 셀 6문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>확인 문제와 해설 보기 (이전 판 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch05">
 <h2 id="ch05-확인-문제-컴파일과-학습">Ch05 확인 문제 — 컴파일과 학습</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>

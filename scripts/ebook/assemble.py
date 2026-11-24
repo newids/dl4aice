@@ -59,7 +59,7 @@ def chapter_page(item, meta, body_md, svgs, quiz_md, nav, book_title, drill_coun
                 used_ids.add(drill_anchor)
                 drill_nav = (drill_anchor, drill_title)
                 parts.append(block)
-                parts.append(v2.legacy_block(legacy, "지면판 확인 문제와 해설 보기 (v1 원문)"))
+                parts.append(v2.legacy_block(legacy, "확인 문제와 해설 보기 (이전 판 원문)"))
             else:
                 parts.append(legacy)
 
@@ -100,7 +100,7 @@ def mock_page(item, meta, body_md, nav, book_title, exam: dict | None = None) ->
     if exam:
         content = v2.cbt_block(exam)
         if legacy:
-            content += "\n" + v2.legacy_block(legacy, "지면판 모의고사 보기 (v1 원문 12문항 · 데이터 생성 코드 · 해설)")
+            content += "\n" + v2.legacy_block(legacy, "이전 판 모의고사 보기 (12문항 · 데이터 생성 코드 · 해설)")
         headings: list[tuple[str, str]] = []
     else:
         content = legacy

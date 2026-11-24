@@ -116,7 +116,7 @@
 <li><strong>가중합 + 편향</strong>: 입력값 각각에 가중치(weight)를 곱해 전부 더하고, 편향(bias) 한 개를 더합니다. 결과를 <code>z</code>라고 부릅니다.</li>
 <li><strong>활성화</strong>: <code>z</code>를 활성화 함수(activation function)에 넣어 최종 출력 <code>a</code>를 만듭니다.</li>
 </ol>
-<p>여기서 <strong>가중치는 "이 입력을 얼마나 중요하게 볼 것인가"</strong>를 나타내는 숫자이고, <strong>편향은 "기본적으로 얼마만큼 얹고 시작할 것인가"</strong>를 나타내는 숫자입니다. 이 두 종류의 숫자가 바로 학습으로 바뀌는 값, 즉 <strong>모델의 파라미터</strong>입니다. 입력 데이터도 정답도 바뀌지 않습니다. 학습 중에 바뀌는 것은 오직 가중치와 편향입니다.</p>
+<p>여기서 <strong>가중치는 각 입력이 결과에 얼마나 크게 반영되는지</strong>를 정하는 숫자이고, <strong>편향은 입력과 관계없이 더해지는 값</strong>을 정하는 숫자입니다. 이 두 종류의 숫자가 바로 학습으로 바뀌는 값, 즉 <strong>모델의 파라미터</strong>입니다. 입력 데이터도 정답도 바뀌지 않습니다. 학습 중에 바뀌는 것은 오직 가중치와 편향입니다.</p>
 <p>뉴런 하나를 numpy로 그대로 계산해 봅니다.</p>
 <pre><code class="language-python">import numpy as np
 
@@ -235,7 +235,7 @@ print(f&quot;z2 = {z2:.2f}, a2 = {np.maximum(0, z2):.2f}&quot;)
 </tr>
 </tbody>
 </table></div>
-<p>입력층과 출력층의 크기는 우리가 정하는 것이 아니라 <strong>데이터와 문제가 정해 줍니다.</strong> 컬럼이 8개면 입력은 8이고, 이진분류면 출력은 1입니다. 반면 은닉층의 개수와 노드 수는 설계자가 고르는 값입니다.</p>
+<p>입력층과 출력층의 크기는 <strong>데이터와 문제가 정합니다.</strong> 컬럼이 8개면 입력은 8이고, 이진분류면 출력은 1입니다. 반면 은닉층의 개수와 노드 수는 설계자가 고르는 값입니다.</p>
 <p>층 전체의 계산은 뉴런 하나의 계산을 행렬 곱으로 묶은 것뿐입니다. 입력 3개를 받아 은닉 노드 4개를 만드는 층을 계산해 봅니다.</p>
 <pre><code class="language-python">import numpy as np
 
@@ -387,12 +387,12 @@ print(&quot;softmax 합:&quot;, round(float(p.sum()), 6))
 <p>참고: 실무에서는 <code>z</code>가 아주 큰 값일 때 <code>np.exp</code>가 넘치는 것을 막기 위해 <code>np.exp(z - z.max())</code>로 바꿔 쓰기도 합니다. 계산 결과는 같습니다. 시험에서는 Keras가 내부적으로 처리하므로 <code>activation='softmax'</code>라고만 쓰면 됩니다.</p>
 </blockquote>
 <h3 id="활성화-함수가-없으면-무슨-일이-생기는가">활성화 함수가 없으면 무슨 일이 생기는가</h3>
-<p>은닉층에서 활성화 함수를 빼면, 층을 아무리 많이 쌓아도 전체가 <strong>하나의 직선(선형식)으로 합쳐집니다.</strong> 곱하고 더하는 연산만 반복한 결과는 결국 곱하고 더한 식 하나이기 때문입니다. 딥러닝이 복잡한 패턴을 배울 수 있는 이유는 층 사이마다 relu 같은 꺾인 함수가 끼어들어 직선을 구부려 주기 때문입니다.</p>
+<p>은닉층에서 활성화 함수를 빼면, 층을 아무리 많이 쌓아도 전체가 <strong>하나의 직선(선형식)으로 합쳐집니다.</strong> 곱하고 더하는 연산만 반복한 결과는 결국 곱하고 더한 식 하나이기 때문입니다. 딥러닝이 복잡한 패턴을 배울 수 있는 이유는 층 사이마다 relu 같은 꺾인 함수가 들어가서 직선이 아닌 관계도 표현할 수 있기 때문입니다.</p>
 <blockquote class="callout callout--warn">
 <p>⚠️ <strong>시험 포인트 2 — 은닉층에 sigmoid를 남용하지 않습니다</strong><br />
-sigmoid는 출력을 0~1로 눌러 담기 때문에 층을 여러 개 쌓으면 신호가 점점 작아져 학습이 잘 진행되지 않습니다. <strong>은닉층은 relu가 표준</strong>이고, sigmoid는 이진분류 출력층 자리에 씁니다.</p>
+sigmoid의 출력은 0~1 사이 값이어서 층을 여러 개 쌓으면 역전파로 전달되는 값이 점점 작아져 학습이 잘 진행되지 않습니다. <strong>은닉층은 relu가 표준</strong>이고, sigmoid는 이진분류 출력층 자리에 씁니다.</p>
 <p>⚠️ <strong>시험 포인트 3 — 이진분류 출력층에 softmax를 쓰지 않습니다</strong><br />
-<code>Dense(1, activation='softmax')</code>는 값이 하나뿐이라 항상 1.0을 출력합니다. 학습이 전혀 되지 않는데도 오류 메시지가 나지 않아 알아채기 어렵습니다. <strong>이진분류는 <code>sigmoid</code>로 노드 1개</strong>, <strong>다중분류는 <code>softmax</code>로 노드 K개</strong>입니다. 출력층은 Ch04에서, 손실 함수와의 짝은 Ch05에서 확정합니다.</p>
+<code>Dense(1, activation='softmax')</code>는 값이 하나뿐이라 항상 1.0을 출력합니다. 학습이 전혀 되지 않는데도 오류 메시지가 나지 않아 알아채기 어렵습니다. <strong>이진분류는 <code>sigmoid</code>로 노드 1개</strong>, <strong>다중분류는 <code>softmax</code>로 노드 K개</strong>입니다. 출력층은 Ch04에서, 손실 함수와의 짝은 Ch05에서 다룹니다.</p>
 </blockquote>
 <hr />
 <h2 id="3-4-순전파와-역전파-예측하고-되돌아가-고칩니다">3.4 순전파와 역전파 — 예측하고, 되돌아가 고칩니다</h2>
@@ -478,8 +478,8 @@ sigmoid는 출력을 0~1로 눌러 담기 때문에 층을 여러 개 쌓으면 
 <p><strong>한 줄 요약 — 순전파는 왼쪽에서 오른쪽으로 가며 예측값을 만들고, 역전파는 오른쪽에서 왼쪽으로 돌아오며 각 가중치를 얼마나 고칠지 알려 줍니다.</strong></p>
 <p><strong>순전파(forward propagation)</strong> 는 지금까지 본 계산 그대로입니다. 입력 → 은닉층 → 은닉층 → 출력층 순서로 값을 흘려보내면 예측값이 나옵니다.</p>
 <p>예측값이 나오면 정답과 비교해 <strong>손실 함수(loss function)</strong> 로 오차를 하나의 숫자로 잽니다. 이 숫자가 작을수록 좋은 모델입니다. 어떤 손실 함수를 쓰는지는 문제 유형에 따라 달라지며, Ch05에서 정리합니다.</p>
-<p><strong>역전파(backpropagation)</strong> 는 이 손실값에서 출발해 거꾸로 거슬러 가며 <strong>"가중치 하나하나가 오차에 얼마나 기여했는지"</strong> 를 계산합니다. 마지막 층부터 앞 층으로 책임을 나눠 전달하기 때문에 "역"전파라고 부릅니다. 계산된 기여도(기울기)를 보고 <strong>손실이 줄어드는 방향으로 모든 가중치를 조금씩 옮기는 것</strong>이 학습입니다. 이때 "조금씩"의 보폭을 정하는 값이 학습률(learning rate)이며, 이 갱신을 담당하는 것이 Ch05에서 배울 <code>optimizer</code>입니다.</p>
-<p>역전파의 수식 유도는 AICE Associate 시험 범위 밖입니다. 시험에서 필요한 것은 <strong>"손실이 줄어드는 방향으로 가중치가 자동으로 수정된다"</strong> 는 방향 감각과, 그 과정이 <code>model.fit()</code> 한 줄 안에서 벌어진다는 사실입니다.</p>
+<p><strong>역전파(backpropagation)</strong> 는 이 손실값에서 출발해 거꾸로 가며 <strong>"가중치 하나하나가 오차에 얼마나 기여했는지"</strong> 를 계산합니다. 마지막 층부터 앞 층으로 오차를 나눠 전달하기 때문에 "역"전파라고 부릅니다. 계산된 기여도(기울기)를 보고 <strong>손실이 줄어드는 방향으로 모든 가중치를 조금씩 옮기는 것</strong>이 학습입니다. 이때 한 번에 옮기는 크기를 정하는 값이 학습률(learning rate)이며, 이 갱신을 담당하는 것이 Ch05에서 배울 <code>optimizer</code>입니다.</p>
+<p>역전파의 수식 유도는 AICE Associate 시험 범위 밖입니다. 시험에서 필요한 것은 <strong>"손실이 줄어드는 방향으로 가중치가 자동으로 수정된다"</strong> 는 개념과, 그 과정이 <code>model.fit()</code> 한 줄 안에서 벌어진다는 사실입니다.</p>
 <hr />
 <h2 id="3-5-학습-루프-step과-epoch">3.5 학습 루프 — step과 epoch</h2>
 <figure class="diagram" id="fig-ch03_learning-loop"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" width="800" height="470" role="img" aria-labelledby="ch03-loop-title" font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
@@ -552,7 +552,7 @@ sigmoid는 출력을 0~1로 눌러 담기 때문에 층을 여러 개 쌓으면 
   <!-- 주석 -->
   <text x="400" y="442" font-size="12" fill="#94a3b8" text-anchor="middle">예: 데이터 1,000행에 batch_size=32이면 1 epoch은 32 step으로 이루어집니다</text>
 </svg></div><figcaption><span class="diagram__num">그림 3-5</span><span class="diagram__caption">학습 한 번의 반복 루프</span></figcaption></figure>
-<p><strong>한 줄 요약 — 데이터 한 묶음을 넣고 예측·채점·수정하는 한 바퀴가 1 step이고, 전체 데이터를 한 번 다 도는 것이 1 epoch입니다.</strong></p>
+<p><strong>한 줄 요약 — 데이터 한 묶음을 넣고 예측하고 손실을 계산해 가중치를 고치는 한 바퀴가 1 step이고, 전체 데이터를 한 번 다 도는 것이 1 epoch입니다.</strong></p>
 <p>학습은 위 그림의 다섯 단계를 수없이 반복하는 일입니다.</p>
 <ol>
 <li>데이터를 <code>batch_size</code>만큼 잘라 한 묶음 넣습니다</li>
@@ -680,7 +680,7 @@ sigmoid는 출력을 0~1로 눌러 담기 때문에 층을 여러 개 쌓으면 
 <p><strong>한 줄 요약 — 층과 노드를 늘리면 표현력이 커지지만 과적합 위험도 함께 커집니다.</strong></p>
 <ul>
 <li><strong>너무 작으면</strong>: 데이터의 패턴을 담아내지 못해 학습 데이터에서조차 성능이 낮습니다(과소적합).</li>
-<li><strong>너무 크면</strong>: 학습 데이터를 통째로 외워 버려 학습 성능만 좋고 평가(테스트) 데이터 성능은 떨어집니다(과적합). 진단과 대응은 Ch06에서 다룹니다.</li>
+<li><strong>너무 크면</strong>: 학습 데이터에 지나치게 맞춰져 학습 성능만 좋고 평가(테스트) 데이터 성능은 떨어집니다(과적합). 진단과 대응은 Ch06에서 다룹니다.</li>
 </ul>
 <p>시험에서는 최적 구조를 찾는 실험을 요구하지 않습니다. 요구 사항은 대개 <strong>"은닉층 2개 이상"</strong> 같은 형태입니다. 아래 정도를 기본형으로 외워 두면 대부분의 문항에 무리 없이 대응할 수 있습니다.</p>
 <div class="table-scroll" role="region" tabindex="0"><table>
@@ -711,7 +711,7 @@ sigmoid는 출력을 0~1로 눌러 담기 때문에 층을 여러 개 쌓으면 
 </table></div>
 <hr />
 <h2 id="시험장-표준-코드">시험장 표준 코드</h2>
-<p>Keras 없이 numpy만으로 <strong>2층 신경망의 순전파 → 손실 계산 → "가중치를 흔들면 손실이 변한다"</strong> 까지를 한 번에 확인하는 코드입니다. <code>model.fit()</code>이 내부에서 수천 번 반복하는 일의 축소판입니다.</p>
+<p>Keras 없이 numpy만으로 <strong>2층 신경망의 순전파 → 손실 계산 → "가중치를 바꾸면 손실이 변한다"</strong> 까지를 한 번에 확인하는 코드입니다. <code>model.fit()</code>이 내부에서 수천 번 반복하는 일의 축소판입니다.</p>
 <pre><code class="language-python">import numpy as np
 
 rng = np.random.default_rng(42)
@@ -760,7 +760,7 @@ print(&quot;손실 변화량:&quot;, round(float(loss_up - loss), 4))
 - <code>손실</code>은 0.7 안팎의 값입니다. 아직 학습을 하지 않아 예측이 절반 확률에 가깝기 때문입니다.<br />
 - <code>손실 변화량</code>은 이 실행에서 <strong><code>0.0019</code>, 즉 양수</strong>입니다(<code>손실: 0.708</code> → <code>W2[0,0] += 0.1 이후 손실: 0.7099</code>). 가중치를 키웠더니 손실이 오히려 늘었다는 뜻이므로, <code>W2[0, 0]</code>은 <strong>키우는 쪽이 아니라 줄이는 쪽</strong>으로 옮겨야 합니다.<br />
 - 일반화하면, 변화량이 <strong>음수면 그 방향으로 가중치를 옮기는 것이 이득</strong>이고, 양수면 반대 방향으로 옮겨야 합니다.</p>
-<p>마지막 출력이 이 챕터의 결론입니다. 역전파는 이 "어느 방향으로 옮겨야 손실이 줄어드는가"를 가중치 <strong>하나씩 흔들어 보지 않고 전부 한 번에</strong> 계산해 주는 방법이고, optimizer는 그 방향으로 실제로 값을 옮기는 담당자입니다. 우리가 Keras에서 쓰게 될 코드는 이 전 과정을 <code>model.fit()</code> 한 줄로 대신합니다.</p>
+<p>마지막 출력이 이 챕터의 결론입니다. 역전파는 이 "어느 방향으로 옮겨야 손실이 줄어드는가"를 가중치 <strong>하나씩 바꿔 보지 않고 전부 한 번에</strong> 계산하는 방법이고, optimizer는 그 방향으로 실제로 값을 옮기는 역할을 합니다. 우리가 Keras에서 쓰게 될 코드는 이 전 과정을 <code>model.fit()</code> 한 줄로 대신합니다.</p>
 <hr />
 <h2 id="핵심-요약">핵심 요약</h2>
 <div class="table-scroll" role="region" tabindex="0"><table>
@@ -799,8 +799,8 @@ print(&quot;손실 변화량:&quot;, round(float(loss_up - loss), 4))
 </table></div>
 <p>다음 챕터에서는 이 구조를 <code>Sequential</code>과 <code>Dense</code>로 옮겨 실제로 동작하는 모델을 만듭니다.</p>
 <section class="v2-drills" id="drills-ch03" data-v2-drills data-chapter="3" aria-label="Ch03 실습 셀 — 코드 빈칸 채우기"></section>
-<noscript><p class="v2-noscript">실습 셀 5문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
-<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch03">
+<noscript><p class="v2-noscript">실습 셀 5문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>확인 문제와 해설 보기 (이전 판 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch03">
 <h2 id="ch03-확인-문제-딥러닝은-어떻게-배우는가">Ch03 확인 문제 — 딥러닝은 어떻게 배우는가</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
