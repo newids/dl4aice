@@ -1,0 +1,100 @@
+@charset "utf-8";
+/* 뉴런이 하는 일 — Ch03 3.7 직접 해 보는 그림. 색은 값(파랑), 가중치 부호(청록/장밋빛), 표시점(주황)에만 쓴다. */
+.v2-neuron {
+  --nr-bg: transparent; --nr-surface: #ffffff; --nr-sunken: #eaeef5; --nr-fg: #17212f; --nr-soft: #46546a; --nr-muted: #6b7a90;
+  --nr-line: #d3dae6; --nr-signal: #2458d6; --nr-signal-soft: #dce7ff; --nr-pos: #0b8f7a; --nr-pos-soft: #d5f3ec;
+  --nr-neg: #c2416b; --nr-neg-soft: #fbe0e9; --nr-warm: #b86a00; --nr-warm-soft: #fdecc8; --nr-plot-bg: #fbfcfe;
+  --nr-font: var(--font-sans); --nr-mono: var(--font-mono); --nr-radius: 14px;
+  display: grid; gap: 2.4rem; margin: 1.5rem 0 2rem; color: var(--nr-fg);
+}
+:root[data-theme="dark"] .v2-neuron {
+  --nr-surface: #141c2a; --nr-sunken: #1b2536; --nr-fg: #e7ecf5; --nr-soft: #bdc8d9; --nr-muted: #8e9db3;
+  --nr-line: #2b384d; --nr-signal: #7ea6ff; --nr-signal-soft: #1c2f57; --nr-pos: #3fd0b6; --nr-pos-soft: #113a35;
+  --nr-neg: #f08aa9; --nr-neg-soft: #43202d; --nr-warm: #f2b450; --nr-warm-soft: #3e2f10; --nr-plot-bg: #101827;
+}
+.v2-neuron * { box-sizing: border-box; }
+.v2-neuron { font-family: var(--nr-font); font-size: 16.5px; line-height: 1.75; word-break: keep-all; overflow-wrap: anywhere; }
+.page-body .v2-neuron section { display: grid; gap: 1rem; }
+.page-body .v2-neuron h3 { margin: 0; padding: 0; border: 0; color: var(--nr-fg); font-size: 1.3rem; line-height: 1.3; letter-spacing: -0.015em; text-wrap: balance; }
+.page-body .v2-neuron h4 { margin: 0 0 0.3rem; font-size: 1.02rem; color: var(--nr-fg); }
+.page-body .v2-neuron p { margin: 0; max-width: 44rem; }
+.page-body .v2-neuron .step { font-family: var(--nr-mono); font-size: 0.8rem; font-weight: 600; color: var(--nr-muted); letter-spacing: 0.04em; }
+.page-body .v2-neuron .panel { background: var(--nr-surface); border: 1px solid var(--nr-line); border-radius: var(--nr-radius); padding: 1.1rem; display: grid; gap: 1rem; min-width: 0; }
+.page-body .v2-neuron .figure { width: 100%; overflow-x: auto; }
+.page-body .v2-neuron .figure svg { display: block; width: 100%; min-width: 34rem; height: auto; }
+.page-body .v2-neuron .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; }
+.page-body .v2-neuron .ctl { display: grid; gap: 0.5rem; padding: 0.8rem 0.9rem; background: var(--nr-sunken); border-radius: 10px; min-width: 0; }
+.page-body .v2-neuron .ctl__name { font-weight: 600; font-size: 0.95rem; }
+.page-body .v2-neuron .ctl label { display: grid; grid-template-columns: 3.6rem minmax(0, 1fr) 2.8rem; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--nr-soft); }
+.page-body .v2-neuron .ctl output { font-family: var(--nr-mono); font-size: 0.82rem; text-align: right; color: var(--nr-fg); font-variant-numeric: tabular-nums; }
+.page-body .v2-neuron input[type="range"] { width: 100%; min-width: 0; accent-color: var(--nr-signal); height: 1.6rem; }
+.page-body .v2-neuron .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.page-body .v2-neuron .seg { display: inline-flex; padding: 3px; background: var(--nr-sunken); border-radius: 10px; }
+.page-body .v2-neuron .seg button, .page-body .v2-neuron .btn {
+  min-height: 2.6rem; padding: 0.35rem 0.95rem; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--nr-soft);
+  background: transparent; border: 1px solid transparent; border-radius: 8px; cursor: pointer;
+}
+.page-body .v2-neuron .seg button[aria-pressed="true"] { color: var(--nr-signal); background: var(--nr-surface); border-color: var(--nr-line); }
+.page-body .v2-neuron .btn { color: var(--nr-fg); background: var(--nr-surface); border-color: var(--nr-line); }
+.page-body .v2-neuron .btn:hover { border-color: var(--nr-signal); color: var(--nr-signal); }
+.page-body .v2-neuron .btn--main { color: var(--nr-surface); background: var(--nr-signal); border-color: var(--nr-signal); }
+.page-body .v2-neuron .btn--main:hover { color: var(--nr-surface); filter: brightness(1.08); }
+.page-body .v2-neuron button:focus-visible, .page-body .v2-neuron input:focus-visible, .page-body .v2-neuron a:focus-visible { outline: 2px solid var(--nr-signal); outline-offset: 2px; }
+.page-body .v2-neuron .calc {
+  margin: 0; padding: 0.8rem 1rem; overflow-x: auto; font-family: var(--nr-mono); font-size: 0.9rem; line-height: 1.9;
+  background: var(--nr-sunken); border-radius: 10px; white-space: pre; font-variant-numeric: tabular-nums; color: var(--nr-fg);
+}
+.page-body .v2-neuron .calc b { font-weight: 600; }
+.page-body .v2-neuron .t-pos { color: var(--nr-pos); } .t-neg { color: var(--nr-neg); } .t-sig { color: var(--nr-signal); } .t-warm { color: var(--nr-warm); }
+.page-body .v2-neuron .note { padding: 0.8rem 1rem; font-size: 0.95rem; color: var(--nr-soft); background: var(--nr-sunken); border-radius: 10px; max-width: none; }
+.page-body .v2-neuron .uses { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; }
+.page-body .v2-neuron .use { display: grid; gap: 0.6rem; align-content: start; padding: 1rem; background: var(--nr-surface); border: 1px solid var(--nr-line); border-radius: var(--nr-radius); min-width: 0; }
+.page-body .v2-neuron .use p { font-size: 0.93rem; color: var(--nr-soft); }
+.page-body .v2-neuron .use__tag { justify-self: start; padding: 0.1rem 0.6rem; font-size: 0.76rem; font-weight: 600; border-radius: 999px; color: var(--nr-signal); background: var(--nr-signal-soft); }
+.page-body .v2-neuron .big { font-family: var(--nr-mono); font-size: 1.7rem; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.page-body .v2-neuron .verdict { justify-self: start; padding: 0.15rem 0.7rem; font-size: 0.85rem; font-weight: 600; border-radius: 999px; }
+.page-body .v2-neuron .verdict--yes { color: var(--nr-neg); background: var(--nr-neg-soft); }
+.page-body .v2-neuron .verdict--no { color: var(--nr-pos); background: var(--nr-pos-soft); }
+.page-body .v2-neuron .bars { display: grid; gap: 0.4rem; }
+.page-body .v2-neuron .bar { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) 3rem; align-items: center; gap: 0.5rem; font-size: 0.82rem; }
+.page-body .v2-neuron .bar__track { height: 0.7rem; background: var(--nr-sunken); border-radius: 999px; overflow: hidden; }
+.page-body .v2-neuron .bar__fill { display: block; height: 100%; background: var(--nr-muted); border-radius: inherit; transition: width 260ms ease-out; }
+.page-body .v2-neuron .bar.is-top .bar__fill { background: var(--nr-signal); }
+.page-body .v2-neuron .bar.is-top { font-weight: 600; }
+.page-body .v2-neuron .bar span:last-child { font-family: var(--nr-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.page-body .v2-neuron .train { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.page-body .v2-neuron canvas { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--nr-plot-bg); border: 1px solid var(--nr-line); }
+.page-body .v2-neuron .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.page-body .v2-neuron .stat { padding: 0.6rem 0.7rem; background: var(--nr-sunken); border-radius: 10px; }
+.page-body .v2-neuron .stat span { display: block; font-size: 0.76rem; color: var(--nr-muted); }
+.page-body .v2-neuron .stat strong { font-family: var(--nr-mono); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.page-body .v2-neuron .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 0.84rem; color: var(--nr-soft); }
+.page-body .v2-neuron .dot { display: inline-block; width: 0.7rem; height: 0.7rem; margin-right: 0.35rem; border-radius: 50%; vertical-align: -0.05rem; }
+.page-body .v2-neuron .duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.page-body .v2-neuron .duo__cap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 0.8rem; margin: 0 0 0.5rem; }
+.page-body .v2-neuron .duo__cap strong { font-size: 0.98rem; }
+.page-body .v2-neuron .duo__cap span { font-family: var(--nr-mono); font-size: 0.86rem; color: var(--nr-soft); font-variant-numeric: tabular-nums; }
+.page-body .v2-neuron .verdict--warn { color: var(--nr-warm); background: var(--nr-warm-soft); }
+.page-body .v2-neuron .work { width: 100%; border-collapse: collapse; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.page-body .v2-neuron .work th, .page-body .v2-neuron .work td { padding: 0.4rem 0.6rem; text-align: right; border-bottom: 1px solid var(--nr-line); white-space: nowrap; }
+.page-body .v2-neuron .work th:first-child, .page-body .v2-neuron .work td:first-child { text-align: left; }
+.page-body .v2-neuron .work thead th { font-size: 0.8rem; font-weight: 600; color: var(--nr-muted); }
+.page-body .v2-neuron .work td { font-family: var(--nr-mono); }
+.page-body .v2-neuron .work td:first-child { font-family: var(--nr-font); }
+.page-body .v2-neuron .work tr.is-off td { color: var(--nr-muted); }
+.page-body .v2-neuron .work tfoot td { font-weight: 600; border-bottom: 0; }
+.page-body .v2-neuron .tablewrap { overflow-x: auto; }
+.page-body .v2-neuron .plain { margin: 0; padding-left: 1.2rem; max-width: 44rem; }
+.page-body .v2-neuron .plain li { margin-bottom: 0.35rem; }
+.page-body .v2-neuron .loop { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; counter-reset: loop; }
+.page-body .v2-neuron .loop li { padding: 0.8rem 0.9rem; background: var(--nr-sunken); border-radius: 10px; font-size: 0.92rem; counter-increment: loop; }
+.page-body .v2-neuron .loop li::before { content: counter(loop); display: block; font-family: var(--nr-mono); font-size: 0.8rem; font-weight: 600; color: var(--nr-signal); }
+.page-body .v2-neuron .loop strong { display: block; }
+.page-body .v2-neuron svg text { font-family: var(--nr-font); }
+.page-body .v2-neuron svg .mono { font-family: var(--nr-mono); }
+.page-body .v2-neuron .pulse { transition: stroke 200ms ease-out, stroke-width 200ms ease-out; }
+@media (max-width: 760px) {
+  .page-body .v2-neuron .cols, .page-body .v2-neuron .uses, .page-body .v2-neuron .train, .page-body .v2-neuron .duo { grid-template-columns: minmax(0, 1fr); }
+  .page-body .v2-neuron .loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .bar__fill, .pulse { transition: none; } }

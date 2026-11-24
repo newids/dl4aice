@@ -130,7 +130,7 @@ def head_extra() -> str:
     return f'<link rel="stylesheet" href="{CSS_HREF}" />\n{THEME_BOOT}'
 
 
-def scripts(kind: str, *, arch: bool = False) -> str:
+def scripts(kind: str, *, arch: bool = False, neuron: bool = False) -> str:
     """페이지 종류별 defer 스크립트 묶음. kind: chapter | mock | index | appendix | plain"""
     data: list[str] = ["openbook_refs"]
     modules: list[str] = ["dl4aice-core", "motion", "code-blocks"]
@@ -141,6 +141,8 @@ def scripts(kind: str, *, arch: bool = False) -> str:
         modules += ["grader-core", "code-grader"]
         if arch:
             modules.append("arch-switcher")
+        if neuron:
+            modules.append("neuron")
     elif kind == "mock":
         data.append("mock_exams_14q")
         modules += ["grader-core", "code-grader", "cbt-engine"]
@@ -175,9 +177,17 @@ def arch_widget(fields: list[str]) -> str:
     )
 
 
+def neuron_widget() -> str:
+    """`<!-- WIDGET: neuron -->` — Ch03의 값을 바꿔 가며 보는 그림. 본문 조각은 _workspace/widgets/neuron.html."""
+    fragment = (ROOT / "_workspace" / "widgets" / "neuron.html").read_text(encoding="utf-8")
+    return fragment + _noscript("이 절의 그림은 자바스크립트를 켜야 움직입니다. 같은 내용은 3.1~3.5절의 도해와 설명에 있습니다.")
+
+
 def widget(kind: str, fields: list[str]) -> str:
     if kind == "arch":
         return arch_widget(fields)
+    if kind == "neuron":
+        return neuron_widget()
     return f'<div class="diagram__missing" role="alert"><strong>위젯 누락</strong><span>{html.escape(kind)}</span></div>'
 
 
