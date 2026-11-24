@@ -806,7 +806,7 @@ model.compile(optimizer='adam',
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
 <p>이 챕터의 범위는 <strong><code>compile()</code>과 <code>fit()</code>, 그리고 <code>history</code>까지</strong>입니다.<br />
 콜백(<code>EarlyStopping</code> 등)은 Ch06, <code>evaluate</code>·<code>predict</code>는 Ch07에서 다루므로 여기서는 쓰지 않습니다.</p>
-<p><strong>Q1은 이 교재 전체에서 가장 자주 출제되는 지점(손실 함수와 출력층의 짝)입니다.</strong> 틀렸다면 Ch05 2절의 표로 반드시 되돌아가십시오.</p>
+<p><strong>Q1은 이 교재 전체에서 가장 자주 출제되는 부분(손실 함수와 출력층의 짝)입니다.</strong> 틀렸다면 Ch05 2절의 표로 반드시 되돌아가십시오.</p>
 <p>총 6문항 (객관식 2 / 코드 빈칸 2 / 오류 찾기 2), 권장 소요 시간 25분.<br />
 공통 import는 다음과 같다고 가정합니다.</p>
 <p><code>python
@@ -1079,9 +1079,9 @@ for name, yy, out, loss, met in cases:
 <p><code>sparse_</code>라는 접두어를 <strong>"라벨이 정수 하나로 압축되어 있다"</strong> 로 읽으면 헷갈리지 않습니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
-<li><strong>1번·5번처럼 (나)와 (다)를 맞바꾸는 것</strong> — 이 챕터에서 가장 흔한 오답입니다. 두 상황의 과제 설명이 완전히 같기 때문에, <code>shape</code>를 확인하지 않으면 반드시 헷갈립니다. <code>print(y_train.shape)</code> 한 줄이 유일한 예방책입니다.</li>
+<li><strong>1번·5번처럼 (나)와 (다)를 맞바꾸는 것</strong> — 이 챕터에서 가장 흔한 오답입니다. 두 상황의 과제 설명이 완전히 같기 때문에, <code>shape</code>를 확인하지 않으면 헷갈리기 쉽습니다. <code>print(y_train.shape)</code> 한 줄이 가장 확실한 예방책입니다.</li>
 <li><strong>2번처럼 이진분류에 <code>Dense(2,'softmax')</code>를 쓰는 것</strong> — 원-핫으로 바꾸면 동작은 하지만, 시험 표준 답안은 <code>Dense(1,'sigmoid')</code>입니다. 굳이 노드를 2개로 늘려 답을 복잡하게 만들 이유가 없습니다.</li>
-<li><strong>2번·5번처럼 회귀 출력층에 <code>sigmoid</code>를 붙이는 것</strong> — 출력이 0~1로 눌려 88~278 범위의 값을 절대 맞힐 수 없습니다. Q6에서 그 결과를 숫자로 확인합니다.</li>
+<li><strong>2번·5번처럼 회귀 출력층에 <code>sigmoid</code>를 붙이는 것</strong> — 출력이 0~1 사이의 값으로 제한되어 88~278 범위의 값을 예측할 수 없습니다. Q6에서 그 결과를 숫자로 확인합니다.</li>
 <li><strong>4번처럼 다중분류 출력층 units를 클래스 수와 다르게 두는 것</strong>(<code>Dense(1,'softmax')</code>) — softmax는 여러 노드의 값을 합이 1이 되도록 나누는 함수인데 노드가 1개면 항상 1.0만 나옵니다.</li>
 </ul>
 <hr />

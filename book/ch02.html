@@ -1146,7 +1146,7 @@ print(df.isnull().sum())
 ⑤ 학습/평가 데이터 분리 → 전체 데이터에 <code>fit_transform</code> → 원-핫 인코딩</p>
 <hr />
 <h4 id="q2-객관식-기본-인코딩-방식-판별">Q2. (객관식 · 기본) 인코딩 방식 판별</h4>
-<p><code>contract_type</code> 컬럼은 <code>'month'</code>, <code>'one_year'</code>, <code>'two_year'</code> 세 값을 갖는 범주형 컬럼입니다. 이 컬럼의 인코딩에 대한 설명으로 <strong>옳은 것</strong>은?</p>
+<p><code>contract_type</code> 컬럼은 <code>'month'</code>, <code>'one_year'</code>, <code>'two_year'</code> 세 값이 있는 범주형 컬럼입니다. 이 컬럼의 인코딩에 대한 설명으로 <strong>옳은 것</strong>은?</p>
 <p>① 라벨 인코딩을 적용하면 컬럼이 3개로 늘어난다<br />
 ② 원-핫 인코딩은 범주에 없던 크기 관계를 만들어 낸다<br />
 ③ 계약 기간의 순서를 모델이 알 필요가 없는 상황이라면 <code>pd.get_dummies</code>가 기본 선택이다<br />
@@ -1290,7 +1290,7 @@ print('dtype 미지정 시:', pd.get_dummies(demo, columns=['contract_type']).dt
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li><code>dtype=int</code>를 빠뜨리면 True/False 컬럼이 만들어집니다. 그대로도 학습은 되지만 스케일링·딥러닝 입력 단계에서 자료형을 확인할 때 혼란이 생기므로, <code>dtype=int</code>를 붙이는 습관이 안전합니다.</li>
-<li><code>columns=[...]</code> 생략은 의도치 않은 컬럼까지 원-핫으로 부풀립니다. 대상 컬럼은 항상 명시하십시오.</li>
+<li><code>columns=[...]</code> 생략은 의도하지 않은 컬럼까지 원-핫으로 바꿔 컬럼 수가 불필요하게 늘어납니다. 대상 컬럼은 항상 명시하십시오.</li>
 </ul>
 <hr />
 <h4 id="q3-해답">Q3 해답</h4>
@@ -1346,7 +1346,7 @@ print('test 스케일 범위:', round(float(X_test_scaled.min()), 4), '~', round
 </blockquote>
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
-<li><strong>(가) <code>test_size=0.2</code></strong> — <code>test_size</code>는 <strong>평가 데이터의 비율</strong>입니다. "8:2로 나누시오"에서 뒤의 숫자가 평가 몫이므로 0.2이고, "7:3"이면 0.3입니다. 0.8을 넣으면 학습 데이터가 200행이 되어 정반대 결과가 나옵니다.</li>
+<li><strong>(가) <code>test_size=0.2</code></strong> — <code>test_size</code>는 <strong>평가 데이터의 비율</strong>입니다. "8:2로 나누시오"에서 뒤의 숫자가 평가 데이터 비율이므로 0.2이고, "7:3"이면 0.3입니다. 0.8을 넣으면 학습 데이터가 200행이 되어 정반대 결과가 나옵니다.</li>
 <li><strong>(나) <code>random_state=42</code></strong> — 분리 결과를 고정해 채점자가 같은 결과를 재현할 수 있게 하는 장치입니다. 지정된 숫자를 그대로 씁니다.</li>
 <li><strong>(다) <code>stratify=y</code></strong> — 타깃 클래스 비율을 학습/평가 양쪽에 동일하게 유지합니다. 문항에 "층화 추출", "클래스 비율을 유지하여"라는 표현이 있으면 이 인자를 뜻합니다.</li>
 <li><strong>(라)·(마) <code>fit_transform</code> / <code>transform</code></strong> — 0~1 범위 변환이라는 지시가 있으므로 <code>MinMaxScaler</code>를 쓰고, 최솟값·최댓값 계산(<code>fit</code>)은 <strong>학습 데이터에서만</strong> 합니다. 평가 데이터는 그 규칙을 적용받기만 하므로 <code>transform</code>입니다.</li>
@@ -1354,7 +1354,7 @@ print('test 스케일 범위:', round(float(X_test_scaled.min()), 4), '~', round
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li>평가 데이터에 <code>fit_transform</code>을 쓰면, <code>X_test_scaled</code>의 값이 정확히 0~1에 맞춰지면서 오히려 누수가 생깁니다. 올바른 코드에서는 평가 데이터의 값이 0보다 작거나 1보다 큰 구간으로 나올 수 있으며(검증 실행에서 최솟값 <code>-0.1113</code> 관측), 이는 <strong>오류가 아니라 정상</strong>입니다. 이 음수 값을 보고 코드를 "고치려다" 누수를 만드는 사례가 많습니다.</li>
-<li><strong>결측 처리를 건너뛰고 스케일링으로 직행하면 조용히 망가집니다.</strong> sklearn 스케일러는 <code>NaN</code>을 오류 없이 통과시키므로, <code>X_train_scaled</code> 안에 <code>NaN</code>이 그대로 남은 채 shape과 클래스 비율만 정상으로 보입니다. 그 배열을 딥러닝 모델에 넣으면 손실이 <code>nan</code>이 되어 학습이 전혀 진행되지 않습니다. 스케일링 직후 <code>np.isnan(...).sum()</code>으로 0을 확인하는 한 줄이 값싼 보험입니다.</li>
+<li><strong>결측 처리를 건너뛰고 스케일링으로 넘어가면 오류 없이 잘못된 결과가 나옵니다.</strong> sklearn 스케일러는 <code>NaN</code>을 오류 없이 통과시키므로, <code>X_train_scaled</code> 안에 <code>NaN</code>이 그대로 남은 채 shape과 클래스 비율만 정상으로 보입니다. 그 배열을 딥러닝 모델에 넣으면 손실이 <code>nan</code>이 되어 학습이 전혀 진행되지 않습니다. 스케일링 직후 <code>np.isnan(...).sum()</code>으로 0을 확인하는 한 줄이 비용이 거의 들지 않는 점검입니다.</li>
 <li><code>stratify=y</code>에 <code>y_train</code>이나 <code>X</code>를 넣는 실수가 있습니다. 인자에는 분리 대상 타깃 전체(<code>y</code>)를 넣습니다.</li>
 <li>회귀 문제(연속형 타깃)에는 <code>stratify</code>를 쓰지 않습니다. 클래스가 없기 때문에 오류가 납니다.</li>
 </ul>
@@ -1403,7 +1403,7 @@ contract_type_two_year             0.3250                   0.3114
 <pre><code>tenure_months  0.0641 / monthly_fee -0.0713 / support_calls          0.0547
 month         -0.0697 / one_year    -0.0259 / two_year               0.0977
 </code></pre>
-<p>평가 데이터가 자기 자신의 통계가 아니라 <strong>학습 데이터의 기준을 빌려 쓰고 있다</strong>는 뜻이며, 이것이 정상 상태입니다. 반대로 평가 데이터의 평균이 정확히 0이 나온다면 누수를 의심해야 합니다.</p>
+<p>평가 데이터가 자기 자신의 통계가 아니라 <strong>학습 데이터의 기준을 그대로 적용받고 있다</strong>는 뜻이며, 이것이 정상 상태입니다. 반대로 평가 데이터의 평균이 정확히 0이 나온다면 누수를 의심해야 합니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li>이 코드는 오류 없이 실행되고 shape도 정상이므로 스스로 발견하기 어렵습니다. <strong>스케일러 코드를 쓴 직후 <code>fit_transform</code>의 인자가 <code>X_train</code>인지 확인</strong>하는 것을 고정 절차로 만드십시오.</li>
@@ -1435,13 +1435,13 @@ print(y_test.value_counts(normalize=True).round(3).to_dict())
 <p>실행 결과: 재대입 누락 코드에서는 결측이 <code>50</code>건 그대로 남았고, 재대입 후에는 <code>0</code>이 되었습니다.</p>
 </blockquote>
 <p><strong>왜 이렇게 푸는가</strong></p>
-<p><strong>수정 1</strong> — pandas의 <code>fillna</code>는 원본을 바꾸지 않고 <strong>채워진 새 Series를 반환</strong>합니다. 반환값을 받지 않으면 계산만 하고 버리는 셈입니다. 결측 처리 코드를 분명히 썼는데 다음 문항에서 여전히 <code>NaN</code>이 나오는 사고는 거의 전부 이 대입 누락입니다. 실행 로그로 확인한 대로, 재대입이 없으면 결측 50건이 그대로 남습니다.</p>
-<p><strong>수정 2</strong> — <code>stratify=y</code>가 없으면 분리가 무작위로 이루어져 클래스 비율이 흔들립니다. 클래스가 균형에 가까울 때는 티가 잘 안 나지만, 불균형 데이터에서는 확연합니다. 검증에서 소수 클래스 비율 5%인 데이터로 비교한 결과입니다.</p>
+<p><strong>수정 1</strong> — pandas의 <code>fillna</code>는 원본을 바꾸지 않고 <strong>채워진 새 Series를 반환</strong>합니다. 반환값을 받지 않으면 계산만 하고 버리는 셈입니다. 결측 처리 코드를 분명히 썼는데 다음 문항에서 여전히 <code>NaN</code>이 나오는 경우는 대부분 이 대입 누락입니다. 실행 로그로 확인한 대로, 재대입이 없으면 결측 50건이 그대로 남습니다.</p>
+<p><strong>수정 2</strong> — <code>stratify=y</code>가 없으면 분리가 무작위로 이루어져 클래스 비율이 달라집니다. 클래스가 균형에 가까울 때는 티가 잘 안 나지만, 불균형 데이터에서는 확연합니다. 검증에서 소수 클래스 비율 5%인 데이터로 비교한 결과입니다.</p>
 <pre><code>원본 소수 클래스 비율        : 0.05
 stratify 없이 나눈 test 비율 : 0.04
 stratify=y로 나눈 test 비율  : 0.05
 </code></pre>
-<p>평가 데이터에 소수 클래스가 덜 들어가면, 그 데이터로 잰 recall·f1이 실제 성능을 반영하지 못합니다. 뒤에 이어지는 딥러닝 문항의 평가까지 함께 흔들리므로 분리 단계에서 잡아야 합니다.</p>
+<p>평가 데이터에 소수 클래스가 덜 들어가면, 그 데이터로 잰 recall·f1이 실제 성능을 반영하지 못합니다. 뒤에 이어지는 딥러닝 문항의 평가도 함께 부정확해지므로 분리 단계에서 잡아야 합니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li>두 오류 모두 <strong>오류 메시지가 나지 않습니다.</strong> 그래서 "코드를 썼으니 됐다"고 넘어가기 쉽습니다. 결측 처리 직후에는 <code>print(df.isnull().sum())</code>로, 분리 직후에는 <code>print(y_train.value_counts(normalize=True))</code>로 결과를 눈으로 확인하는 습관이 방어책입니다.</li>

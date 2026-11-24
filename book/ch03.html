@@ -824,7 +824,7 @@ print(&quot;손실 변화량:&quot;, round(float(loss_up - loss), 4))
 실행해도 오류 메시지는 나오지 않았지만, epoch을 아무리 늘려도 정확도가 전혀 오르지 않았습니다.</p>
 <p>원인을 가장 정확히 설명한 것은?</p>
 <ol>
-<li><code>softmax</code>는 은닉층 전용 함수여서 출력층에서는 계산 자체가 수행되지 않는다.</li>
+<li><code>softmax</code>는 은닉층 전용 함수여서 출력층에서는 계산 자체가 되지 않는다.</li>
 <li><code>softmax</code>는 값이 하나뿐일 때 입력값과 관계없이 <strong>항상 1.0</strong>을 내놓기 때문에, 예측이 입력을 전혀 반영하지 못한다.</li>
 <li><code>softmax</code>는 음수 입력을 0으로 잘라내므로 데이터의 절반이 버려진다.</li>
 <li><code>softmax</code>는 출력의 합을 0으로 맞추므로 확률로 해석할 수 없다.</li>
@@ -917,7 +917,7 @@ softmax: [0.006 0.075 0.918] -&gt; 합 1.0
 <p>위 실행 결과에서 sigmoid 세 값의 합은 1.69로 1이 아니고, softmax는 정확히 1.0입니다. 이 한 줄이 두 함수를 가르는 결정적 차이입니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
-<li><strong>은닉층에 sigmoid를 쓰는 것</strong>(5번 유형). 오류는 나지 않지만 층을 쌓을수록 신호가 0~1로 계속 눌려 학습이 잘 진행되지 않습니다. 은닉층은 <code>relu</code>가 표준입니다.</li>
+<li><strong>은닉층에 sigmoid를 쓰는 것</strong>(5번 유형). 오류는 나지 않지만 출력이 0~1 사이 값이어서 층을 쌓을수록 역전파로 전달되는 값이 작아져 학습이 잘 진행되지 않습니다. 은닉층은 <code>relu</code>가 표준입니다.</li>
 <li><code>sigmoid</code>와 <code>softmax</code>를 "둘 다 확률이니 아무거나"로 취급하는 것. 값이 <strong>1개(sigmoid)냐 K개·합 1(softmax)이냐</strong>가 다르고, 이 차이가 출력층 노드 수를 결정합니다.</li>
 </ul>
 <hr />
@@ -943,7 +943,7 @@ z=  12.7 -&gt; softmax=[1.], sigmoid=[1.    ]
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li><strong>이진분류에 <code>Dense(1, activation='softmax')</code></strong>. 문법 오류가 없어 실행은 됩니다. "이진분류 = sigmoid + 노드 1개 / 다중분류 = softmax + 노드 K개"를 한 쌍으로 외우십시오.</li>
-<li>반대로 다중분류 출력층에 sigmoid를 쓰는 것도 같은 계열의 실수입니다. 클래스별 확률의 합이 1이 되지 않아 "가장 확률 높은 클래스"를 고르는 근거가 흔들립니다.</li>
+<li>반대로 다중분류 출력층에 sigmoid를 쓰는 것도 같은 계열의 실수입니다. 클래스별 확률의 합이 1이 되지 않아 "가장 확률 높은 클래스"를 고르는 근거로 쓰기 어렵습니다.</li>
 </ul>
 <hr />
 <h4 id="q3-해답">Q3 해답</h4>
@@ -1048,7 +1048,7 @@ out.shape : (6, 1)
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
 <li><strong>(가) <code>(5, 1)</code></strong> — 가중치 행렬의 모양은 언제나 <strong>(앞 층의 노드 수, 뒤 층의 노드 수)</strong> 입니다. 은닉층 노드가 5개, 출력이 1개이므로 <code>(5, 1)</code>입니다. 이 규칙을 지켜야 <code>h @ W2</code>의 행렬 곱이 성립합니다(<code>(6,5) @ (5,1) → (6,1)</code>).</li>
-<li><strong>(나) <code>relu</code></strong> — 은닉층이므로 relu입니다. sigmoid를 쓰면 오류는 없지만 신호가 눌려 학습이 더뎌집니다.</li>
+<li><strong>(나) <code>relu</code></strong> — 은닉층이므로 relu입니다. sigmoid를 쓰면 오류는 없지만 역전파로 전달되는 값이 작아져 학습이 느려집니다.</li>
 <li><strong>(다) <code>sigmoid</code></strong> — 이진분류 출력층이므로 0~1 확률 하나를 내는 sigmoid입니다. 출력 확률 6개가 모두 0과 1 사이에 있는 것으로 확인됩니다.</li>
 </ul>
 <p>파라미터 개수는 층마다 <code>(앞 노드 수 × 뒤 노드 수) + 뒤 노드 수</code>입니다. 뒤에 더하는 항이 편향이며, Ch04의 <code>model.summary()</code>가 출력하는 Param # 와 정확히 같은 계산입니다.</p>

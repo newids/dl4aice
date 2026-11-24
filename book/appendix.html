@@ -25,7 +25,7 @@
 <li><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span><p>순서의 낱말 하나를 코드 한두 줄로 바꿉니다. 주석의 번호가 1단의 순서와 같습니다.</p></li>
 <li><span class="v2-ap-tier v2-ap-tier--3">3단 값</span><p>문제마다 바뀌는 자리와 넣을 값을 따로 외웁니다. 나머지는 손대지 않는 고정 부분입니다.</p></li>
 </ol>
-<p class="v2-ap-note">읽기만 해서는 잘 외워지지 않습니다. 묶음마다 아래 순서로 직접 꺼내 보십시오.</p>
+<p class="v2-ap-note">읽기만 해서는 잘 외워지지 않습니다. 묶음마다 아래 순서로 직접 떠올려 보십시오.</p>
 <ol class="v2-ap-howto">
 <li><strong>순서의 이유를 읽는다.</strong> 왜 이 순서인지 알면 낱말 순서를 덜 잊습니다.</li>
 <li><strong>가리고 떠올린다.</strong> 2단 코드 위의 <em>값 가리기</em>는 이름과 값만, <em>줄 가리기</em>는 주석만 남기고 가립니다. 가린 자리를 누르면 하나씩 열립니다. 열기 전에 먼저 답을 말해 보십시오.</li>
@@ -106,8 +106,8 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 <div class="v2-ap-block">
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow"><li>결측치 채우기</li><li>IQR 경계 구하기</li><li>범위 안의 행만 남기기</li><li>인덱스 다시 매기기</li><li>원-핫 인코딩</li></ol>
-<p class="v2-ap-chant">앞 글자로 줄이면: 결 → 이 → 인 (채우고, 자르고, 숫자로 바꾼다)</p>
-<p class="v2-ap-why"><strong>순서의 이유</strong> 빈 값이 있으면 분위수 계산이 흔들리므로 결측치를 먼저 채웁니다. 행을 지우면 인덱스에 구멍이 생기니 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.</p>
+<p class="v2-ap-chant">앞 글자로 줄이면: 결 → 이 → 인 (채우고, 걸러 내고, 숫자로 바꾼다)</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 결측치를 먼저 채워 두면 분위수 계산에 모든 행이 들어갑니다. 행을 지우면 인덱스에 빠진 번호가 생기므로 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.</p>
 </div>
 
 <div class="v2-ap-block" data-ap-code>
@@ -153,8 +153,8 @@ df = pd.get_dummies(df, columns=[&#x27;contract&#x27;], dtype=int)
 <div class="v2-ap-block">
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow"><li>X·y 나누기</li><li>학습·평가 분리</li><li>스케일러 만들기</li><li>학습 데이터에 fit_transform</li><li>평가 데이터에 transform</li></ol>
-<p class="v2-ap-chant">앞 글자로 줄이면: 나누고 → 쪼개고 → 만들고 → 맞추고 → 따르고</p>
-<p class="v2-ap-why"><strong>순서의 이유</strong> 정답을 떼어 내야 나눌 수 있고, 나눈 뒤에야 학습 데이터만으로 기준을 잡을 수 있습니다. 평가 데이터로 기준을 잡으면 시험 문제를 미리 본 것과 같습니다.</p>
+<p class="v2-ap-chant">앞 글자로 줄이면: 나누고 → 쪼개고 → 만들고 → 맞추고 → 변환하고</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 정답을 떼어 내야 나눌 수 있고, 나눈 뒤에야 학습 데이터만으로 기준을 잡을 수 있습니다. 평가 데이터로 기준을 잡으면 평가 데이터의 정보가 학습에 들어가 성능이 실제보다 높게 나옵니다.</p>
 </div>
 
 <div class="v2-ap-block" data-ap-code>
@@ -240,7 +240,7 @@ print(accuracy_score(y_test, rf_pred))                                 # ④ 점
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow"><li>입력</li><li>은닉층</li><li>Dropout</li><li>은닉층</li><li>출력층</li></ol>
 <p class="v2-ap-chant">앞 글자로 줄이면: 입 → 은 → 드 → 은 → 출</p>
-<p class="v2-ap-why"><strong>순서의 이유</strong> 데이터가 지나가는 순서 그대로입니다. 들어오는 모양을 먼저 알리고, 가운데에서 특징을 뽑고, 마지막 층이 문제 유형에 맞는 답의 모양을 만듭니다.</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 데이터가 지나가는 순서 그대로입니다. 들어오는 모양을 먼저 알리고, 가운데에서 특징을 뽑고, 마지막 층이 문제 유형에 맞는 출력 형태를 정합니다.</p>
 </div>
 
 <div class="v2-ap-block" data-ap-code>
@@ -338,7 +338,7 @@ history = model.fit(X_train_scaled, y_train,
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow"><li>loss 선</li><li>val_loss 선</li><li>축 이름</li><li>범례</li><li>show</li></ol>
 <p class="v2-ap-chant">앞 글자로 줄이면: 선 둘 → 축 → 범례 → 보여 주기</p>
-<p class="v2-ap-why"><strong>순서의 이유</strong> 그릴 선을 먼저 올리고, 그 선이 무엇인지 알려 주는 축 이름과 범례를 붙인 다음, 마지막에 화면에 내보냅니다.</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 그릴 선을 먼저 지정하고, 그 선이 무엇인지 알려 주는 축 이름과 범례를 붙인 다음, 마지막에 화면에 내보냅니다.</p>
 </div>
 
 <div class="v2-ap-block" data-ap-code>
@@ -379,7 +379,7 @@ plt.show()                                                # ⑤ 출력
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow"><li>evaluate</li><li>predict</li><li>클래스로 변환</li><li>지표 출력</li></ol>
 <p class="v2-ap-chant">앞 글자로 줄이면: 평가 → 예측 → 변환 → 보고</p>
-<p class="v2-ap-why"><strong>순서의 이유</strong> 먼저 전체 점수를 확인하고, 그다음 한 건씩의 예측을 받아 정답과 같은 모양으로 바꾼 뒤, 클래스별로 어디에서 틀렸는지 봅니다.</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 먼저 전체 점수를 확인하고, 그다음 예측값을 구해 정답과 같은 형태로 바꾼 뒤, 클래스별로 어디에서 틀렸는지 봅니다.</p>
 </div>
 
 <div class="v2-ap-block" data-ap-code>
@@ -419,7 +419,7 @@ print(confusion_matrix(y_test, y_pred))
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow"><li>표로 만들기</li><li>같은 인코딩</li><li>컬럼 맞추기</li><li>같은 스케일러로 변환</li><li>예측</li></ol>
 <p class="v2-ap-chant">앞 글자로 줄이면: 표 → 인 → 맞 → 변 → 예</p>
-<p class="v2-ap-why"><strong>순서의 이유</strong> 새 입력도 학습 데이터가 지나온 길을 똑같이 지나가야 합니다. 표로 만들고, 같은 방법으로 인코딩하고, 같은 컬럼 구성으로 맞추고, 같은 스케일러를 거친 뒤에야 모델에 넣을 수 있습니다.</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 새 입력도 학습 데이터와 같은 전처리 순서를 거쳐야 합니다. 표로 만들고, 같은 방법으로 인코딩하고, 같은 컬럼 구성으로 맞추고, 같은 스케일러를 거친 뒤에야 모델에 넣을 수 있습니다.</p>
 </div>
 
 <div class="v2-ap-block" data-ap-code>

@@ -948,7 +948,7 @@ Total params: 339
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li><strong>편향을 빼고 세는 것</strong> — <code>10×16 + 16×8 + 8×3 = 312</code>(3번)가 되어 딱 편향 개수(16+8+3=27)만큼 모자랍니다. 오답 3번이 이 함정입니다.</li>
-<li>출력층(<code>Dense(3)</code>)을 파라미터 합계에서 빼먹는 것. 출력층도 가중치와 편향을 가진 학습 대상 층입니다.</li>
+<li>출력층(<code>Dense(3)</code>)을 파라미터 합계에서 빼먹는 것. 출력층도 가중치와 편향이 있는 학습 대상 층입니다.</li>
 <li><code>Input</code>을 빠뜨린 채 <code>summary()</code>를 부르면 Total params가 0으로 나오거나 "모델이 아직 build되지 않았다"는 메시지가 뜹니다. 입력 크기를 모르면 가중치 행렬 크기를 정할 수 없기 때문입니다.</li>
 </ul>
 <hr />
@@ -1049,7 +1049,7 @@ Non-trainable params: 128
 <p><code>Dropout(0.3)</code>의 0.3은 <strong>끄는 비율</strong>이지 남기는 비율이 아닙니다. Dropout 층의 Param #가 0인 것도 정상입니다. 노드를 끄기만 할 뿐 학습하는 값이 없습니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
-<li><strong>출력층 units와 클래스 수 불일치</strong> — <code>Dense(3, 'softmax')</code>처럼 클래스 수보다 적게 두면 구성 단계에서는 아무 말이 없다가 학습 단계에서 라벨과 출력 개수가 맞지 않아 오류가 납니다. <code>len(np.unique(y))</code>로 뽑으면 이 사고가 사라집니다.</li>
+<li><strong>출력층 units와 클래스 수 불일치</strong> — <code>Dense(3, 'softmax')</code>처럼 클래스 수보다 적게 두면 구성 단계에서는 오류가 나지 않다가 학습 단계에서 라벨과 출력 개수가 맞지 않아 오류가 납니다. <code>len(np.unique(y))</code>로 뽑으면 이 실수를 막을 수 있습니다.</li>
 <li><code>BatchNormalization</code>을 괄호 없이 <code>model.add(BatchNormalization)</code>으로 쓰는 것. 층은 <strong>인스턴스</strong>를 만들어 넣어야 하므로 <code>()</code>가 필요합니다.</li>
 <li>BatchNormalization의 Non-trainable params를 보고 "모델이 잘못 만들어졌다"고 판단해 층을 지우는 것. 정상 동작입니다.</li>
 </ul>
@@ -1088,8 +1088,8 @@ fixed.summary()
 <p>수정은 <code>X_train.shape[1]</code>로 <strong>특성 수만 꺼내 원소 하나짜리 튜플</strong>로 넘기는 것입니다. 수정 후 출력 shape가 <code>(None, 1)</code>, 즉 "샘플당 확률 1개"로 바뀝니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
-<li><code>shape=X_train.shape</code>처럼 shape를 통째로 넘기는 것. 편해 보이지만 항상 샘플 수가 딸려 들어갑니다.</li>
-<li>오류가 학습 단계에서 터지기 때문에 <strong>원인을 <code>fit()</code> 쪽에서 찾는 것</strong>. 구성 직후 <code>model.summary()</code>를 한 번 호출해 출력 shape가 <code>(None, 1)</code>인지 눈으로 확인하면 이 시간 낭비를 막을 수 있습니다.</li>
+<li><code>shape=X_train.shape</code>처럼 shape를 통째로 넘기는 것. 편해 보이지만 항상 샘플 수가 함께 들어갑니다.</li>
+<li>오류가 학습 단계에서 나기 때문에 <strong>원인을 <code>fit()</code> 쪽에서 찾는 것</strong>. 구성 직후 <code>model.summary()</code>를 한 번 호출해 출력 shape가 <code>(None, 1)</code>인지 눈으로 확인하면 이 시간 낭비를 막을 수 있습니다.</li>
 <li>고칠 때 <code>Input(shape=(8))</code>으로 쉼표를 빠뜨리는 것. <code>ValueError: Cannot convert '8' to a shape.</code>가 납니다.</li>
 </ul>
 <hr />
@@ -1135,15 +1135,15 @@ Total params: 3,556
 <p>수정 전 코드를 그대로 실행하면 <code>출력 shape: (None, 2)</code>, <code>마지막 층: Dropout</code>이 나옵니다. 이 두 줄만 확인해도 오류 두 개를 동시에 잡아낼 수 있습니다.</p>
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
-<li><strong>출력층 units는 클래스 개수와 정확히 같아야 합니다.</strong> 다중분류 출력은 "각 클래스일 확률"의 목록이므로, 노드가 2개면 클래스 4개 중 2개분의 확률만 만들어집니다. 구성 단계에서는 오류가 나지 않고 학습을 시작해야 문제가 드러나므로, <code>n_class = len(np.unique(y_train))</code>로 뽑아 쓰는 습관이 유일한 예방책입니다.</li>
-<li><strong>Dropout은 은닉층 <code>Dense</code> 뒤에만 넣습니다.</strong> 출력층 뒤에 두면 최종 확률값 자체가 무작위로 0이 되어 예측 결과가 망가집니다. Dropout은 "학습이 잘 되도록 돕는 보조 층"이지 예측값을 만드는 층이 아니라는 점을 기억하십시오.</li>
+<li><strong>출력층 units는 클래스 개수와 정확히 같아야 합니다.</strong> 다중분류 출력은 "각 클래스일 확률"의 목록이므로, 노드가 2개면 클래스 4개 중 2개분의 확률만 만들어집니다. 구성 단계에서는 오류가 나지 않고 학습을 시작해야 문제가 드러나므로, <code>n_class = len(np.unique(y_train))</code>로 뽑아 쓰는 습관이 가장 확실한 예방책입니다.</li>
+<li><strong>Dropout은 은닉층 <code>Dense</code> 뒤에만 넣습니다.</strong> 출력층 뒤에 두면 최종 확률값 자체가 무작위로 0이 되어 예측 결과를 쓸 수 없습니다. Dropout은 "학습이 잘 되도록 돕는 보조 층"이지 예측값을 만드는 층이 아니라는 점을 기억하십시오.</li>
 </ul>
 <p>두 오류의 공통점은 <strong><code>summary()</code> 한 번이면 잡힌다</strong>는 것입니다. 마지막 행이 <code>Dense</code>인지, Output Shape 뒷자리가 클래스 수와 같은지 — 구성 직후 이 두 가지만 확인하는 습관을 들이십시오.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li>클래스 개수를 눈으로 세다 틀리는 것. 라벨이 1부터 시작하거나(1~4) 중간 번호가 비어 있는 데이터에서 특히 자주 발생합니다.</li>
 <li>출력층 뒤 <code>Dropout</code>을 "마지막에 정규화를 한 번 더 하는 것"으로 잘못 이해하는 것.</li>
-<li>오류를 하나만 찾고 넘어가는 것. 실기에서는 한 셀 안에 실수가 겹치는 경우가 흔하므로, 구성 코드는 <strong>위에서 아래로 층 순서를 소리 내어 읽듯</strong> 검토하십시오.</li>
+<li>오류를 하나만 찾고 넘어가는 것. 실기에서는 한 셀 안에 실수가 겹치는 경우가 흔하므로, 구성 코드는 <strong>위에서 아래로 층 순서를 하나씩 읽으며</strong> 검토하십시오.</li>
 </ul>
 <hr /></div></details>
 </section></div></details>

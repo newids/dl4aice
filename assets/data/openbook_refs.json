@@ -659,7 +659,7 @@
       "module": "numpy",
       "import": "import numpy as np",
       "signature": "np.argmax(a, axis=None, out=None, keepdims=<no value>)",
-      "summary": "가장 큰 값의 위치(인덱스)를 구한다. softmax 확률에서 예측 클래스를 뽑을 때 쓴다.",
+      "summary": "가장 큰 값의 위치(인덱스)를 구한다. softmax 확률에서 예측 클래스를 구할 때 쓴다.",
       "params": [
         {
           "name": "axis",
@@ -1073,11 +1073,11 @@
       "params": [
         {
           "name": "fit_transform(X_train)",
-          "desc": "학습 데이터에서 평균·표준편차를 배우고 변환"
+          "desc": "학습 데이터에서 평균·표준편차를 계산하고 변환"
         },
         {
           "name": "transform(X_test)",
-          "desc": "배운 값으로 변환만 (fit 금지)"
+          "desc": "이미 계산한 값으로 변환만 (fit 금지)"
         }
       ],
       "snippet": "scaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)",
@@ -1112,7 +1112,7 @@
         },
         {
           "name": "clip",
-          "desc": "True 면 transform 결과를 범위 안으로 자름"
+          "desc": "True 면 transform 결과를 범위 안의 값으로 제한"
         }
       ],
       "snippet": "scaler = MinMaxScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)",
@@ -1141,7 +1141,7 @@
       "params": [
         {
           "name": "fit_transform(y)",
-          "desc": "라벨을 배우고 정수로 변환"
+          "desc": "라벨 목록을 만들고 정수로 변환"
         },
         {
           "name": "classes_",
