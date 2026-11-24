@@ -473,7 +473,7 @@
     {
       "id": "ap-fit",
       "title": "F. 컴파일 · 콜백 · 학습",
-      "task": "`adam`, 이진분류 손실, 정확도로 컴파일합니다. `es`는 `val_loss`를 보고 5번 참으며 가장 좋은 가중치로 되돌립니다. `mc`는 `best_model.keras`에 가장 좋은 모델만 저장합니다. 검증 20%, 50 에포크, 배치 32로 학습해 `history`에 담습니다.",
+      "task": "`adam`, 이진분류 손실, 정확도로 컴파일합니다. `es`는 `val_loss`가 5 epoch 동안 나아지지 않으면 학습을 멈추고 가장 좋았던 가중치로 되돌립니다. `mc`는 `best_model.keras`에 가장 좋은 모델만 저장합니다. 검증 데이터 20%, `epochs` 50, `batch_size` 32로 학습해 `history`에 담습니다.",
       "skeleton": "# ① compile\n# ② EarlyStopping\n# ③ ModelCheckpoint\n# ④ fit\n",
       "answer_code": "# ① 컴파일: optimizer, loss, metrics\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n\n# ② 조기 종료: 무엇을 볼지, 몇 번 참을지, 가장 좋았던 가중치로 되돌릴지\nes = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)\n\n# ③ 최적 모델 저장: 파일 이름, 무엇을 볼지, 좋아졌을 때만 저장\nmc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)\n\n# ④ 학습: 데이터, 검증, 횟수, 묶음 크기, 콜백\nhistory = model.fit(X_train_scaled, y_train,\n                    validation_split=0.2, epochs=50, batch_size=32,\n                    callbacks=[es, mc])",
       "rules": [

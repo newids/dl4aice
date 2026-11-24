@@ -380,7 +380,7 @@ TN: 63 / FP: 1 / FN: 3 / TP: 104
 
 **자주 틀리는 지점**
 
-- **(나)를 통째로 빠뜨리고 `pred`를 그대로 `classification_report`에 넣는 것** — 이 챕터에서 가장 흔한 사고입니다. `ValueError: Classification metrics can't handle a mix of binary and continuous targets`가 납니다. **`predict` 다음 줄에는 반드시 변환 한 줄**이 온다고 외워 두십시오.
+- **(나)를 통째로 빠뜨리고 `pred`를 그대로 `classification_report`에 넣는 것** — 이 챕터에서 가장 흔한 실수입니다. `ValueError: Classification metrics can't handle a mix of binary and continuous targets`가 납니다. **`predict` 다음 줄에는 반드시 변환 한 줄**이 온다고 외워 두십시오.
 - **`.astype(int)`를 빼먹는 것.** `(pred > 0.5)`만으로도 `True`/`False`가 0/1로 취급되어 결과는 나오지만, 리포트의 클래스 라벨이 `False`/`True`로 찍혀 지시된 출력 형태와 어긋납니다.
 - **"성능을 출력하시오"에 `evaluate` 한 줄만 찍고 끝내는 것.** `evaluate`(loss·accuracy) + `classification_report` + `confusion_matrix` **3종 세트**를 모두 `print`로 남기는 것이 안전한 답안입니다.
 
@@ -545,7 +545,7 @@ weighted avg       0.98      0.98      0.98       171
 
 두 오류의 성격이 정반대라는 점이 이 문항의 핵심입니다.
 
-**① 확률을 그대로 투입 — 오류 메시지가 나면서 실패합니다.** `classification_report`와 `confusion_matrix`는 **분류 지표**이므로 이산적인 라벨만 받습니다. `pred`는 `0.83` 같은 연속값이라 "이진(binary) 정답과 연속(continuous) 예측이 섞였다"는 `ValueError`가 납니다. 바로 위 줄에서 `y_pred`를 이미 잘 만들어 두고 정작 `pred`를 넣은 것이므로, **고칠 곳은 인자 이름 한 글자**입니다. 시험장에서 이 메시지를 보면 "변환한 변수를 안 썼구나"로 바로 연결하십시오.
+**① 확률을 그대로 넣음 — 오류 메시지가 나면서 실패합니다.** `classification_report`와 `confusion_matrix`는 **분류 지표**이므로 이산적인 라벨만 받습니다. `pred`는 `0.83` 같은 연속값이라 "이진(binary) 정답과 연속(continuous) 예측이 섞였다"는 `ValueError`가 납니다. 바로 위 줄에서 `y_pred`를 이미 잘 만들어 두고 정작 `pred`를 넣은 것이므로, **고칠 곳은 인자 이름 한 글자**입니다. 시험장에서 이 메시지를 보면 "변환한 변수를 안 썼구나"로 바로 연결하십시오.
 
 **② 인자 순서 뒤바뀜 — 오류 메시지 없이 틀립니다.** 오류가 없으므로 그대로 제출하게 됩니다. 고정 예제에서 뒤바뀐 `[[80, 10], [20, 90]]`은 정상 `[[80, 20], [10, 90]]`의 전치입니다. 대각선(TN=80, TP=90)은 그대로라 **정확도는 변하지 않는데**, **FP와 FN만 서로 자리를 바꾸므로 정밀도와 재현율이 맞바뀝니다.** 혼동 행렬을 해석하는 서술 문항이 이어지면 그 문항까지 함께 틀립니다.
 

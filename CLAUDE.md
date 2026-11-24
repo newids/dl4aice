@@ -30,3 +30,4 @@
 | 2026-11-13 | 부록에 기억 연습 추가(순서의 이유, 값·줄 가리기, 보지 않고 써 보기 + 정적 채점, 1·3·7·14·30일 간격 복습). 전체 목차에 "부록" 묶음(A 외워야 하는 코드, B 치트시트) 추가, 이전/다음 내비게이션 연결 | scripts/v2/appendix_memorize.py, assets/js/appendix.js, assets/data/appendix_units.json, scripts/ebook | 사용자 요청 |
 | 2026-11-22 | 그룹 스터디 발표 자료 `study/`(회차별 11개, 발표 30~40분 + 질의응답 20분) 추가, 형식 검사 `scripts/v2/check_study.py`. 교재 본문의 과장 문장 3곳(Ch05, Ch08) 평서문으로 수정 | study/, scripts/v2, chapters/ch05·08 | 사용자 요청 |
 | 2026-11-22 | 스터디 발표 자료의 HTML 슬라이드판 추가(`study/html/`, 한 장씩 넘김·타이머·목록). 생성 `scripts/v2/build_study_slides.py`, 빌드가 `book/study/`·`docs/study/`로 배포 | study/html, scripts/v2, scripts/ebook/v2.py | 사용자 요청 |
+| 2026-11-24 | 한국어 교정 스킬 `korean-proofreading` 추가, 프로젝트 전체 교정(풀이 없는 비유·의인화, 구호식 문구, 번역투, 뜻이 통하지 않는 낱말). 제목 6곳 변경(ch02 2.5, ch05 2절, ch06 6.1, ch08 8.5, 모의고사 1·2회 정리 절), 교정 기록 `_workspace/qa/korean_review/` | skills/korean-proofreading, chapters, exams, pages, study, assets/data, scripts/ebook, scripts/v2 | 사용자 요청 |

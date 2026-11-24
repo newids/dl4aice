@@ -13,7 +13,7 @@
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part IV. 평가와 실전 · Chapter 8</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</a></li><li><a href="#8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</a></li><li><a href="#8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</a></li><li><a href="#8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</a></li><li><a href="#8-5-오류-응급처치-메시지로-원인을-좁힙니다">8.5 오류 응급처치 — 메시지로 원인을 좁힙니다</a></li><li><a href="#8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</a></li><li><a href="#8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch08">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</a></li><li><a href="#8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</a></li><li><a href="#8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</a></li><li><a href="#8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</a></li><li><a href="#8-5-오류-대처-방법-메시지로-원인을-좁힙니다">8.5 오류 대처 방법 — 메시지로 원인을 좁힙니다</a></li><li><a href="#8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</a></li><li><a href="#8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch08">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</a></li></ol></nav>
 <article class="page-body">
 <h1>문제 유형별 완성 코드와 시험장 전략</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>이진분류·다중분류·회귀 각각의 end-to-end 코드를 처음부터 끝까지 작성할 수 있다</li><li>세 유형에서 달라지는 지점(출력층·loss·평가지표)만 정확히 교체할 수 있다</li><li>시험장에서 만나는 대표 오류를 메시지만 보고 원인과 조치를 판단할 수 있다</li></ul></aside>
@@ -502,7 +502,7 @@ r2 : 0.4xxx
 회귀 출력층에 <code>activation='sigmoid'</code>를 붙이는 실수가 자주 나옵니다. sigmoid는 출력을 0~1 사이의 값으로 바꾸므로, 타깃이 151·206 같은 값이면 <strong>예측이 1을 넘지 못하고 r2가 크게 음수</strong>가 됩니다. 회귀 출력층은 <code>Dense(1)</code>, 활성화 인자 자체를 적지 않습니다.</p>
 </blockquote>
 <hr />
-<h2 id="8-5-오류-응급처치-메시지로-원인을-좁힙니다">8.5 오류 응급처치 — 메시지로 원인을 좁힙니다</h2>
+<h2 id="8-5-오류-대처-방법-메시지로-원인을-좁힙니다">8.5 오류 대처 방법 — 메시지로 원인을 좁힙니다</h2>
 <figure class="diagram" id="fig-ch08_error-triage"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" aria-label="자주 만나는 오류와 원인 판별" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>자주 만나는 오류와 원인 판별 — shape 불일치, 라벨과 출력층 불일치, loss가 nan, accuracy가 0.5 부근 고정이라는 네 가지 증상 각각에 대해 원인과 조치가 짝지어져 있다.</title>
   <defs>

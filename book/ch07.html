@@ -1366,7 +1366,7 @@ TN: 63 / FP: 1 / FN: 3 / TP: 104
 <p><code>print(classification_report(...))</code>처럼 <strong><code>print</code>로 감싸는 것</strong>을 잊지 마십시오. <code>classification_report</code>는 문자열을 돌려주는 함수라 <code>print</code> 없이 호출하면 노트북 화면에 줄바꿈이 <code>\n</code> 그대로 찍힌 한 줄이 나오거나, 아예 아무것도 보이지 않습니다. 채점자는 화면에 출력된 결과를 봅니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
-<li><strong>(나)를 통째로 빠뜨리고 <code>pred</code>를 그대로 <code>classification_report</code>에 넣는 것</strong> — 이 챕터에서 가장 흔한 사고입니다. <code>ValueError: Classification metrics can't handle a mix of binary and continuous targets</code>가 납니다. <strong><code>predict</code> 다음 줄에는 반드시 변환 한 줄</strong>이 온다고 외워 두십시오.</li>
+<li><strong>(나)를 통째로 빠뜨리고 <code>pred</code>를 그대로 <code>classification_report</code>에 넣는 것</strong> — 이 챕터에서 가장 흔한 실수입니다. <code>ValueError: Classification metrics can't handle a mix of binary and continuous targets</code>가 납니다. <strong><code>predict</code> 다음 줄에는 반드시 변환 한 줄</strong>이 온다고 외워 두십시오.</li>
 <li><strong><code>.astype(int)</code>를 빼먹는 것.</strong> <code>(pred &gt; 0.5)</code>만으로도 <code>True</code>/<code>False</code>가 0/1로 취급되어 결과는 나오지만, 리포트의 클래스 라벨이 <code>False</code>/<code>True</code>로 찍혀 지시된 출력 형태와 어긋납니다.</li>
 <li><strong>"성능을 출력하시오"에 <code>evaluate</code> 한 줄만 찍고 끝내는 것.</strong> <code>evaluate</code>(loss·accuracy) + <code>classification_report</code> + <code>confusion_matrix</code> <strong>3종 세트</strong>를 모두 <code>print</code>로 남기는 것이 안전한 답안입니다.</li>
 </ul>
@@ -1541,7 +1541,7 @@ weighted avg       0.98      0.98      0.98       171
 </blockquote>
 <p><strong>왜 이렇게 푸는가</strong></p>
 <p>두 오류의 성격이 정반대라는 점이 이 문항의 핵심입니다.</p>
-<p><strong>① 확률을 그대로 투입 — 오류 메시지가 나면서 실패합니다.</strong> <code>classification_report</code>와 <code>confusion_matrix</code>는 <strong>분류 지표</strong>이므로 이산적인 라벨만 받습니다. <code>pred</code>는 <code>0.83</code> 같은 연속값이라 "이진(binary) 정답과 연속(continuous) 예측이 섞였다"는 <code>ValueError</code>가 납니다. 바로 위 줄에서 <code>y_pred</code>를 이미 잘 만들어 두고 정작 <code>pred</code>를 넣은 것이므로, <strong>고칠 곳은 인자 이름 한 글자</strong>입니다. 시험장에서 이 메시지를 보면 "변환한 변수를 안 썼구나"로 바로 연결하십시오.</p>
+<p><strong>① 확률을 그대로 넣음 — 오류 메시지가 나면서 실패합니다.</strong> <code>classification_report</code>와 <code>confusion_matrix</code>는 <strong>분류 지표</strong>이므로 이산적인 라벨만 받습니다. <code>pred</code>는 <code>0.83</code> 같은 연속값이라 "이진(binary) 정답과 연속(continuous) 예측이 섞였다"는 <code>ValueError</code>가 납니다. 바로 위 줄에서 <code>y_pred</code>를 이미 잘 만들어 두고 정작 <code>pred</code>를 넣은 것이므로, <strong>고칠 곳은 인자 이름 한 글자</strong>입니다. 시험장에서 이 메시지를 보면 "변환한 변수를 안 썼구나"로 바로 연결하십시오.</p>
 <p><strong>② 인자 순서 뒤바뀜 — 오류 메시지 없이 틀립니다.</strong> 오류가 없으므로 그대로 제출하게 됩니다. 고정 예제에서 뒤바뀐 <code>[[80, 10], [20, 90]]</code>은 정상 <code>[[80, 20], [10, 90]]</code>의 전치입니다. 대각선(TN=80, TP=90)은 그대로라 <strong>정확도는 변하지 않는데</strong>, <strong>FP와 FN만 서로 자리를 바꾸므로 정밀도와 재현율이 맞바뀝니다.</strong> 혼동 행렬을 해석하는 서술 문항이 이어지면 그 문항까지 함께 틀립니다.</p>
 <p>두 오류 모두 예방책은 하나입니다. <strong>평가 블록을 <code>evaluate → predict → 변환 → (y_test, y_pred) 순서로 지표 함수</code></strong> 라는 고정된 순서로 통째로 외워 두는 것입니다. 이 순서에서 벗어나는 줄이 보이면 그 줄이 원인입니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>

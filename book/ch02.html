@@ -13,7 +13,7 @@
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part I. 시험의 지도 · Chapter 2</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</a></li><li><a href="#2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</a></li><li><a href="#2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</a></li><li><a href="#2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</a></li><li><a href="#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</a></li><li><a href="#2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</a></li><li><a href="#2-7-분리와-데이터-누수-분리한-뒤에-스케일링한다">2.7 분리와 데이터 누수 — 분리한 뒤에 스케일링한다</a></li><li><a href="#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</a></li><li><a href="#2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</a></li><li><a href="#2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch02">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</a></li><li><a href="#2-2-먼저-데이터를-본다-탐색과-시각화">2.2 먼저 데이터를 본다 — 탐색과 시각화</a></li><li><a href="#2-3-결측치-지울-것인가-채울-것인가">2.3 결측치 — 지울 것인가 채울 것인가</a></li><li><a href="#2-4-이상치-iqr로-찾고-지시대로-처리한다">2.4 이상치 — IQR로 찾고, 지시대로 처리한다</a></li><li><a href="#2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-방법">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 방법</a></li><li><a href="#2-6-스케일링-특성의-크기를-맞춘다">2.6 스케일링 — 특성의 크기를 맞춘다</a></li><li><a href="#2-7-분리와-데이터-누수-분리한-뒤에-스케일링한다">2.7 분리와 데이터 누수 — 분리한 뒤에 스케일링한다</a></li><li><a href="#2-8-머신러닝-3줄-패턴과-딥러닝-4단계-패턴">2.8 머신러닝 3줄 패턴과 딥러닝 4단계 패턴</a></li><li><a href="#2-9-평가지표-지도-무엇을-볼지-먼저-고른다">2.9 평가지표 지도 — 무엇을 볼지 먼저 고른다</a></li><li><a href="#2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch02">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</a></li></ol></nav>
 <article class="page-body">
 <h1>전제 지식 압축 정리 — 데이터 준비와 머신러닝</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>결측치·이상치·인코딩·스케일링을 상황에 맞는 함수로 처리할 수 있다</li><li>데이터 누수 없이 학습/평가(테스트) 데이터를 분리하는 순서를 지킬 수 있다</li><li>머신러닝의 3줄 패턴과 딥러닝의 4단계 패턴의 차이를 설명할 수 있다</li></ul></aside>
@@ -252,7 +252,7 @@ df['monthly_fee'] = df['monthly_fee'].clip(lower, upper)   # 경계값으로 대
 </blockquote>
 <p>이상치 처리 방식도 문항이 지정하는 경우가 대부분입니다. "삭제하시오"인지 "경계값으로 대체하시오"인지를 먼저 읽고 그대로 따르십시오.</p>
 <hr />
-<h2 id="2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-길">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 길</h2>
+<h2 id="2-5-인코딩-문자열을-숫자로-바꾸는-두-가지-방법">2.5 인코딩 — 문자열을 숫자로 바꾸는 두 가지 방법</h2>
 <figure class="diagram" id="fig-ch02_encoding-compare"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>라벨 인코딩과 원-핫 인코딩의 결과 차이 — 라벨 인코딩은 없던 크기 관계를 만들고, 원-핫 인코딩은 0과 1 컬럼으로 나누어 크기 오해가 없다</title>
   <defs>
@@ -1095,7 +1095,7 @@ print(confusion_matrix(y_test, y_pred))
 <details class="v2-legacy"><summary>확인 문제와 해설 보기 (이전 판 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch02">
 <h2 id="ch02-확인-문제-전제-지식-압축-정리데이터-준비와-머신러닝">Ch02 확인 문제 — 전제 지식 압축 정리(데이터 준비와 머신러닝)</h2>
 <blockquote class="callout callout--note">
-<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닌 <strong>기출 변형</strong> 문항입니다.</p>
+<p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
 </blockquote>
 <p><strong>구성:</strong> 객관식 2문항 / 코드 빈칸 2문항 / 오류 찾기 2문항<br />
 <strong>권장 소요 시간:</strong> 20분</p>

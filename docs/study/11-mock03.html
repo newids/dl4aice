@@ -173,7 +173,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <td>3분</td>
 </tr>
 <tr>
-<td>점수 나누기</td>
+<td>점수 공유</td>
 <td>점수와 약한 파트 공유</td>
 <td>4분</td>
 </tr>
@@ -183,7 +183,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <td>5분</td>
 </tr>
 <tr>
-<td>2회차와 달라진 점</td>
+<td>모의고사 2회와 달라진 점</td>
 <td>출력층, 손실, 지표, 후처리, stratify</td>
 <td>3분</td>
 </tr>
@@ -250,7 +250,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </tbody>
 </table>
 <p>합격선은 80점(100점 만점)입니다. 문항 수, 배점, 오픈북 정책은 회차마다 다를 수 있으므로 응시 전에 KT AICE 공식 공지를 확인합니다.</p></div></section>
-<section class="slide" data-title="점수 나누기 (4분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 나누기 (4분)</h2>
+<section class="slide" data-title="점수 공유 (4분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 공유 (4분)</h2>
 <p>CBT 결과 화면에는 파트별 분석이 나옵니다. 한 사람씩 짧게 말합니다.</p>
 <p>발표자가 던질 질문 3개:</p>
 <ol>
@@ -401,13 +401,13 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </tbody>
 </table>
 <p>Q14가 앞 문항에서 받는 것: <code>model</code>, <code>X_test_scaled</code>, <code>y_test</code>, <code>X</code>, <code>scaler</code></p></div></section>
-<section class="slide" data-title="2회차와 달라진 점" aria-label="10 / 26"><div class="slide__inner"><h2>2회차와 달라진 점</h2>
+<section class="slide" data-title="모의고사 2회와 달라진 점" aria-label="10 / 26"><div class="slide__inner"><h2>모의고사 2회와 달라진 점</h2>
 <table>
 <thead>
 <tr>
 <th>항목</th>
-<th>2회차 (다중분류)</th>
-<th>3회차 (회귀)</th>
+<th>모의고사 2회 (다중분류)</th>
+<th>모의고사 3회 (회귀)</th>
 </tr>
 </thead>
 <tbody>
@@ -487,7 +487,7 @@ print(df.columns.tolist())
 <p>채점에서 보는 것: <code>get_dummies</code> 설정 / 컬럼 확인 출력 / <code>LabelEncoder</code> 사용 금지</p>
 <p>자주 틀리는 답:
 - <code>columns</code> 미지정, <code>drop_first</code> 미적용, 결과를 <code>df</code>에 다시 저장하지 않음
-- <code>LabelEncoder</code>로 0/1/2를 주면 "C는 A의 두 배" 같은 거짓 순서를 학습합니다.
+- <code>LabelEncoder</code>로 0/1/2를 주면 "C는 A의 두 배" 같은 없는 순서 관계를 학습합니다.
 - 이 설정은 Q14와 연결됩니다. 한 행에 <code>drop_first=True</code>를 쓰면 유일한 범주가 지워지므로 Q14에서는 쓰지 않습니다.</p></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q7 분리와 스케일링" aria-label="13 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q7 분리와 스케일링</h2>
 <pre><code class="language-python">X = df.drop(columns=['energy_kwh'])
@@ -520,7 +520,7 @@ model.summary()
 </code></pre>
 <p>채점에서 보는 것: 입력층 / 첫 은닉층 relu / Dropout 층 / 출력층 노드 1개·활성화 없음 / <code>Model</code> 연결 / compile 설정</p>
 <p>자주 틀리는 답:
-- 회귀 출력에 <code>sigmoid</code>(0~1로 눌림), 분류용 loss와 accuracy, 출력 노드를 2로 설정
+- 회귀 출력에 <code>sigmoid</code>(출력이 0~1 범위로 제한됨), 분류용 loss와 accuracy, 출력 노드를 2로 설정
 - <code>metrics=['mean_absolute_error']</code>로 쓰면 history 키가 달라져 Q13의 <code>mae</code>, <code>val_mae</code>와 어긋남, 손실을 <code>mse</code>가 아닌 <code>mae</code>로 지정</p></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q12 콜백과 fit" aria-label="15 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q12 콜백과 fit</h2>
 <pre><code class="language-python">es = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
@@ -557,7 +557,7 @@ print(f'예측 에너지 소비량: {new_pred[0][0]:.1f} kWh')
 <p>모범 답안 결과: Test MSE 267.10, MAE 13.06 / RMSE 16.34, R2 0.9314 / 예측 에너지 소비량 587.4 kWh</p>
 <p>채점에서 보는 것: 테스트 평가 / <code>pred</code>를 1차원으로 / RMSE 계산 / 학습 컬럼에 정렬 / <code>scaler</code>는 <code>transform</code>만 / <code>drop_first</code> 금지</p>
 <p>자주 틀리는 답:
-- 신규 샘플에 <code>fit_transform</code>(한 행의 평균·분산을 새로 배워 모든 특성이 0이 됨)
+- 신규 샘플에 <code>fit_transform</code>(한 행의 평균·분산을 새로 계산하므로 모든 특성이 0이 됨)
 - 한 행에 <code>drop_first=True</code>(입력한 <code>line_B</code>, <code>shift_night</code>가 지워져 기준 범주 A, day 조건으로 잘못 예측)
 - <code>squared=False</code>는 최신 scikit-learn에서 제거되어 오류가 나므로 <code>np.sqrt</code>를 씀</p></div></section>
 <section class="slide" data-title="정적 채점에서 주의할 점 (2분)" aria-label="17 / 26"><div class="slide__inner"><h2>정적 채점에서 주의할 점 (2분)</h2>
@@ -640,9 +640,9 @@ new_pred = model.predict(___)
 <p><strong>Q2.</strong> Q14에서는 왜 <code>drop_first=True</code>를 쓰지 않습니까?
 답: 한 행짜리 샘플에서는 유일한 범주가 "첫 번째"라서 지워집니다. 그러면 입력한 <code>line_B</code>, <code>shift_night</code>가 사라져 기준 범주 조건으로 잘못 예측하므로, <code>get_dummies</code> 후 <code>reindex(fill_value=0)</code>로 학습 컬럼에 맞춥니다.</p>
 <p><strong>Q3.</strong> 회귀 출력층에 활성화 함수를 두면 왜 안 됩니까?
-답: 에너지 사용량은 수백 kWh의 연속값인데 <code>sigmoid</code>나 <code>softmax</code>는 출력을 눌러 버립니다. <code>Dense(1)</code>은 기본이 선형 출력이라 어떤 실수값도 낼 수 있습니다.</p></div></section>
+답: 에너지 사용량은 수백 kWh의 연속값인데 <code>sigmoid</code>나 <code>softmax</code>는 출력 범위를 제한합니다. <code>Dense(1)</code>은 기본이 선형 출력이라 어떤 실수값도 낼 수 있습니다.</p></div></section>
 <section class="slide" data-title="예상 질문과 답 (2)" aria-label="26 / 26"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
-<p><strong>Q4.</strong> 머신러닝 문항은 스케일링하지 않은 데이터를 쓰는데 1, 2회차와 왜 다릅니까?
+<p><strong>Q4.</strong> 머신러닝 문항은 스케일링하지 않은 데이터를 쓰는데 모의고사 1, 2회와 왜 다릅니까?
 답: 트리 계열은 값의 대소 비교로 분기하므로 스케일링이 필요 없고, 이 회차 문항이 <code>X_train</code>, <code>X_test</code> 사용을 안내합니다. 어느 쪽이든 학습과 예측에 같은 종류의 데이터를 써야 하고, 문항 지시를 그대로 따릅니다.</p>
 <p><strong>Q5.</strong> Q5에서 이상치를 12개만 지웠는데 왜 31행이 줄어듭니까?
 답: 극단값 12개 외에, 정상 분포의 양 끝 값 19개도 IQR 경계(약 288~713) 밖이라 함께 제거됩니다. 그래서 2000행이 1969행이 됩니다.</p>
@@ -668,12 +668,12 @@ new_pred = model.predict(___)
 <li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">4</span><span>시험 구성 (3분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 나누기 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 공유 (4분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">6</span><span>파트 1: 탐색·전처리 (Q1–7, 40점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">7</span><span>파트 2: 머신러닝 (Q8–10, 22점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">8</span><span>파트 3: 딥러닝 모델링 (Q11–13, 26점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">9</span><span>파트 4: 딥러닝 추론 (Q14, 12점)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>2회차와 달라진 점</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>모의고사 2회와 달라진 점</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">11</span><span>자세히 보는 문항: Q5 IQR 이상치 제거</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">12</span><span>자세히 보는 문항: Q6 범주형 인코딩</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">13</span><span>자세히 보는 문항: Q7 분리와 스케일링</span></button></li>

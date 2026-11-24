@@ -19,10 +19,10 @@
 <blockquote class="callout callout--note"><p><strong>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</strong> 문항 수·배점·합격 기준(14문항·100점·80점)은 교재 자체 기준이며 실제 시험 정책은 회차별로 달라질 수 있습니다. 응시 전 KT AICE 공식 공지를 확인하십시오.</p></blockquote>
 <div class="v2-cbt" data-v2-cbt data-mock="mock01"></div>
 <noscript><p class="v2-noscript">CBT 모의고사는 자바스크립트를 켜야 풀 수 있습니다.</p></noscript>
-<details class="v2-legacy"><summary>지면판 모의고사 보기 (v1 원문 12문항 · 데이터 생성 코드 · 해설)</summary><div class="v2-legacy__body"><section class="exam" id="exam-mock01">
+<details class="v2-legacy"><summary>이전 판 모의고사 보기 (12문항 · 데이터 생성 코드 · 해설)</summary><div class="v2-legacy__body"><section class="exam" id="exam-mock01">
 <h1>실전 모의고사 1회 — 이진분류: 통신사 고객 이탈 예측</h1>
 <blockquote class="callout callout--note">
-<p><strong>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다.</strong> 기출 문제 원문이 아니며, 공개된 출제 범위·문항 흐름을 바탕으로 재구성한 <strong>기출 변형 문제</strong>입니다.</p>
+<p><strong>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다.</strong> 기출 문제 원문이 아니며, 공개된 출제 범위·문항 흐름을 바탕으로 새로 만든 문제입니다.</p>
 </blockquote>
 <div class="table-scroll" role="region" tabindex="0"><table>
 <thead>
@@ -394,7 +394,7 @@ print(df.info())     # 3) 자료형과 결측 여부
 <ul>
 <li><strong><code>shape</code>·<code>head</code>·<code>info</code> 세 줄이 탐색의 표준 세트</strong>입니다. <code>shape</code>로 규모를, <code>head</code>로 값의 생김새를, <code>info</code>로 자료형과 결측을 한 번에 봅니다.</li>
 <li>특히 <code>info()</code>의 <strong>Non-Null Count 열</strong>이 중요합니다. 전체 3000행인데 <code>total_fee</code>만 2850으로 찍히므로, <strong>이 시점에서 이미 "결측 150건"을 알 수 있습니다.</strong> Q4에서 어느 컬럼을 손봐야 하는지가 여기서 결정됩니다.</li>
-<li><code>info()</code>의 Dtype 열에서 <code>str</code>(또는 <code>object</code>)로 표시된 컬럼 — <code>customer_id</code>, <code>contract_type</code>, <code>internet_service</code> — 이 Q5·Q6에서 처리 대상이 됩니다. <strong>탐색 단계의 출력이 전처리 계획서 역할을 합니다.</strong></li>
+<li><code>info()</code>의 Dtype 열에서 <code>str</code>(또는 <code>object</code>)로 표시된 컬럼 — <code>customer_id</code>, <code>contract_type</code>, <code>internet_service</code> — 이 Q5·Q6에서 처리 대상이 됩니다. <strong>탐색 단계의 출력을 보고 어떤 컬럼을 전처리할지 정합니다.</strong></li>
 </ul>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
@@ -429,7 +429,7 @@ churn                 0
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
 <li><strong><code>value_counts()</code>는 개수, <code>value_counts(normalize=True)</code>는 비율</strong>을 줍니다. 문항이 "비율"까지 요구했으므로 두 줄 모두 필요합니다.</li>
-<li>결과가 <strong>70.4% : 29.6%</strong> — 이 숫자가 이 모의고사 전체를 관통하는 조건입니다. 두 가지 결정이 여기서 나옵니다.<br />
+<li>결과가 <strong>70.4% : 29.6%</strong> — 이 숫자가 이 모의고사 전체에 적용되는 조건입니다. 두 가지 결정이 여기서 나옵니다.<br />
   1. Q7에서 <strong><code>stratify=y</code>를 반드시 넣어야 합니다.</strong> 비율이 한쪽으로 기울어 있으므로, 무작위로 나누면 평가 데이터의 클래스 비율이 원본과 어긋납니다.<br />
   2. Q12에서 <strong>accuracy만 보면 안 됩니다.</strong> 전부 0으로만 찍어도 정확도가 70%가 나오는 데이터이기 때문입니다.</li>
 <li><code>isnull().sum()</code>은 컬럼별 결측 개수를 한 번에 보여 줍니다. Q1의 <code>info()</code>로도 알 수 있지만, <strong>"결측치 개수를 출력하시오"라는 지시에 가장 정확히 대응하는 함수</strong>입니다.</li>
@@ -485,9 +485,9 @@ print('남은 결측치 총합:', df.isnull().sum().sum())
 </code></pre>
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
-<li><strong><code>fillna</code>는 원본을 바꾸지 않고 새 Series를 반환합니다.</strong> 그래서 <code>df['total_fee'] = ...</code> 형태로 <strong>다시 대입</strong>해야 합니다. 이 한 가지가 이 문항 배점의 절반입니다.</li>
+<li><strong><code>fillna</code>는 원본을 바꾸지 않고 새 Series를 반환합니다.</strong> 그래서 <code>df['total_fee'] = ...</code> 형태로 <strong>다시 대입</strong>해야 합니다. 이 한 가지가 이 문항의 핵심 채점 요소입니다.</li>
 <li><strong>중앙값(<code>median</code>)을 쓰라고 지시한 이유</strong>를 이해해 두십시오. <code>total_fee</code>는 <code>가입 개월 × 월 요금</code>으로 만들어져 값의 범위가 매우 넓고 오른쪽으로 길게 늘어진 분포입니다. 이런 분포에서 평균은 큰 값들에 끌려가지만 중앙값은 영향을 덜 받습니다. <strong>다만 시험에서는 문항이 방법을 직접 지정하는 경우가 대부분이므로, 스스로 판단하기보다 지시된 함수를 정확히 쓰는 것이 우선입니다.</strong></li>
-<li>마지막 확인 출력이 <code>0</code>이어야 다음 단계로 넘어갈 수 있습니다. 결측치가 남은 채로 딥러닝 학습에 들어가면 오류 없이 <strong><code>loss: nan</code></strong> 이 나옵니다(Ch08 오류 유형 ③). 여기서 0을 확인해 두는 것이 뒤의 사고를 막습니다.</li>
+<li>마지막 확인 출력이 <code>0</code>이어야 다음 단계로 넘어갈 수 있습니다. 결측치가 남은 채로 딥러닝 학습에 들어가면 오류 없이 <strong><code>loss: nan</code></strong> 이 나옵니다(Ch08 오류 유형 ③). 여기서 0을 확인해 두면 뒤 단계에서 생길 문제를 막을 수 있습니다.</li>
 </ul>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
@@ -620,7 +620,7 @@ print('학습 데이터 평균:', X_train_scaled.mean().round(3),
 <li><strong>"평가 데이터의 정보가 변환 규칙에 섞이지 않도록" = 학습 데이터에만 <code>fit</code></strong> 하라는 뜻입니다. <code>fit</code>은 "평균과 표준편차를 계산해 기억하는" 동작입니다. 전체 데이터로 <code>fit</code>하면 평가 데이터의 통계량이 변환 규칙에 들어가고, 이것이 <strong>데이터 누수(data leakage)</strong> 입니다. 평가 점수가 실제보다 좋게 나와 모델을 과대평가하게 됩니다.</li>
 <li>그래서 순서는 세 줄로 고정됩니다. <strong>① 먼저 나눈다 → ② <code>X_train</code>에 <code>fit_transform</code> → ③ <code>X_test</code>에 <code>transform</code>.</strong></li>
 <li>학습 데이터의 평균이 <code>0.0</code>, 표준편차가 <code>1.0</code>으로 나오는 것이 <code>StandardScaler</code>가 제대로 동작했다는 증거입니다. 반면 <strong>평가 데이터의 평균은 정확히 0이 아닙니다</strong>(이 데이터에서는 <code>0.011</code>). 학습 데이터 기준으로 변환했기 때문이며, <strong>이것이 정상</strong>입니다.</li>
-<li>딥러닝에서 스케일링은 사실상 필수입니다. <code>total_fee</code>는 수천 단위, <code>support_calls</code>는 한 자릿수인데 이대로 넣으면 큰 값을 가진 특성이 가중치 갱신을 지배해 학습이 제대로 진행되지 않습니다.</li>
+<li>딥러닝에서 스케일링은 사실상 필수입니다. <code>total_fee</code>는 수천 단위, <code>support_calls</code>는 한 자릿수인데 이대로 넣으면 값이 큰 특성이 가중치 갱신에 훨씬 크게 영향을 주어 학습이 제대로 진행되지 않습니다.</li>
 </ul>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
@@ -652,9 +652,9 @@ weighted avg       0.71      0.73      0.72       900
 <ul>
 <li><strong>sklearn 모델은 "생성 → <code>fit</code> → <code>predict</code>" 세 줄</strong>이면 끝납니다. 알고리즘이 바뀌어도 클래스 이름만 교체하면 됩니다.</li>
 <li><strong><code>random_state=42</code>가 여기에도 필요합니다.</strong> 랜덤 포레스트는 이름 그대로 무작위성을 쓰는 모델이라, 지정하지 않으면 실행할 때마다 성능이 달라져 재현이 되지 않습니다. <code>train_test_split</code>에만 넣고 모델에는 빠뜨리는 경우가 많습니다.</li>
-<li><strong>모델 변수명을 <code>rf_model</code>로 지정한 것이 이 문항의 숨은 함정입니다.</strong> 교재 표준에서 <code>model</code>은 Keras 모델을 가리킵니다. 여기서 <code>model = RandomForestClassifier(...)</code>로 써 두면, Q10에서 <code>model = Sequential()</code>을 만드는 순간 베이스라인이 사라집니다. 그 자체로는 오류가 아니지만, <strong>"딥러닝이 베이스라인보다 나은가"를 마지막에 다시 비교할 수 없게 됩니다.</strong> 실기에서는 앞뒤 문항이 같은 변수를 이어 쓰므로, 이름 충돌을 미리 피하는 습관이 필요합니다.</li>
+<li><strong>모델 변수명을 <code>rf_model</code>로 지정한 것이 이 문항에서 특히 주의할 점입니다.</strong> 교재 표준에서 <code>model</code>은 Keras 모델을 가리킵니다. 여기서 <code>model = RandomForestClassifier(...)</code>로 써 두면, Q10에서 <code>model = Sequential()</code>을 만드는 순간 베이스라인이 사라집니다. 그 자체로는 오류가 아니지만, <strong>"딥러닝이 베이스라인보다 나은가"를 마지막에 다시 비교할 수 없게 됩니다.</strong> 실기에서는 앞뒤 문항이 같은 변수를 이어 쓰므로, 이름 충돌을 미리 피하는 습관이 필요합니다.</li>
 <li><strong>베이스라인의 목적은 최고 성능이 아니라 기준선</strong>입니다. 뒤에 만들 딥러닝 모델이 이 점수보다 크게 낮다면 전처리나 모델 설정에 문제가 있다는 신호로 읽으면 됩니다.</li>
-<li>여기서 이미 불균형의 그림자가 보입니다. 전체 accuracy는 <code>0.73</code>으로 나쁘지 않아 보이지만, <strong>정작 찾아내야 할 이탈 고객(클래스 1)의 recall은 <code>0.40</code></strong> 입니다. 실제 이탈자 266명 중 107명만 잡아냈다는 뜻입니다. Q12에서 이 관점을 다시 씁니다.</li>
+<li>여기서 이미 클래스 불균형의 영향이 보입니다. 전체 accuracy는 <code>0.73</code>으로 나쁘지 않아 보이지만, <strong>정작 찾아내야 할 이탈 고객(클래스 1)의 recall은 <code>0.40</code></strong> 입니다. 실제 이탈자 266명 중 107명만 잡아냈다는 뜻입니다. Q12에서 이 관점을 다시 씁니다.</li>
 </ul>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
@@ -692,8 +692,8 @@ model.compile(optimizer='adam',
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
 <li><strong>입력 shape를 <code>X_train_scaled.shape[1]</code>로 자동 계산</strong>합니다. 이 데이터의 특성은 10개지만, 숫자 <code>10</code>을 직접 적으면 앞 문항에서 컬럼이 하나만 달라져도 shape 불일치 오류가 납니다. <code>shape[1]</code>로 쓰면 Q6·Q7의 결과가 무엇이든 자동으로 맞습니다. <strong>Q10이 Q6·Q7의 결과를 이어받는 지점이 바로 이 한 줄입니다.</strong></li>
-<li><strong>출력층 <code>Dense(1, activation='sigmoid')</code></strong> 인 이유는 이진분류이기 때문입니다. 노드가 1개인 것은 "이탈일 확률" 하나만 있으면 충분하기 때문이고(유지 확률은 1에서 빼면 됩니다), <code>sigmoid</code>인 것은 출력을 <strong>0~1 확률</strong>로 눌러 주기 위해서입니다.</li>
-<li><strong><code>binary_crossentropy</code>와 <code>sigmoid</code>는 언제나 짝으로 움직입니다.</strong> 손실 함수만 바꾸고 출력층을 그대로 두거나, 그 반대로 하는 것이 가장 흔한 사고입니다.</li>
+<li><strong>출력층 <code>Dense(1, activation='sigmoid')</code></strong> 인 이유는 이진분류이기 때문입니다. 노드가 1개인 것은 "이탈일 확률" 하나만 있으면 충분하기 때문이고(유지 확률은 1에서 빼면 됩니다), <code>sigmoid</code>인 것은 출력을 <strong>0~1 확률</strong>로 바꾸기 위해서입니다.</li>
+<li><strong><code>binary_crossentropy</code>와 <code>sigmoid</code>는 언제나 함께 씁니다.</strong> 손실 함수만 바꾸고 출력층을 그대로 두거나, 그 반대로 하는 것이 가장 흔한 실수입니다.</li>
 <li><strong><code>Dropout</code>은 은닉층 <code>Dense</code> 뒤에만</strong> 넣습니다. 출력층 뒤에 두면 최종 확률값 자체가 무작위로 0이 되어 예측이 망가집니다. 비율 <code>0.3</code>은 관례적 기본값이며, 문항에 지정이 없으면 0.2~0.5 범위에서 고르면 됩니다.</li>
 <li>은닉층 노드 수를 <code>64 → 32</code>로 <strong>줄여 가며</strong> 쌓는 것은 관례적인 구성입니다. 성능에 결정적이지는 않으므로 여기에 시간을 쓰지 마십시오. <strong>"은닉층 2개 이상", "Dropout 포함"이라는 지시 조건을 충족했는지가 채점 항목</strong>입니다.</li>
 </ul>
@@ -742,9 +742,9 @@ history 키: ['accuracy', 'loss', 'val_accuracy', 'val_loss']
 </code></pre>
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
-<li><strong><code>epochs=100</code>을 지정했는데 10에서 끝난 것이 <code>EarlyStopping</code>이 동작했다는 증거</strong>입니다. <code>val_loss</code>가 5번째 epoch에서 최저를 찍은 뒤 5번(<code>patience=5</code>) 더 지켜봤지만 개선되지 않아 10에서 중단했습니다. <code>print('실제로 학습한 epoch 수:', len(history.history['loss']))</code> 한 줄이 그 확인 방법입니다. <strong>중단 시점은 실행마다 달라집니다</strong>(검증 환경에서 10~20 범위). 숫자 자체가 아니라 <strong>상한 100보다 훨씬 앞에서 끝났다는 사실</strong>이 채점 포인트입니다.</li>
+<li><strong><code>epochs=100</code>을 지정했는데 10에서 끝난 것이 <code>EarlyStopping</code>이 동작했다는 증거</strong>입니다. <code>val_loss</code>가 5번째 epoch에서 최저가 된 뒤 5번(<code>patience=5</code>) 더 학습하는 동안 개선되지 않아 10에서 중단했습니다. <code>print('실제로 학습한 epoch 수:', len(history.history['loss']))</code> 한 줄이 그 확인 방법입니다. <strong>중단 시점은 실행마다 달라집니다</strong>(검증 환경에서 10~20 범위). 숫자 자체가 아니라 <strong>상한 100보다 훨씬 앞에서 끝났다는 사실</strong>이 채점 포인트입니다.</li>
 <li><strong><code>verbose</code>는 0이든 1이든 상관없습니다.</strong> 1이면 epoch마다 진행 로그가 흐르고 0이면 조용합니다. 다만 <strong>화면 로그는 채점 근거가 아니므로</strong>, 어느 쪽을 쓰든 위의 <code>len(history.history['loss'])</code> 출력은 남겨야 합니다. (2회차 Q11도 같은 규칙입니다.)</li>
-<li><strong><code>restore_best_weights=True</code>가 이 문항의 핵심 인자</strong>입니다. 이것을 빠뜨리면 학습은 최저점에서 멈추지만 <strong>모델에 남는 가중치는 중단 시점(10번째)의 것</strong>입니다. 즉 최고 성능 지점을 지나쳐 놓고 그보다 나쁜 상태로 평가하게 됩니다. "가장 좋았던 시점의 가중치를 복원"이라는 지시가 곧 이 인자입니다.</li>
+<li><strong><code>restore_best_weights=True</code>가 이 문항의 핵심 인자</strong>입니다. 이것을 빠뜨리면 학습은 최저점에서 멈추지만 <strong>모델에 남는 가중치는 중단 시점(10번째)의 것</strong>입니다. 즉 <code>val_loss</code>가 가장 낮았던 시점을 지난 뒤의, 그보다 나쁜 가중치로 평가하게 됩니다. "가장 좋았던 시점의 가중치를 복원"이라는 지시가 곧 이 인자입니다.</li>
 <li><strong><code>ModelCheckpoint</code>의 <code>save_best_only=True</code></strong> 는 매 epoch마다 덮어쓰지 않고 <code>val_loss</code>가 개선될 때만 파일을 갱신합니다. 확장자는 <strong><code>.keras</code></strong> 를 쓰십시오. Keras 3에서 <code>.h5</code>는 여전히 동작하지만 <code>.keras</code>가 표준이며, 확장자 없이 <code>'best_model'</code>처럼 쓰면 오류가 납니다.</li>
 <li><strong><code>callbacks=[es, mc]</code>처럼 리스트로 전달</strong>해야 합니다. 콜백 객체를 만들어 놓고 <code>fit</code>에 넘기지 않으면 아무 일도 일어나지 않습니다. 오류도 나지 않아 "EarlyStopping을 넣었는데 100 epoch을 다 돌았다"는 상황이 생깁니다.</li>
 <li><strong><code>validation_split=0.2</code></strong> 는 <code>X_train</code>의 뒤쪽 20%를 잘라 검증에 씁니다. 여기서 잘라내는 것은 <strong>학습 데이터의 일부</strong>이며, <code>X_test</code>는 이 과정에 전혀 관여하지 않습니다. 평가 데이터는 마지막 Q12에서 딱 한 번만 씁니다.</li>
@@ -818,7 +818,7 @@ weighted avg      0.737     0.747     0.740       900
 <tr>
 <td><strong>실제 0 (유지)</strong></td>
 <td>540 (맞춤)</td>
-<td>94 (헛짚음)</td>
+<td>94 (이탈로 잘못 예측)</td>
 </tr>
 <tr>
 <td><strong>실제 1 (이탈)</strong></td>
@@ -828,8 +828,8 @@ weighted avg      0.737     0.747     0.740       900
 </tbody>
 </table></div>
 <p>즉 실제 이탈 고객 266명 중 <strong>134명을 놓쳤습니다.</strong><br />
-- <strong>4번이 이 모의고사 전체의 결론입니다.</strong> 아무 학습도 하지 않고 전부 "유지"로만 찍어도 정확도가 <strong>0.7044</strong>입니다. 우리 모델의 정확도는 <strong>0.7467</strong> — 겨우 4%p 높습니다. <strong>accuracy만 보면 "70% 넘으니 괜찮다"고 오판하게 되는 구조</strong>입니다.<br />
-- 실제로 봐야 할 것은 <strong>클래스 1(이탈)의 recall <code>0.496</code>과 f1 <code>0.537</code></strong> 입니다. 전부 0으로 찍는 모델은 클래스 1의 recall이 <code>0.000</code>이므로, 이 지표에서 우리 모델이 확실한 개선을 보였다는 것이 드러납니다. <strong><code>classification_report</code>가 필요한 이유가 정확히 여기에 있습니다.</strong><br />
+- <strong>4번이 이 모의고사 전체의 결론입니다.</strong> 아무 학습도 하지 않고 전부 "유지"로만 찍어도 정확도가 <strong>0.7044</strong>입니다. 우리 모델의 정확도는 <strong>0.7467</strong> — 겨우 4%p 높습니다. <strong>accuracy만 보면 "70% 넘으니 괜찮다"고 잘못 판단하기 쉽습니다.</strong><br />
+- 실제로 봐야 할 것은 <strong>클래스 1(이탈)의 recall <code>0.496</code>과 f1 <code>0.537</code></strong> 입니다. 전부 0으로 찍는 모델은 클래스 1의 recall이 <code>0.000</code>이므로, 이 지표에서는 우리 모델이 확실히 나아졌음을 알 수 있습니다. <strong><code>classification_report</code>가 필요한 이유가 정확히 여기에 있습니다.</strong><br />
 - <code>support</code> 열(634 / 266)도 함께 보십시오. <strong>클래스별 표본 수가 크게 다르면 그 자체가 불균형 신호</strong>이고, 이때 <code>macro avg</code>(클래스를 동등 취급)와 <code>weighted avg</code>(표본 수로 가중)의 차이가 벌어집니다. 여기서도 macro f1 <code>0.681</code> vs weighted f1 <code>0.740</code>으로 벌어져 있습니다.<br />
 - 참고로 Q9의 랜덤 포레스트는 accuracy <code>0.73</code> / 클래스 1 recall <code>0.40</code>이었습니다. 딥러닝 모델이 <strong>정확도는 비슷하지만 이탈 고객을 더 많이 잡아냈다</strong>는 점이 실질적인 개선입니다. 베이스라인을 남겨 둔 덕분에 이 비교가 가능합니다(Q9에서 변수명을 <code>rf_model</code>로 분리한 이유입니다).</p>
 <p><strong>자주 틀리는 지점</strong></p>
@@ -935,7 +935,7 @@ weighted avg      0.737     0.747     0.740       900
 <p>배점은 <strong>교재 자체 기준</strong>입니다. 실제 시험의 배점 체계는 공개되어 있지 않으므로 학습 우선순위를 정하는 참고용으로만 사용하십시오.</p>
 </blockquote>
 <hr />
-<h2 id="이-회차에서-반드시-가져갈-것">이 회차에서 반드시 가져갈 것</h2>
+<h2 id="이-회차에서-정리할-내용">이 회차에서 정리할 내용</h2>
 <div class="table-scroll" role="region" tabindex="0"><table>
 <thead>
 <tr>
@@ -970,11 +970,11 @@ weighted avg      0.737     0.747     0.740       900
 </tr>
 <tr>
 <td>최종 판단</td>
-<td>accuracy <code>0.7467</code> vs 전부 0 예측 <code>0.7044</code> — <strong>차이가 4%p뿐이라면 accuracy는 지표로서 무의미</strong></td>
+<td>accuracy <code>0.7467</code> vs 전부 0 예측 <code>0.7044</code> — <strong>차이가 4%p뿐이라면 accuracy만으로는 모델 성능을 판단할 수 없음</strong></td>
 </tr>
 </tbody>
 </table></div>
-<p><strong>한 문장으로:</strong> 이 회차의 진짜 문제는 모델이 아니라 <strong>지표를 고르는 눈</strong>입니다. 정확도 0.75를 보고 만족하는 답안과, 클래스 1의 recall 0.50을 짚어내는 답안의 차이가 이 시험이 보려는 것입니다.</p>
+<p><strong>한 문장으로:</strong> 이 회차에서 확인하는 것은 모델 구성보다 <strong>어떤 지표로 성능을 판단하는가</strong>입니다. 정확도 0.75만 보고 끝내는 답안과, 클래스 1의 recall 0.50까지 짚어 내는 답안의 차이가 이 회차의 채점 포인트입니다.</p>
 <hr /></div></details>
 </section></div></details>
 </article>

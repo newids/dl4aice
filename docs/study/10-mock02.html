@@ -149,7 +149,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <section class="slide" data-title="오늘의 목표" aria-label="2 / 26"><div class="slide__inner"><h2>오늘의 목표</h2>
 <ol>
 <li>문자열 타깃이 <code>LabelEncoder</code>를 거쳐 정수 라벨이 되고, 마지막에 클래스 이름으로 돌아오는 경로를 확인합니다.</li>
-<li>다중분류의 출력층, 손실 함수, 예측 변환(<code>argmax</code>)이 1회차 이진분류와 어떻게 다른지 정리합니다.</li>
+<li>다중분류의 출력층, 손실 함수, 예측 변환(<code>argmax</code>)이 모의고사 1회의 이진분류와 어떻게 다른지 정리합니다.</li>
 <li>채점 규칙이 문항마다 무엇을 보는지 알고, 본인이 감점된 이유를 찾습니다.</li>
 </ol></div></section>
 <section class="slide" data-title="진행 순서" aria-label="3 / 26"><div class="slide__inner"><h2>진행 순서</h2>
@@ -173,7 +173,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <td>3분</td>
 </tr>
 <tr>
-<td>점수 나누기</td>
+<td>점수 공유</td>
 <td>점수와 약한 파트 공유</td>
 <td>4분</td>
 </tr>
@@ -183,7 +183,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <td>5분</td>
 </tr>
 <tr>
-<td>1회차와 달라진 점</td>
+<td>모의고사 1회와 달라진 점</td>
 <td>출력층, 손실, 지표, 후처리, stratify</td>
 <td>3분</td>
 </tr>
@@ -250,11 +250,11 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </tbody>
 </table>
 <p>합격선은 80점(100점 만점)입니다. 문항 수, 배점, 오픈북 정책은 회차마다 다를 수 있으므로 응시 전에 KT AICE 공식 공지를 확인합니다.</p></div></section>
-<section class="slide" data-title="점수 나누기 (4분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 나누기 (4분)</h2>
+<section class="slide" data-title="점수 공유 (4분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 공유 (4분)</h2>
 <p>CBT 결과 화면에는 파트별 분석이 나옵니다. 한 사람씩 짧게 말합니다.</p>
 <p>발표자가 던질 질문 3개:</p>
 <ol>
-<li>총점은 몇 점이고, 1회차 점수와 비교하면 어떻게 달라졌습니까?</li>
+<li>총점은 몇 점이고, 모의고사 1회 점수와 비교하면 어떻게 달라졌습니까?</li>
 <li>파트별로 가장 점수가 낮았던 곳은 어디입니까? 이번에 새로 나온 <code>LabelEncoder</code>, <code>softmax</code>, <code>argmax</code> 관련 문항이 포함됩니까?</li>
 <li>시간이 모자랐던 문항이 있었습니까, 아니면 시간은 남았는데 틀렸습니까?</li>
 </ol>
@@ -401,13 +401,13 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </tbody>
 </table>
 <p>Q14가 앞 문항에서 받는 것: <code>model</code>, <code>X_test_scaled</code>, <code>y_test</code>, <code>X</code>, <code>scaler</code>, <code>le</code></p></div></section>
-<section class="slide" data-title="1회차와 달라진 점" aria-label="10 / 26"><div class="slide__inner"><h2>1회차와 달라진 점</h2>
+<section class="slide" data-title="모의고사 1회와 달라진 점" aria-label="10 / 26"><div class="slide__inner"><h2>모의고사 1회와 달라진 점</h2>
 <table>
 <thead>
 <tr>
 <th>항목</th>
-<th>1회차 (이진분류)</th>
-<th>2회차 (다중분류)</th>
+<th>모의고사 1회 (이진분류)</th>
+<th>모의고사 2회 (다중분류)</th>
 </tr>
 </thead>
 <tbody>
@@ -551,7 +551,7 @@ print('예측 클래스 이름:', le.inverse_transform([new_class])[0])
 <p>자주 틀리는 답:
 - 신규 1건으로 <code>scaler</code>를 다시 fit(값이 모두 0이 됨), <code>fill_value</code> 누락(예측이 NaN)
 - 이진분류식 임계값 변환(<code>classification_report</code>에서 오류), <code>axis</code>를 빼거나 0으로 씀
-- 번호만 출력하고 끝냄(문항은 클래스 이름을 요구), 평가를 학습 데이터로 수행</p></div></section>
+- 번호만 출력하고 끝냄(문항은 클래스 이름을 요구), 평가를 학습 데이터로 함</p></div></section>
 <section class="slide" data-title="정적 채점에서 주의할 점 (2분)" aria-label="17 / 26"><div class="slide__inner"><h2>정적 채점에서 주의할 점 (2분)</h2>
 <ul>
 <li>사이트의 채점기는 코드를 실행하지 않습니다. 변수 이름과 핵심 인자가 있는지 검사합니다.</li>
@@ -620,7 +620,7 @@ print('예측 클래스 이름:', le.___([new_class])[0])
 <section class="slide" data-title="토론 질문" aria-label="24 / 26"><div class="slide__inner"><h2>토론 질문</h2>
 <ol>
 <li>타깃 누수 컬럼(<code>rul_days</code>)을 데이터 설명에서 알려 주지 않았다면, 어떤 단서로 알아챌 수 있겠습니까?</li>
-<li>이진분류 코드를 복사해 와서 3클래스 문제에 쓸 때, 오류 없이 지나가면서 결과만 틀어지는 지점은 어디입니까?</li>
+<li>이진분류 코드를 복사해 와서 3클래스 문제에 쓸 때, 오류 없이 실행되지만 결과만 틀려지는 지점은 어디입니까?</li>
 <li>accuracy는 0.79 안팎인데 macro F1은 0.70~0.72입니다. 어느 클래스가 약하고, 그것이 현장에서 어떤 의미가 있습니까? (<code>overheat</code> recall 0.59를 참고)</li>
 </ol></div></section>
 <section class="slide" data-title="예상 질문과 답 (1)" aria-label="25 / 26"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
@@ -628,13 +628,13 @@ print('예측 클래스 이름:', le.___([new_class])[0])
 답: 출력층은 같고 손실 이름만 바뀌므로 짝만 맞으면 됩니다. 다만 이 회차의 Q6은 <code>LabelEncoder</code>를 지시하므로 정수 라벨 경로로 <code>sparse_categorical_crossentropy</code>를 씁니다.</p>
 <p><strong>Q2.</strong> <code>LabelEncoder</code> 번호가 왜 normal, wear, overheat 순서가 아닙니까?
 답: 클래스 이름은 알파벳 순으로 번호가 붙어 0 = normal, 1 = overheat, 2 = wear가 됩니다. 순서를 외우지 말고 <code>le.classes_</code>를 출력해 확인하고, 이름 복원에는 <code>le.inverse_transform</code>을 씁니다.</p>
-<p><strong>Q3.</strong> Q5에서 이상치를 제거하지 않고 <code>clip</code>으로 눌러도 됩니까?
+<p><strong>Q3.</strong> Q5에서 이상치를 제거하지 않고 <code>clip</code>으로 값을 제한해도 됩니까?
 답: 실무에서는 행을 보존하므로 <code>clip</code>도 많이 씁니다. 그러나 이 문항은 "제거"를 지시했으므로 불리언 조건으로 걸러 <code>df</code>에 재대입합니다. 문항이 요구한 방식을 따르는 것이 우선입니다.</p></div></section>
 <section class="slide" data-title="예상 질문과 답 (2)" aria-label="26 / 26"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
 <p><strong>Q4.</strong> 딥러닝 accuracy(0.7886)가 랜덤포레스트(0.7937)보다 낮습니다. 잘못 만든 것입니까?
 답: 아닙니다. 표 형태 데이터에서는 트리 계열이 딥러닝과 비슷하거나 더 좋은 경우가 흔합니다. 세 모델과 딥러닝의 accuracy가 0.77~0.79로 비슷한 범위입니다. 크게 낮을 때만 전처리와 모델 설정을 의심합니다.</p>
 <p><strong>Q5.</strong> <code>Input(shape=(12,))</code>처럼 숫자를 직접 써도 됩니까?
-답: 값이 맞으면 동작하지만, 인코딩 결과가 바뀌면 틀어집니다. <code>X_train_scaled.shape[1]</code>로 계산하면 안전하며, 문항도 특성 개수에 맞춰 지정하라고 요구합니다. 행 수를 넣는 <code>shape[0]</code>만 피하면 됩니다.</p>
+답: 값이 맞으면 동작하지만, 인코딩 결과가 바뀌면 맞지 않게 됩니다. <code>X_train_scaled.shape[1]</code>로 계산하면 안전하며, 문항도 특성 개수에 맞춰 지정하라고 요구합니다. 행 수를 넣는 <code>shape[0]</code>만 피하면 됩니다.</p>
 <p><strong>Q6.</strong> <code>n_classes</code>를 <code>len(le.classes_)</code> 대신 3으로 써도 됩니까?
 답: 숫자 3을 직접 써도 정답입니다. <code>len(le.classes_)</code>는 데이터가 바뀌어도 통하는 코드라서 권장하는 형태입니다.</p></div></section>
 </main>
@@ -657,12 +657,12 @@ print('예측 클래스 이름:', le.___([new_class])[0])
 <li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">4</span><span>시험 구성 (3분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 나누기 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 공유 (4분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">6</span><span>파트 1: 탐색·전처리 (Q1–7, 40점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">7</span><span>파트 2: 머신러닝 (Q8–10, 22점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">8</span><span>파트 3: 딥러닝 모델링 (Q11–13, 26점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">9</span><span>파트 4: 딥러닝 추론 (Q14, 12점)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>1회차와 달라진 점</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>모의고사 1회와 달라진 점</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">11</span><span>자세히 보는 문항: Q5 이상치 제거와 누수 컬럼 삭제</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">12</span><span>자세히 보는 문항: Q6 인코딩과 LabelEncoder</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">13</span><span>자세히 보는 문항: Q7 분리와 스케일링</span></button></li>

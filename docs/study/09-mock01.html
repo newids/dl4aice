@@ -173,7 +173,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <td>3분</td>
 </tr>
 <tr>
-<td>점수 나누기</td>
+<td>점수 공유</td>
 <td>점수와 약한 파트 공유</td>
 <td>4분</td>
 </tr>
@@ -245,7 +245,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </tbody>
 </table>
 <p>합격선은 80점(100점 만점)입니다. 문항 수, 배점, 오픈북 정책은 회차마다 다를 수 있으므로 응시 전에 KT AICE 공식 공지를 확인합니다.</p></div></section>
-<section class="slide" data-title="점수 나누기 (4분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 나누기 (4분)</h2>
+<section class="slide" data-title="점수 공유 (4분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 공유 (4분)</h2>
 <p>CBT 결과 화면에는 파트별 분석이 나옵니다. 한 사람씩 짧게 말합니다.</p>
 <p>발표자가 던질 질문 3개:</p>
 <ol>
@@ -361,7 +361,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </table>
 <ul>
 <li>Q11의 <code>model</code>이 Q12 <code>fit</code>, Q14 <code>evaluate</code>와 <code>predict</code>로 이어집니다.</li>
-<li>Q12의 <code>history</code>가 Q13 그래프의 재료입니다. 키는 <code>loss</code>, <code>accuracy</code>, <code>val_loss</code>, <code>val_accuracy</code>입니다.</li>
+<li>Q12의 <code>history</code>가 Q13 그래프에 쓰는 데이터입니다. 키는 <code>loss</code>, <code>accuracy</code>, <code>val_loss</code>, <code>val_accuracy</code>입니다.</li>
 </ul>
 <p>뒤로 넘어가는 변수: <code>model</code>, <code>es</code>, <code>mc</code>, <code>history</code></p></div></section>
 <section class="slide" data-title="파트 4: 딥러닝 추론 (Q14, 12점)" aria-label="9 / 26"><div class="slide__inner"><h2>파트 4: 딥러닝 추론 (Q14, 12점)</h2>
@@ -494,10 +494,10 @@ print('예측 결과:', int(new_pred[0][0] &gt; 0.5))
 <p>채점에서 보는 것: 임계값 0.5로 0/1 변환 / 학습 컬럼 구성·순서로 맞추고 없는 컬럼은 0 / <code>scaler</code>로 <code>transform</code>만</p></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q14에서 자주 틀리는 답" aria-label="16 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q14에서 자주 틀리는 답</h2>
 <ul>
-<li>새 샘플에 <code>fit_transform</code>: 한 건의 평균·표준편차를 새로 배워 모든 값이 0이 됩니다.</li>
+<li>새 샘플에 <code>fit_transform</code>: 한 건의 평균·표준편차를 새로 계산하므로 모든 값이 0이 됩니다.</li>
 <li><code>fill_value</code> 누락: 없는 더미 컬럼이 NaN이 되어 예측이 <code>nan</code>입니다.</li>
 <li><code>reindex</code>를 건너뜀: 한 건에는 <code>month</code>, <code>fiber</code> 더미만 생겨서 <code>scaler.transform</code>이 feature names 불일치 <code>ValueError</code>를 냅니다.</li>
-<li>평가를 학습 데이터로 수행하거나 임계값을 지시와 다르게 지정합니다.</li>
+<li>평가를 학습 데이터로 하거나 임계값을 지시와 다르게 지정합니다.</li>
 <li>불리언 <code>[[True]]</code>를 그대로 출력합니다. 지문은 최종 판정 0 또는 1을 요구합니다.</li>
 </ul>
 <p>순서: DataFrame 만들기, <code>get_dummies</code>, <code>reindex</code>, <code>scaler.transform</code>, <code>model.predict</code></p></div></section>
@@ -550,7 +550,7 @@ print('예측 결과:', ___)
 <section class="slide" data-title="정리" aria-label="22 / 26"><div class="slide__inner"><h2>정리</h2>
 <ul>
 <li>인코딩은 분리 전에, 스케일링은 분리 후에 하고, <code>fit</code>은 학습 데이터에서만 합니다.</li>
-<li>이진분류의 출력층은 <code>Dense(1, sigmoid)</code>이고 손실 함수는 <code>binary_crossentropy</code>입니다. 한쪽만 바꾸면 오류 없이 학습이 어긋납니다.</li>
+<li>이진분류의 출력층은 <code>Dense(1, sigmoid)</code>이고 손실 함수는 <code>binary_crossentropy</code>입니다. 한쪽만 바꾸면 오류 없이 학습이 잘못됩니다.</li>
 <li><code>fillna</code>, <code>drop</code>, <code>get_dummies</code>는 새 객체를 돌려주므로 재대입이 필요합니다.</li>
 <li>콜백은 만든 뒤 <code>fit</code>의 <code>callbacks=[es, mc]</code>로 전달해야 동작합니다.</li>
 <li>신규 샘플은 학습 때와 같은 전처리 순서를 거친 뒤 임계값 0.5로 판정합니다.</li>
@@ -566,7 +566,7 @@ print('예측 결과:', ___)
 <section class="slide" data-title="토론 질문" aria-label="24 / 26"><div class="slide__inner"><h2>토론 질문</h2>
 <ol>
 <li>Q4처럼 분리 전에 전체 데이터로 결측치를 채우라는 지시가 나왔을 때, 시험에서는 어떻게 쓰고 실무에서는 무엇이 달라져야 합니까?</li>
-<li>딥러닝 accuracy가 0.7497인데 전부 유지로 찍어도 약 70%입니다. 이탈 고객을 찾는 것이 목적이라면 어떤 지표를 어떻게 읽어야 합니까?</li>
+<li>딥러닝 accuracy가 0.7497인데 전부 유지로 예측해도 약 70%입니다. 이탈 고객을 찾는 것이 목적이라면 어떤 지표를 어떻게 읽어야 합니까?</li>
 <li>시간이 모자랄 때 어떤 문항부터 풀고 어떤 문항을 나중으로 미루겠습니까? 본인 점수 기록을 근거로 이유를 말해 봅시다.</li>
 </ol></div></section>
 <section class="slide" data-title="예상 질문과 답 (1)" aria-label="25 / 26"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
@@ -575,7 +575,7 @@ print('예측 결과:', ___)
 <p><strong>Q2.</strong> 이진분류에서 출력 노드를 2개로 두면 안 됩니까?
 답: 이 모의고사의 채점 규칙은 <code>Dense(1, sigmoid)</code>와 <code>binary_crossentropy</code>의 짝을 요구하고, 노드 2개는 오답 사례로 등록되어 있습니다. 문항이 "이진분류에 맞는"이라고 쓰면 1개와 sigmoid로 답합니다.</p>
 <p><strong>Q3.</strong> 테스트 accuracy 0.7497이면 잘 나온 것입니까?
-답: 평가 데이터의 유지(0)가 630건, 이탈(1)이 265건이라 전부 유지로 찍어도 약 70%입니다. 이탈 클래스의 recall이 0.43이므로, accuracy만 보고 판단하지 않고 <code>classification_report</code>를 함께 읽습니다.</p></div></section>
+답: 평가 데이터의 유지(0)가 630건, 이탈(1)이 265건이라 전부 유지로 예측해도 약 70%입니다. 이탈 클래스의 recall이 0.43이므로, accuracy만 보고 판단하지 않고 <code>classification_report</code>를 함께 읽습니다.</p></div></section>
 <section class="slide" data-title="예상 질문과 답 (2)" aria-label="26 / 26"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
 <p><strong>Q4.</strong> Q10 표에서 DecisionTree와 XGBoost의 accuracy와 f1이 같은데 복사한 것입니까?
 답: 아닙니다. 이 데이터에서 우연히 지표가 같아진 것이며 두 모델의 예측이 서로 다른 행도 있습니다. 비교표에는 모델마다 자기 예측 변수를 넣어야 합니다.</p>
@@ -603,7 +603,7 @@ print('예측 결과:', ___)
 <li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">4</span><span>시험 구성 (3분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 나누기 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 공유 (4분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">6</span><span>파트 1: 탐색·전처리 (Q1–7, 40점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">7</span><span>파트 2: 머신러닝 (Q8–10, 22점)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">8</span><span>파트 3: 딥러닝 모델링 (Q11–13, 26점)</span></button></li>
