@@ -320,7 +320,7 @@ model.add(Dense(32, activation='relu'))      # 은닉층 2
 model.add(Dense(1, activation='sigmoid'))    # 출력층
 </code></pre>
 <ul>
-<li><code>model.add()</code>를 부른 순서가 데이터가 지나가는 순서입니다.</li>
+<li><code>model.add()</code>를 호출한 순서가 데이터가 지나가는 순서입니다.</li>
 <li><code>len(model.layers)</code>는 3입니다. <code>Input</code>은 층으로 세지 않습니다.</li>
 <li>은닉층은 입력층과 출력층을 뺀 중간층입니다. 기본값은 은닉층 2개, 64에서 32로 줄어드는 형태입니다.</li>
 </ul></div></section>
@@ -486,7 +486,7 @@ reg_model.add(Dense(1))                    # 회귀는 activation 없음
 </code></pre>
 <ul>
 <li>클래스 수 K도 <code>len(np.unique(y))</code>로 뽑습니다. 3클래스에 <code>Dense(2, 'softmax')</code>를 쓰면 학습 단계에서 오류가 납니다.</li>
-<li>회귀에 sigmoid를 붙이면 출력이 0~1에 갇혀 집값 같은 큰 값을 맞힐 수 없습니다.</li>
+<li>회귀에 sigmoid를 붙이면 출력이 0~1 범위로 제한되어 집값 같은 큰 값을 맞힐 수 없습니다.</li>
 <li>손실 함수와의 짝짓기는 5회차(5장)에서 다룹니다.</li>
 </ul></div></section>
 <section class="slide" data-title="4.4 Sequential과 Functional 비교 (4분)" aria-label="10 / 25"><div class="slide__inner"><h2>4.4 Sequential과 Functional 비교 (4분)</h2>
@@ -704,11 +704,11 @@ model.add(Dense(1, activation='sigmoid'))
 </code></pre>
 <ul>
 <li><code>Dropout</code>의 Param #는 0입니다. 정상입니다.</li>
-<li><code>BatchNormalization</code>은 노드 수의 4배(64 x 4 = 256)가 잡히고 절반(128)이 Non-trainable입니다. 오류가 아닙니다.</li>
+<li><code>BatchNormalization</code>은 노드 수의 4배(64 x 4 = 256)로 표시되고 절반(128)이 Non-trainable입니다. 오류가 아닙니다.</li>
 </ul></div></section>
 <section class="slide" data-title="자주 틀리는 지점 (2분)" aria-label="15 / 25"><div class="slide__inner"><h2>자주 틀리는 지점 (2분)</h2>
 <ul>
-<li><code>Input(shape=(1000, 8))</code>처럼 샘플 수를 넣는다. 구성 단계에서 오류가 없고 <code>fit()</code>에서 shape 불일치로 터집니다.</li>
+<li><code>Input(shape=(1000, 8))</code>처럼 샘플 수를 넣는다. 구성 단계에서 오류가 없고 <code>fit()</code>에서 shape 불일치 오류가 납니다.</li>
 <li><code>shape=(8)</code>로 쓰고 쉼표를 빠뜨린다.</li>
 <li>은닉층 2개 조건에서 <code>Dense(64)</code>와 출력층만 쓴다. 은닉층이 1개뿐입니다.</li>
 <li>클래스 수를 눈으로 세어 출력층 units를 잘못 적는다.</li>

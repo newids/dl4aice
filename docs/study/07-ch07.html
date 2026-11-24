@@ -654,7 +654,7 @@ print(wrong, wrong.shape)                # [1 0 2] (3,)
 <ul>
 <li>리포트의 숫자는 모두 혼동 행렬 네 칸에서 계산할 수 있습니다.</li>
 </ul></div></section>
-<section class="slide" data-title="7.5 정확도가 잘못 보이는 경우 (1분)" aria-label="11 / 25"><div class="slide__inner"><h2>7.5 정확도가 잘못 보이는 경우 (1분)</h2>
+<section class="slide" data-title="7.5 정확도만 보면 놓치는 경우 (1분)" aria-label="11 / 25"><div class="slide__inner"><h2>7.5 정확도만 보면 놓치는 경우 (1분)</h2>
 <p>90:10 데이터에서 모델이 전부 0으로 예측한 경우입니다.</p>
 <table>
 <thead>
@@ -746,7 +746,7 @@ print(wrong, wrong.shape)                # [1 0 2] (3,)
 <ul>
 <li>mse: 오차를 제곱해 평균합니다. 큰 오차에 민감하고 단위가 제곱입니다.</li>
 <li>mae: 오차 절댓값의 평균이라 "평균 몇 정도 빗나간다"로 읽습니다.</li>
-<li>r2: 1에 가까울수록 좋고, 평균으로 찍는 것보다 못하면 음수가 됩니다.</li>
+<li>r2: 1에 가까울수록 좋고, 평균값으로 예측하는 것보다 못하면 음수가 됩니다.</li>
 <li>rmse는 <code>np.sqrt(mse)</code>로 구합니다.</li>
 </ul></div></section>
 <section class="slide" data-title="7.6 회귀에서 predict 결과 정리 (1분)" aria-label="13 / 25"><div class="slide__inner"><h2>7.6 회귀에서 predict 결과 정리 (1분)</h2>
@@ -767,7 +767,7 @@ r2 = r2_score(yr_test, y_pred_reg)
 <li>곡선을 새로 뽑으려면 모델을 새로 만든 뒤 학습합니다.</li>
 </ul></div></section>
 <section class="slide" data-title="14번 유형: 새 입력 한 건 예측 (3분)" aria-label="15 / 25"><div class="slide__inner"><h2>14번 유형: 새 입력 한 건 예측 (3분)</h2>
-<p>학습 때와 같은 길을 지나게 하는 다섯 단계입니다. <code>X</code>는 학습 특성 표, <code>scaler</code>는 학습 데이터로 맞춘 스케일러입니다.</p>
+<p>학습 때와 같은 전처리를 거치게 하는 다섯 단계입니다. <code>X</code>는 학습 특성 표, <code>scaler</code>는 학습 데이터로 맞춘 스케일러입니다.</p>
 <pre><code class="language-python">new_data = {'age': 35, 'monthly_fee': 70.0, 'contract': 'month'}
 new_df = pd.DataFrame([new_data])
 new_df = pd.get_dummies(new_df, columns=['contract'], dtype=int)
@@ -841,7 +841,7 @@ recall = tp / (tp + fn)                            # 90 / 100 = 0.9
 <section class="slide" data-title="정리" aria-label="21 / 25"><div class="slide__inner"><h2>정리</h2>
 <ul>
 <li><code>evaluate</code>는 <code>[loss, 지표]</code>(loss가 먼저), <code>predict</code>는 확률이나 예측값 배열입니다.</li>
-<li>변환은 출력층 모양에서 나옵니다. 이진 <code>(pred &gt; 0.5).astype(int).flatten()</code>, 다중 <code>np.argmax(pred, axis=1)</code>, 회귀 <code>flatten()</code>입니다.</li>
+<li>변환 방법은 출력층 모양에 따라 정해집니다. 이진 <code>(pred &gt; 0.5).astype(int).flatten()</code>, 다중 <code>np.argmax(pred, axis=1)</code>, 회귀 <code>flatten()</code>입니다.</li>
 <li>sklearn 평가 함수는 정답이 먼저입니다. 혼동 행렬 배치는 <code>[[TN, FP], [FN, TP]]</code>입니다.</li>
 <li>리포트는 클래스별 행, support, macro avg와 weighted avg 순서로 읽습니다.</li>
 <li>새 입력은 1행 표, 같은 인코딩, <code>reindex</code>, <code>scaler.transform</code>, <code>predict</code> 순서이고 <code>fit</code>은 하지 않습니다.</li>
@@ -901,7 +901,7 @@ recall = tp / (tp + fn)                            # 90 / 100 = 0.9
 <li><button class="ov__item" type="button"><span class="ov__no">8</span><span>7.3 혼동 행렬 (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">9</span><span>7.4 정밀도와 재현율 (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">10</span><span>7.5 classification_report 읽는 순서 (3분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>7.5 정확도가 잘못 보이는 경우 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>7.5 정확도만 보면 놓치는 경우 (1분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">12</span><span>7.6 회귀 지표 (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">13</span><span>7.6 회귀에서 predict 결과 정리 (1분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">14</span><span>7.7 학습 곡선과 fit 재호출 (1분)</span></button></li>

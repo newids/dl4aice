@@ -174,7 +174,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </tr>
 <tr>
 <td>8.5</td>
-<td>오류 응급처치</td>
+<td>오류 대처 방법</td>
 <td>8분</td>
 </tr>
 <tr>
@@ -278,7 +278,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </svg><figcaption>세 유형에서 바뀌는 곳은 출력층, loss, 평가지표입니다</figcaption></figure>
 <ul>
 <li>전처리, 은닉층, <code>Dropout</code>, <code>EarlyStopping</code>, 학습 곡선은 세 유형에서 같습니다.</li>
-<li>코드의 교체 슬롯은 네 곳입니다: 출력층, loss, metrics, 예측 변환.</li>
+<li>코드에서 바꾸는 곳은 네 곳입니다: 출력층, loss, metrics, 예측 변환.</li>
 <li><code>metrics</code>는 회귀에서만 바뀌므로 분류끼리 비교하면 세 곳입니다.</li>
 </ul></div></section>
 <section class="slide" data-title="8.1 바뀌는 곳 비교표와 유형 판정 (1분)" aria-label="5 / 26"><div class="slide__inner"><h2>8.1 바뀌는 곳 비교표와 유형 판정 (1분)</h2>
@@ -430,7 +430,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
   
   <path d="M26,368 L26,376 L580,376 L580,368" fill="none" stroke="#2563eb" stroke-width="2"/>
   <text x="303" y="398" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">딥러닝 3단계 — 구성(Ch04) · 컴파일 · 학습(Ch05)</text>
-</svg><figcaption>로딩에서 평가까지 8단계 지도</figcaption></figure>
+</svg><figcaption>로딩에서 평가까지 8단계 흐름도</figcaption></figure>
 <ul>
 <li>8단계: 로딩, 탐색, 결측 처리, 인코딩과 분리와 스케일링, 구성, 컴파일, 학습, 평가.</li>
 <li>시험에서는 로딩 블록만 <code>df = pd.read_csv('data.csv')</code>로 바꿉니다.</li>
@@ -452,7 +452,7 @@ X_test_scaled = scaler.transform(X_test)
 <li>모델에 넣는 것은 항상 <code>_scaled</code> 배열입니다.</li>
 <li>평가 데이터에는 <code>fit</code> 없이 <code>transform</code>만 합니다.</li>
 </ul></div></section>
-<section class="slide" data-title="8.3 템플릿 B: 다중분류 교체 카드 (2분)" aria-label="9 / 26"><div class="slide__inner"><h2>8.3 템플릿 B: 다중분류 교체 카드 (2분)</h2>
+<section class="slide" data-title="8.3 템플릿 B: 다중분류에서 바꾸는 곳 (2분)" aria-label="9 / 26"><div class="slide__inner"><h2>8.3 템플릿 B: 다중분류에서 바꾸는 곳 (2분)</h2>
 <pre><code class="language-python">n_classes = len(np.unique(y_train))
 model.add(Dense(n_classes, activation='softmax'))         # (1)
 model.compile(optimizer='adam',
@@ -465,7 +465,7 @@ y_pred = np.argmax(pred, axis=1)                          # (4)
 <li>혼동 행렬은 3x3이므로 <code>ravel()</code>로 풀지 않고 표 전체를 출력합니다.</li>
 <li>클래스 수는 눈으로 세지 않고 <code>len(np.unique(y_train))</code>으로 구합니다.</li>
 </ul></div></section>
-<section class="slide" data-title="8.4 템플릿 C: 회귀 교체 카드 (1분)" aria-label="10 / 26"><div class="slide__inner"><h2>8.4 템플릿 C: 회귀 교체 카드 (1분)</h2>
+<section class="slide" data-title="8.4 템플릿 C: 회귀에서 바꾸는 곳 (1분)" aria-label="10 / 26"><div class="slide__inner"><h2>8.4 템플릿 C: 회귀에서 바꾸는 곳 (1분)</h2>
 <pre><code class="language-python">model.add(Dense(1))                                       # (1) 활성화 없음
 model.compile(optimizer='adam',
               loss='mse',                                 # (2)
@@ -479,7 +479,7 @@ print('r2 :', r2_score(y_test, y_pred))
 <li><code>history</code> 키가 <code>mae</code>, <code>val_mae</code>로 바뀝니다. 곡선을 그리기 전에 <code>history.history.keys()</code>를 확인합니다.</li>
 <li><code>classification_report</code>는 쓰지 않습니다.</li>
 </ul></div></section>
-<section class="slide" data-title="8.5 오류 응급처치: 네 가지 증상 (3분)" aria-label="11 / 26"><div class="slide__inner"><h2>8.5 오류 응급처치: 네 가지 증상 (3분)</h2>
+<section class="slide" data-title="8.5 오류 대처 방법: 네 가지 증상 (3분)" aria-label="11 / 26"><div class="slide__inner"><h2>8.5 오류 대처 방법: 네 가지 증상 (3분)</h2>
 <figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" aria-label="자주 만나는 오류와 원인 판별" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>자주 만나는 오류와 원인 판별 — shape 불일치, 라벨과 출력층 불일치, loss가 nan, accuracy가 0.5 부근 고정이라는 네 가지 증상 각각에 대해 원인과 조치가 짝지어져 있다.</title>
   <defs>
@@ -622,7 +622,7 @@ print('4. 출력층:', model.layers[-1].units, model.layers[-1].activation.__nam
 <li>2번 범위가 <code>0 ~ 800</code>처럼 넓으면 스케일링하지 않은 배열을 넣은 것입니다.</li>
 <li>3번이 심하게 치우쳤으면 정확도가 의미 없습니다.</li>
 <li>4번은 이진 <code>1 sigmoid</code>, 다중 <code>K softmax</code>, 회귀 <code>1 linear</code>여야 합니다.</li>
-<li>모델을 만든 직후 <code>model.summary()</code>를 찍는 습관이 절반을 잡아 줍니다.</li>
+<li>모델을 만든 직후 <code>model.summary()</code>를 출력해 두면 shape 관련 오류를 미리 알아챌 수 있습니다.</li>
 </ul></div></section>
 <section class="slide" data-title="8.6 시간 배분 (2분)" aria-label="14 / 26"><div class="slide__inner"><h2>8.6 시간 배분 (2분)</h2>
 <table>
@@ -820,7 +820,7 @@ print('4. 출력층:', model.layers[-1].units, model.layers[-1].activation.__nam
 <li>오류가 나면 코드를 처음부터 다시 쓰지 않고 메시지의 키워드를 찾습니다.</li>
 <li>오류를 보고 <code>epochs</code>나 <code>batch_size</code>를 조정하지 않습니다. 학습 설정과 무관한 오류가 많습니다.</li>
 <li>실행이 되었다고 맞은 것이 아닙니다. 회귀에서는 예측값 범위를 실제값 범위와 비교합니다.</li>
-<li>r2가 -4처럼 크게 음수이면 데이터 탓이 아니라 코드 오류입니다.</li>
+<li>r2가 -4처럼 크게 음수이면 코드 오류를 먼저 의심합니다.</li>
 <li>스케일러를 두 번 <code>fit</code>한 흔적이 없는지 재실행으로 확인합니다.</li>
 </ul></div></section>
 <section class="slide" data-title="치트시트와 부록 A 안내 (2분)" aria-label="18 / 26"><div class="slide__inner"><h2>치트시트와 부록 A 안내 (2분)</h2>
@@ -884,11 +884,11 @@ model.add(Dense(n_classes, activation='softmax'))
 print('출력 shape:', model.output_shape)
 </code></pre>
 <ul>
-<li>출력 노드가 1개이면 허용 라벨 범위가 <code>[0, 1)</code>이라 라벨 1, 2가 범위를 벗어납니다. loss를 되돌릴 것이 아니라 출력층을 고칩니다.</li>
+<li>출력 노드가 1개이면 허용 라벨 범위가 <code>[0, 1)</code>이라 라벨 1, 2가 범위를 벗어납니다. 출력층을 고쳐야 하고 loss는 그대로 둡니다.</li>
 </ul></div></section>
 <section class="slide" data-title="정리" aria-label="22 / 26"><div class="slide__inner"><h2>정리</h2>
 <ul>
-<li>유형이 바뀌어도 교체 슬롯은 출력층, loss, metrics, 예측 변환 네 곳이고 나머지 골격은 같습니다.</li>
+<li>유형이 바뀌어도 바꾸는 곳은 출력층, loss, metrics, 예측 변환 네 곳이고 나머지 골격은 같습니다.</li>
 <li>출력층과 loss는 짝으로 바꾸고, <code>predict</code> 다음 줄에는 유형에 맞는 변환 한 줄을 둡니다.</li>
 <li>오류는 <code>incompatible</code>, <code>label value</code>, <code>nan</code> 같은 키워드로 좁히고, 자가 진단 4줄을 돌립니다.</li>
 <li>단계별 셀 분리와 셀 끝 <code>print()</code>가 부분 점수를 지키는 기본 방식입니다.</li>
@@ -904,7 +904,7 @@ print('출력 shape:', model.output_shape)
 <section class="slide" data-title="토론 질문" aria-label="24 / 26"><div class="slide__inner"><h2>토론 질문</h2>
 <ol>
 <li>시간이 부족해 딥러닝 문항에서 <code>epochs=20</code>으로 완주한 답안과, 시간을 들여 성능을 올린 미완성 답안 중 어느 쪽이 유리합니까? 근거를 채점 방식에서 찾아 설명해 보십시오.</li>
-<li>세 템플릿의 교체 지점을 외우는 방식과 원리(출력층 활성화와 손실 함수의 관계)를 이해하는 방식은 시험에서 어떤 차이를 만듭니까?</li>
+<li>세 템플릿에서 바꾸는 곳을 외우는 방식과 원리(출력층 활성화와 손실 함수의 관계)를 이해하는 방식은 시험에서 어떤 차이를 만듭니까?</li>
 <li>제한적 오픈북이라면 어떤 자료를 열어 보고, 어떤 코드는 반드시 외워서 써야 합니까? 이유와 함께 기준을 정해 봅시다.</li>
 </ol></div></section>
 <section class="slide" data-title="예상 질문과 답 (1)" aria-label="25 / 26"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
@@ -947,9 +947,9 @@ print('출력 shape:', model.output_shape)
 <li><button class="ov__item" type="button"><span class="ov__no">6</span><span>자주 틀리는 지점 (1) 출력층과 loss의 짝 (1분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">7</span><span>8.2 템플릿 A: 이진분류 end-to-end (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">8</span><span>8.2 인코딩, 분리, 스케일링의 순서 (2분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>8.3 템플릿 B: 다중분류 교체 카드 (2분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>8.4 템플릿 C: 회귀 교체 카드 (1분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>8.5 오류 응급처치: 네 가지 증상 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>8.3 템플릿 B: 다중분류에서 바꾸는 곳 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>8.4 템플릿 C: 회귀에서 바꾸는 곳 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>8.5 오류 대처 방법: 네 가지 증상 (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">12</span><span>8.5 메시지 키워드로 원인 좁히기 (2분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">13</span><span>8.5 학습이 안 될 때 자가 진단 4줄 (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">14</span><span>8.6 시간 배분 (2분)</span></button></li>

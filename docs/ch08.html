@@ -13,17 +13,17 @@
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part IV. 평가와 실전 · Chapter 8</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</a></li><li><a href="#8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</a></li><li><a href="#8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</a></li><li><a href="#8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</a></li><li><a href="#8-5-오류-응급처치-메시지로-원인을-좁힙니다">8.5 오류 응급처치 — 메시지로 원인을 좁힙니다</a></li><li><a href="#8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</a></li><li><a href="#8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch08">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#8-1-유형에-따라-바뀌는-곳은-네-곳입니다">8.1 유형에 따라 바뀌는 곳은 네 곳입니다</a></li><li><a href="#8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</a></li><li><a href="#8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</a></li><li><a href="#8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</a></li><li><a href="#8-5-오류-대처-방법-메시지로-원인을-좁힙니다">8.5 오류 대처 방법 — 메시지로 원인을 좁힙니다</a></li><li><a href="#8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</a></li><li><a href="#8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch08">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</a></li></ol></nav>
 <article class="page-body">
 <h1>문제 유형별 완성 코드와 시험장 전략</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>이진분류·다중분류·회귀 각각의 end-to-end 코드를 처음부터 끝까지 작성할 수 있다</li><li>세 유형에서 달라지는 지점(출력층·loss·평가지표)만 정확히 교체할 수 있다</li><li>시험장에서 만나는 대표 오류를 메시지만 보고 원인과 조치를 판단할 수 있다</li></ul></aside>
 <blockquote class="callout callout--note">
 <p><strong>이 챕터에서 배우는 것</strong><br />
-<strong>새로 배우는 딥러닝 개념은 없습니다.</strong> Ch02부터 Ch07까지 조각으로 익힌 코드를 <strong>한 벌로 이어 붙이고</strong>, 문제 유형이 바뀔 때 손대는 곳만 골라내는 것이 목표입니다. 예외는 8.5절 하나로, 오류를 진단하는 데 쓰는 보조 도구 몇 개(<code>np.isnan</code>, <code>np.bincount</code>, <code>model.layers[-1]</code>, <code>try</code>/<code>except</code>)를 그 자리에서 새로 씁니다. 모두 시험 범위를 넓히는 개념이 아니라, 막혔을 때 원인을 찾는 손전등입니다.<br />
-시험 연관성: 이 챕터의 세 템플릿이 실기 답안의 골격 그 자체입니다. 뒤이은 모의고사 2회분은 이 템플릿을 시간 압박 아래에서 재현하는 훈련입니다.</p>
+<strong>새로 배우는 딥러닝 개념은 없습니다.</strong> Ch02부터 Ch07까지 나누어 익힌 코드를 <strong>하나의 코드로 이어 붙이고</strong>, 문제 유형이 바뀔 때 고치는 곳만 구분하는 것이 목표입니다. 예외는 8.5절 하나로, 오류를 진단하는 데 쓰는 보조 도구 몇 개(<code>np.isnan</code>, <code>np.bincount</code>, <code>model.layers[-1]</code>, <code>try</code>/<code>except</code>)를 그 자리에서 새로 씁니다. 모두 시험 범위를 넓히는 개념이 아니라, 막혔을 때 원인을 찾는 데 쓰는 도구입니다.<br />
+시험 연관성: 이 챕터의 세 템플릿이 실기 답안의 골격과 같습니다. 뒤이은 모의고사 2회분은 이 템플릿을 시험 시간 안에 작성해 보는 연습입니다.</p>
 </blockquote>
 <hr />
-<h2 id="8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</h2>
+<h2 id="8-1-유형에-따라-바뀌는-곳은-네-곳입니다">8.1 유형에 따라 바뀌는 곳은 네 곳입니다</h2>
 <figure class="diagram" id="fig-ch08_three-templates"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 432" width="800" height="432" role="img" aria-label="유형별로 바뀌는 세 곳" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>유형별로 바뀌는 세 곳 — 이진분류, 다중분류, 회귀 세 유형에서 출력층과 loss와 평가지표 세 줄만 달라지고, 전처리부터 은닉층 구성과 콜백까지 나머지 코드는 모두 동일하다.</title>
 
@@ -138,9 +138,9 @@
 </tr>
 </tbody>
 </table></div>
-<p>제목은 "세 줄"인데 표의 행은 다섯 개라 헷갈릴 수 있으니 숫자를 먼저 정리해 둡니다. <strong>코드에서 실제로 손대는 교체 슬롯은 네 곳</strong>(출력층 · loss · metrics · 예측 변환)이고, 그중 <code>metrics</code>는 <strong>회귀에서만</strong> 바뀌므로 <strong>분류끼리 비교하면 세 곳</strong>입니다. 이 챕터의 코드 주석에 붙은 <code>교체 지점 (1)~(4)</code>가 그 네 곳입니다. 표 마지막 행의 평가 함수는 예측 변환 다음에 오는 출력 블록을 통째로 갈아 끼우는 자리입니다.</p>
+<p>표의 행은 다섯 개이고 도해는 세 가지만 비교하므로 숫자를 먼저 정리해 둡니다. <strong>코드에서 실제로 손대는 교체 슬롯은 네 곳</strong>(출력층 · loss · metrics · 예측 변환)이고, 그중 <code>metrics</code>는 <strong>회귀에서만</strong> 바뀌므로 <strong>분류끼리 비교하면 세 곳</strong>입니다. 이 챕터의 코드 주석에 붙은 <code>교체 지점 (1)~(4)</code>가 그 네 곳입니다. 표 마지막 행의 평가 함수는 예측 변환 다음에 오는 출력 블록을 통째로 교체하는 자리입니다.</p>
 <p>도해 하단의 회색 박스에 묶인 것들 — 결측치 처리, 인코딩, 데이터 분리, 스케일링, 은닉층 구성, <code>Dropout</code>, <code>EarlyStopping</code>, 학습 곡선 — 은 <strong>세 유형에서 완전히 동일합니다.</strong> 그래서 시험장에서 새 문제를 받았을 때 먼저 할 일은 유형 판정 하나입니다.</p>
-<p>유형 판정의 근거는 <strong>타깃 변수의 형태</strong>입니다. 판정 기준과 손실 함수 선택 논리는 Ch05의 <code>ch05_loss-decision</code> 분기도가 정본이므로, 여기서는 반복하지 않고 <strong>판정을 코드로 확인하는 한 줄</strong>만 짚습니다.</p>
+<p>유형 판정의 근거는 <strong>타깃 변수의 형태</strong>입니다. 판정 기준과 손실 함수 선택 논리는 Ch05의 <code>ch05_loss-decision</code> 분기도에 정리되어 있으므로, 여기서는 반복하지 않고 <strong>판정을 코드로 확인하는 한 줄</strong>만 짚습니다.</p>
 <pre><code class="language-python">print(y_train[:10])                 # 값의 생김새
 print(y_train.dtype)                # 정수인가 실수인가
 print(len(np.unique(y_train)))      # 서로 다른 값의 개수
@@ -261,7 +261,7 @@ print(len(np.unique(y_train)))      # 서로 다른 값의 개수
   <path d="M26,368 L26,376 L580,376 L580,368" fill="none" stroke="#2563eb" stroke-width="2"/>
   <text x="303" y="398" font-size="12" font-weight="bold" text-anchor="middle" fill="#2563eb">딥러닝 3단계 — 구성(Ch04) · 컴파일 · 학습(Ch05)</text>
 </svg></div><figcaption><span class="diagram__num">그림 8-2</span><span class="diagram__caption">이진분류 문제의 전체 코드 지도</span></figcaption></figure>
-<p><strong>한 줄 요약</strong> — 원본 데이터프레임에서 출발해 성능 출력까지 가는 <strong>8단계</strong>가 실기 답안의 전체 지도입니다.</p>
+<p><strong>한 줄 요약</strong> — 원본 데이터프레임에서 출발해 성능 출력까지 가는 <strong>8단계</strong>가 실기 답안의 전체 흐름입니다.</p>
 <p>아래는 도해의 8단계를 코드로 옮긴 것입니다. 데이터는 Ch02에서 만든 것과 같은 방식의 합성 고객 이탈 데이터이며, 시험장에서는 1번 블록만 <code>df = pd.read_csv('data.csv')</code>로 바꾸면 됩니다.</p>
 <p>블록 번호와 도해 단계는 한 곳만 어긋납니다. 도해에서 <strong>인코딩(<code>get_dummies</code>)은 3단계(전처리)</strong>에 들어 있지만, 코드에서는 <strong>4번 블록의 첫 줄</strong>에 두었습니다. "인코딩은 분리 전, 스케일링은 분리 후"라는 순서 규칙을 한 블록 안에서 눈으로 확인할 수 있게 묶은 것입니다. 나머지 일곱 단계는 블록 번호와 그대로 대응합니다.</p>
 <pre><code class="language-python"># ===== 0) import =====
@@ -374,7 +374,7 @@ classification_report 표 + 2x2 혼동 행렬
 </blockquote>
 <hr />
 <h2 id="8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</h2>
-<p><strong>한 줄 요약</strong> — 이진분류 코드에서 <strong>출력층 units를 클래스 수로</strong>, loss를 <code>sparse_categorical_crossentropy</code>로, 예측 변환을 <code>argmax</code>로 바꾸면 끝입니다.</p>
+<p><strong>한 줄 요약</strong> — 이진분류 코드에서 <strong>출력층 units를 클래스 수로</strong>, loss를 <code>sparse_categorical_crossentropy</code>로, 예측 변환을 <code>argmax</code>로 바꾸면 됩니다.</p>
 <p>클래스가 3개인 sklearn 내장 와인 데이터로 확인합니다. 라벨은 <code>0/1/2</code> 정수입니다.</p>
 <pre><code class="language-python">import numpy as np
 import tensorflow as tf
@@ -494,15 +494,15 @@ r2 : 0.4xxx
 <p>회귀에서 달라지는 부수적인 지점 세 가지를 함께 기억하십시오.</p>
 <ol>
 <li><strong><code>stratify</code>를 쓰지 않습니다.</strong> 타깃이 연속값이라 계층을 나눌 수 없어 오류가 납니다.</li>
-<li><strong><code>history</code> 키가 다릅니다.</strong> <code>accuracy</code>가 아니라 <code>mae</code>, <code>val_mae</code>이므로 학습 곡선을 그릴 때 <code>h['accuracy']</code>를 쓰면 <code>KeyError</code>가 납니다. <code>print(history.history.keys())</code>로 먼저 확인하는 습관이 여기서 값을 합니다.</li>
+<li><strong><code>history</code> 키가 다릅니다.</strong> <code>accuracy</code>가 아니라 <code>mae</code>, <code>val_mae</code>이므로 학습 곡선을 그릴 때 <code>h['accuracy']</code>를 쓰면 <code>KeyError</code>가 납니다. <code>print(history.history.keys())</code>로 먼저 확인하는 습관이 여기서 도움이 됩니다.</li>
 <li><strong><code>classification_report</code>를 쓰지 않습니다.</strong> 연속값에는 정확도·정밀도 개념이 없습니다.</li>
 </ol>
 <blockquote class="callout callout--warn">
 <p>⚠️ <strong>시험 포인트</strong><br />
-회귀 출력층에 <code>activation='sigmoid'</code>를 붙이는 실수가 자주 나옵니다. sigmoid는 출력을 0~1로 눌러 버리므로, 타깃이 151·206 같은 값이면 <strong>예측이 영원히 1을 넘지 못하고 r2가 크게 음수</strong>가 됩니다. 회귀 출력층은 <code>Dense(1)</code>, 활성화 인자 자체를 적지 않습니다.</p>
+회귀 출력층에 <code>activation='sigmoid'</code>를 붙이는 실수가 자주 나옵니다. sigmoid는 출력을 0~1 사이의 값으로 바꾸므로, 타깃이 151·206 같은 값이면 <strong>예측이 1을 넘지 못하고 r2가 크게 음수</strong>가 됩니다. 회귀 출력층은 <code>Dense(1)</code>, 활성화 인자 자체를 적지 않습니다.</p>
 </blockquote>
 <hr />
-<h2 id="8-5-오류-응급처치-메시지로-원인을-좁힙니다">8.5 오류 응급처치 — 메시지로 원인을 좁힙니다</h2>
+<h2 id="8-5-오류-대처-방법-메시지로-원인을-좁힙니다">8.5 오류 대처 방법 — 메시지로 원인을 좁힙니다</h2>
 <figure class="diagram" id="fig-ch08_error-triage"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" role="img" aria-label="자주 만나는 오류와 원인 판별" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>자주 만나는 오류와 원인 판별 — shape 불일치, 라벨과 출력층 불일치, loss가 nan, accuracy가 0.5 부근 고정이라는 네 가지 증상 각각에 대해 원인과 조치가 짝지어져 있다.</title>
   <defs>
@@ -857,7 +857,7 @@ print('4. 출력층:', bad3.layers[-1].units, bad3.layers[-1].activation.__name_
 </ul>
 <blockquote class="callout callout--warn">
 <p>⚠️ <strong>시험 포인트</strong><br />
-앞 문항에서 만든 변수명을 뒤 문항이 이어받습니다(Ch01). 중간에 변수명을 임의로 바꾸면 그 뒤 문항이 전부 흔들립니다. 지시된 이름이 있으면 <strong>그대로</strong>, 없으면 이 교재의 표준 이름(<code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code>, <code>model</code>, <code>history</code>)을 끝까지 유지하십시오. 스케일링 결과는 <code>X_train_scaled</code>/<code>X_test_scaled</code>에 담고, <strong>모델에 넣는 것은 언제나 <code>_scaled</code> 쪽</strong>입니다.</p>
+앞 문항에서 만든 변수명을 뒤 문항이 이어받습니다(Ch01). 중간에 변수명을 임의로 바꾸면 그 뒤 문항이 모두 오류가 납니다. 지시된 이름이 있으면 <strong>그대로</strong>, 없으면 이 교재의 표준 이름(<code>X_train</code>, <code>X_test</code>, <code>y_train</code>, <code>y_test</code>, <code>X_train_scaled</code>, <code>X_test_scaled</code>, <code>model</code>, <code>history</code>)을 끝까지 유지하십시오. 스케일링 결과는 <code>X_train_scaled</code>/<code>X_test_scaled</code>에 담고, <strong>모델에 넣는 것은 언제나 <code>_scaled</code> 쪽</strong>입니다.</p>
 </blockquote>
 <hr />
 <h2 id="8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</h2>
@@ -970,7 +970,7 @@ print('4. 출력층:', bad3.layers[-1].units, bad3.layers[-1].activation.__name_
 </blockquote>
 <hr />
 <h2 id="시험장-표준-코드">시험장 표준 코드</h2>
-<p>여기까지의 세 템플릿을 <strong>한 화면 골격</strong>으로 압축한 것입니다. 이 골격을 통째로 외워 두고, 문제 유형에 따라 표시된 네 곳만 아래 교체 카드에서 골라 끼우십시오.</p>
+<p>여기까지의 세 템플릿을 <strong>한 화면 골격</strong>으로 압축한 것입니다. 이 골격을 통째로 외워 두고, 문제 유형에 따라 표시된 네 곳만 아래 교체 카드에서 골라 바꾸십시오.</p>
 <pre><code class="language-python"># ===== 공통 골격 (이진분류 기준, 실행 가능) =====
 import numpy as np
 import tensorflow as tf
@@ -1095,12 +1095,12 @@ print('r2 :', r2_score(y_test, y_pred))
 </table></div>
 <p><strong>한 문장으로:</strong> 유형이 바뀌어도 고쳐 쓰는 곳은 <strong>네 줄</strong>입니다. 나머지 시간은 그 네 줄을 정확히 고르는 판단(Ch05 <code>ch05_loss-decision</code>)과, 결과를 화면에 남기는 습관에 쓰십시오.</p>
 <section class="v2-drills" id="drills-ch08" data-v2-drills data-chapter="8" aria-label="Ch08 실습 셀 — 코드 빈칸 채우기"></section>
-<noscript><p class="v2-noscript">실습 셀 5문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
-<details class="v2-legacy"><summary>지면판 확인 문제와 해설 보기 (v1 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch08">
+<noscript><p class="v2-noscript">실습 셀 5문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 확인 문제는 그대로 볼 수 있습니다.</p></noscript>
+<details class="v2-legacy"><summary>확인 문제와 해설 보기 (이전 판 원문)</summary><div class="v2-legacy__body"><section class="exam" id="exam-ch08">
 <h2 id="ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</h2>
 <blockquote class="callout callout--note">
 <p>본 문제는 공개된 출제 기준에 따른 유형 연습 문제입니다. 기출 원문이 아닙니다.</p>
-<p>이 챕터에는 <strong>새로운 개념이 없습니다.</strong> 모든 문항은 Ch02~Ch07에서 익힌 조각을<br />
+<p>이 챕터에는 <strong>새로운 개념이 없습니다.</strong> 모든 문항은 Ch02~Ch07에서 익힌 코드를<br />
 <strong>유형 판정 → 네 곳(출력층 / loss / metrics / 예측 변환) 교체</strong>로 이어 붙이는 능력을 묻습니다.</p>
 <p>총 5문항 (객관식 1 / 코드 빈칸 2 / 오류 찾기 2), 권장 소요 시간 25분.<br />
 공통 import는 다음과 같다고 가정합니다.</p>
@@ -1290,7 +1290,7 @@ history = model.fit(X_train_scaled, y_train, epochs=10, verbose=0)
 <h4 id="q5-오류-찾기-응용-회귀-코드의-세-가지-실수">Q5. (오류 찾기 · 응용) 회귀 코드의 세 가지 실수</h4>
 <p>아래는 연속 타깃(<code>y</code>의 값은 25~346 범위의 실수)을 예측하는 회귀 코드입니다.<br />
 <strong>잘못된 곳이 세 군데</strong> 있습니다. 각각을 지적하고 수정한 전체 코드를 쓰십시오.<br />
-세 오류 중 하나만 실행을 중단시키고, 나머지 둘은 <strong>오류 없이 조용히 모델을 망가뜨린다</strong>는 점에 유의하십시오.</p>
+세 오류 중 하나만 실행을 중단시키고, 나머지 둘은 <strong>오류 메시지 없이 모델의 학습 결과를 잘못되게 만든다</strong>는 점에 유의하십시오.</p>
 <pre><code class="language-python">import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -1390,7 +1390,7 @@ for name, loader, strat in [('A', load_breast_cancer, True),
 <li><strong>1번 — 이진분류에 <code>Dense(2, 'softmax')</code>를 쓰고 loss는 <code>binary_crossentropy</code>로 두는 것.</strong> 출력층과 loss가 짝이 맞지 않습니다. 이진분류의 표준은 <code>Dense(1, 'sigmoid')</code> + <code>binary_crossentropy</code> 한 짝입니다. (<code>Dense(2, 'softmax')</code> + <code>sparse_categorical_crossentropy</code>로 푸는 것도 이론적으로는 가능하지만, 시험 표준 패턴에서 벗어나고 실수만 늘어납니다.)</li>
 <li><strong>3번 — 라벨 형태를 바꾸면서 loss를 그대로 두는 것.</strong> 원-핫으로 바꾸면 loss도 <code>categorical_crossentropy</code>로 함께 바뀌어야 합니다. 정수 라벨을 원-핫으로 바꿀 이유도 없습니다. <strong>정수 라벨이면 <code>sparse_</code>, 원-핫이면 <code>sparse_</code> 없이</strong> — 출력층은 둘 다 <code>Dense(K, 'softmax')</code>로 같습니다(Ch05 <code>ch05_loss-decision</code>).</li>
 <li><strong>4번 — 값의 종류가 많다고 다중분류로 처리하는 것.</strong> dtype이 <code>float64</code>이고 값이 대부분 서로 다르면 회귀입니다. 값의 개수가 아니라 <strong>값의 성질</strong>(순서와 크기의 의미가 있는가)이 기준입니다.</li>
-<li><strong>5번 — 회귀 출력층에 <code>sigmoid</code>를 붙이는 것.</strong> 이 챕터에서 가장 위험한 실수입니다. sigmoid는 출력을 0~1로 눌러 버리므로 타깃이 208·261 같은 값이면 예측이 영원히 1을 넘지 못합니다. 오류가 나지 않으므로 알아채기 어렵습니다(Q5에서 실제 수치로 확인합니다). metrics도 <code>['accuracy']</code>가 아니라 <code>['mae']</code>입니다.</li>
+<li><strong>5번 — 회귀 출력층에 <code>sigmoid</code>를 붙이는 것.</strong> 이 챕터에서 가장 위험한 실수입니다. sigmoid는 출력을 0~1 사이의 값으로 바꾸므로 타깃이 208·261 같은 값이면 예측이 1을 넘지 못합니다. 오류가 나지 않으므로 알아채기 어렵습니다(Q5에서 실제 수치로 확인합니다). metrics도 <code>['accuracy']</code>가 아니라 <code>['mae']</code>입니다.</li>
 </ul>
 <hr />
 <h4 id="q2-해답">Q2 해답</h4>
@@ -1583,7 +1583,7 @@ r2 : 0.4269
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
 <li><strong>(가) <code>stratify</code> 제거</strong> — <code>stratify</code>는 "각 클래스 비율을 유지하며 나누라"는 지시입니다. 타깃이 연속값이면 나눌 클래스가 없으므로 <code>ValueError</code>가 납니다(Q5 참조). 회귀에서는 인자를 통째로 뺍니다.</li>
-<li><strong>(나) <code>Dense(1)</code></strong> — 회귀의 정답은 실수 하나이므로 노드 1개, 그리고 <strong>활성화 인자를 아예 적지 않습니다.</strong> relu를 붙이면 음수를 예측할 수 없게 되고, sigmoid를 붙이면 0~1에 갇힙니다.</li>
+<li><strong>(나) <code>Dense(1)</code></strong> — 회귀의 정답은 실수 하나이므로 노드 1개, 그리고 <strong>활성화 인자를 아예 적지 않습니다.</strong> relu를 붙이면 음수를 예측할 수 없게 되고, sigmoid를 붙이면 예측이 0~1 범위로 제한됩니다.</li>
 <li><strong>(다) <code>loss='mse'</code>, <code>metrics=['mae']</code></strong> — 회귀는 "맞혔다/틀렸다"가 없으므로 accuracy를 쓸 수 없습니다. mse는 학습에 쓰기 좋지만 단위가 타깃의 제곱이라 읽기 어려우므로, 해석용으로 mae를 함께 봅니다. <code>keras mae: 43.6</code>은 "평균적으로 43.6만큼 빗나간다"로 바로 읽힙니다.</li>
 <li><strong>(라) <code>.flatten()</code></strong> — <code>predict</code> 결과는 <code>(133, 1)</code>, <code>y_test</code>는 <code>(133,)</code>입니다. 모양을 맞춰 두면 잔차 계산이나 비교표 작성에서 브로드캐스팅 사고가 생기지 않습니다(Ch07).</li>
 <li><strong>(마)</strong> sklearn 회귀 지표는 모두 <strong><code>(정답, 예측)</code> 순서</strong>입니다.</li>
@@ -1592,14 +1592,14 @@ r2 : 0.4269
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li><strong><code>stratify=y</code>를 습관적으로 남겨 두는 것.</strong> 이진·다중분류 코드를 복사해 올 때 가장 먼저 걸리는 지점입니다. 다행히 실행이 중단되므로 바로 알아챌 수 있습니다.</li>
-<li><strong>출력층에 활성화 함수를 붙이는 것.</strong> <code>Dense(1, activation='relu')</code>도 흔한 실수입니다. 타깃에 음수가 있으면 그 구간을 영원히 예측하지 못합니다.</li>
-<li><strong><code>metrics=['accuracy']</code>를 그대로 두는 것.</strong> 오류가 나지 않고 accuracy가 0.0 근처로 찍힙니다. "모델이 완전히 실패했다"고 오해해 멀쩡한 모델을 뜯어고치게 됩니다.</li>
+<li><strong>출력층에 활성화 함수를 붙이는 것.</strong> <code>Dense(1, activation='relu')</code>도 흔한 실수입니다. 타깃에 음수가 있으면 그 구간을 예측하지 못합니다.</li>
+<li><strong><code>metrics=['accuracy']</code>를 그대로 두는 것.</strong> 오류가 나지 않고 accuracy가 0.0 근처로 찍힙니다. "모델이 완전히 실패했다"고 오해해 정상인 모델을 고치게 됩니다.</li>
 <li><strong><code>classification_report</code>를 회귀 결과에 쓰는 것.</strong> 연속값에는 정밀도·재현율 개념이 없습니다. <code>ValueError: Classification metrics can't handle a mix of continuous and continuous targets</code> 계열의 오류가 납니다.</li>
 </ul>
 <hr />
 <h4 id="q4-해답">Q4 해답</h4>
 <p><strong>1. 오류가 발생하는 단계: 학습(<code>fit</code>)</strong></p>
-<p>모델 구성과 컴파일은 아무 말 없이 통과합니다. Keras는 컴파일 시점에 loss 이름만 받아 둘 뿐, <strong>라벨의 실제 값 범위는 첫 배치가 흘러들어 오는 학습 단계에서야 확인</strong>하기 때문입니다.</p>
+<p>모델 구성과 컴파일은 오류 없이 통과합니다. Keras는 컴파일 시점에 loss 이름만 받아 둘 뿐, <strong>라벨의 실제 값 범위는 첫 배치가 입력되는 학습 단계에서야 확인</strong>하기 때문입니다.</p>
 <p><strong>2. 오류 메시지의 핵심 문구와 원인</strong></p>
 <pre><code>InvalidArgumentError: Graph execution error:
 ...
@@ -1672,7 +1672,7 @@ print('학습 성공, 마지막 loss:', round(history.history['loss'][-1], 4))
 <p><code>print('구성·컴파일 통과. 출력층:', ...)</code> 한 줄을 넣어 둔 이유도 함께 보십시오. <strong>모델을 만든 직후 출력층의 units와 activation을 찍어 보는 습관</strong>(Ch08 자가 진단 4번)이 이 오류를 학습 전에 잡아냅니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
-<li><strong>loss만 바꾸고 출력층을 그대로 두는 것</strong> — 이 챕터에서 가장 흔한 사고입니다. 반대 방향(출력층만 바꾸고 loss를 그대로 둠)도 똑같이 자주 나옵니다. <strong>두 줄은 한 덩어리</strong>입니다.</li>
+<li><strong>loss만 바꾸고 출력층을 그대로 두는 것</strong> — 이 챕터에서 가장 흔한 사고입니다. 반대 방향(출력층만 바꾸고 loss를 그대로 둠)도 똑같이 자주 나옵니다. <strong>두 줄은 한 쌍</strong>입니다.</li>
 <li><strong>오류를 보고 <code>epochs</code>나 <code>batch_size</code>를 조정하는 것.</strong> 학습 설정과는 무관한 오류입니다.</li>
 <li><strong><code>InvalidArgumentError</code>의 첫 줄이 <code>Graph execution error:</code>라서 원인을 못 찾는 것.</strong> 메시지가 길더라도 <code>label value</code>, <code>expected shape</code>, <code>found shape</code> 같은 <strong>키워드 한 개</strong>만 찾아내면 됩니다.</li>
 </ul>
@@ -1696,12 +1696,12 @@ print('학습 성공, 마지막 loss:', round(history.history['loss'][-1], 4))
 <tr>
 <td>②</td>
 <td><code>model.add(Dense(1, activation='sigmoid'))</code></td>
-<td>조용히 망가짐 — 예측이 0~1에 갇힙니다</td>
+<td>오류 없이 결과가 잘못됨 — 예측이 0~1 범위로 제한됩니다</td>
 </tr>
 <tr>
 <td>③</td>
 <td><code>model.compile(..., metrics=['accuracy'])</code></td>
-<td>조용히 망가짐 — 회귀에 무의미한 지표입니다</td>
+<td>오류 없이 결과가 잘못됨 — 회귀에 무의미한 지표입니다</td>
 </tr>
 </tbody>
 </table></div>
@@ -1789,8 +1789,8 @@ r2 : 0.4269
 실행 환경과 무관하게 반드시 나타나는 신호는 셋입니다. <strong>① <code>ValueError</code> / ② 예측값이 1을 넘지 못함 → r2가 크게 음수 / ③ accuracy가 0.0 고정.</strong></p>
 </blockquote>
 <p><strong>왜 이렇게 푸는가</strong></p>
-<p><strong>① <code>stratify</code>는 분류 전용 인자입니다.</strong> "각 클래스 비율을 유지하며 나누라"는 지시인데, 연속 타깃은 값이 거의 다 다르므로 sklearn이 각 값을 하나의 클래스로 보고 "구성원이 1명뿐인 클래스가 있어 나눌 수 없다"는 <code>ValueError</code>를 냅니다. 세 오류 중 유일하게 <strong>친절한</strong> 오류입니다.</p>
-<p><strong>② sigmoid는 출력을 0~1로 누릅니다.</strong> 타깃 범위는 37~310인데 예측값 범위는 <code>0.9839 ~ 1.0</code>입니다. 모델이 아무리 학습해도 1을 넘을 수 없으므로, 손실을 줄이는 유일한 방법이 "전부 최댓값 1로 밀어붙이기"가 된 것입니다. 그 결과 r2가 <strong>-4.0042</strong> — 음수라는 것은 <strong>타깃의 평균값으로 찍는 것보다도 못하다</strong>는 뜻입니다. 오류 메시지는 전혀 나오지 않습니다.</p>
+<p><strong>① <code>stratify</code>는 분류 전용 인자입니다.</strong> "각 클래스 비율을 유지하며 나누라"는 지시인데, 연속 타깃은 값이 거의 다 다르므로 sklearn이 각 값을 하나의 클래스로 보고 "구성원이 1명뿐인 클래스가 있어 나눌 수 없다"는 <code>ValueError</code>를 냅니다. 세 오류 중 유일하게 <strong>원인이 메시지에 드러나는</strong> 오류입니다.</p>
+<p><strong>② sigmoid는 출력을 0~1 사이의 값으로 바꿉니다.</strong> 타깃 범위는 37~310인데 예측값 범위는 <code>0.9839 ~ 1.0</code>입니다. 모델이 아무리 학습해도 1을 넘을 수 없으므로, 손실을 줄이는 방법이 "전부 최댓값 1에 가깝게 예측하기"뿐인 상태가 된 것입니다. 그 결과 r2가 <strong>-4.0042</strong> — 음수라는 것은 <strong>타깃의 평균값으로 찍는 것보다도 못하다</strong>는 뜻입니다. 오류 메시지는 전혀 나오지 않습니다.</p>
 <p><strong>③ 회귀에 accuracy는 의미가 없습니다.</strong> accuracy는 "예측값과 정답이 정확히 같은 비율"을 세는데, 실수 예측이 소수점까지 정확히 일치할 일은 없으므로 <code>0.0</code>이 나옵니다. 모델 성능과 무관한 숫자입니다. 회귀의 보조 지표는 <code>['mae']</code>입니다.</p>
 <p>수정 후 예측값 범위가 <code>30.62 ~ 279.15</code>로 실제값 범위와 겹치고 r2가 양수(0.4269)로 돌아온 것이 세 수정이 모두 반영되었다는 증거입니다.</p>
 <p><strong>자주 틀리는 지점</strong></p>

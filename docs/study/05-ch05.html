@@ -269,7 +269,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <li><code>loss</code>는 줄일 대상, <code>optimizer</code>는 줄이는 방법, <code>metrics</code>는 사람이 볼 지표입니다.</li>
 <li>시험에서 바뀌는 것은 <code>loss</code>입니다. optimizer는 거의 <code>'adam'</code>입니다.</li>
 </ul></div></section>
-<section class="slide" data-title="5.1 loss와 metrics는 자리가 다릅니다 (1분)" aria-label="5 / 25"><div class="slide__inner"><h2>5.1 loss와 metrics는 자리가 다릅니다 (1분)</h2>
+<section class="slide" data-title="5.1 loss와 metrics는 역할이 다릅니다 (1분)" aria-label="5 / 25"><div class="slide__inner"><h2>5.1 loss와 metrics는 역할이 다릅니다 (1분)</h2>
 <ul>
 <li><code>metrics</code>에 무엇을 넣어도 학습 방향은 바뀌지 않습니다. 모델이 줄이는 것은 <code>loss</code>뿐입니다.</li>
 <li><code>loss='accuracy'</code>는 <code>compile()</code>은 통과하지만 <code>fit()</code>에서 <code>ValueError</code>가 납니다.</li>
@@ -378,7 +378,7 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 </svg><figcaption>손실 함수와 출력층 짝 선택 분기</figcaption></figure>
 <ul>
 <li>질문은 순서대로 세 개입니다. 숫자인가 범주인가, 클래스가 2개인가, 라벨이 정수인가 원-핫인가.</li>
-<li>출력층과 손실 함수는 반드시 한 짝으로 바꿉니다. 한쪽만 바꾸면 조용히 망가지거나 오류가 납니다.</li>
+<li>출력층과 손실 함수는 반드시 한 짝으로 바꿉니다. 한쪽만 바꾸면 오류 없이 잘못 학습되거나 오류가 납니다.</li>
 <li>4장에서 미뤄 둔 짝짓기가 여기서 확정됩니다.</li>
 </ul></div></section>
 <section class="slide" data-title="5.2 손실 함수 선택 표 (3분)" aria-label="7 / 25"><div class="slide__inner"><h2>5.2 손실 함수 선택 표 (3분)</h2>
@@ -445,7 +445,7 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 <ul>
 <li>지시가 없으면 <code>loss='mse'</code>, <code>metrics=['mae']</code>가 무난합니다.</li>
 <li>mse는 오차를 제곱하므로 큰 오차에 크게 반응하고, mae는 이상치의 영향을 덜 받습니다.</li>
-<li>회귀 출력층은 <code>Dense(1)</code>이고 활성화를 쓰지 않습니다. sigmoid를 붙이면 출력이 0~1에 갇힙니다.</li>
+<li>회귀 출력층은 <code>Dense(1)</code>이고 활성화를 쓰지 않습니다. sigmoid를 붙이면 출력이 0~1 범위로 제한됩니다.</li>
 <li>분류 코드를 복사해 회귀로 고칠 때는 출력층, loss, metrics 세 곳을 한 묶음으로 고칩니다.</li>
 <li>sigmoid가 남은 문제는 오류 메시지를 내지 않고 mae가 큰 값에서 멈춥니다.</li>
 </ul></div></section>
@@ -519,9 +519,9 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])
   </g>
 </svg><figcaption>학습률에 따른 수렴 모습</figcaption></figure>
 <ul>
-<li>학습률은 한 걸음의 보폭입니다. 작으면 느리고 크면 바닥을 지나쳐 튕깁니다.</li>
+<li>학습률은 가중치를 한 번에 바꾸는 크기입니다. 작으면 학습이 느리고, 크면 손실이 최솟값을 지나쳐 오르내립니다.</li>
 <li>지시가 없으면 문자열 <code>'adam'</code>을 그대로 씁니다. Adam의 기본 학습률은 0.001입니다.</li>
-<li>손실이 <code>nan</code>으로 튀면 학습률을 0.0001 수준으로 낮춥니다. 시험 시간에는 튜닝보다 기본값이 낫습니다.</li>
+<li>손실이 <code>nan</code>이 되면 학습률을 0.0001 수준으로 낮춥니다. 시험 시간에는 튜닝보다 기본값이 낫습니다.</li>
 </ul></div></section>
 <section class="slide" data-title="5.4 epoch, batch_size, step (3분)" aria-label="11 / 25"><div class="slide__inner"><h2>5.4 epoch, batch_size, step (3분)</h2>
 <figure class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 336" width="800" height="336" role="img" aria-label="epoch, batch_size, step의 관계">
@@ -746,7 +746,7 @@ print(history.history.keys())
 </ul></div></section>
 <section class="slide" data-title="함께 풀기 (1) 네 유형의 손실 함수 짝짓기 (4분)" aria-label="17 / 25"><div class="slide__inner"><h2>함께 풀기 (1) 네 유형의 손실 함수 짝짓기 (4분)</h2>
 <p>발표자는 실습 셀을 열고 함께 풉니다: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/ch05.html#drills-ch05">https://newids.github.io/dl4aice/ch05.html#drills-ch05</a> (문항 ch05-q1)</p>
-<p><code>y_bin</code> (0/1), <code>y_int</code> (0/1/2 정수), <code>y_oh</code> (원-핫 200x3), <code>y_reg</code> (연속값)입니다. 표현이 아니라 y의 실제 shape와 값으로 판단합니다.</p>
+<p><code>y_bin</code> (0/1), <code>y_int</code> (0/1/2 정수), <code>y_oh</code> (원-핫 200x3), <code>y_reg</code> (연속값)입니다. 문제 지문의 표현만 보지 말고 y의 실제 shape와 값으로 판단합니다.</p>
 <pre><code class="language-python">model_a.compile(optimizer='adam', loss=___, metrics=['accuracy'])   # y_bin
 model_b.compile(optimizer='adam', loss=___, metrics=['accuracy'])   # y_int
 model_c.compile(optimizer='adam', loss=___, metrics=['accuracy'])   # y_oh
@@ -803,7 +803,7 @@ validation_split=0.2
 <section class="slide" data-title="다음 회차 준비" aria-label="22 / 25"><div class="slide__inner"><h2>다음 회차 준비</h2>
 <ul>
 <li>다음 회차는 6회차, 6장 "과적합 진단과 대응"입니다.</li>
-<li>챕터 6의 학습 곡선 판독(6.2)과 EarlyStopping, ModelCheckpoint 절(6.4~6.5)을 읽어 옵니다.</li>
+<li>챕터 6의 학습 곡선 읽기(6.2)과 EarlyStopping, ModelCheckpoint 절(6.4~6.5)을 읽어 옵니다.</li>
 <li>6장 실습 셀 5문항 중 콜백 표준 3줄(ch06-q3)을 먼저 풀어 봅니다.</li>
 <li>5장 표준 코드로 학습한 뒤 <code>plot_history</code>로 곡선을 그려 두 선이 어떻게 움직이는지 메모해 옵니다.</li>
 </ul></div></section>
@@ -819,7 +819,7 @@ validation_split=0.2
 <p><strong>Q2.</strong> 이진분류인데 <code>sparse_categorical_crossentropy</code>를 쓰면 안 됩니까?
 답: 챕터의 표준은 이진분류에 <code>binary_crossentropy</code>와 <code>Dense(1, 'sigmoid')</code> 한 쌍입니다. 시험에서는 표의 짝을 그대로 쓰는 것이 안전합니다.</p>
 <p><strong>Q3.</strong> <code>validation_split</code>과 <code>train_test_split</code>의 차이는 무엇입니까?
-답: <code>train_test_split</code>은 학습용과 평가(테스트)용을 나누고, <code>validation_split</code>은 학습 데이터 안에서 매 epoch 성적을 재는 검증분을 떼어 냅니다. 테스트 데이터는 마지막에 한 번만 씁니다.</p></div></section>
+답: <code>train_test_split</code>은 학습용과 평가(테스트)용을 나누고, <code>validation_split</code>은 학습 데이터 안에서 매 epoch 성능을 재는 검증분을 떼어 냅니다. 테스트 데이터는 마지막에 한 번만 씁니다.</p></div></section>
 <section class="slide" data-title="예상 질문과 답 (2)" aria-label="25 / 25"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
 <p><strong>Q4.</strong> 정수 라벨을 원-핫으로 바꿔서 쓰고 싶으면 어떻게 합니까?
 답: <code>tf.keras.utils.to_categorical(y_train)</code>로 바꾸고 loss를 <code>categorical_crossentropy</code>로 맞춥니다. 라벨과 loss는 한 쌍으로 바꿔야 하며 출력층은 그대로입니다.</p>
@@ -849,7 +849,7 @@ validation_split=0.2
 <li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">4</span><span>5.1 compile이 정하는 세 가지 (2분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>5.1 loss와 metrics는 자리가 다릅니다 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>5.1 loss와 metrics는 역할이 다릅니다 (1분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">6</span><span>5.2 손실 함수는 타깃의 형태가 정합니다 (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">7</span><span>5.2 손실 함수 선택 표 (3분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">8</span><span>5.2 compile 코드와 sparse의 의미 (2분)</span></button></li>

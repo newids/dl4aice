@@ -613,9 +613,9 @@ X_test_scaled = scaler.transform(X_test)         # 변환만
 <ul>
 <li>sklearn: 생성, <code>fit</code>, <code>predict</code></li>
 <li>Keras: 구성(Ch04), 컴파일(Ch05), 학습(Ch05), 평가·예측(Ch07)</li>
-<li>베이스라인의 목적은 최고 성능이 아니라 기준선입니다. 딥러닝 점수가 터무니없이 낮으면 전처리나 설정을 의심합니다.</li>
+<li>베이스라인은 최고 성능을 내려는 모델이 아니고 비교 기준으로 쓰는 모델입니다. 딥러닝 점수가 터무니없이 낮으면 전처리나 설정을 의심합니다.</li>
 </ul></div></section>
-<section class="slide" data-title="평가지표 지도 (1분)" aria-label="13 / 25"><div class="slide__inner"><h2>평가지표 지도 (1분)</h2>
+<section class="slide" data-title="평가지표의 종류와 함수 (1분)" aria-label="13 / 25"><div class="slide__inner"><h2>평가지표의 종류와 함수 (1분)</h2>
 <table>
 <thead>
 <tr>
@@ -648,7 +648,7 @@ X_test_scaled = scaler.transform(X_test)         # 변환만
 <li>자세한 계산과 해석은 7회차(Ch07)에서 다룹니다.</li>
 </ul></div></section>
 <section class="slide" data-title="10번에서 11번으로: 데이터 인계 문제 (4분)" aria-label="14 / 25"><div class="slide__inner"><h2>10번에서 11번으로: 데이터 인계 문제 (4분)</h2>
-<p>sklearn은 관대해서 10번까지 통과한 데이터가 Keras에서 거부될 수 있습니다.</p>
+<p>sklearn은 입력 형식을 덜 엄격하게 검사해서, 10번까지 통과한 데이터가 Keras에서는 오류를 낼 수 있습니다.</p>
 <table>
 <thead>
 <tr>
@@ -691,7 +691,7 @@ print(y_train.nunique(), sorted(y_train.unique().tolist()))
 <li><code>df['col'].fillna(...)</code>의 결과를 다시 대입하지 않으면 결측이 그대로 남습니다.</li>
 <li>전체 <code>X</code>에 <code>fit_transform</code>한 뒤 분리하면 누수입니다. 오류가 나지 않아 발견하기 어렵습니다.</li>
 <li>올바른 코드에서도 평가 데이터의 스케일 결과가 0보다 작거나 1보다 클 수 있습니다. 오류가 아니므로 고치려다 누수를 만들지 않습니다.</li>
-<li>결측 처리 없이 스케일링하면 <code>NaN</code>이 조용히 남아 딥러닝에서 <code>loss: nan</code>이 됩니다. 스케일링 직후 <code>np.isnan(...).sum()</code>이 0인지 봅니다.</li>
+<li>결측 처리 없이 스케일링하면 <code>NaN</code>이 그대로 남아 딥러닝에서 <code>loss: nan</code>이 됩니다. 스케일링 직후 <code>np.isnan(...).sum()</code>이 0인지 봅니다.</li>
 <li><code>stratify</code>에는 <code>y_train</code>이 아니라 분리 대상 전체 <code>y</code>를 넣습니다.</li>
 </ul></div></section>
 <section class="slide" data-title="함께 풀기 1 — 데이터 준비 순서 (3분)" aria-label="17 / 25"><div class="slide__inner"><h2>함께 풀기 1 — 데이터 준비 순서 (3분)</h2>
@@ -760,14 +760,14 @@ X_train, X_test, y_train, y_test = train_test_split(
 </ol></div></section>
 <section class="slide" data-title="예상 질문과 답 (1)" aria-label="24 / 25"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
 <p><strong>Q1.</strong> 평균과 중앙값 중 어느 것으로 채웁니까?
-답: 실기에서는 대체로 문항이 통계량을 지정하므로 지시된 것을 씁니다. 지시가 없으면 분포가 치우쳤거나 이상치가 있을 때 평균이 끌려가므로 중앙값이 안전합니다.</p>
+답: 실기에서는 대체로 문항이 통계량을 지정하므로 지시된 것을 씁니다. 지시가 없으면 분포가 치우쳤거나 이상치가 있을 때 평균이 이상치 쪽으로 치우치므로 중앙값이 안전합니다.</p>
 <p><strong>Q2.</strong> 라벨 인코딩과 원-핫 인코딩은 언제 구분해서 씁니까?
-답: 순서가 있는 범주(저, 중, 고)는 라벨 인코딩이 자연스럽고, 순서가 없는 범주는 원-핫이 맞습니다. 시험에서는 <code>pd.get_dummies</code>가 압도적으로 자주 요구됩니다.</p>
+답: 순서가 있는 범주(저, 중, 고)는 라벨 인코딩이 자연스럽고, 순서가 없는 범주는 원-핫이 맞습니다. 시험에서는 <code>pd.get_dummies</code>가 가장 자주 요구됩니다.</p>
 <p><strong>Q3.</strong> 인코딩은 분리 전, 스케일링은 분리 후인 이유가 무엇입니까?
 답: 분리 후 각각 인코딩하면 한쪽에만 있는 범주 때문에 컬럼 구성이 어긋납니다. 스케일링은 평균과 표준편차를 계산하는 <code>fit</code>이 평가 데이터를 보면 누수가 되므로 학습 데이터로만 합니다.</p></div></section>
 <section class="slide" data-title="예상 질문과 답 (2)" aria-label="25 / 25"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
 <p><strong>Q4.</strong> 평가 데이터를 변환했더니 평균이 0이 아니고 값이 0~1을 벗어납니다. 잘못된 것입니까?
-답: 정상입니다. 평가 데이터는 학습 데이터의 기준을 빌려 변환되므로 0 근처의 값으로 흩어지거나 <code>MinMaxScaler</code>에서 범위를 벗어날 수 있습니다. 오히려 평균이 정확히 0이면 누수를 의심합니다.</p>
+답: 정상입니다. 평가 데이터는 학습 데이터에서 구한 평균과 표준편차로 변환되므로 0 근처의 값으로 흩어지거나 <code>MinMaxScaler</code>에서 범위를 벗어날 수 있습니다. 오히려 평균이 정확히 0이면 누수를 의심합니다.</p>
 <p><strong>Q5.</strong> <code>stratify</code>는 항상 씁니까?
 답: 분류 문제에서 클래스 비율을 유지하려는 지시가 있거나 클래스가 불균형할 때 씁니다. 연속형 타깃인 회귀에는 클래스가 없어 오류가 나므로 쓰지 않습니다.</p>
 <p><strong>Q6.</strong> 정확도만 보면 안 됩니까?
@@ -802,7 +802,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 <li><button class="ov__item" type="button"><span class="ov__no">10</span><span>분리와 데이터 누수 (5분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">11</span><span>순서 규칙의 이유 (이어서)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">12</span><span>머신러닝 3줄 패턴과 딥러닝 4단계 (2분)</span></button></li>
-<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>평가지표 지도 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>평가지표의 종류와 함수 (1분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">14</span><span>10번에서 11번으로: 데이터 인계 문제 (4분)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">15</span><span>모델 구성 전 5줄 점검 셀 (이어서)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">16</span><span>자주 틀리는 지점 (2분)</span></button></li>

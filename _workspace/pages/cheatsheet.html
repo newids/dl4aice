@@ -8,7 +8,7 @@
 <thead><tr><th>유형</th><th>라벨 형태</th><th>출력층 <code>Dense(units, activation)</code></th><th><code>loss</code></th><th><code>metrics</code></th><th><code>predict</code> 후처리</th><th>주요 평가 함수</th></tr></thead>
 <tbody>
 <tr><th scope="row">이진분류</th><td>0/1 정수 <code>(N,)</code></td><td><code>Dense(1, activation='sigmoid')</code></td><td><code>'binary_crossentropy'</code></td><td><code>['accuracy']</code></td><td><code>(pred &gt; 0.5).astype(int).flatten()</code></td><td><code>accuracy_score</code>, <code>classification_report</code>, <code>confusion_matrix</code></td></tr>
-<tr><th scope="row">다중분류<br />(원-핫 라벨)</th><td>원-핫 <code>(N, K)</code><br /><code>to_categorical(y, K)</code></td><td><code>Dense(n_classes, activation='softmax')</code></td><td><code>'categorical_crossentropy'</code></td><td><code>['accuracy']</code></td><td><code>np.argmax(pred, axis=1)</code></td><td><code>classification_report</code>, <code>confusion_matrix</code> (정답도 <code>np.argmax(y_test, axis=1)</code>로 환원)</td></tr>
+<tr><th scope="row">다중분류<br />(원-핫 라벨)</th><td>원-핫 <code>(N, K)</code><br /><code>to_categorical(y, K)</code></td><td><code>Dense(n_classes, activation='softmax')</code></td><td><code>'categorical_crossentropy'</code></td><td><code>['accuracy']</code></td><td><code>np.argmax(pred, axis=1)</code></td><td><code>classification_report</code>, <code>confusion_matrix</code> (정답도 <code>np.argmax(y_test, axis=1)</code>로 라벨 형태로 되돌려 사용)</td></tr>
 <tr><th scope="row">다중분류<br />(정수 라벨)</th><td>0~K-1 정수 <code>(N,)</code></td><td><code>Dense(n_classes, activation='softmax')</code></td><td><code>'sparse_categorical_crossentropy'</code></td><td><code>['accuracy']</code></td><td><code>np.argmax(pred, axis=1)</code></td><td><code>classification_report</code>, <code>confusion_matrix</code></td></tr>
 <tr><th scope="row">회귀</th><td>연속값 <code>(N,)</code></td><td><code>Dense(1)</code> (활성화 없음)</td><td><code>'mse'</code></td><td><code>['mae']</code></td><td><code>pred.flatten()</code></td><td><code>r2_score</code>, <code>mean_absolute_error</code></td></tr>
 </tbody>
@@ -16,7 +16,7 @@
 </div>
 
 <div class="v2-cs-note">
-<p><strong>세 줄만 바뀐다.</strong> 유형이 바뀌어도 전처리, 은닉층, 콜백, <code>fit</code>은 그대로입니다. 바꿀 곳은 <strong>마지막 <code>Dense</code>, <code>loss</code>, <code>metrics</code></strong> 세 줄이고, 예측 후처리 한 줄이 따라옵니다. <strong>다중분류(정수 라벨)</strong> 출력층 <code>units</code>는 <code>len(np.unique(y_train))</code>로 계산합니다(이진분류는 1, 회귀는 1).</p>
+<p><strong>바뀌는 곳은 세 줄입니다.</strong> 유형이 바뀌어도 전처리, 은닉층, 콜백, <code>fit</code>은 그대로입니다. 바꿀 곳은 <strong>마지막 <code>Dense</code>, <code>loss</code>, <code>metrics</code></strong> 세 줄이고, 예측 후처리 한 줄이 따라옵니다. <strong>다중분류(정수 라벨)</strong> 출력층 <code>units</code>는 <code>len(np.unique(y_train))</code>로 계산합니다(이진분류는 1, 회귀는 1).</p>
 </div>
 
 <div class="v2-cs-pair">
@@ -91,7 +91,7 @@ X = X.astype('float32')</code></pre>
 <article class="v2-cs-card">
 <h3 class="v2-cs-card__title"><span class="v2-cs-card__no">4</span>NaN loss</h3>
 <p class="v2-cs-msg"><code>4/4 - 1s - 126ms/step - accuracy: 0.6100 - loss: nan</code></p>
-<p class="v2-cs-cause"><strong>원인</strong> 오류 없이 학습만 망가집니다. <code>y</code> 또는 <code>X</code>에 결측치(NaN)나 <code>inf</code>가 남았거나, 스케일링 없이 값이 매우 커서 발산한 경우입니다. 한 번 <code>nan</code>이 되면 이후 epoch에서도 회복되지 않습니다. 입력 <code>X</code>의 NaN은 <code>relu</code>에 가려 겉으로 안 드러나기도 하니 <code>y</code>까지 함께 확인하십시오.</p>
+<p class="v2-cs-cause"><strong>원인</strong> 오류 없이 학습 결과만 잘못됩니다. <code>y</code> 또는 <code>X</code>에 결측치(NaN)나 <code>inf</code>가 남았거나, 스케일링 없이 값이 매우 커서 발산한 경우입니다. 한 번 <code>nan</code>이 되면 이후 epoch에서도 회복되지 않습니다. 입력 <code>X</code>의 NaN은 <code>relu</code>에 가려 겉으로 안 드러나기도 하니 <code>y</code>까지 함께 확인하십시오.</p>
 <p class="v2-cs-fixlabel">10초 해결 코드</p>
 <pre class="v2-code"><code>print(df.isnull().sum())
 df = df.dropna()   # 또는 fillna(중앙값)

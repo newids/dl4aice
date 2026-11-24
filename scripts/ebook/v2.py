@@ -189,7 +189,7 @@ def drills_section(chapter_key: str, count: int) -> tuple[str, str, str]:
     block = (
         f'<section class="v2-drills" id="{anchor}" data-v2-drills data-chapter="{number}" '
         f'aria-label="{chapter_key.capitalize()} {title}"></section>\n'
-        + _noscript(f"실습 셀 {count}문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 지면판 확인 문제는 그대로 볼 수 있습니다.")
+        + _noscript(f"실습 셀 {count}문항은 자바스크립트를 켜야 풀 수 있습니다. 아래 확인 문제는 그대로 볼 수 있습니다.")
     )
     return block, anchor, title
 
@@ -258,7 +258,7 @@ def tools_section(drill_total: int) -> str:
     """표지의 v2 도구 진입 카드."""
     cards = [
         ("cheatsheet.html", "시험장 직전 10분 치트시트",
-         "유형별 출력층·손실·지표 비교표, 빈출 에러 5선, 문항별 변수명·임포트 요약을 한 장에."),
+         "유형별 출력층·손실·지표 비교표, 자주 만나는 에러 다섯 가지, 문항별 변수명과 임포트 요약을 한 장에 정리했습니다."),
         ("appendix.html", "부록 — 외워야 하는 코드 3단 분해",
          "임포트부터 새 입력 예측까지 아홉 묶음을 흐름·줄·값 세 단계로 나눠 외웁니다."),
         ("mock01.html", "CBT 실전 모의고사 3회분",

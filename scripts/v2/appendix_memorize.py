@@ -81,7 +81,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint""",
         "title": "B. 결측치 · 이상치 · 인코딩",
         "where": "문항 4~6",
         "flow": ["결측치 채우기", "IQR 경계 구하기", "범위 안의 행만 남기기", "인덱스 다시 매기기", "원-핫 인코딩"],
-        "chant": "결 → 이 → 인 (채우고, 자르고, 숫자로 바꾼다)",
+        "chant": "결 → 이 → 인 (채우고, 걸러 내고, 숫자로 바꾼다)",
         "code": """# ① 결측치: 그 컬럼의 중앙값으로 채우고 다시 대입
 df['age'] = df['age'].fillna(df['age'].median())
 
@@ -112,7 +112,7 @@ df = pd.get_dummies(df, columns=['contract'], dtype=int)""",
         "title": "C. 분리와 스케일링",
         "where": "문항 7",
         "flow": ["X·y 나누기", "학습·평가 분리", "스케일러 만들기", "학습 데이터에 fit_transform", "평가 데이터에 transform"],
-        "chant": "나누고 → 쪼개고 → 만들고 → 맞추고 → 따르고",
+        "chant": "나누고 → 쪼개고 → 만들고 → 맞추고 → 변환하고",
         "code": """# ① 특성과 타깃
 X = df.drop(columns=['churn'])
 y = df['churn']
@@ -139,7 +139,7 @@ X_test_scaled = scaler.transform(X_test)""",
     },
     {
         "id": "ap-ml",
-        "title": "D. 머신러닝 모델 3줄",
+        "title": "D. 머신러닝 모델 학습과 평가",
         "where": "문항 8~10",
         "flow": ["모델 만들기", "fit", "predict", "지표 출력"],
         "chant": "만들고 → 학습 → 예측 → 점수",
@@ -342,7 +342,7 @@ PRACTICE = {
         ],
     },
     "ap-prep": {
-        "why": "빈 값이 있으면 분위수 계산이 흔들리므로 결측치를 먼저 채웁니다. 행을 지우면 인덱스에 구멍이 생기니 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.",
+        "why": "결측치가 있는 행은 범위 조건 비교에서 False가 되어 이상치와 함께 지워지므로, 결측치를 먼저 채웁니다. 행을 지우면 인덱스에 빠진 번호가 생기므로 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.",
         "task": "`age`의 결측치를 중앙값으로 채우고, `monthly_fee`의 IQR 1.5배 범위 밖 행을 지운 뒤 인덱스를 다시 매기고, `contract`를 정수 0/1로 원-핫 인코딩합니다. 분위수 변수는 `q1`, `q3`, `iqr`입니다.",
         "rules": [
             _call(".fillna", "결측치를 중앙값으로", "age 컬럼의 중앙값을 구해 채우세요.", params=[{"pos": 0, "kw": "value", "value": {"contains": [".median()"]}}]),
@@ -356,7 +356,7 @@ PRACTICE = {
         ],
     },
     "ap-split": {
-        "why": "정답을 떼어 내야 나눌 수 있고, 나눈 뒤에야 학습 데이터만으로 기준을 잡을 수 있습니다. 평가 데이터로 기준을 잡으면 시험 문제를 미리 본 것과 같습니다.",
+        "why": "정답을 떼어 내야 나눌 수 있고, 나눈 뒤에야 학습 데이터만으로 기준을 잡을 수 있습니다. 평가 데이터로 기준을 잡으면 평가 데이터의 정보가 학습에 들어가 성능이 실제보다 높게 나옵니다.",
         "task": "타깃은 `churn`입니다. 8:2로 나누고 `random_state=42`, 층화 추출을 씁니다. `StandardScaler`를 `scaler`에 담고 결과를 `X_train_scaled`, `X_test_scaled`에 저장합니다.",
         "rules": [
             _call(".drop", "특성 X", "타깃 컬럼을 뺀 나머지가 X 입니다.", assign="X", params=[{"kw": "columns", "value": ["['churn']", "'churn'"]}]),
@@ -381,7 +381,7 @@ PRACTICE = {
         ],
     },
     "ap-model": {
-        "why": "데이터가 지나가는 순서 그대로입니다. 들어오는 모양을 먼저 알리고, 가운데에서 특징을 뽑고, 마지막 층이 문제 유형에 맞는 답의 모양을 만듭니다.",
+        "why": "데이터가 지나가는 순서 그대로입니다. 들어오는 모양을 먼저 알리고, 가운데에서 특징을 뽑고, 마지막 층이 문제 유형에 맞는 출력 형태를 정합니다.",
         "task": "Sequential 방식으로 씁니다. 입력은 `X_train_scaled`의 특성 수, 은닉층은 64와 32(`relu`), 그 사이에 `Dropout(0.3)`, 출력층은 이진분류입니다. 변수는 `model`입니다.",
         "rules": [
             _call("Sequential", "빈 모델", "Sequential() 을 model 에 담으세요.", assign="model"),
@@ -395,7 +395,7 @@ PRACTICE = {
     },
     "ap-fit": {
         "why": "학습 방법을 정해야(compile) 학습을 시작할 수 있습니다. 콜백은 학습 도중에 불리므로 fit 보다 먼저 만들어 두어야 합니다.",
-        "task": "`adam`, 이진분류 손실, 정확도로 컴파일합니다. `es`는 `val_loss`를 보고 5번 참으며 가장 좋은 가중치로 되돌립니다. `mc`는 `best_model.keras`에 가장 좋은 모델만 저장합니다. 검증 20%, 50 에포크, 배치 32로 학습해 `history`에 담습니다.",
+        "task": "`adam`, 이진분류 손실, 정확도로 컴파일합니다. `es`는 `val_loss`가 5 epoch 동안 나아지지 않으면 학습을 멈추고 가장 좋았던 가중치로 되돌립니다. `mc`는 `best_model.keras`에 가장 좋은 모델만 저장합니다. 검증 데이터 20%, `epochs` 50, `batch_size` 32로 학습해 `history`에 담습니다.",
         "rules": [
             _call("model.compile", "컴파일", "optimizer, loss, metrics 세 인자를 확인하세요.", params=[
                 {"kw": "optimizer", "value": "'adam'"}, {"kw": "loss", "value": "'binary_crossentropy'"}, {"kw": "metrics", "value": "['accuracy']"}]),
@@ -410,7 +410,7 @@ PRACTICE = {
         ],
     },
     "ap-curve": {
-        "why": "그릴 선을 먼저 올리고, 그 선이 무엇인지 알려 주는 축 이름과 범례를 붙인 다음, 마지막에 화면에 내보냅니다.",
+        "why": "그릴 선을 먼저 지정하고, 그 선이 무엇인지 알려 주는 축 이름과 범례를 붙인 다음, 마지막에 화면에 내보냅니다.",
         "task": "학습 손실과 검증 손실을 한 그래프에 그립니다. 선마다 `label`을 주고, x축 `epoch`, y축 `loss`, 범례를 붙여 출력합니다.",
         "rules": [
             _tok("history.history['loss']", "학습 손실", "history 를 두 번 쓰고 키는 'loss' 입니다."),
@@ -423,7 +423,7 @@ PRACTICE = {
         ],
     },
     "ap-eval": {
-        "why": "먼저 전체 점수를 확인하고, 그다음 한 건씩의 예측을 받아 정답과 같은 모양으로 바꾼 뒤, 클래스별로 어디에서 틀렸는지 봅니다.",
+        "why": "먼저 전체 점수를 확인하고, 그다음 예측값을 구해 정답과 같은 형태로 바꾼 뒤, 클래스별로 어디에서 틀렸는지 봅니다.",
         "task": "테스트 데이터로 평가해 `loss`, `acc`에 받고, 예측 확률을 `pred`에, 0.5 기준으로 바꾼 1차원 결과를 `y_pred`에 저장한 뒤 분류 리포트와 혼동 행렬을 출력합니다.",
         "rules": [
             _call("model.evaluate", "평가", "평가 X, 평가 y 순서이며 결과를 loss, acc 로 받습니다.", assign="loss, acc", params=[{"pos": 0, "kw": "x", "value": "X_test_scaled"}, {"pos": 1, "kw": "y", "value": "y_test"}]),
@@ -436,7 +436,7 @@ PRACTICE = {
         ],
     },
     "ap-new": {
-        "why": "새 입력도 학습 데이터가 지나온 길을 똑같이 지나가야 합니다. 표로 만들고, 같은 방법으로 인코딩하고, 같은 컬럼 구성으로 맞추고, 같은 스케일러를 거친 뒤에야 모델에 넣을 수 있습니다.",
+        "why": "새 입력도 학습 데이터와 같은 전처리 순서를 거쳐야 합니다. 표로 만들고, 같은 방법으로 인코딩하고, 같은 컬럼 구성으로 맞추고, 같은 스케일러를 거친 뒤에야 모델에 넣을 수 있습니다.",
         "task": "`new_data`를 1행 표 `new_df`로 만들고, `contract`를 정수 원-핫 인코딩한 뒤 컬럼을 `X.columns`에 맞춥니다. `scaler`로 변환해 `new_scaled`, 예측을 `new_pred`에 저장하고 확률을 출력합니다.",
         "keep": "new_data = {'age': 35, 'monthly_fee': 70.0, 'contract': 'month'}\n",
         "rules": [
@@ -472,7 +472,7 @@ INTRO = """<h1>부록 — 외워야 하는 코드 3단 분해</h1>
 <li><span class="v2-ap-tier v2-ap-tier--2">2단 줄</span><p>순서의 낱말 하나를 코드 한두 줄로 바꿉니다. 주석의 번호가 1단의 순서와 같습니다.</p></li>
 <li><span class="v2-ap-tier v2-ap-tier--3">3단 값</span><p>문제마다 바뀌는 자리와 넣을 값을 따로 외웁니다. 나머지는 손대지 않는 고정 부분입니다.</p></li>
 </ol>
-<p class="v2-ap-note">읽기만 해서는 잘 외워지지 않습니다. 묶음마다 아래 순서로 직접 꺼내 보십시오.</p>
+<p class="v2-ap-note">읽기만 해서는 잘 외워지지 않습니다. 묶음마다 아래 순서로 직접 떠올려 보십시오.</p>
 <ol class="v2-ap-howto">
 <li><strong>순서의 이유를 읽는다.</strong> 왜 이 순서인지 알면 낱말 순서를 덜 잊습니다.</li>
 <li><strong>가리고 떠올린다.</strong> 2단 코드 위의 <em>값 가리기</em>는 이름과 값만, <em>줄 가리기</em>는 주석만 남기고 가립니다. 가린 자리를 누르면 하나씩 열립니다. 열기 전에 먼저 답을 말해 보십시오.</li>
