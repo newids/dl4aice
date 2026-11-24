@@ -1242,7 +1242,7 @@ print('마지막 train accuracy:', round(h['accuracy'][-1], 4),
 <p>표를 그 기준으로 읽으면 이렇습니다.</p>
 <ul>
 <li><code>loss</code>는 0.6777 → 0.0005로 끝없이 내려갑니다. <strong>학습 데이터는 사실상 모두 맞힙니다</strong>(마지막 <code>accuracy</code> 1.0).</li>
-<li><code>val_loss</code>는 5 epoch 부근(0.5973)에서 바닥을 찍고, 그 뒤로 0.7510 → 1.0657 → 1.4136으로 <strong>계속 올라갑니다.</strong></li>
+<li><code>val_loss</code>는 표에 실린 값 중 5 epoch(0.5973)가 가장 낮고(전체 기록에서는 3 epoch의 0.5857이 최저입니다), 그 뒤로 0.7510 → 1.0657 → 1.4136으로 <strong>계속 올라갑니다.</strong></li>
 <li>두 선이 갈라지는 그 지점이 학습 곡선 도해의 "과적합 시작" 세로 점선입니다.</li>
 </ul>
 <p>조치는 챕터 6.6의 순서를 그대로 따릅니다. <strong>① 곡선으로 과적합 확인 → ② Dropout이 없으면 추가 → ③ 멈추는 시점은 EarlyStopping에 맡김.</strong> 3번이 정확히 이 순서입니다.</p>

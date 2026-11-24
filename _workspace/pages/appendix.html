@@ -23,7 +23,7 @@
 <tr><th scope="row"><a href="#ap-import">A. 첫 셀 임포트</a></th><td>문항 1</td><td>텐서플로 → 넘파이·판다스 → 그래프 둘 → 사이킷런 넷 → 케라스 셋</td></tr>
 <tr><th scope="row"><a href="#ap-prep">B. 결측치 · 이상치 · 인코딩</a></th><td>문항 4~6</td><td>결측치 채우기 → IQR 경계 구하기 → 범위 안의 행만 남기기 → 인덱스 다시 매기기 → 원-핫 인코딩</td></tr>
 <tr><th scope="row"><a href="#ap-split">C. 분리와 스케일링</a></th><td>문항 7</td><td>X·y 나누기 → 학습·평가 분리 → 스케일러 만들기 → 학습 데이터에 fit_transform → 평가 데이터에 transform</td></tr>
-<tr><th scope="row"><a href="#ap-ml">D. 머신러닝 모델 3줄</a></th><td>문항 8~10</td><td>모델 만들기 → fit → predict → 지표 출력</td></tr>
+<tr><th scope="row"><a href="#ap-ml">D. 머신러닝 모델 학습과 평가</a></th><td>문항 8~10</td><td>모델 만들기 → fit → predict → 지표 출력</td></tr>
 <tr><th scope="row"><a href="#ap-model">E. 딥러닝 모델 구성</a></th><td>문항 11</td><td>입력 → 은닉층 → Dropout → 은닉층 → 출력층</td></tr>
 <tr><th scope="row"><a href="#ap-fit">F. 컴파일 · 콜백 · 학습</a></th><td>문항 11~12</td><td>compile → EarlyStopping → ModelCheckpoint → fit</td></tr>
 <tr><th scope="row"><a href="#ap-curve">G. 학습 곡선</a></th><td>문항 13</td><td>loss 선 → val_loss 선 → 축 이름 → 범례 → show</td></tr>
@@ -90,7 +90,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--1">1단 흐름</span></p>
 <ol class="v2-ap-flow"><li>결측치 채우기</li><li>IQR 경계 구하기</li><li>범위 안의 행만 남기기</li><li>인덱스 다시 매기기</li><li>원-핫 인코딩</li></ol>
 <p class="v2-ap-chant">앞 글자로 줄이면: 결 → 이 → 인 (채우고, 걸러 내고, 숫자로 바꾼다)</p>
-<p class="v2-ap-why"><strong>순서의 이유</strong> 결측치를 먼저 채워 두면 분위수 계산에 모든 행이 들어갑니다. 행을 지우면 인덱스에 빠진 번호가 생기므로 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.</p>
+<p class="v2-ap-why"><strong>순서의 이유</strong> 결측치가 있는 행은 범위 조건 비교에서 False가 되어 이상치와 함께 지워지므로, 결측치를 먼저 채웁니다. 행을 지우면 인덱스에 빠진 번호가 생기므로 바로 다시 매깁니다. 인코딩은 행이 확정된 뒤에 합니다.</p>
 </div>
 
 <div class="v2-ap-block" data-ap-code>
@@ -177,7 +177,7 @@ X_test_scaled = scaler.transform(X_test)
 </section>
 
 <section class="v2-ap v2-wide" data-ap-unit="ap-ml" aria-labelledby="ap-ml">
-<h2 id="ap-ml">D. 머신러닝 모델 3줄</h2>
+<h2 id="ap-ml">D. 머신러닝 모델 학습과 평가</h2>
 <p class="v2-ap-where">쓰는 곳: 문항 8~10</p>
 
 <div class="v2-ap-block">
@@ -198,7 +198,7 @@ print(accuracy_score(y_test, rf_pred))                                 # ④ 점
 
 <div class="v2-ap-block">
 <p class="v2-ap-head"><span class="v2-ap-tier v2-ap-tier--3">3단 값</span></p>
-<div class="table-scroll" role="region" tabindex="0" aria-label="D. 머신러닝 모델 3줄 — 바뀌는 자리와 값">
+<div class="table-scroll" role="region" tabindex="0" aria-label="D. 머신러닝 모델 학습과 평가 — 바뀌는 자리와 값">
 <table class="v2-ap-table">
 <thead><tr><th>바뀌는 자리</th><th>넣을 값</th></tr></thead>
 <tbody><tr><th scope="row">모델 클래스</th><td><code>DecisionTreeClassifier(max_depth=5, random_state=42)</code>, <code>RandomForestClassifier(…)</code>, <code>XGBClassifier(…)</code>, <code>LGBMClassifier(…)</code></td></tr><tr><th scope="row">회귀</th><td>이름 끝을 <code>Regressor</code>로, 지표를 <code>mean_absolute_error</code>·<code>r2_score</code>로</td></tr><tr><th scope="row">변수 이름</th><td><code>dt_model</code>, <code>rf_model</code>, <code>xgb_model</code> — 지문이 정한 이름</td></tr><tr><th scope="row">입력 데이터</th><td>지문이 스케일링한 데이터를 쓰라고 하면 <code>X_train_scaled</code>, <code>X_test_scaled</code></td></tr></tbody>

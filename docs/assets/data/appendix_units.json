@@ -291,7 +291,7 @@
     },
     {
       "id": "ap-ml",
-      "title": "D. 머신러닝 모델 3줄",
+      "title": "D. 머신러닝 모델 학습과 평가",
       "task": "랜덤 포레스트 분류 모델을 `n_estimators=100`, `random_state=42`로 만들어 `rf_model`에 담고, `X_train`으로 학습해 `X_test`의 예측을 `rf_pred`에 저장한 뒤 정확도를 출력합니다.",
       "skeleton": "# ① 모델 만들기\n# ② fit\n# ③ predict\n# ④ 지표 출력\n",
       "answer_code": "rf_model = RandomForestClassifier(n_estimators=100, random_state=42)   # ① 만들기\nrf_model.fit(X_train, y_train)                                         # ② 학습\nrf_pred = rf_model.predict(X_test)                                     # ③ 예측\nprint(accuracy_score(y_test, rf_pred))                                 # ④ 점수",

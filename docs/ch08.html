@@ -13,7 +13,7 @@
 <header class="masthead"><a class="masthead__title" href="index.html">AICE Associate 딥러닝 실전 교본</a><a class="masthead__toc" href="index.html">목차</a></header>
 <main class="page">
 <div class="opener"><p class="opener__eyebrow">Part IV. 평가와 실전 · Chapter 8</p></div>
-<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</a></li><li><a href="#8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</a></li><li><a href="#8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</a></li><li><a href="#8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</a></li><li><a href="#8-5-오류-대처-방법-메시지로-원인을-좁힙니다">8.5 오류 대처 방법 — 메시지로 원인을 좁힙니다</a></li><li><a href="#8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</a></li><li><a href="#8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch08">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</a></li></ol></nav>
+<nav class="section-nav" aria-label="이 페이지의 구성"><p class="section-nav__title">이 페이지의 구성</p><ol><li><a href="#8-1-유형에-따라-바뀌는-곳은-네-곳입니다">8.1 유형에 따라 바뀌는 곳은 네 곳입니다</a></li><li><a href="#8-2-템플릿-a-이진분류-end-to-end">8.2 템플릿 A — 이진분류 end-to-end</a></li><li><a href="#8-3-템플릿-b-다중분류-end-to-end">8.3 템플릿 B — 다중분류 end-to-end</a></li><li><a href="#8-4-템플릿-c-회귀-end-to-end">8.4 템플릿 C — 회귀 end-to-end</a></li><li><a href="#8-5-오류-대처-방법-메시지로-원인을-좁힙니다">8.5 오류 대처 방법 — 메시지로 원인을 좁힙니다</a></li><li><a href="#8-6-시간-배분과-부분-점수-전략">8.6 시간 배분과 부분 점수 전략</a></li><li><a href="#8-7-제출-전-최종-점검">8.7 제출 전 최종 점검</a></li><li><a href="#시험장-표준-코드">시험장 표준 코드</a></li><li><a href="#핵심-요약">핵심 요약</a></li><li><a href="#drills-ch08">실습 셀 — 코드 빈칸 채우기</a></li><li><a href="#ch08-확인-문제-문제-유형별-완성-코드와-시험장-전략">Ch08 확인 문제 — 문제 유형별 완성 코드와 시험장 전략</a></li></ol></nav>
 <article class="page-body">
 <h1>문제 유형별 완성 코드와 시험장 전략</h1>
 <aside class="objectives" aria-label="학습 목표"><h2 class="objectives__title">학습 목표</h2><ul><li>이진분류·다중분류·회귀 각각의 end-to-end 코드를 처음부터 끝까지 작성할 수 있다</li><li>세 유형에서 달라지는 지점(출력층·loss·평가지표)만 정확히 교체할 수 있다</li><li>시험장에서 만나는 대표 오류를 메시지만 보고 원인과 조치를 판단할 수 있다</li></ul></aside>
@@ -23,7 +23,7 @@
 시험 연관성: 이 챕터의 세 템플릿이 실기 답안의 골격과 같습니다. 뒤이은 모의고사 2회분은 이 템플릿을 시험 시간 안에 작성해 보는 연습입니다.</p>
 </blockquote>
 <hr />
-<h2 id="8-1-바뀌는-곳은-세-줄뿐입니다">8.1 바뀌는 곳은 세 줄뿐입니다</h2>
+<h2 id="8-1-유형에-따라-바뀌는-곳은-네-곳입니다">8.1 유형에 따라 바뀌는 곳은 네 곳입니다</h2>
 <figure class="diagram" id="fig-ch08_three-templates"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 432" width="800" height="432" role="img" aria-label="유형별로 바뀌는 세 곳" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
   <title>유형별로 바뀌는 세 곳 — 이진분류, 다중분류, 회귀 세 유형에서 출력층과 loss와 평가지표 세 줄만 달라지고, 전처리부터 은닉층 구성과 콜백까지 나머지 코드는 모두 동일하다.</title>
 
@@ -138,7 +138,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>제목은 "세 줄"인데 표의 행은 다섯 개라 헷갈릴 수 있으니 숫자를 먼저 정리해 둡니다. <strong>코드에서 실제로 손대는 교체 슬롯은 네 곳</strong>(출력층 · loss · metrics · 예측 변환)이고, 그중 <code>metrics</code>는 <strong>회귀에서만</strong> 바뀌므로 <strong>분류끼리 비교하면 세 곳</strong>입니다. 이 챕터의 코드 주석에 붙은 <code>교체 지점 (1)~(4)</code>가 그 네 곳입니다. 표 마지막 행의 평가 함수는 예측 변환 다음에 오는 출력 블록을 통째로 교체하는 자리입니다.</p>
+<p>표의 행은 다섯 개이고 도해는 세 가지만 비교하므로 숫자를 먼저 정리해 둡니다. <strong>코드에서 실제로 손대는 교체 슬롯은 네 곳</strong>(출력층 · loss · metrics · 예측 변환)이고, 그중 <code>metrics</code>는 <strong>회귀에서만</strong> 바뀌므로 <strong>분류끼리 비교하면 세 곳</strong>입니다. 이 챕터의 코드 주석에 붙은 <code>교체 지점 (1)~(4)</code>가 그 네 곳입니다. 표 마지막 행의 평가 함수는 예측 변환 다음에 오는 출력 블록을 통째로 교체하는 자리입니다.</p>
 <p>도해 하단의 회색 박스에 묶인 것들 — 결측치 처리, 인코딩, 데이터 분리, 스케일링, 은닉층 구성, <code>Dropout</code>, <code>EarlyStopping</code>, 학습 곡선 — 은 <strong>세 유형에서 완전히 동일합니다.</strong> 그래서 시험장에서 새 문제를 받았을 때 먼저 할 일은 유형 판정 하나입니다.</p>
 <p>유형 판정의 근거는 <strong>타깃 변수의 형태</strong>입니다. 판정 기준과 손실 함수 선택 논리는 Ch05의 <code>ch05_loss-decision</code> 분기도에 정리되어 있으므로, 여기서는 반복하지 않고 <strong>판정을 코드로 확인하는 한 줄</strong>만 짚습니다.</p>
 <pre><code class="language-python">print(y_train[:10])                 # 값의 생김새
