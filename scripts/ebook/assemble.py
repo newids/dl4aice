@@ -30,6 +30,7 @@ def chapter_page(item, meta, body_md, svgs, quiz_md, nav, book_title, drill_coun
     """
     used_ids: set[str] = set()
     has_arch = False
+    has_neuron = False
     drill_nav: tuple[str, str] | None = None
     number = item["number"].lstrip("0") or "0"
     fig_no = 0
@@ -49,6 +50,7 @@ def chapter_page(item, meta, body_md, svgs, quiz_md, nav, book_title, drill_coun
         elif kind == "widget":
             widget_kind, fields = payload
             has_arch = has_arch or widget_kind == "arch"
+            has_neuron = has_neuron or widget_kind == "neuron"
             parts.append(v2.widget(widget_kind, fields))
         elif kind == "exam":
             anchor = f"exam-{payload}"
@@ -85,7 +87,7 @@ def chapter_page(item, meta, body_md, svgs, quiz_md, nav, book_title, drill_coun
             body=body,
             page_class="page-chapter",
             head_extra=v2.head_extra(),
-            scripts=v2.scripts("chapter", arch=has_arch),
+            scripts=v2.scripts("chapter", arch=has_arch, neuron=has_neuron),
         ),
         sorted(used_ids),
     )
