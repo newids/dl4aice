@@ -122,7 +122,7 @@
 <p><strong>"출력하시오"라는 지시에는 반드시 <code>print()</code>를 씁니다.</strong> 계산만 하고 화면에 남기지 않으면 채점 대상이 되지 않습니다.</p>
 </li>
 <li>
-<p><strong>타깃(<code>y</code>)은 넘파이 배열로 만들어 사용합니다.</strong> Keras <code>fit</code>은 넘파이 배열을 가장 안정적으로 받고, <code>np.bincount</code>·<code>np.unique</code>·<code>np.argmax</code> 같은 뒤 문항의 넘파이 연산이 매끄럽게 이어집니다. 이 회차는 타깃을 만드는 단계(Q6)에서 <code>to_numpy()</code>로 변환하도록 지시합니다.<br />
+<p><strong>타깃(<code>y</code>)은 넘파이 배열로 만들어 사용합니다.</strong> Keras <code>fit</code>은 넘파이 배열을 가장 안정적으로 받고, <code>np.bincount</code>·<code>np.unique</code>·<code>np.argmax</code> 같은 뒤 문항의 넘파이 연산이 문제없이 이어집니다. 이 회차는 타깃을 만드는 단계(Q6)에서 <code>to_numpy()</code>로 변환하도록 지시합니다.<br />
    (참고: 앞서 안내한 "학습 셀이 멈추는" 증상은 <strong>import 순서 문제이며 타깃 자료형과는 무관합니다.</strong> pandas Series를 넘겨도 그 증상 자체는 생기지 않습니다.)</p>
 </li>
 </ol>
@@ -697,7 +697,7 @@ y_test  비율: [0.605 0.242 0.152]
 <li><strong><code>rul_days</code>를 반드시 빼야 합니다.</strong> <code>rul_days</code>(잔여 수명)는 불량 유형과 같은 원인에서 나온 값이라 <strong>정답을 거의 알려 주는 컬럼</strong>입니다. 이런 컬럼을 특성에 넣으면 평가 정확도가 비현실적으로 높게 나오는데, 이것이 <strong>타깃 누수(data leakage)</strong> 입니다. 시험에서 "예측 시점에 알 수 없는 값"이나 "타깃과 같은 사건을 기록한 값"이 컬럼에 섞여 있으면 제거 대상입니다. 컬럼 개수 검산: 14 − 2 = <strong>12개</strong>.</li>
 <li><strong><code>to_numpy()</code>로 타깃을 넘파이 배열로 만든 이유</strong>가 두 가지입니다.<br />
   1. Keras <code>fit</code>은 넘파이 배열을 <strong>가장 표준적인 입력 형태</strong>로 받습니다. pandas Series를 넘겨도 대부분 동작하지만, 인덱스가 딸려 다니므로 슬라이싱·비교 과정에서 예상 밖의 정렬이 생길 여지를 없애 둡니다.<br />
-  2. <code>np.bincount</code>, <code>np.unique</code>, <code>argmax</code> 비교 등 뒤 문항의 넘파이 연산이 매끄럽게 이어집니다. 특히 Q12의 <code>y_pred</code>(넘파이 배열)와 <code>y_test</code>를 비교할 때 형태가 통일되어 있으면 헷갈리지 않습니다.<br />
+  2. <code>np.bincount</code>, <code>np.unique</code>, <code>argmax</code> 비교 등 뒤 문항의 넘파이 연산이 문제없이 이어집니다. 특히 Q12의 <code>y_pred</code>(넘파이 배열)와 <code>y_test</code>를 비교할 때 형태가 통일되어 있으면 헷갈리지 않습니다.<br />
   타깃을 numpy로 바꿔도 <code>train_test_split</code>·<code>stratify</code>·<code>classification_report</code>는 모두 그대로 동작합니다.<br />
   (문서 앞의 "학습 셀이 멈추는" 증상은 <strong>import 순서 때문이며 타깃 자료형과 무관</strong>합니다. <code>to_numpy()</code>는 그 증상의 해결책이 아닙니다.)</li>
 <li><strong><code>test_size=0.2</code>가 8:2</strong> 입니다. 7:3이었던 1회차와 숫자가 다릅니다. <strong>문항이 지시한 비율을 그때그때 확인</strong>하십시오.</li>
@@ -1237,7 +1237,7 @@ r2  : 0.8789
 <p><code>ValueError: continuous is not supported</code></p>
 <p>회귀 지표는 <strong>mse / rmse / mae / r2</strong> 넷입니다.<br />
 - <strong><code>accuracy_score</code>를 시도하는 것.</strong> 같은 이유로 오류입니다.<br />
-- <strong>r2가 음수인데 "0에 가까우니 괜찮다"고 쓰는 것.</strong> 음수 r2는 <strong>평균만 답하는 것보다 못하다</strong>는 뜻으로, 대개 출력층에 활성화 함수를 잘못 붙였거나 타깃 스케일이 어긋난 신호입니다. 원인을 R2의 출력층부터 되짚으십시오.<br />
+- <strong>r2가 음수인데 "0에 가까우니 괜찮다"고 쓰는 것.</strong> 음수 r2는 <strong>평균만 답하는 것보다 못하다</strong>는 뜻으로, 대개 출력층에 활성화 함수를 잘못 붙였거나 타깃 스케일이 어긋난 신호입니다. 원인을 R2의 출력층부터 다시 확인하십시오.<br />
 - <code>mean_squared_error(..., squared=False)</code>로 rmse를 구하려는 것. 이 인수는 최신 sklearn에서 제거되었습니다. <strong><code>np.sqrt(mse)</code></strong> 가 버전에 무관하게 안전합니다.<br />
 - 지표 인수 순서를 <code>(예측, 정답)</code>으로 넣는 것. mse·mae는 값이 같아 넘어가지만 <strong>r2는 값이 달라집니다.</strong> 항상 <strong>(정답, 예측)</strong> 입니다.</p>
 <hr />

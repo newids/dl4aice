@@ -315,7 +315,7 @@ Total params: 3,137
 
 **왜 이렇게 푸는가**
 
-- **(가) `X_tr.shape[1]`** — `shape`는 `(샘플 수, 특성 수)`이므로 필요한 것은 인덱스 1입니다. 숫자 15를 직접 적지 않는 이유는 Q1 해설과 같습니다.
+- **(가) `X_tr.shape[1]`** — `shape`는 `(샘플 수, 특성 수)`이므로 인덱스 1이 필요합니다. 숫자 15를 직접 적지 않는 이유는 Q1 해설과 같습니다.
 - **(나) `Input(shape=(n_features,))`** — Keras 2와 3 양쪽에서 동작하는 표준 표기입니다. 구버전 표기 `Dense(64, activation='relu', input_shape=(n_features,))`는 읽을 줄만 알면 되고, 새로 쓸 때는 `Input`을 씁니다.
 - **(다) `Dense(1, activation='sigmoid')`** — 타깃이 0 또는 1인 이진분류이므로 출력은 "1일 확률" 하나입니다. 노드 1개 + `sigmoid`가 짝입니다.
 

@@ -426,7 +426,7 @@ print(X_train_scaled.shape, X_test_scaled.shape)
 <p>채점에서 보는 것: 7:3, <code>random_state=42</code>, 층화 추출 / 학습 데이터에만 <code>fit_transform</code> / 평가 데이터는 <code>transform</code>만</p>
 <p>자주 틀리는 답:
 - 평가 데이터에 <code>fit_transform</code>, <code>stratify</code> 누락, <code>test_size=0.7</code>로 학습과 평가를 뒤바꿈
-- 문제는 "클래스 비율을 동일하게 유지"라고만 쓰고 <code>stratify</code>라는 단어를 쓰지 않습니다. Q2의 70:30 불균형이 그 이유입니다.</p></div></section>
+- 문제는 "클래스 비율을 동일하게 유지"라고만 쓰고 <code>stratify</code>라는 단어를 쓰지 않습니다. 비율을 유지하라고 한 것은 Q2에서 본 70:30 불균형 때문입니다.</p></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q10 XGBoost와 세 모델 비교" aria-label="12 / 26"><div class="slide__inner"><h2>자세히 보는 문항: Q10 XGBoost와 세 모델 비교</h2>
 <pre><code class="language-python">xgb_model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4,
                           random_state=42, eval_metric='logloss')
