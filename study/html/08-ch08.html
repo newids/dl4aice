@@ -1298,6 +1298,14 @@ print('출력 shape:', model.output_shape)
     applyTheme(theme.get());
   });
 
+  /* 읽던 위치를 따로 기억하지 않으므로, 페이지를 열거나 새로 고치면 맨 위에서 시작한다.
+   * 브라우저의 자동 위치 복원은 위젯이 늦게 그려지면서 엉뚱한 자리에 멈추므로 끈다.
+   * 주소에 #앵커가 있으면 그 자리로 가는 기본 동작을 그대로 둔다. */
+  try { if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual"; } catch (e) { /* 무시 */ }
+  function startAtTop() { if (!window.location.hash) window.scrollTo(0, 0); }
+  startAtTop();
+  window.addEventListener("pageshow", function (ev) { if (ev.persisted) startAtTop(); });
+
   /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
   function revealHashTarget() {
     var id = decodeURIComponent((window.location.hash || "").slice(1));

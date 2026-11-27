@@ -90,7 +90,8 @@
       if (t && findBy(tags, t)) filter[t] = true;
     });
 
-    var state = { type: typeId, api: apiId, compare: false, prev: null };
+    /* full=false 면 유형·API 에 따라 달라지는 줄(태그가 붙은 줄)만 보여 준다. 한 화면에 비교 대상이 다 들어오게 하기 위한 기본값. */
+    var state = { type: typeId, api: apiId, compare: false, prev: null, full: false };
     var flashTimer = null;
 
     root.classList.add("v2-arch", "v2-wide");
@@ -100,15 +101,21 @@
     var typeTabs = el("div", { class: "v2-tabs v2-arch__tabs", role: "tablist", "aria-label": "문제 유형" });
     var apiTabs = el("div", { class: "v2-tabs v2-arch__tabs v2-arch__tabs--api", role: "tablist", "aria-label": "Keras API" });
     var live = el("p", { class: "v2-arch__live", "aria-live": "polite", "aria-atomic": "true" });
-    var strip = el("div", { class: "v2-arch__strip" });
+    var strip = el("div", { class: "v2-arch__stripbody" });
+    var stripBox = el("details", { class: "v2-arch__strip" }, [
+      el("summary", { class: "v2-arch__striptitle", text: "핵심 값 6개" }), strip
+    ]);
+    /* 넓은 화면에서는 펼쳐 두고, 좁은 화면에서는 코드가 먼저 보이도록 접어 둔다. */
+    if (!window.matchMedia || window.matchMedia("(min-width: 720px) and (min-height: 900px)").matches) stripBox.setAttribute("open", "");
+    var fullBtn = el("button", { class: "v2-btn v2-btn--sm v2-arch__full", type: "button", "aria-pressed": "false", text: "전체 코드" });
     var legend = el("div", { class: "v2-arch__legend", role: "group", "aria-label": "태그 필터" });
     var copyBtn = el("button", { class: "v2-btn v2-btn--sm v2-btn--primary", type: "button", text: "코드 복사" });
     var cmpBtn = el("button", { class: "v2-btn v2-btn--sm v2-arch__cmp", type: "button", "aria-pressed": "false", text: "나란히 비교" });
     var panes = el("div", { class: "v2-arch__panes" });
     var codePanel = el("div", { class: "v2-arch__codepanel", role: "tabpanel", id: id + "-code" }, [panes]);
     var typePanel = el("div", { class: "v2-arch__panel", role: "tabpanel", id: id + "-panel" }, [
-      strip,
-      el("div", { class: "v2-arch__tools" }, [legend, el("div", { class: "v2-arch__actions" }, [cmpBtn, copyBtn])]),
+      stripBox,
+      el("div", { class: "v2-arch__tools" }, [legend, el("div", { class: "v2-arch__actions" }, [fullBtn, cmpBtn, copyBtn])]),
       codePanel
     ]);
 
@@ -116,11 +123,12 @@
       el("h3", { class: "v2-arch__title", text: "문제 유형 × API 코드 비교" }),
       el("p", { class: "v2-arch__hint", text: "유형이나 API를 바꾸면 달라지는 줄이 표시됩니다." })
     ]));
-    root.appendChild(el("div", { class: "v2-arch__controls" }, [
-      el("div", { class: "v2-arch__row" }, [el("span", { class: "v2-arch__rowlabel", "aria-hidden": "true", text: "문제 유형" }), typeTabs]),
-      el("div", { class: "v2-arch__row" }, [el("span", { class: "v2-arch__rowlabel", "aria-hidden": "true", text: "API" }), apiTabs])
-    ]));
-    root.appendChild(live);
+    /* 선택 줄은 코드를 내려 보는 동안에도 화면 위에 붙어 있어, 바꾼 결과를 바로 볼 수 있다. */
+    var masthead = document.querySelector(".masthead");
+    function syncTop() { root.style.setProperty("--v2-arch-top", (masthead ? masthead.offsetHeight : 0) + "px"); }
+    syncTop();
+    window.addEventListener("resize", syncTop);
+    root.appendChild(el("div", { class: "v2-arch__controls" }, [typeTabs, apiTabs, live]));
     root.appendChild(typePanel);
 
     /* ---------- 탭 ---------- */
@@ -179,7 +187,6 @@
           el("dd", { class: "v2-arch__cardvalue", text: it.value == null ? "-" : String(it.value) })
         ]));
       });
-      strip.appendChild(el("p", { class: "v2-arch__striptitle", text: "핵심 변경 지점" }));
       strip.appendChild(grid);
       if (type.summary && type.summary.pitfall) {
         strip.appendChild(el("p", { class: "v2-arch__pitfall" }, [
@@ -229,7 +236,17 @@
       var box = el("div", { class: "v2-code v2-arch__code", tabindex: "0", role: "region",
         "aria-label": api.label + " 코드" });
       var inner = el("div", { class: "v2-arch__lines" });
+      /* 달라지는 줄만 볼 때: 들여쓴 이어지는 줄을 보여 주면 그 문장의 첫 줄도 함께 보여 준다. */
+      var keep = {};
       lines.forEach(function (ln, i) {
+        if (!ln.tag && !changed[i]) return;
+        keep[i] = true;
+        for (var k = i; k > 0 && /^\s/.test(String(lines[k].text)); k--) keep[k - 1] = true;
+      });
+      var skipped = 0;
+      lines.forEach(function (ln, i) {
+        if (!state.full && !keep[i]) { if (String(ln.text).trim() !== "") skipped++; return; }
+        if (skipped) { inner.appendChild(el("div", { class: "v2-arch__gap", "aria-hidden": "true", text: "⋯ " + skipped + "줄 생략" })); skipped = 0; }
         var row = el("div", { class: "v2-arch__line" + (ln.tag ? " has-tag" : "") + (changed[i] ? " is-changed" : ""), "data-n": String(i + 1) });
         if (ln.tag) row.setAttribute("data-tag", ln.tag);
         row.appendChild(el("span", { class: "v2-arch__src", html: D.highlight(ln.text) }));
@@ -239,6 +256,7 @@
         if (side.firstChild) row.appendChild(side);
         inner.appendChild(row);
       });
+      if (skipped) inner.appendChild(el("div", { class: "v2-arch__gap", "aria-hidden": "true", text: "⋯ " + skipped + "줄 생략" }));
       box.appendChild(inner);
       return el("div", { class: "v2-arch__pane" + (selected ? " is-selected" : "") }, [
         state.compare ? el("div", { class: "v2-arch__panehead" }, [api.label, selected ? el("span", { class: "v2-badge v2-badge--info", text: "선택됨" }) : null]) : null,
@@ -271,7 +289,7 @@
     function describe(changed) {
       var type = findBy(types, state.type), api = findBy(apis, state.api);
       var lines = codeOf(type, state.api);
-      if (!state.prev) return "현재: " + type.label + " · " + api.label + " (" + lines.length + "줄)";
+      if (!state.prev) return type.label + " · " + api.label + (state.full ? " · 전체 " + lines.length + "줄" : " · 달라지는 줄만");
       var pt = findBy(types, state.prev.type), pa = findBy(apis, state.prev.api);
       var head;
       if (pt.id !== type.id && pa.id !== api.id) head = pt.label + " · " + pa.label + " → " + type.label + " · " + api.label;
@@ -291,6 +309,7 @@
       var changed = renderCode();
       live.textContent = describe(changed);
       cmpBtn.setAttribute("aria-pressed", state.compare ? "true" : "false");
+      fullBtn.setAttribute("aria-pressed", state.full ? "true" : "false");
       clearTimeout(flashTimer);
       if (state.prev) {
         flashTimer = setTimeout(function () {
@@ -316,6 +335,12 @@
 
     cmpBtn.addEventListener("click", function () {
       state.compare = !state.compare;
+      state.prev = null;
+      render(null);
+    });
+
+    fullBtn.addEventListener("click", function () {
+      state.full = !state.full;
       state.prev = null;
       render(null);
     });
