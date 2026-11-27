@@ -551,7 +551,7 @@ TN: 63 / FP: 1 / FN: 4 / TP: 103
 </tbody>
 </table></div>
 <p>앞 절의 숫자(TN 63 / FP 1 / FN 4 / TP 103)를 넣으면 정밀도는 103 / (103 + 1) = 0.990, 재현율은 103 / (103 + 4) = 0.963입니다. 1이라고 예측한 104건은 거의 다 맞혔지만(정밀도 높음), 실제 1인 107건 중 4건을 놓쳤습니다(재현율이 상대적으로 낮음).</p>
-<p>두 지표는 대체로 <strong>한쪽을 올리면 다른 쪽이 내려갑니다.</strong> 의심스러운 것까지 모두 1이라고 예측하면 놓치는 것은 줄지만(재현율↑) 잘못 짚는 것이 늘고(정밀도↓), 확실한 것만 1이라고 예측하면 반대가 됩니다. 그래서 어느 쪽을 중시할지는 <strong>문제의 성격</strong>이 정합니다.</p>
+<p>두 지표는 대체로 <strong>한쪽을 올리면 다른 쪽이 내려갑니다.</strong> 의심스러운 것까지 모두 1이라고 예측하면 놓치는 것은 줄지만(재현율↑) 0을 1로 잘못 판정하는 것이 늘고(정밀도↓), 확실한 것만 1이라고 예측하면 반대가 됩니다. 그래서 어느 쪽을 중시할지는 <strong>문제의 성격</strong>이 정합니다.</p>
 <ul>
 <li><strong>스팸 필터</strong> — 정상 메일이 스팸함으로 가면 사용자가 중요한 메일을 잃습니다. FP가 더 치명적이므로 <strong>정밀도</strong>를 중시합니다.</li>
 <li><strong>질병 검진</strong> — 환자를 정상으로 판정하면 치료 시기를 놓칩니다. FN이 더 치명적이므로 <strong>재현율</strong>을 중시합니다.</li>
@@ -559,7 +559,7 @@ TN: 63 / FP: 1 / FN: 4 / TP: 103
 <p>f1-score는 둘 중 어느 쪽도 특별히 중요하지 않거나, 한 숫자로 비교해야 할 때 씁니다. 조화평균이라 한쪽이 크게 낮으면 f1도 함께 떨어지는 성질이 있어, 두 지표의 균형을 판단하기 좋습니다.</p>
 <blockquote class="callout callout--more">
 <p>📎 <strong>임계값을 0.5에서 옮기면</strong><br />
-재현율을 더 올리고 싶다면 임계값을 0.3처럼 낮춰 <code>(pred &gt; 0.3)</code>으로 판정하면 됩니다. 1이라고 판정하는 범위가 넓어지므로 놓치는 것이 줄고 잘못 짚는 것이 늘어납니다. 다만 실기 문항에서 별도 지시가 없으면 <strong>기본값 0.5</strong>를 쓰십시오. 임의로 바꾸면 채점 기준과 어긋날 수 있습니다.</p>
+재현율을 더 올리고 싶다면 임계값을 0.3처럼 낮춰 <code>(pred &gt; 0.3)</code>으로 판정하면 됩니다. 1이라고 판정하는 범위가 넓어지므로 놓치는 것이 줄고 0을 1로 잘못 판정하는 것이 늘어납니다. 다만 실기 문항에서 별도 지시가 없으면 <strong>기본값 0.5</strong>를 쓰십시오. 임의로 바꾸면 채점 기준과 어긋날 수 있습니다.</p>
 </blockquote>
 <hr />
 <h2 id="7-5-classification-report-읽는-순서가-있습니다">7.5 classification_report — 읽는 순서가 있습니다</h2>
@@ -765,7 +765,7 @@ weighted avg       0.81      0.90      0.85       100
   </g>
 </svg></div><figcaption><span class="diagram__num">그림 7-6</span><span class="diagram__caption">회귀 지표 mse·mae·r2의 초점 차이</span></figcaption></figure>
 <p><strong>한 줄 요약</strong> — mse는 <strong>큰 오차에 민감한 점수</strong>, mae는 <strong>평균적인 오차 크기</strong>, r2는 <strong>0~1 사이의 설명력</strong>입니다.</p>
-<p>회귀에는 "맞혔다/틀렸다"가 없습니다. 예측값과 실제값의 <strong>차이(잔차)를 어떻게 요약하는가</strong>가 지표의 차이를 만듭니다.</p>
+<p>회귀에는 "맞혔다/틀렸다"가 없습니다. 예측값과 실제값의 <strong>차이(잔차)를 어떻게 요약하는가</strong>에 따라 지표가 달라집니다.</p>
 <div class="table-scroll" role="region" tabindex="0"><table>
 <thead>
 <tr>
@@ -1547,7 +1547,7 @@ weighted avg       0.98      0.98      0.98       171
 <p><strong>자주 틀리는 지점</strong></p>
 <ul>
 <li><strong>오류를 하나만 찾고 넘어가는 것.</strong> ①에서 실행이 멈추므로 ②는 실행조차 되지 않아 발견하기 어렵습니다. ①을 고친 뒤 반드시 아래 줄들을 다시 훑으십시오.</li>
-<li><strong>①을 고친다면서 <code>classification_report(y_test, pred.flatten())</code>으로 바꾸는 것.</strong> <code>flatten()</code>은 모양만 펼 뿐 여전히 확률이라 같은 <code>ValueError</code>가 납니다. 필요한 것은 <strong>임계값 판정</strong>입니다.</li>
+<li><strong>①을 고친다면서 <code>classification_report(y_test, pred.flatten())</code>으로 바꾸는 것.</strong> <code>flatten()</code>은 모양만 펼 뿐 여전히 확률이라 같은 <code>ValueError</code>가 납니다. <strong>임계값 판정</strong>이 필요합니다.</li>
 <li><strong>②를 발견하고도 "값이 비슷하니 괜찮다"고 넘기는 것.</strong> 정확도는 같지만 정밀도·재현율은 완전히 뒤바뀐 값입니다.</li>
 <li><strong>"행렬을 눈으로 보고 이상하면 알아채겠지"라고 믿는 것.</strong> FP와 FN이 우연히 같은 값이 되면 뒤바뀐 행렬이 정상과 <strong>완전히 동일하게</strong> 출력됩니다. 눈으로 검증할 수 없는 실수이므로, 애초에 <code>(y_test, y_pred)</code> 순서를 외워 두는 수밖에 없습니다.</li>
 </ul>

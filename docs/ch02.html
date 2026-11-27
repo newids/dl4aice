@@ -24,7 +24,7 @@
 3. 머신러닝의 3줄 패턴과 딥러닝의 4단계 패턴의 차이를 설명할 수 있다.</p>
 <p>시험 연관성: 실기 시험에서 딥러닝 문항이 등장하기 전까지의 앞 단계 전부가 이 챕터의 내용입니다. 앞 단계의 결과물이 그대로 딥러닝 문항의 입력이 되므로, 여기서 어긋나면 뒤 문항이 모두 영향을 받습니다.</p>
 </blockquote>
-<p>이 챕터는 딥러닝 본론에 들어가기 위한 <strong>전제 지식의 압축 요약</strong>입니다. 전처리와 머신러닝을 깊이 파고들지 않고, 시험장에서 바로 써야 하는 패턴만 추렸습니다.</p>
+<p>이 챕터는 딥러닝 본론에 들어가기 위한 <strong>전제 지식의 압축 요약</strong>입니다. 전처리와 머신러닝을 자세히 다루지 않고, 시험장에서 바로 써야 하는 패턴만 추렸습니다.</p>
 <hr />
 <h2 id="2-1-데이터-준비는-다섯-단계로-흐른다">2.1 데이터 준비는 다섯 단계로 흐른다</h2>
 <figure class="diagram" id="fig-ch02_data-pipeline"><div class="diagram__frame"><svg class="diagram__svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 262" width="800" height="262" role="img" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
@@ -767,7 +767,7 @@ print(classification_report(y_test, y_pred))
 </tr>
 </tbody>
 </table></div>
-<p>한 가지만 미리 짚어 둡니다. 클래스가 불균형한 데이터(예: 이탈 고객이 10%)에서는 전부 "이탈 아님"이라고만 찍어도 정확도가 90%가 나옵니다. <strong>정확도만으로 판단하지 않는 습관</strong>이 필요하며, 그래서 <code>classification_report</code>로 클래스별 precision과 recall을 함께 보는 것입니다.</p>
+<p>한 가지만 미리 말해 둡니다. 클래스가 불균형한 데이터(예: 이탈 고객이 10%)에서는 전부 "이탈 아님"이라고만 찍어도 정확도가 90%가 나옵니다. <strong>정확도만으로 판단하지 않는 습관</strong>이 필요하며, 그래서 <code>classification_report</code>로 클래스별 precision과 recall을 함께 보는 것입니다.</p>
 <p>각 지표를 실제로 계산하고 해석하는 방법은 Ch07에서 다룹니다. 이 챕터에서는 "어떤 상황에 어떤 지표를 고르는가"라는 지도만 머리에 넣어 두십시오.</p>
 <hr />
 <h2 id="2-10-전처리에서-딥러닝으로-데이터-연결-트러블슈팅">2.10 전처리에서 딥러닝으로 — 데이터 연결 트러블슈팅</h2>

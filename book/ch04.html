@@ -270,7 +270,7 @@ print(X_train_scaled.shape)          # (398, 30)
 n_features = X_train_scaled.shape[1] # 30
 print(n_features)
 </code></pre>
-<p><code>X_train_scaled.shape</code>는 <code>(398, 30)</code>, 즉 (샘플 수, 특성 수)입니다. 여기서 필요한 것은 뒤의 <code>30</code>뿐이므로 <code>X_train_scaled.shape[1]</code>로 꺼냅니다. 숫자를 직접 세어 적지 말고 <strong>항상 이 방식으로 뽑으십시오.</strong> 전처리 단계에서 원-핫 인코딩으로 컬럼이 늘어나거나 불필요한 컬럼을 지우면 특성 수가 바뀌는데, 손으로 적은 숫자는 그때 틀립니다.</p>
+<p><code>X_train_scaled.shape</code>는 <code>(398, 30)</code>, 즉 (샘플 수, 특성 수)입니다. 여기서는 뒤의 <code>30</code>만 필요하므로 <code>X_train_scaled.shape[1]</code>로 꺼냅니다. 숫자를 직접 세어 적지 말고 <strong>항상 이 방식으로 뽑으십시오.</strong> 전처리 단계에서 원-핫 인코딩으로 컬럼이 늘어나거나 불필요한 컬럼을 지우면 특성 수가 바뀌는데, 손으로 적은 숫자는 그때 틀립니다.</p>
 <p><code>shape=(30,)</code>의 쉼표도 빠뜨리면 안 됩니다. 파이썬에서 <code>(30)</code>은 그냥 정수 30이고, 원소가 하나인 튜플은 <code>(30,)</code>으로 써야 합니다.</p>
 <p><strong>구버전 표기 참고.</strong> 오래된 코드에서는 첫 <code>Dense</code>에 입력 크기를 붙인 표기를 자주 봅니다.</p>
 <pre><code class="language-python"># 구버전 표기 — 읽을 줄만 알면 됩니다. 새로 쓸 때는 Input을 쓰십시오.
@@ -986,7 +986,7 @@ Total params: 3,137
 <p><strong>Total params:</strong> <code>(15 × 64 + 64) + (64 × 32 + 32) + (32 × 1 + 1) = 1024 + 2080 + 33</code> → <strong>3,137</strong></p>
 <p><strong>왜 이렇게 푸는가</strong></p>
 <ul>
-<li><strong>(가) <code>X_tr.shape[1]</code></strong> — <code>shape</code>는 <code>(샘플 수, 특성 수)</code>이므로 필요한 것은 인덱스 1입니다. 숫자 15를 직접 적지 않는 이유는 Q1 해설과 같습니다.</li>
+<li><strong>(가) <code>X_tr.shape[1]</code></strong> — <code>shape</code>는 <code>(샘플 수, 특성 수)</code>이므로 인덱스 1이 필요합니다. 숫자 15를 직접 적지 않는 이유는 Q1 해설과 같습니다.</li>
 <li><strong>(나) <code>Input(shape=(n_features,))</code></strong> — Keras 2와 3 양쪽에서 동작하는 표준 표기입니다. 구버전 표기 <code>Dense(64, activation='relu', input_shape=(n_features,))</code>는 읽을 줄만 알면 되고, 새로 쓸 때는 <code>Input</code>을 씁니다.</li>
 <li><strong>(다) <code>Dense(1, activation='sigmoid')</code></strong> — 타깃이 0 또는 1인 이진분류이므로 출력은 "1일 확률" 하나입니다. 노드 1개 + <code>sigmoid</code>가 짝입니다.</li>
 </ul>
