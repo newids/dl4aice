@@ -164,7 +164,7 @@ async function shot(page, name, opts) {
   await page.waitForTimeout(300);
   const dash = await page.locator("[data-v2-dashboard]").innerText();
   if (!/100%/.test(dash) || !dash.includes(`${drills.length} / ${drills.length}`)) bad("대시보드에 실습 진도가 반영되지 않음");
-  if (!/3 \/ 3/.test(dash)) bad("대시보드에 모의고사 합격 현황이 반영되지 않음");
+  if (!dash.includes(`${mocks.length} / ${mocks.length}`)) bad("대시보드에 모의고사 합격 현황이 반영되지 않음");
   await shot(page, "index.png", { fullPage: true });
   await page.keyboard.press("Control+k");
   await page.waitForTimeout(300);

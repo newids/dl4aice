@@ -7,13 +7,13 @@ AICE 공식 홈페이지의 Associate 샘플 문항 2종(회귀 1, 이진분류 
 
 ## 1. 회차
 
-| id | 유형 | 주제 | 파일(작성 단계) |
-|----|------|------|----------------|
-| mock04 | 회귀 | 배달 앱 주문 데이터로 배달 소요 시간(분) 예측 | `_workspace/v2/mocks_official/mock04.json` |
-| mock05 | 이진분류 | 호텔 예약 데이터로 예약 취소 여부(Canceled / Kept) 예측 | `_workspace/v2/mocks_official/mock05.json` |
-| mock06 | 다중분류 | 사과 선별 데이터로 품질 등급(A / B / C) 예측 | `_workspace/v2/mocks_official/mock06.json` |
+| id | 유형 | 주제 |
+|----|------|------|
+| mock04 | 회귀 | 배달 앱 주문 데이터로 배달 소요 시간(분) 예측 |
+| mock05 | 이진분류 | 호텔 예약 데이터로 예약 취소 여부(Canceled / Kept) 예측 |
+| mock06 | 다중분류 | 사과 선별 데이터로 품질 등급(A / B / C) 예측 |
 
-작성 단계에서는 회차 하나를 JSON 객체 하나(파일 하나)로 쓴다. 검증이 끝나면 `assets/data/mock_exams_14q.json` 의 `exams` 에 합친다.
+정본은 `assets/data/mock_exams_14q.json` 의 `exams` 다. 새 회차를 쓸 때는 회차 하나를 JSON 파일 하나(`_workspace/v2/mocks_official/mockNN.json`)로 작성해 검증한 뒤 합치고, 작성용 파일은 지운다.
 
 ## 2. 회차 객체에 추가되는 필드
 
@@ -55,7 +55,7 @@ AICE 공식 홈페이지의 Associate 샘플 문항 2종(회귀 1, 이진분류 
 | 13 | modeling | 딥러닝 모델 구성·컴파일·학습 (층 구성은 지문에 제시) | 14 | write 또는 blank |
 | 14 | modeling | 학습 곡선 시각화 + `답안14_1`, `답안14_2` | 10 | blank |
 
-- 세 회차에서 style 이 겹치지 않게 섞는다. 회차마다 write / fix / blank 가 각각 4문항 이상 나오게 한다.
+- 세 회차에서 style 이 겹치지 않게 섞는다. 세 회차를 합쳐 write / fix / blank 가 고르게 나오게 한다(4회는 작성 위주, 5회는 빈칸 위주, 6회는 정정 위주).
 - 공식 샘플은 한 문항이 10-1, 10-2 처럼 나뉘기도 한다. 여기서는 **문항 하나(셀 하나)에 합치고** 지문에서 "(10-1)", "(10-2)" 로 구분한다.
 - 변수 이름은 회차마다 다르게 정한다(공식 샘플도 `df`/`data`, `df_temp`/`data_temp` 처럼 바뀐다). 예: `df → df_temp → df_na → df_preset`. 지문에 변수명을 명시하고 규칙의 `assign` 으로 검증한다.
 - 검증용 데이터 이름은 `X_valid`, `y_valid` 를 쓴다(공식 샘플 표기).
