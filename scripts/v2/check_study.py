@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """그룹 스터디 발표 자료(study/*.md) 형식 검사.
 
-회차 자료 11개가 모두 있고, 정해진 구성(study/README.md "자료 형식")과 분량을 지키며,
+회차 자료 14개가 모두 있고, 정해진 구성(study/README.md "자료 형식")과 분량을 지키며,
 도해 경로가 실제 파일을 가리키는지, 프로젝트 금지 규칙(광고 카피식 문구, 이모지)을 어기지 않는지 확인한다.
 """
 
@@ -16,7 +16,7 @@ STUDY = ROOT / "study"
 
 SESSIONS = [
     "01-ch01", "02-ch02", "03-ch03", "04-ch04", "05-ch05", "06-ch06", "07-ch07", "08-ch08",
-    "09-mock01", "10-mock02", "11-mock03",
+    "09-mock01", "10-mock02", "11-mock03", "12-mock04", "13-mock05", "14-mock06",
 ]
 REQUIRED_HEADINGS = ["오늘의 목표", "진행 순서", "함께 풀기", "정리", "다음 회차 준비", "토론 질문", "예상 질문과 답"]
 BANNED = ["곧 점수", "전부입니다", "로 익히고", "로 끝낸다", "정복", "마스터", "비법", "필살", "한 방에", "족집게"]
@@ -96,7 +96,9 @@ def check(name: str) -> list[str]:
 
 def main() -> int:
     failures = 0
-    for name in SESSIONS:
+    # 인자로 회차 이름을 주면(예: 12-mock04) 그 회차만 검사한다
+    wanted = [a for a in sys.argv[1:] if a in SESSIONS]
+    for name in wanted or SESSIONS:
         problems = check(name)
         if problems:
             failures += 1
@@ -104,10 +106,10 @@ def main() -> int:
             for p in problems:
                 print(f"  - {p}")
     extra = sorted(p.name for p in STUDY.glob("*.md") if p.stem not in SESSIONS and p.name != "README.md")
-    if extra:
+    if extra and not wanted:
         failures += 1
         print(f"FAIL 목록에 없는 파일: {extra}")
-    print(f'스터디 발표 자료 검사: {"11/11 통과" if not failures else f"{failures}건 실패"}')
+    print(f'스터디 발표 자료 검사: {f"{len(wanted or SESSIONS)}/{len(wanted or SESSIONS)} 통과" if not failures else f"{failures}건 실패"}')
     return 1 if failures else 0
 
 

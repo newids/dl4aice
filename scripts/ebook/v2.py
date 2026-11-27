@@ -256,6 +256,7 @@ def dashboard(rows: list[dict], infos: dict) -> str:
                 "label": f'모의고사 {row["number"]}회',
                 "title": exams.get(row["key"], {}).get("title", row["title"]),
                 "href": f'{row["key"]}.html',
+                "group": "공식 샘플 형식" if exams.get(row["key"], {}).get("format") == "official_sample" else "유형별 전 과정",
             }
             for row in rows
             if row["kind"] == "mock"
@@ -281,7 +282,7 @@ def tools_section(drill_total: int) -> str:
         ("mock01.html", "CBT 실전 모의고사 6회분",
          "14문항·90분 타이머·자동 저장·즉시 채점. 1~3회는 유형별 전 과정, 4~6회는 공식 샘플 문항 형식(코드 작성·오류 정정·빈칸 채우기)입니다."),
         ("study/index.html", "그룹 스터디 발표 슬라이드",
-         "챕터 8회와 모의고사 리뷰 3회, 한 장씩 넘기는 발표 자료입니다. 회차당 발표 30~40분에 질의응답 20분."),
+         "챕터 8회와 모의고사 리뷰 6회, 한 장씩 넘기는 발표 자료입니다. 회차당 발표 30~40분에 질의응답 20분."),
         ("ch08.html#drills-ch08", f"챕터 실습 셀 {drill_total}문항",
          "주피터 셀처럼 빈칸을 채우고 Shift+Enter 로 채점합니다. 변수명과 핵심 인자를 엄격히 확인합니다."),
     ]
