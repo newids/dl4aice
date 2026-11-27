@@ -19,7 +19,7 @@ const { chromium } = require("playwright");
 const ROOT = path.resolve(__dirname, "..", "..");
 const BASE = process.argv[2] || "file://" + path.join(ROOT, "book") + "/";
 const SHOTS = process.argv[3] || "";
-const PAGES = ["index", "ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07", "ch08", "mock01", "mock02", "mock03", "cheatsheet", "appendix"];
+const PAGES = ["index", "ch01", "ch02", "ch03", "ch04", "ch05", "ch06", "ch07", "ch08", "mock01", "mock02", "mock03", "mock04", "mock05", "mock06", "cheatsheet", "appendix"];
 const ARCH_PAGES = ["ch04", "ch05", "ch07", "ch08"];
 
 const drills = JSON.parse(fs.readFileSync(path.join(ROOT, "assets/data/chapter_drills.json"), "utf8")).items;
@@ -128,7 +128,7 @@ async function shot(page, name, opts) {
     if (exam.id === "mock01") await shot(page, "mock01-intro.png");
     await page.getByRole("button", { name: /시험 시작/ }).click();
     await page.waitForSelector(".v2-cbt textarea");
-    const skip = exam.id === "mock03" ? 14 : exam.id === "mock02" ? 11 : 0;
+    const skip = exam.id === "mock03" ? 14 : exam.id === "mock02" ? 11 : exam.id === "mock05" ? 13 : 0;
     for (const q of exam.questions) {
       if (q.no === skip) continue;
       await page.locator(`.v2-cbt button[aria-label^="${q.no}번"]`).first().click({ force: true });
@@ -152,7 +152,7 @@ async function shot(page, name, opts) {
     console.log(`  ${exam.id} 채점 ${rec ? rec.last : "?"}점 (기대 ${want}) · ${passBadge ? "합격" : "불합격"} 표시`);
     if (!rec || rec.last !== want) bad(`${exam.id} 점수 ${rec && rec.last} != ${want}`);
     if (want >= 80 && !passBadge) bad(`${exam.id} 합격 배지 없음`);
-    if (!rec || !rec.detail || !rec.detail.parts || Object.keys(rec.detail.parts).length !== 4) bad(`${exam.id} 파트별 분석 기록 없음`);
+    if (!rec || !rec.detail || !rec.detail.parts || Object.keys(rec.detail.parts).length !== (exam.parts ? exam.parts.length : 4)) bad(`${exam.id} 파트별 분석 기록 없음`);
     if (exam.id === "mock03") await shot(page, "mock03-result.png", { fullPage: true });
     await page.close();
   }

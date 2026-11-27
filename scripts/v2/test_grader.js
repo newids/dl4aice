@@ -76,8 +76,18 @@ function testItem(entry) {
 
   checkRules(item.validation_rules, errors, "validation_rules");
 
+  /* style: "blank"(기본, 빈칸 채우기) | "write"(처음부터 작성) | "fix"(주어진 코드의 오류 정정) — 공식 샘플 문항 형식 */
+  const style = item.style || "blank";
+  if (!["blank", "write", "fix"].includes(style)) errors.push(`알 수 없는 style: ${style}`);
   const blanks = grader.countBlanks(item.skeleton_code);
-  if (blanks < 1) errors.push("skeleton_code 에 빈칸(___)이 없습니다");
+  if (style === "blank" && blanks < 1) errors.push("skeleton_code 에 빈칸(___)이 없습니다");
+  if (style !== "blank" && blanks > 0) errors.push(`style=${style} 인데 skeleton_code 에 빈칸(___)이 있습니다`);
+  if (style !== "blank" && grader.grade(item.skeleton_code, item.validation_rules).pass) {
+    errors.push(`style=${style}: 처음 주어진 코드가 그대로 정답 처리됩니다`);
+  }
+  if (style === "fix" && item.skeleton_code.replace(/#[^\n]*/g, "").trim().split("\n").length < 2) {
+    errors.push("style=fix: 정정할 코드가 skeleton_code 에 없습니다");
+  }
   if (/_{4,}/.test(item.skeleton_code)) errors.push("빈칸은 정확히 밑줄 3개(___)여야 합니다");
   if (grader.countBlanks(item.answer_code) > 0) errors.push("answer_code 에 빈칸이 남아 있습니다");
   if (/placeholder|TODO|생략|\.\.\.\s*\(중략\)/i.test(item.answer_code)) errors.push("answer_code 에 플레이스홀더 흔적");
@@ -93,11 +103,11 @@ function testItem(entry) {
 
   /* 빈칸을 지워도(=아무것도 안 채워도) 통과하면 규칙이 빈칸을 검증하지 않는 것 */
   const hollow = item.skeleton_code.replace(/_{3,}/g, "");
-  if (grader.grade(hollow, item.validation_rules).pass) {
+  if (style === "blank" && grader.grade(hollow, item.validation_rules).pass) {
     errors.push("빈칸을 비운 코드가 통과함 — 규칙이 빈칸 내용을 검증하지 않습니다");
   }
   const dummy = item.skeleton_code.replace(/_{3,}/g, "zzz_wrong");
-  if (grader.grade(dummy, item.validation_rules).pass) {
+  if (style === "blank" && grader.grade(dummy, item.validation_rules).pass) {
     errors.push("빈칸에 엉뚱한 값(zzz_wrong)을 넣어도 통과함 — 규칙을 강화하세요");
   }
 
