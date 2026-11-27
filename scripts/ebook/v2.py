@@ -216,9 +216,16 @@ def legacy_block(inner: str, summary: str) -> str:
 
 def cbt_block(exam: dict) -> str:
     title = html.escape(exam["title"])
+    official = (
+        "이 회차는 AICE 공식 홈페이지에 공개된 샘플 문항의 형식(세 영역의 배점, 코드 작성·오류 정정·빈칸 채우기, 답안 변수)을 따릅니다. "
+        "문항과 데이터는 이 교재가 새로 만든 것이며, 코드를 실행해야 알 수 있는 값은 지문에 실행 결과를 실었습니다. "
+        if exam.get("format") == "official_sample"
+        else ""
+    )
     return (
         f"<h1>{title}</h1>\n"
         f'<blockquote class="callout callout--note"><p><strong>{html.escape(NOTICE)}</strong> '
+        f"{official}"
         "문항 수·배점·합격 기준(14문항·100점·80점)은 교재 자체 기준이며 실제 시험 정책은 회차별로 달라질 수 있습니다. "
         "응시 전 KT AICE 공식 공지를 확인하십시오.</p></blockquote>\n"
         f'<div class="v2-cbt" data-v2-cbt data-mock="{html.escape(exam["id"])}"></div>\n'
@@ -271,8 +278,8 @@ def tools_section(drill_total: int) -> str:
          "유형별 출력층·손실·지표 비교표, 자주 만나는 에러 다섯 가지, 문항별 변수명과 임포트 요약을 한 장에 정리했습니다."),
         ("appendix.html", "부록 — 외워야 하는 코드 3단 분해",
          "임포트부터 새 입력 예측까지 아홉 묶음을 흐름·줄·값 세 단계로 나눠 외웁니다."),
-        ("mock01.html", "CBT 실전 모의고사 3회분",
-         "14문항·90분 타이머·자동 저장·즉시 채점. 1회 이진분류, 2회 다중분류, 3회 회귀."),
+        ("mock01.html", "CBT 실전 모의고사 6회분",
+         "14문항·90분 타이머·자동 저장·즉시 채점. 1~3회는 유형별 전 과정, 4~6회는 공식 샘플 문항 형식(코드 작성·오류 정정·빈칸 채우기)입니다."),
         ("study/index.html", "그룹 스터디 발표 슬라이드",
          "챕터 8회와 모의고사 리뷰 3회, 한 장씩 넘기는 발표 자료입니다. 회차당 발표 30~40분에 질의응답 20분."),
         ("ch08.html#drills-ch08", f"챕터 실습 셀 {drill_total}문항",

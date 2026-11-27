@@ -35,7 +35,13 @@ def build_script(exam: dict, full: bool) -> str:
     parts = [PREAMBLE, "# ---- setup_code ----", exam["dataset"]["setup_code"]]
     for q in exam["questions"]:
         parts.append(f'\nprint("\\n##### Q{q["no"]} #####")')
+        # given_code: 시험지가 "다음 문항을 풀기 전에 실행하세요"로 제공하는 셀(공식 샘플 형식)
+        if q.get("given_code"):
+            parts.append(q["given_code"])
         parts.append(q["answer_code"])
+        # check_code: 답안N 변수 등 실행 결과에 따라 정해지는 값을 실제 실행으로 대조하는 assert
+        if q.get("check_code"):
+            parts.append(q["check_code"])
     script = "\n".join(parts)
     if not full:
         script = re.sub(r"epochs\s*=\s*\d+", "epochs=3", script)

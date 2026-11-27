@@ -192,7 +192,8 @@
     var maxScore = questions.reduce(function (s, q) { return s + (Number(q.points) || 0); }, 0);
 
     /* 파트 목록: 데이터의 parts 우선, 없으면 문항의 part 에서 유도 */
-    var parts = (bundle.parts || []).map(function (p) { return { id: p.id, label: p.label, nos: p.questions || [] }; });
+    /* 회차가 자기 parts 를 가지면(공식 샘플 형식: 분석 20 · 전처리 30 · 모델링 50) 그것을 쓴다 */
+    var parts = (exam.parts || bundle.parts || []).map(function (p) { return { id: p.id, label: p.label, nos: p.questions || [] }; });
     if (!parts.length) {
       questions.forEach(function (q) {
         var id = q.part || "all";
@@ -698,7 +699,9 @@
         h("p", { class: "v2-cbt__qfacts" }, [
           h("span", { class: "v2-badge v2-badge--info", text: (q.points || 0) + "점" }),
           " ",
-          h("span", { class: "v2-badge", text: "권장 " + (q.minutes || 0) + "분" })
+          h("span", { class: "v2-badge", text: "권장 " + (q.minutes || 0) + "분" }),
+          /* 공식 샘플 형식 문항의 풀이 방식 */
+          q.style ? h("span", { class: "v2-badge", text: { write: "코드 작성", fix: "오류 정정", blank: "빈칸 채우기" }[q.style] || q.style }) : null
         ])
       ]);
       qw.appendChild(head);
