@@ -570,29 +570,29 @@ print(f'예측 에너지 소비량: {new_pred[0][0]:.1f} kWh')
 <p>그런 경우를 만난 분은 해당 문항과 본인이 쓴 코드를 세션에 가져옵니다. 질의응답 시간에 함께 확인합니다.</p></div></section>
 <section class="slide" data-title="함께 풀기 1: Q13 학습 곡선 시각화 (2분)" aria-label="18 / 26"><div class="slide__inner"><h2>함께 풀기 1: Q13 학습 곡선 시각화 (2분)</h2>
 <p>발표자가 모의고사 3회 화면의 Q13을 열고, 참가자가 빈칸을 말로 채웁니다.</p>
-<pre><code class="language-python">fig, axes = plt.subplots(1, ___, figsize=(12, 4))
+<pre><code class="language-python">fig, axes = plt.subplots(1, &lt; blank13-1 &gt;, figsize=(12, 4))
 
 axes[0].plot(history.history['loss'], label='loss')
-axes[0].plot(history.history[___], label='val_loss')
-axes[0].___()
+axes[0].plot(history.history[&lt; blank13-2 &gt;], label='val_loss')
+axes[0].&lt; blank13-3 &gt;()
 
-axes[1].plot(history.history[___], label='mae')
-axes[1].plot(history.history[___], label='val_mae')
+axes[1].plot(history.history[&lt; blank13-4 &gt;], label='mae')
+axes[1].plot(history.history[&lt; blank13-5 &gt;], label='val_mae')
 axes[1].legend()
 
 plt.tight_layout()
-plt.___()
+plt.&lt; blank2-6 &gt;()
 </code></pre></div></section>
 <section class="slide" data-title="함께 풀기 2: Q14 평가와 신규 운영 조건 예측 (4분)" aria-label="19 / 26"><div class="slide__inner"><h2>함께 풀기 2: Q14 평가와 신규 운영 조건 예측 (4분)</h2>
 <p>Q14 화면을 열고 빈칸을 하나씩 채웁니다.</p>
-<pre><code class="language-python">test_loss, test_mae = model.evaluate(___, y_test, verbose=0)
+<pre><code class="language-python">test_loss, test_mae = model.evaluate(&lt; blank14-1 &gt;, y_test, verbose=0)
 pred = model.predict(X_test_scaled)
-y_pred = pred.___()
-rmse = np.sqrt(___(y_test, y_pred))
+y_pred = pred.&lt; blank14-2 &gt;()
+rmse = np.sqrt(&lt; blank14-3 &gt;(y_test, y_pred))
 ...
-new_df = new_df.reindex(columns=___, fill_value=___)
-new_scaled = scaler.___(new_df)
-new_pred = model.predict(___)
+new_df = new_df.reindex(columns=&lt; blank14-5 &gt;, fill_value=&lt; blank14-6 &gt;)
+new_scaled = scaler.&lt; blank14-7 &gt;(new_df)
+new_pred = model.predict(&lt; blank14-7 &gt;)
 </code></pre></div></section>
 <section class="slide" data-title="함께 풀기 — 답과 이유 (Q13)" aria-label="20 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (Q13)</h2>
 <ul>
@@ -755,7 +755,7 @@ new_pred = model.predict(___)
   var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
   var CONSTANTS = /^(?:True|False|None|self|cls)$/;
   var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
-  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,}|<\s*blank[\w-]*\s*>)|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
 
   function tok(cls, text) {
     return '<span class="v2-tok-' + cls + '">' + text + "</span>";

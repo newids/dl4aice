@@ -170,7 +170,7 @@
           "points": 4,
           "minutes": 4,
           "prompt": "통신사 고객 3,000명의 가입 정보와 이탈 여부가 담긴 `telco_churn.csv` 파일이 주어져 있다. 아래 지시에 따라 셀을 완성하시오. (그 밖의 import 는 이후 문항에서 쓰므로 미리 작성되어 있다.)\n\n- `pandas` 를 `pd`, `seaborn` 을 `sns` 라는 별칭으로 불러오시오.\n- `telco_churn.csv` 를 읽어 데이터프레임 `df` 에 저장하시오.\n- 데이터의 행·열 개수(`shape`)를 출력하고, 상위 5개 행을 출력하시오.\n- 컬럼별 자료형과 결측 여부 요약(`info`)을 확인하시오.",
-          "skeleton_code": "import tensorflow as tf\nimport numpy as np\nimport ___ as pd\nimport matplotlib.pyplot as plt\nimport seaborn as ___\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.ensemble import RandomForestClassifier\nfrom xgboost import XGBClassifier\nfrom sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix\nfrom tensorflow.keras.models import Sequential\nfrom tensorflow.keras.layers import Input, Dense, Dropout\nfrom tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\ndf = pd.read_csv(___)\n\nprint(df.___)\nprint(df.head())\ndf.___()\n",
+          "skeleton_code": "import tensorflow as tf\nimport numpy as np\nimport < blank1-1 > as pd\nimport matplotlib.pyplot as plt\nimport seaborn as < blank1-2 >\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.ensemble import RandomForestClassifier\nfrom xgboost import XGBClassifier\nfrom sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix\nfrom tensorflow.keras.models import Sequential\nfrom tensorflow.keras.layers import Input, Dense, Dropout\nfrom tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\ndf = pd.read_csv(< blank1-3 >)\n\nprint(df.< blank1-4 >)\nprint(df.head())\ndf.< blank1-5 >()\n",
           "answer_code": "import tensorflow as tf\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.ensemble import RandomForestClassifier\nfrom xgboost import XGBClassifier\nfrom sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix\nfrom tensorflow.keras.models import Sequential\nfrom tensorflow.keras.layers import Input, Dense, Dropout\nfrom tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\ndf = pd.read_csv('telco_churn.csv')\n\nprint(df.shape)\nprint(df.head())\ndf.info()\n",
           "validation_rules": [
             {
@@ -236,7 +236,7 @@
           "points": 4,
           "minutes": 5,
           "prompt": "`df` 를 탐색하는 아래 작업을 수행하시오.\n\n- 타깃 `churn` 의 클래스별 개수와 **비율**을 출력하시오. 이 데이터가 클래스 불균형인지 판단할 수 있어야 한다.\n- 컬럼별 결측치 개수를 출력하시오.\n- `seaborn` 의 `countplot` 으로 **계약 유형(`contract_type`)별 이탈 여부 분포**를 그리시오. `churn` 값에 따라 막대가 나뉘도록 하시오.",
-          "skeleton_code": "print(df['churn'].value_counts())\nprint(df['churn'].value_counts(___=True))\nprint(df.___().sum())\n\nsns.countplot(data=df, x=___, hue=___)\nplt.title('contract_type vs churn')\nplt.show()\n",
+          "skeleton_code": "print(df['churn'].value_counts())\nprint(df['churn'].value_counts(< blank2-1 >=True))\nprint(df.< blank2-2 >().sum())\n\nsns.countplot(data=df, x=< blank2-3 >, hue=< blank2-4 >)\nplt.title('contract_type vs churn')\nplt.show()\n",
           "answer_code": "print(df['churn'].value_counts())\nprint(df['churn'].value_counts(normalize=True))\nprint(df.isnull().sum())\n\nsns.countplot(data=df, x='contract_type', hue='churn')\nplt.title('contract_type vs churn')\nplt.show()\n",
           "validation_rules": [
             {
@@ -311,7 +311,7 @@
           "points": 6,
           "minutes": 6,
           "prompt": "아래 두 그래프를 그리시오.\n\n- 이탈 여부(`churn`)별 월 요금(`monthly_fee`)의 분포를 `boxplot` 으로 그리시오. (x 축: `churn`, y 축: `monthly_fee`)\n- 수치형 컬럼 간 상관계수 행렬을 `corr` 에 저장하고, 각 칸에 숫자가 표시되도록 `heatmap` 으로 그리시오. 문자열 컬럼이 섞여 있으므로 수치형 컬럼만 사용하도록 하시오.",
-          "skeleton_code": "sns.boxplot(data=df, x=___, y='monthly_fee')\nplt.title('monthly_fee by churn')\nplt.show()\n\ncorr = df.corr(numeric_only=___)\nsns.heatmap(___, annot=___, cmap='coolwarm')\nplt.title('correlation')\nplt.show()\n",
+          "skeleton_code": "sns.boxplot(data=df, x=< blank3-1 >, y='monthly_fee')\nplt.title('monthly_fee by churn')\nplt.show()\n\ncorr = df.corr(numeric_only=< blank3-2 >)\nsns.heatmap(< blank3-3 >, annot=< blank3-4 >, cmap='coolwarm')\nplt.title('correlation')\nplt.show()\n",
           "answer_code": "sns.boxplot(data=df, x='churn', y='monthly_fee')\nplt.title('monthly_fee by churn')\nplt.show()\n\ncorr = df.corr(numeric_only=True)\nsns.heatmap(corr, annot=True, cmap='coolwarm')\nplt.title('correlation')\nplt.show()\n",
           "validation_rules": [
             {
@@ -389,7 +389,7 @@
           "points": 6,
           "minutes": 4,
           "prompt": "`total_fee` 컬럼에는 결측치가 있다. 이 컬럼의 결측치를 **해당 컬럼의 중앙값**으로 대체하여 `df['total_fee']` 에 다시 저장하시오. 처리 후 데이터프레임 전체의 결측치 총개수를 출력하여 0 인지 확인하시오.",
-          "skeleton_code": "df['total_fee'] = df['total_fee'].fillna(___)\nprint('남은 결측치:', ___)\n",
+          "skeleton_code": "df['total_fee'] = df['total_fee'].fillna(< blank4-1 >)\nprint('남은 결측치:', < blank4-2 >)\n",
           "answer_code": "df['total_fee'] = df['total_fee'].fillna(df['total_fee'].median())\nprint('남은 결측치:', df.isnull().sum().sum())\n",
           "validation_rules": [
             {
@@ -464,7 +464,7 @@
           "points": 6,
           "minutes": 6,
           "prompt": "`monthly_fee` 컬럼의 이상치를 **IQR 방식**으로 제거하시오.\n\n- 1사분위수 `q1`, 3사분위수 `q3`, 사분위 범위 `iqr` 을 구하시오.\n- 하한 `lower = q1 - 1.5 * iqr`, 상한 `upper = q3 + 1.5 * iqr` 을 벗어나는 행을 제거하여 `df` 에 다시 저장하시오.\n- 고객 식별 번호 `customer_id` 컬럼은 예측에 도움이 되지 않으므로 `df` 에서 제거하시오.\n- 처리 후 `df.shape` 를 출력하시오.",
-          "skeleton_code": "q1 = df['monthly_fee'].quantile(___)\nq3 = df['monthly_fee'].quantile(___)\niqr = ___\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\n\ndf = df[(df['monthly_fee'] >= ___) & (df['monthly_fee'] <= ___)]\ndf = df.drop(columns=[___])\nprint(df.shape)\n",
+          "skeleton_code": "q1 = df['monthly_fee'].quantile(< blank5-1 >)\nq3 = df['monthly_fee'].quantile(< blank5-2 >)\niqr = < blank5-3 >\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\n\ndf = df[(df['monthly_fee'] >= < blank5-4 >) & (df['monthly_fee'] <= < blank5-5 >)]\ndf = df.drop(columns=[< blank5-6 >])\nprint(df.shape)\n",
           "answer_code": "q1 = df['monthly_fee'].quantile(0.25)\nq3 = df['monthly_fee'].quantile(0.75)\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\n\ndf = df[(df['monthly_fee'] >= lower) & (df['monthly_fee'] <= upper)]\ndf = df.drop(columns=['customer_id'])\nprint(df.shape)\n",
           "validation_rules": [
             {
@@ -549,7 +549,7 @@
           "points": 7,
           "minutes": 4,
           "prompt": "문자열 컬럼 `contract_type`, `internet_service` 를 **원-핫 인코딩**하여 `df` 에 다시 저장하시오. 생성되는 더미 변수는 **0과 1의 정수**가 되도록 하시오. 인코딩 후의 데이터 형태와 컬럼 목록을 출력하시오.",
-          "skeleton_code": "df = pd.get_dummies(df, columns=[___], dtype=___)\nprint(df.shape)\nprint(df.columns.tolist())\n",
+          "skeleton_code": "df = pd.get_dummies(df, columns=[< blank6-1 >], dtype=< blank6-2 >)\nprint(df.shape)\nprint(df.columns.tolist())\n",
           "answer_code": "df = pd.get_dummies(df, columns=['contract_type', 'internet_service'], dtype=int)\nprint(df.shape)\nprint(df.columns.tolist())\n",
           "validation_rules": [
             {
@@ -618,7 +618,7 @@
           "points": 7,
           "minutes": 7,
           "prompt": "다음 순서로 전처리를 마무리하시오.\n\n- `churn` 을 타깃 `y`, 나머지 전체 컬럼을 특성 `X` 로 나누시오.\n- 학습:평가를 **7:3** 으로 분리하여 `X_train`, `X_test`, `y_train`, `y_test` 에 저장하시오. `random_state=42` 를 쓰고, 타깃의 **클래스 비율이 학습·평가 양쪽에 동일하게 유지**되도록 하시오.\n- `StandardScaler` 를 `scaler` 라는 이름으로 만들어 표준화하시오. **평가 데이터의 정보가 변환 규칙에 섞이지 않도록** 하여 결과를 `X_train_scaled`, `X_test_scaled` 에 저장하시오.",
-          "skeleton_code": "X = df.drop(columns=[___])\ny = df[___]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=___, random_state=42, stratify=___)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.___(X_train)\nX_test_scaled = scaler.___(X_test)\nprint(X_train_scaled.shape, X_test_scaled.shape)\n",
+          "skeleton_code": "X = df.drop(columns=[< blank7-1 >])\ny = df[< blank7-2 >]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=< blank7-3 >, random_state=42, stratify=< blank7-4 >)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.< blank7-5 >(X_train)\nX_test_scaled = scaler.< blank7-6 >(X_test)\nprint(X_train_scaled.shape, X_test_scaled.shape)\n",
           "answer_code": "X = df.drop(columns=['churn'])\ny = df['churn']\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.3, random_state=42, stratify=y)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\nprint(X_train_scaled.shape, X_test_scaled.shape)\n",
           "validation_rules": [
             {
@@ -742,7 +742,7 @@
           "points": 7,
           "minutes": 4,
           "prompt": "`DecisionTreeClassifier` 로 이탈 여부를 예측하는 모델을 만드시오.\n\n- 모델 변수명은 `dt_model` 로 하고, `max_depth` 는 3~10 사이의 값, `random_state=42` 를 사용하시오.\n- `X_train_scaled`, `y_train` 으로 학습하고, `X_test_scaled` 로 예측한 결과를 `dt_pred` 에 저장하시오.\n- 평가 데이터의 정확도(accuracy)와 `classification_report` 를 출력하시오.",
-          "skeleton_code": "dt_model = DecisionTreeClassifier(max_depth=___, random_state=___)\ndt_model.___(X_train_scaled, y_train)\ndt_pred = dt_model.___(X_test_scaled)\n\nprint('DecisionTree accuracy:', accuracy_score(___, dt_pred))\nprint(classification_report(y_test, dt_pred))\n",
+          "skeleton_code": "dt_model = DecisionTreeClassifier(max_depth=< blank8-1 >, random_state=< blank8-2 >)\ndt_model.< blank8-3 >(X_train_scaled, y_train)\ndt_pred = dt_model.< blank8-4 >(X_test_scaled)\n\nprint('DecisionTree accuracy:', accuracy_score(< blank8-5 >, dt_pred))\nprint(classification_report(y_test, dt_pred))\n",
           "answer_code": "dt_model = DecisionTreeClassifier(max_depth=5, random_state=42)\ndt_model.fit(X_train_scaled, y_train)\ndt_pred = dt_model.predict(X_test_scaled)\n\nprint('DecisionTree accuracy:', accuracy_score(y_test, dt_pred))\nprint(classification_report(y_test, dt_pred))\n",
           "validation_rules": [
             {
@@ -839,7 +839,7 @@
           "points": 7,
           "minutes": 3,
           "prompt": "`RandomForestClassifier` 로 모델을 만드시오.\n\n- 모델 변수명은 `rf_model`, 트리 개수 `n_estimators=100`, `random_state=42` 로 하시오.\n- `X_train_scaled`, `y_train` 으로 학습하고 `X_test_scaled` 로 예측한 결과를 `rf_pred` 에 저장하시오.\n- 평가 데이터의 정확도와 `classification_report` 를 출력하시오.",
-          "skeleton_code": "rf_model = RandomForestClassifier(n_estimators=___, random_state=___)\nrf_model.fit(___, y_train)\nrf_pred = rf_model.predict(___)\n\nprint('RandomForest accuracy:', accuracy_score(y_test, rf_pred))\nprint(___(y_test, rf_pred))\n",
+          "skeleton_code": "rf_model = RandomForestClassifier(n_estimators=< blank9-1 >, random_state=< blank9-2 >)\nrf_model.fit(< blank9-3 >, y_train)\nrf_pred = rf_model.predict(< blank9-4 >)\n\nprint('RandomForest accuracy:', accuracy_score(y_test, rf_pred))\nprint(< blank9-5 >(y_test, rf_pred))\n",
           "answer_code": "rf_model = RandomForestClassifier(n_estimators=100, random_state=42)\nrf_model.fit(X_train_scaled, y_train)\nrf_pred = rf_model.predict(X_test_scaled)\n\nprint('RandomForest accuracy:', accuracy_score(y_test, rf_pred))\nprint(classification_report(y_test, rf_pred))\n",
           "validation_rules": [
             {
@@ -932,7 +932,7 @@
           "points": 8,
           "minutes": 6,
           "prompt": "`XGBClassifier` 로 세 번째 모델을 만들고, 앞의 두 모델과 성능을 비교하시오.\n\n- 모델 변수명은 `xgb_model`, `learning_rate` 는 0.01~0.3 사이, `max_depth` 는 2~8 사이 값, `random_state=42` 를 사용하시오.\n- `X_train_scaled`, `y_train` 으로 학습하고 `X_test_scaled` 에 대한 예측을 `xgb_pred` 에 저장하시오.\n- 세 모델(`DecisionTree`, `RandomForest`, `XGBoost`)의 평가 데이터 **accuracy 와 f1-score** 를 하나의 표 `comparison` 으로 만들어 출력하시오. (표의 틀은 주어져 있다.)",
-          "skeleton_code": "xgb_model = XGBClassifier(n_estimators=100, learning_rate=___, max_depth=___,\n                          random_state=42, eval_metric='logloss')\nxgb_model.fit(X_train_scaled, ___)\nxgb_pred = xgb_model.___(X_test_scaled)\n\ncomparison = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'accuracy': [accuracy_score(y_test, dt_pred),\n                 accuracy_score(y_test, rf_pred),\n                 accuracy_score(y_test, ___)],\n    'f1': [f1_score(y_test, dt_pred),\n           f1_score(y_test, rf_pred),\n           f1_score(y_test, ___)]\n})\nprint(comparison.round(4))\n",
+          "skeleton_code": "xgb_model = XGBClassifier(n_estimators=100, learning_rate=< blank10-1 >, max_depth=< blank10-2 >,\n                          random_state=42, eval_metric='logloss')\nxgb_model.fit(X_train_scaled, < blank10-3 >)\nxgb_pred = xgb_model.< blank10-4 >(X_test_scaled)\n\ncomparison = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'accuracy': [accuracy_score(y_test, dt_pred),\n                 accuracy_score(y_test, rf_pred),\n                 accuracy_score(y_test, < blank10-5 >)],\n    'f1': [f1_score(y_test, dt_pred),\n           f1_score(y_test, rf_pred),\n           f1_score(y_test, < blank10-6 >)]\n})\nprint(comparison.round(4))\n",
           "answer_code": "xgb_model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4,\n                          random_state=42, eval_metric='logloss')\nxgb_model.fit(X_train_scaled, y_train)\nxgb_pred = xgb_model.predict(X_test_scaled)\n\ncomparison = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'accuracy': [accuracy_score(y_test, dt_pred),\n                 accuracy_score(y_test, rf_pred),\n                 accuracy_score(y_test, xgb_pred)],\n    'f1': [f1_score(y_test, dt_pred),\n           f1_score(y_test, rf_pred),\n           f1_score(y_test, xgb_pred)]\n})\nprint(comparison.round(4))\n",
           "validation_rules": [
             {
@@ -1059,7 +1059,7 @@
           "points": 9,
           "minutes": 8,
           "prompt": "이진분류에 맞는 딥러닝 모델을 **Sequential API** 로 만드시오.\n\n- 모델 변수명은 `model` 로 한다.\n- 입력층은 `Input` 으로 지정하되, 특성 개수는 `X_train_scaled` 의 열 개수로 계산해 넣으시오.\n- 은닉층은 2개(`relu`)이며, 첫 은닉층 뒤에 `Dropout` 을 넣으시오. (은닉층 사이의 Dropout 비율은 0.05~0.6 사이로 하시오.)\n- 출력층은 **이진분류에 맞는 노드 수와 활성화 함수**로 지정하시오.\n- `model.summary()` 로 구조를 출력하시오.\n- 컴파일 조건: optimizer 는 `adam`, 손실 함수는 이진분류에 맞는 것, metrics 는 `accuracy` 를 지정하시오.",
-          "skeleton_code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=___))\nmodel.add(Dense(___, activation='relu'))\nmodel.add(Dropout(___))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(___, activation=___))\nmodel.summary()\n\nmodel.compile(optimizer=___, loss=___, metrics=___)\n",
+          "skeleton_code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=< blank11-1 >))\nmodel.add(Dense(< blank11-2 >, activation='relu'))\nmodel.add(Dropout(< blank11-3 >))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(< blank11-4 >, activation=< blank11-5 >))\nmodel.summary()\n\nmodel.compile(optimizer=< blank11-6 >, loss=< blank11-7 >, metrics=< blank11-8 >)\n",
           "answer_code": "tf.keras.utils.set_random_seed(42)\n\nmodel = Sequential()\nmodel.add(Input(shape=(X_train_scaled.shape[1],)))\nmodel.add(Dense(64, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(32, activation='relu'))\nmodel.add(Dropout(0.3))\nmodel.add(Dense(1, activation='sigmoid'))\nmodel.summary()\n\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n",
           "validation_rules": [
             {
@@ -1209,7 +1209,7 @@
           "points": 9,
           "minutes": 7,
           "prompt": "Q11 의 `model` 을 아래 조건으로 학습시키시오.\n\n- 콜백 `es` (`EarlyStopping`): `val_loss` 를 관찰하고, `patience=5`, **가장 좋았던 시점의 가중치를 복원**하도록 설정하시오.\n- 콜백 `mc` (`ModelCheckpoint`): `val_loss` 기준으로 **가장 좋은 모델만** `best_model.keras` 파일에 저장하시오.\n- `X_train_scaled`, `y_train` 으로 학습하되, 학습 데이터의 **20% 를 검증 데이터**로 사용하고 `epochs=100`, `batch_size=32`, 두 콜백을 적용하시오. 결과는 `history` 에 저장하시오.\n- 실제로 학습이 진행된 epoch 수를 출력하시오.",
-          "skeleton_code": "es = EarlyStopping(monitor=___, patience=___, restore_best_weights=___)\nmc = ModelCheckpoint(___, monitor='val_loss', save_best_only=___)\n\nhistory = model.fit(X_train_scaled, y_train,\n                    validation_split=___,\n                    epochs=___, batch_size=32,\n                    callbacks=[___],\n                    verbose=0)\n\nprint('실제로 학습한 epoch 수:', len(history.history['loss']))\n",
+          "skeleton_code": "es = EarlyStopping(monitor=< blank12-1 >, patience=< blank12-2 >, restore_best_weights=< blank12-3 >)\nmc = ModelCheckpoint(< blank12-4 >, monitor='val_loss', save_best_only=< blank12-5 >)\n\nhistory = model.fit(X_train_scaled, y_train,\n                    validation_split=< blank12-6 >,\n                    epochs=< blank12-7 >, batch_size=32,\n                    callbacks=[< blank12-8 >],\n                    verbose=0)\n\nprint('실제로 학습한 epoch 수:', len(history.history['loss']))\n",
           "answer_code": "es = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)\nmc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)\n\nhistory = model.fit(X_train_scaled, y_train,\n                    validation_split=0.2,\n                    epochs=100, batch_size=32,\n                    callbacks=[es, mc],\n                    verbose=0)\n\nprint('실제로 학습한 epoch 수:', len(history.history['loss']))\n",
           "validation_rules": [
             {
@@ -1328,7 +1328,7 @@
           "points": 8,
           "minutes": 5,
           "prompt": "`history` 를 이용해 학습 곡선을 그리시오. 한 장의 그림에 좌우 두 개의 그래프를 배치하고, 좌측에는 loss(학습·검증), 우측에는 accuracy(학습·검증)를 그리시오. 각 그래프에는 제목, x 축·y 축 이름, 범례를 표시하시오.",
-          "skeleton_code": "plt.figure(figsize=(10, 4))\n\nplt.subplot(1, 2, 1)\nplt.plot(history.history[___], label='train loss')\nplt.plot(history.history[___], label='val loss')\nplt.title(___)\nplt.xlabel(___)\nplt.ylabel('loss')\nplt.legend()\n\nplt.subplot(1, 2, 2)\nplt.plot(history.history['accuracy'], label='train accuracy')\nplt.plot(history.history[___], label='val accuracy')\nplt.title('Accuracy')\nplt.xlabel('epoch')\nplt.ylabel('accuracy')\nplt.legend()\n\nplt.tight_layout()\nplt.show()\n",
+          "skeleton_code": "plt.figure(figsize=(10, 4))\n\nplt.subplot(1, 2, 1)\nplt.plot(history.history[< blank13-1 >], label='train loss')\nplt.plot(history.history[< blank13-2 >], label='val loss')\nplt.title(< blank13-3 >)\nplt.xlabel(< blank13-4 >)\nplt.ylabel('loss')\nplt.legend()\n\nplt.subplot(1, 2, 2)\nplt.plot(history.history['accuracy'], label='train accuracy')\nplt.plot(history.history[< blank13-5 >], label='val accuracy')\nplt.title('Accuracy')\nplt.xlabel('epoch')\nplt.ylabel('accuracy')\nplt.legend()\n\nplt.tight_layout()\nplt.show()\n",
           "answer_code": "plt.figure(figsize=(10, 4))\n\nplt.subplot(1, 2, 1)\nplt.plot(history.history['loss'], label='train loss')\nplt.plot(history.history['val_loss'], label='val loss')\nplt.title('Loss')\nplt.xlabel('epoch')\nplt.ylabel('loss')\nplt.legend()\n\nplt.subplot(1, 2, 2)\nplt.plot(history.history['accuracy'], label='train accuracy')\nplt.plot(history.history['val_accuracy'], label='val accuracy')\nplt.title('Accuracy')\nplt.xlabel('epoch')\nplt.ylabel('accuracy')\nplt.legend()\n\nplt.tight_layout()\nplt.show()\n",
           "validation_rules": [
             {
@@ -1392,7 +1392,7 @@
           "points": 12,
           "minutes": 11,
           "prompt": "**1) 평가.** 학습된 `model` 로 평가 데이터의 성능을 확인하시오.\n\n- `evaluate` 로 평가 데이터의 loss 와 accuracy 를 `test_loss`, `test_acc` 에 받아 출력하시오.\n- `predict` 로 예측 확률 `pred` 를 구하고, **임계값 0.5** 를 기준으로 클래스 `y_pred`(0 또는 1)로 변환하시오.\n- `classification_report` 와 `confusion_matrix` 를 출력하시오.\n\n**2) 신규 고객 예측.** 아래 신규 고객 1명의 이탈 여부를 예측하시오. 학습 데이터와 **똑같은 전처리**를 거쳐야 한다.\n\n```\nnew_data = {'tenure_months': 5, 'monthly_fee': 89.5, 'total_fee': 440.0,\n            'contract_type': 'month', 'internet_service': 'fiber', 'support_calls': 4}\n```\n\n- `new_data` 로 1행짜리 데이터프레임 `new_df` 를 만들고, 학습 때와 같은 방식으로 원-핫 인코딩하시오.\n- 인코딩 후 컬럼이 **학습 때의 컬럼 구성과 순서**(`X.columns`)와 같아지도록 맞추고, 없는 컬럼은 0 으로 채우시오.\n- 학습 데이터로 이미 학습된 `scaler` 로 변환하여 `new_scaled` 에 저장하시오.\n- `model.predict` 로 확률 `new_pred` 를 구하고, 이탈 확률과 임계값 0.5 기준의 최종 판정(0 또는 1)을 출력하시오.",
-          "skeleton_code": "test_loss, test_acc = model.evaluate(___, ___, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled)\ny_pred = (pred > ___).astype(int)\nprint(classification_report(y_test, y_pred))\nprint(confusion_matrix(y_test, y_pred))\n\nnew_data = {'tenure_months': 5, 'monthly_fee': 89.5, 'total_fee': 440.0,\n            'contract_type': 'month', 'internet_service': 'fiber', 'support_calls': 4}\nnew_df = pd.DataFrame(___)\nnew_df = pd.get_dummies(new_df, columns=['contract_type', 'internet_service'], dtype=int)\nnew_df = new_df.reindex(columns=___, fill_value=___)\nnew_scaled = scaler.___(new_df)\nnew_pred = model.predict(new_scaled)\n\nprint('이탈 확률:', round(float(new_pred[0][0]), 4))\nprint('예측 결과:', ___)\n",
+          "skeleton_code": "test_loss, test_acc = model.evaluate(< blank14-1 >, < blank14-2 >, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled)\ny_pred = (pred > < blank14-3 >).astype(int)\nprint(classification_report(y_test, y_pred))\nprint(confusion_matrix(y_test, y_pred))\n\nnew_data = {'tenure_months': 5, 'monthly_fee': 89.5, 'total_fee': 440.0,\n            'contract_type': 'month', 'internet_service': 'fiber', 'support_calls': 4}\nnew_df = pd.DataFrame(< blank14-4 >)\nnew_df = pd.get_dummies(new_df, columns=['contract_type', 'internet_service'], dtype=int)\nnew_df = new_df.reindex(columns=< blank14-5 >, fill_value=< blank14-6 >)\nnew_scaled = scaler.< blank14-7 >(new_df)\nnew_pred = model.predict(new_scaled)\n\nprint('이탈 확률:', round(float(new_pred[0][0]), 4))\nprint('예측 결과:', < blank14-8 >)\n",
           "answer_code": "test_loss, test_acc = model.evaluate(X_test_scaled, y_test, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled)\ny_pred = (pred > 0.5).astype(int)\nprint(classification_report(y_test, y_pred))\nprint(confusion_matrix(y_test, y_pred))\n\nnew_data = {'tenure_months': 5, 'monthly_fee': 89.5, 'total_fee': 440.0,\n            'contract_type': 'month', 'internet_service': 'fiber', 'support_calls': 4}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['contract_type', 'internet_service'], dtype=int)\nnew_df = new_df.reindex(columns=X.columns, fill_value=0)\nnew_scaled = scaler.transform(new_df)\nnew_pred = model.predict(new_scaled)\n\nprint('이탈 확률:', round(float(new_pred[0][0]), 4))\nprint('예측 결과:', int(new_pred[0][0] > 0.5))\n",
           "validation_rules": [
             {
@@ -1680,7 +1680,7 @@
           "points": 4,
           "minutes": 3,
           "prompt": "설비 센서 데이터 `factory_defect.csv` 를 분석합니다. 이후 모든 문항에서 쓸 패키지를 임포트하시오.\n\n- `pandas` 는 `pd`, `matplotlib.pyplot` 은 `plt`, `seaborn` 은 `sns` 라는 **관례적인 별칭**으로 임포트하시오. (`tensorflow`, `numpy` 는 이미 적혀 있습니다.)\n- `factory_defect.csv` 를 읽어 데이터프레임 `df` 에 저장하시오.\n- `df` 의 **행·열 개수**를 `print` 로 출력하고, **컬럼별 자료형과 결측 여부 요약**을 출력하시오.\n\n출력에서 **결측이 있는 컬럼**과 **문자열(범주형) 컬럼**, **타깃 컬럼의 자료형**을 확인하십시오. 다음 문항들의 근거가 됩니다.",
-          "skeleton_code": "import tensorflow as tf\nimport numpy as np\nimport pandas as ___\nimport matplotlib.pyplot as ___\nimport seaborn as ___\n\ndf = pd.read_csv(___)\n\nprint(df.___)\ndf.___()",
+          "skeleton_code": "import tensorflow as tf\nimport numpy as np\nimport pandas as < blank1-1 >\nimport matplotlib.pyplot as < blank1-2 >\nimport seaborn as < blank1-3 >\n\ndf = pd.read_csv(< blank1-4 >)\n\nprint(df.< blank1-5 >)\ndf.< blank1-6 >()",
           "answer_code": "import tensorflow as tf\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\ndf = pd.read_csv('factory_defect.csv')\n\nprint(df.shape)\ndf.info()",
           "validation_rules": [
             {
@@ -1751,7 +1751,7 @@
           "points": 4,
           "minutes": 4,
           "prompt": "타깃 컬럼 `defect_type` 과 결측치를 탐색하시오.\n\n1. `defect_type` 의 **클래스별 개수**를 출력하시오.\n2. 데이터프레임 `df` 의 **컬럼별 결측치 개수**를 출력하시오.\n3. `seaborn` 의 `countplot` 으로 `defect_type` 의 **클래스별 개수를 시각화**하시오. x축은 `defect_type` 입니다.\n\n그래프와 숫자를 보고 클래스가 몇 개인지, 한쪽으로 치우쳐 있는지를 확인하십시오. (`train_test_split` 의 `stratify`, 평가지표 선택의 근거가 됩니다.)",
-          "skeleton_code": "print(df['defect_type'].___())\nprint(df.___().sum())\n\nsns.___(data=df, x=___)\nplt.title('defect_type distribution')\nplt.show()",
+          "skeleton_code": "print(df['defect_type'].< blank2-1 >())\nprint(df.< blank2-2 >().sum())\n\nsns.< blank2-3 >(data=df, x=< blank2-4 >)\nplt.title('defect_type distribution')\nplt.show()",
           "answer_code": "print(df['defect_type'].value_counts())\nprint(df.isnull().sum())\n\nsns.countplot(data=df, x='defect_type')\nplt.title('defect_type distribution')\nplt.show()",
           "validation_rules": [
             {
@@ -1820,7 +1820,7 @@
           "points": 6,
           "minutes": 5,
           "prompt": "불량 유형에 따라 센서 값이 어떻게 다른지 확인하시오. `plt.figure(figsize=(10, 4))` 안에 **두 개의 그래프를 좌우로** 배치합니다.\n\n1. 왼쪽: `defect_type` 별 `temp`(온도)의 분포를 **상자그림(boxplot)** 으로 그리시오. (x축 `defect_type`, y축 `temp`)\n2. 오른쪽: `defect_type` 별 `vibration`(진동)의 분포를 같은 방식으로 그리시오. (`plt.subplot(1, 2, 2)`)\n3. 이어서 클래스별로 `temp`, `vibration`, `pressure`, `rpm`, `current`, `humidity` 6개 센서의 **평균**을 **소수 둘째 자리까지 반올림하여 출력**하시오. (컬럼은 이 순서대로 리스트로 지정)\n\n출력을 보고 \"어느 센서가 클래스를 구분하고, 어느 센서가 도움이 안 되는지\" 읽을 수 있어야 합니다. `vibration` 의 위쪽 점들은 Q5 의 근거입니다.",
-          "skeleton_code": "plt.figure(figsize=(10, 4))\nplt.subplot(1, 2, 1)\nsns.___(data=df, x=___, y='temp')\nplt.subplot(1, 2, ___)\nsns.boxplot(data=df, x='defect_type', y=___)\nplt.show()\n\nprint(df.groupby('defect_type')[___].mean().round(2))",
+          "skeleton_code": "plt.figure(figsize=(10, 4))\nplt.subplot(1, 2, 1)\nsns.< blank3-1 >(data=df, x=< blank3-2 >, y='temp')\nplt.subplot(1, 2, < blank3-3 >)\nsns.boxplot(data=df, x='defect_type', y=< blank3-4 >)\nplt.show()\n\nprint(df.groupby('defect_type')[< blank3-5 >].mean().round(2))",
           "answer_code": "plt.figure(figsize=(10, 4))\nplt.subplot(1, 2, 1)\nsns.boxplot(data=df, x='defect_type', y='temp')\nplt.subplot(1, 2, 2)\nsns.boxplot(data=df, x='defect_type', y='vibration')\nplt.show()\n\nprint(df.groupby('defect_type')[['temp', 'vibration', 'pressure', 'rpm', 'current', 'humidity']].mean().round(2))",
           "validation_rules": [
             {
@@ -1900,7 +1900,7 @@
           "points": 6,
           "minutes": 5,
           "prompt": "`pressure` 컬럼의 결측치를 처리하시오.\n\n1. 처리 전 `pressure` 의 **결측 개수**를 출력하시오.\n2. 결측치를 `pressure` 컬럼의 **평균값**으로 대체하여 `df['pressure']` 에 다시 저장하시오.\n3. 처리 후 **데이터프레임 전체에 남은 결측치 개수**를 출력하여 0 인지 확인하시오.\n\n(행을 삭제하는 방법은 쓰지 마시오.)",
-          "skeleton_code": "print(df['pressure'].___().sum())\ndf['pressure'] = df['pressure'].___(df['pressure'].___())\nprint(df.isnull().sum().sum())",
+          "skeleton_code": "print(df['pressure'].< blank4-1 >().sum())\ndf['pressure'] = df['pressure'].< blank4-2 >(df['pressure'].< blank4-3 >())\nprint(df.isnull().sum().sum())",
           "answer_code": "print(df['pressure'].isnull().sum())\ndf['pressure'] = df['pressure'].fillna(df['pressure'].mean())\nprint(df.isnull().sum().sum())",
           "validation_rules": [
             {
@@ -1972,7 +1972,7 @@
           "points": 6,
           "minutes": 7,
           "prompt": "`vibration` 컬럼에는 센서 오작동으로 기록된 비정상적으로 큰 값이 있습니다. **IQR 방식**으로 이상치를 제거하시오.\n\n1. `vibration` 의 1사분위수 `q1`, 3사분위수 `q3`, `iqr = q3 - q1` 을 구하시오.\n2. 하한 `lower = q1 - 1.5 * iqr`, 상한 `upper = q3 + 1.5 * iqr` 을 구하시오.\n3. 상한을 초과하는 값의 개수를 출력하시오.\n4. `vibration` 이 **하한 이상, 상한 이하인 행만** 남겨 `df` 에 다시 저장하시오.\n5. `rul_days`(잔여 수명)는 불량이 발생한 **뒤에** 산출되는 값이라 예측 시점에는 알 수 없으므로, `df` 에서 **컬럼을 삭제**하시오.\n6. 처리 후 `df` 의 행·열 개수를 출력하시오.\n\n(이상치 처리는 스케일링보다 **먼저** 해야 합니다. 이유는 해설을 확인하십시오.)",
-          "skeleton_code": "q1 = df['vibration'].quantile(___)\nq3 = df['vibration'].quantile(___)\niqr = q3 - q1\nlower = q1 - ___ * iqr\nupper = q3 + 1.5 * iqr\nprint('상한 초과 개수:', (df['vibration'] > upper).sum())\n\ndf = df[(df['vibration'] >= lower) & (df['vibration'] <= ___)]\ndf = df.drop(columns=[___])\nprint(df.shape)",
+          "skeleton_code": "q1 = df['vibration'].quantile(< blank5-1 >)\nq3 = df['vibration'].quantile(< blank5-2 >)\niqr = q3 - q1\nlower = q1 - < blank5-3 > * iqr\nupper = q3 + 1.5 * iqr\nprint('상한 초과 개수:', (df['vibration'] > upper).sum())\n\ndf = df[(df['vibration'] >= lower) & (df['vibration'] <= < blank5-4 >)]\ndf = df.drop(columns=[< blank5-5 >])\nprint(df.shape)",
           "answer_code": "q1 = df['vibration'].quantile(0.25)\nq3 = df['vibration'].quantile(0.75)\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\nprint('상한 초과 개수:', (df['vibration'] > upper).sum())\n\ndf = df[(df['vibration'] >= lower) & (df['vibration'] <= upper)]\ndf = df.drop(columns=['rul_days'])\nprint(df.shape)",
           "validation_rules": [
             {
@@ -2061,7 +2061,7 @@
           "points": 7,
           "minutes": 6,
           "prompt": "문자열로 된 컬럼들을 모델이 다룰 수 있는 숫자로 바꾸시오.\n\n1. 특성 컬럼 `line_id`, `shift` 를 **원-핫 인코딩**하여 `df` 에 다시 저장하시오. 더미 변수는 **0과 1의 정수**가 되도록 하시오. (`drop_first` 는 쓰지 말고 모든 범주의 더미를 남기시오.)\n2. 타깃 `defect_type` 은 `LabelEncoder` 객체 `le` 를 만들어 **정수 라벨(0, 1, 2)** 로 변환하여 `df['defect_type']` 에 다시 저장하시오. (타깃에는 원-핫 인코딩을 하지 **않습니다**.)\n3. `le.classes_`(정수 → 클래스명 대응)와 `df.shape` 를 출력하시오.\n\n`le` 는 마지막 문항(Q14)에서 **예측 번호를 클래스 이름으로 되돌릴 때** 다시 사용합니다.",
-          "skeleton_code": "from sklearn.preprocessing import LabelEncoder\n\ndf = pd.get_dummies(df, columns=[___, ___], dtype=___)\n\nle = ___()\ndf['defect_type'] = le.___(df['defect_type'])\n\nprint(le.classes_)\nprint(df.shape)",
+          "skeleton_code": "from sklearn.preprocessing import LabelEncoder\n\ndf = pd.get_dummies(df, columns=[< blank6-1 >, < blank6-2 >], dtype=< blank6-3 >)\n\nle = < blank6-4 >()\ndf['defect_type'] = le.< blank6-5 >(df['defect_type'])\n\nprint(le.classes_)\nprint(df.shape)",
           "answer_code": "from sklearn.preprocessing import LabelEncoder\n\ndf = pd.get_dummies(df, columns=['line_id', 'shift'], dtype=int)\n\nle = LabelEncoder()\ndf['defect_type'] = le.fit_transform(df['defect_type'])\n\nprint(le.classes_)\nprint(df.shape)",
           "validation_rules": [
             {
@@ -2145,7 +2145,7 @@
           "points": 7,
           "minutes": 7,
           "prompt": "1. 타깃 컬럼 `defect_type` 을 제외한 나머지 전체를 특성 `X`, 타깃 `defect_type` 을 `y` 로 만드시오.\n2. 학습 데이터와 평가 데이터를 **8 : 2** 로 분리하여 `X_train`, `X_test`, `y_train`, `y_test` 에 저장하시오.\n   - `random_state=42` 를 사용하시오.\n   - 세 클래스의 **비율이 학습·평가 양쪽에 동일하게 유지**되도록 하시오.\n3. **`MinMaxScaler`** 객체 `scaler` 를 만들어 특성을 0~1 범위로 변환하시오. **평가 데이터의 정보가 변환 규칙에 섞이지 않도록** 하시오.\n   - 변환 결과는 `X_train_scaled`, `X_test_scaled` 에 저장하시오.\n4. 변환된 두 배열의 형태와 `y_train` 의 클래스 비율을 출력하시오.",
-          "skeleton_code": "from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import MinMaxScaler\n\nX = df.___(columns=[___])\ny = df[___]\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=___, random_state=42, ___=y)\n\nscaler = ___()\nX_train_scaled = scaler.___(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nprint(X_train_scaled.shape, X_test_scaled.shape)\nprint(y_train.value_counts(normalize=True).sort_index().round(3).tolist())",
+          "skeleton_code": "from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import MinMaxScaler\n\nX = df.< blank7-1 >(columns=[< blank7-2 >])\ny = df[< blank7-3 >]\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=< blank7-4 >, random_state=42, < blank7-5 >=y)\n\nscaler = < blank7-6 >()\nX_train_scaled = scaler.< blank7-7 >(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nprint(X_train_scaled.shape, X_test_scaled.shape)\nprint(y_train.value_counts(normalize=True).sort_index().round(3).tolist())",
           "answer_code": "from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import MinMaxScaler\n\nX = df.drop(columns=['defect_type'])\ny = df['defect_type']\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)\n\nscaler = MinMaxScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nprint(X_train_scaled.shape, X_test_scaled.shape)\nprint(y_train.value_counts(normalize=True).sort_index().round(3).tolist())",
           "validation_rules": [
             {
@@ -2248,7 +2248,7 @@
           "points": 7,
           "minutes": 5,
           "prompt": "딥러닝과 비교할 기준선으로 **의사결정나무** 분류 모델을 만드시오.\n\n- 모델 변수명은 `dt_model` 로 하시오. `max_depth=5`, `random_state=42` 를 사용하시오.\n- `X_train_scaled`, `y_train` 으로 학습하고, `X_test_scaled` 로 예측한 결과를 `dt_pred` 에 저장하시오.\n- 평가 데이터의 **정확도(accuracy)** 를 출력하시오. 이어서 클래스별 성능을 `classification_report` 로 출력하시오.",
-          "skeleton_code": "from sklearn.tree import DecisionTreeClassifier\nfrom sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix\n\ndt_model = ___(max_depth=___, random_state=42)\ndt_model.___(X_train_scaled, y_train)\ndt_pred = dt_model.___(X_test_scaled)\n\nprint('DT accuracy:', round(accuracy_score(y_test, ___), 4))\nprint(classification_report(y_test, dt_pred, target_names=le.classes_))",
+          "skeleton_code": "from sklearn.tree import DecisionTreeClassifier\nfrom sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix\n\ndt_model = < blank8-1 >(max_depth=< blank8-2 >, random_state=42)\ndt_model.< blank8-3 >(X_train_scaled, y_train)\ndt_pred = dt_model.< blank8-4 >(X_test_scaled)\n\nprint('DT accuracy:', round(accuracy_score(y_test, < blank8-5 >), 4))\nprint(classification_report(y_test, dt_pred, target_names=le.classes_))",
           "answer_code": "from sklearn.tree import DecisionTreeClassifier\nfrom sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix\n\ndt_model = DecisionTreeClassifier(max_depth=5, random_state=42)\ndt_model.fit(X_train_scaled, y_train)\ndt_pred = dt_model.predict(X_test_scaled)\n\nprint('DT accuracy:', round(accuracy_score(y_test, dt_pred), 4))\nprint(classification_report(y_test, dt_pred, target_names=le.classes_))",
           "validation_rules": [
             {
@@ -2338,7 +2338,7 @@
           "points": 7,
           "minutes": 5,
           "prompt": "**랜덤포레스트** 분류 모델로 다시 학습·평가하시오.\n\n- 모델 변수명은 `rf_model`, `n_estimators=100`, `random_state=42` 를 사용하시오.\n- `X_train_scaled`, `y_train` 으로 학습하고 `X_test_scaled` 의 예측을 `rf_pred` 에 저장하시오.\n- 평가 데이터의 **정확도**와 **혼동 행렬(confusion matrix)** 을 출력하시오.\n- 학습된 모델이 계산한 **특성 중요도**를 이용해 중요도 상위 5개 특성을 출력하시오. (코드의 마지막 줄을 완성)",
-          "skeleton_code": "from sklearn.ensemble import RandomForestClassifier\n\nrf_model = ___(n_estimators=___, random_state=42)\nrf_model.fit(___, y_train)\nrf_pred = rf_model.predict(X_test_scaled)\n\nprint('RF accuracy:', round(accuracy_score(___, rf_pred), 4))\nprint(confusion_matrix(y_test, rf_pred))\nprint(pd.Series(rf_model.___, index=X.columns).sort_values(ascending=False).head(5).round(3))",
+          "skeleton_code": "from sklearn.ensemble import RandomForestClassifier\n\nrf_model = < blank9-1 >(n_estimators=< blank9-2 >, random_state=42)\nrf_model.fit(< blank9-3 >, y_train)\nrf_pred = rf_model.predict(X_test_scaled)\n\nprint('RF accuracy:', round(accuracy_score(< blank9-4 >, rf_pred), 4))\nprint(confusion_matrix(y_test, rf_pred))\nprint(pd.Series(rf_model.< blank9-5 >, index=X.columns).sort_values(ascending=False).head(5).round(3))",
           "answer_code": "from sklearn.ensemble import RandomForestClassifier\n\nrf_model = RandomForestClassifier(n_estimators=100, random_state=42)\nrf_model.fit(X_train_scaled, y_train)\nrf_pred = rf_model.predict(X_test_scaled)\n\nprint('RF accuracy:', round(accuracy_score(y_test, rf_pred), 4))\nprint(confusion_matrix(y_test, rf_pred))\nprint(pd.Series(rf_model.feature_importances_, index=X.columns).sort_values(ascending=False).head(5).round(3))",
           "validation_rules": [
             {
@@ -2428,7 +2428,7 @@
           "points": 8,
           "minutes": 6,
           "prompt": "**LightGBM** 분류 모델을 학습시키고, 지금까지 만든 세 모델의 성능을 한 표로 비교하시오.\n\n- 모델 변수명은 `lgbm_model`, `n_estimators=100`, `random_state=42` 를 사용하시오. 학습 로그가 출력되지 않도록 `verbose` 를 **-1** 로 하시오.\n- `X_train_scaled`, `y_train` 으로 학습하고 평가 특성의 예측을 `lgbm_pred` 에 저장하시오.\n- 세 모델(`dt_model`, `rf_model`, `lgbm_model`)의 **accuracy** 와 **macro F1** 을 `results` 데이터프레임으로 만들어 출력하시오. 다중분류이므로 F1 은 클래스별 F1 의 **단순 평균**(`macro`)으로 계산하시오.\n\n출력된 표를 보고 어느 모델이 가장 높은지, accuracy 와 macro F1 의 차이가 무엇을 뜻하는지 생각해 보십시오.",
-          "skeleton_code": "from lightgbm import LGBMClassifier\n\nlgbm_model = ___(n_estimators=100, random_state=42, verbose=___)\nlgbm_model.fit(X_train_scaled, y_train)\nlgbm_pred = lgbm_model.predict(___)\n\nresults = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'LightGBM'],\n    'accuracy': [accuracy_score(y_test, dt_pred), accuracy_score(y_test, rf_pred), accuracy_score(y_test, lgbm_pred)],\n    'macro_f1': [f1_score(y_test, dt_pred, average=___),\n                 f1_score(y_test, rf_pred, average='macro'),\n                 f1_score(y_test, lgbm_pred, average=___)]\n})\nprint(results.round(4))",
+          "skeleton_code": "from lightgbm import LGBMClassifier\n\nlgbm_model = < blank10-1 >(n_estimators=100, random_state=42, verbose=< blank10-2 >)\nlgbm_model.fit(X_train_scaled, y_train)\nlgbm_pred = lgbm_model.predict(< blank10-3 >)\n\nresults = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'LightGBM'],\n    'accuracy': [accuracy_score(y_test, dt_pred), accuracy_score(y_test, rf_pred), accuracy_score(y_test, lgbm_pred)],\n    'macro_f1': [f1_score(y_test, dt_pred, average=< blank10-4 >),\n                 f1_score(y_test, rf_pred, average='macro'),\n                 f1_score(y_test, lgbm_pred, average=< blank10-5 >)]\n})\nprint(results.round(4))",
           "answer_code": "from lightgbm import LGBMClassifier\n\nlgbm_model = LGBMClassifier(n_estimators=100, random_state=42, verbose=-1)\nlgbm_model.fit(X_train_scaled, y_train)\nlgbm_pred = lgbm_model.predict(X_test_scaled)\n\nresults = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'LightGBM'],\n    'accuracy': [accuracy_score(y_test, dt_pred), accuracy_score(y_test, rf_pred), accuracy_score(y_test, lgbm_pred)],\n    'macro_f1': [f1_score(y_test, dt_pred, average='macro'),\n                 f1_score(y_test, rf_pred, average='macro'),\n                 f1_score(y_test, lgbm_pred, average='macro')]\n})\nprint(results.round(4))",
           "validation_rules": [
             {
@@ -2506,7 +2506,7 @@
           "points": 9,
           "minutes": 8,
           "prompt": "이 문제 유형에 맞는 딥러닝 분류 모델을 **Functional API** 로 `model` 이라는 이름으로 만들고 컴파일하시오. 클래스 개수 `n_classes` 는 이미 계산되어 있습니다.\n\n**구성 조건**\n\n- 입력층 `inputs` 는 `X_train_scaled` 의 **특성 개수에 맞춰** 지정하시오. (`Input(shape=(...,))`)\n- 은닉층은 `Dense` 2개(64, 32 노드)이며 첫 번째 은닉층의 활성화 함수는 `relu` 로 하시오. 첫 은닉층 뒤에는 `Dropout(0.3)` 이 있습니다.\n- 출력층 `outputs` 는 **클래스 개수에 맞는 노드 수와 다중분류에 맞는 활성화 함수**로 지정하시오.\n- `Model(inputs=..., outputs=...)` 로 `model` 을 만드시오.\n\n**컴파일 조건**\n\n- optimizer 는 `adam`, metrics 는 `accuracy` 입니다.\n- 손실 함수는 **라벨의 형태(Q6 에서 정수로 변환함)** 에 맞게 지정하시오.\n\n마지막으로 `model.summary()` 로 구조를 확인하고, **마지막 층의 Output Shape 가 `(None, 3)`** 인지 확인하십시오.",
-          "skeleton_code": "from tensorflow.keras.models import Model\nfrom tensorflow.keras.layers import Input, Dense, Dropout\n\ntf.keras.utils.set_random_seed(42)\nn_classes = len(le.classes_)\n\ninputs = Input(shape=(___,))\nx = Dense(64, activation=___)(inputs)\nx = Dropout(0.3)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(___, activation=___)(x)\nmodel = Model(inputs=___, outputs=outputs)\n\nmodel.compile(optimizer='adam', loss=___, metrics=['accuracy'])\nmodel.summary()",
+          "skeleton_code": "from tensorflow.keras.models import Model\nfrom tensorflow.keras.layers import Input, Dense, Dropout\n\ntf.keras.utils.set_random_seed(42)\nn_classes = len(le.classes_)\n\ninputs = Input(shape=(< blank11-1 >,))\nx = Dense(64, activation=< blank11-2 >)(inputs)\nx = Dropout(0.3)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(< blank11-3 >, activation=< blank11-4 >)(x)\nmodel = Model(inputs=< blank11-5 >, outputs=outputs)\n\nmodel.compile(optimizer='adam', loss=< blank11-6 >, metrics=['accuracy'])\nmodel.summary()",
           "answer_code": "from tensorflow.keras.models import Model\nfrom tensorflow.keras.layers import Input, Dense, Dropout\n\ntf.keras.utils.set_random_seed(42)\nn_classes = len(le.classes_)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(64, activation='relu')(inputs)\nx = Dropout(0.3)(x)\nx = Dense(32, activation='relu')(x)\noutputs = Dense(n_classes, activation='softmax')(x)\nmodel = Model(inputs=inputs, outputs=outputs)\n\nmodel.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])\nmodel.summary()",
           "validation_rules": [
             {
@@ -2657,7 +2657,7 @@
           "points": 9,
           "minutes": 7,
           "prompt": "`model` 을 학습시키시오.\n\n**콜백**\n\n- `es` — `EarlyStopping`: **`val_loss`** 를 관찰하고 `patience=5`, 가장 좋았던 시점의 가중치를 **복원**하도록 설정하시오.\n- `mc` — `ModelCheckpoint`: 파일 `best_model.keras` 에, `val_loss` 가 **가장 좋아졌을 때만** 저장되도록 설정하시오.\n\n**학습 조건**\n\n- `X_train_scaled`, `y_train` 으로 `epochs=100`, `batch_size=32` 로 학습하고, 학습 데이터의 **20%** 를 검증 데이터로 사용하시오.\n- 두 콜백을 모두 적용하고, 학습 결과를 `history` 에 저장하시오.\n\n학습 후 **실제로 학습된 epoch 수**를 출력하여 100 보다 훨씬 앞에서 멈췄는지 확인하십시오.",
-          "skeleton_code": "from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\ntf.keras.utils.set_random_seed(42)\n\nes = EarlyStopping(monitor=___, patience=___, restore_best_weights=___)\nmc = ModelCheckpoint(___, monitor='val_loss', save_best_only=___)\n\nhistory = model.fit(X_train_scaled, y_train,\n                    epochs=100, batch_size=32,\n                    validation_split=___,\n                    callbacks=[___, ___],\n                    verbose=0)\n\nprint('실제 학습 epoch 수:', len(history.history['loss']))",
+          "skeleton_code": "from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\ntf.keras.utils.set_random_seed(42)\n\nes = EarlyStopping(monitor=< blank12-1 >, patience=< blank12-2 >, restore_best_weights=< blank12-3 >)\nmc = ModelCheckpoint(< blank12-4 >, monitor='val_loss', save_best_only=< blank12-5 >)\n\nhistory = model.fit(X_train_scaled, y_train,\n                    epochs=100, batch_size=32,\n                    validation_split=< blank12-6 >,\n                    callbacks=[< blank12-7 >, < blank12-8 >],\n                    verbose=0)\n\nprint('실제 학습 epoch 수:', len(history.history['loss']))",
           "answer_code": "from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\ntf.keras.utils.set_random_seed(42)\n\nes = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)\nmc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)\n\nhistory = model.fit(X_train_scaled, y_train,\n                    epochs=100, batch_size=32,\n                    validation_split=0.2,\n                    callbacks=[es, mc],\n                    verbose=0)\n\nprint('실제 학습 epoch 수:', len(history.history['loss']))",
           "validation_rules": [
             {
@@ -2777,7 +2777,7 @@
           "points": 8,
           "minutes": 5,
           "prompt": "`history` 객체를 이용해 **학습 곡선**을 그리시오.\n\n1. 학습 기록 딕셔너리를 `h` 에 꺼내고 그 **키 목록**을 출력하시오. (분류 모델의 키 이름을 눈으로 확인합니다.)\n2. 1행 2열 그림의 **왼쪽**에는 loss 의 학습(`train`)·검증(`val`) 곡선, **오른쪽**에는 accuracy 의 학습·검증 곡선을 그리시오. x축은 epoch 번호(1부터)입니다.\n3. 검증 loss 의 **최솟값**과 그 값이 나온 **epoch** 를 출력하시오. (마지막 줄의 빈칸을 완성)\n\n그림에서 학습 곡선과 검증 곡선의 간격, 검증 loss 가 올라가기 시작하는 지점을 읽어 보십시오.",
-          "skeleton_code": "h = history.___\nprint(list(h.keys()))\nepochs_range = range(1, len(h['loss']) + 1)\n\nplt.figure(figsize=(10, 4))\nplt.subplot(1, 2, 1)\nplt.plot(epochs_range, h[___], label='train')\nplt.plot(epochs_range, h[___], label='val')\nplt.title('Loss')\nplt.xlabel('epoch')\nplt.legend()\n\nplt.subplot(1, 2, 2)\nplt.plot(epochs_range, h['accuracy'], label='train')\nplt.plot(epochs_range, h[___], label='val')\nplt.title('Accuracy')\nplt.xlabel('epoch')\nplt.legend()\nplt.show()\n\nprint('최저 val_loss:', round(min(h[___]), 4), '/ 해당 epoch:', h['val_loss'].index(min(h['val_loss'])) + 1)",
+          "skeleton_code": "h = history.< blank13-1 >\nprint(list(h.keys()))\nepochs_range = range(1, len(h['loss']) + 1)\n\nplt.figure(figsize=(10, 4))\nplt.subplot(1, 2, 1)\nplt.plot(epochs_range, h[< blank13-2 >], label='train')\nplt.plot(epochs_range, h[< blank13-3 >], label='val')\nplt.title('Loss')\nplt.xlabel('epoch')\nplt.legend()\n\nplt.subplot(1, 2, 2)\nplt.plot(epochs_range, h['accuracy'], label='train')\nplt.plot(epochs_range, h[< blank13-4 >], label='val')\nplt.title('Accuracy')\nplt.xlabel('epoch')\nplt.legend()\nplt.show()\n\nprint('최저 val_loss:', round(min(h[< blank13-5 >]), 4), '/ 해당 epoch:', h['val_loss'].index(min(h['val_loss'])) + 1)",
           "answer_code": "h = history.history\nprint(list(h.keys()))\nepochs_range = range(1, len(h['loss']) + 1)\n\nplt.figure(figsize=(10, 4))\nplt.subplot(1, 2, 1)\nplt.plot(epochs_range, h['loss'], label='train')\nplt.plot(epochs_range, h['val_loss'], label='val')\nplt.title('Loss')\nplt.xlabel('epoch')\nplt.legend()\n\nplt.subplot(1, 2, 2)\nplt.plot(epochs_range, h['accuracy'], label='train')\nplt.plot(epochs_range, h['val_accuracy'], label='val')\nplt.title('Accuracy')\nplt.xlabel('epoch')\nplt.legend()\nplt.show()\n\nprint('최저 val_loss:', round(min(h['val_loss']), 4), '/ 해당 epoch:', h['val_loss'].index(min(h['val_loss'])) + 1)",
           "validation_rules": [
             {
@@ -2836,7 +2836,7 @@
           "points": 12,
           "minutes": 9,
           "prompt": "학습된 `model` 로 평가 데이터의 성능을 확인하고, **새로 들어온 센서 측정값 1건**의 불량 유형을 예측하시오.\n\n**1) 평가**\n\n- `model.evaluate` 로 평가 데이터의 loss 와 accuracy 를 `test_loss`, `test_acc` 에 받아 출력하시오.\n- `model.predict` 의 결과 `pred`(각 클래스 확률)를 **예측 클래스 번호 `y_pred`** 로 바꾸시오. (각 **행**에서 가장 큰 확률의 위치)\n- `classification_report` 와 `confusion_matrix` 를 출력하시오.\n\n**2) 신규 입력 샘플 예측** — 현장에서 다음 측정값이 들어왔습니다. 코드에 `new_data` 딕셔너리로 주어져 있습니다.\n\n> temp 84.0, vibration 3.4, pressure 4.3, rpm 1490.0, current 14.2, humidity 47.0, line_id `L2`, shift `B`\n\n- 이 1건을 데이터프레임 `new_df` 로 만들고, 학습 때와 **같은 인코딩**(원-핫)을 적용하시오. 한 건뿐이라 더미 컬럼이 일부만 생기므로, **학습 데이터 `X` 의 컬럼 목록과 순서에 맞추고 없는 컬럼은 0 으로 채우시오.** (`reindex`)\n- **이미 학습된 `scaler` 로 변환**하여 `new_scaled` 를 만드시오. (새 샘플로 다시 학습하지 마시오.)\n- `model.predict` 의 결과 `new_pred`(클래스별 확률)에서 **가장 큰 확률의 클래스 번호**를 구하고, `le` 로 **클래스 이름**(문자열)으로 되돌려 출력하시오.",
-          "skeleton_code": "from sklearn.metrics import classification_report, confusion_matrix\n\n# 1) 테스트 데이터 성능 평가\ntest_loss, test_acc = model.evaluate(___, y_test, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled, verbose=0)\ny_pred = np.argmax(pred, axis=___)\nprint(classification_report(y_test, y_pred, target_names=le.classes_))\nprint(confusion_matrix(y_test, y_pred))\n\n# 2) 신규 센서 측정값 예측\nnew_data = {'temp': 84.0, 'vibration': 3.4, 'pressure': 4.3, 'rpm': 1490.0, 'current': 14.2,\n            'humidity': 47.0, 'line_id': 'L2', 'shift': 'B'}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['line_id', 'shift'], dtype=int)\nnew_df = new_df.___(columns=X.columns, fill_value=___)\nnew_scaled = scaler.___(new_df)\n\nnew_pred = model.predict(new_scaled, verbose=0)\nnew_class = int(np.argmax(new_pred, axis=___)[0])\nprint('클래스별 확률:', {c: round(float(p), 3) for c, p in zip(le.classes_, new_pred[0])})\nprint('예측 클래스 이름:', le.___([new_class])[0])",
+          "skeleton_code": "from sklearn.metrics import classification_report, confusion_matrix\n\n# 1) 테스트 데이터 성능 평가\ntest_loss, test_acc = model.evaluate(< blank14-1 >, y_test, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled, verbose=0)\ny_pred = np.argmax(pred, axis=< blank14-2 >)\nprint(classification_report(y_test, y_pred, target_names=le.classes_))\nprint(confusion_matrix(y_test, y_pred))\n\n# 2) 신규 센서 측정값 예측\nnew_data = {'temp': 84.0, 'vibration': 3.4, 'pressure': 4.3, 'rpm': 1490.0, 'current': 14.2,\n            'humidity': 47.0, 'line_id': 'L2', 'shift': 'B'}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['line_id', 'shift'], dtype=int)\nnew_df = new_df.< blank14-3 >(columns=X.columns, fill_value=< blank14-4 >)\nnew_scaled = scaler.< blank14-5 >(new_df)\n\nnew_pred = model.predict(new_scaled, verbose=0)\nnew_class = int(np.argmax(new_pred, axis=< blank14-6 >)[0])\nprint('클래스별 확률:', {c: round(float(p), 3) for c, p in zip(le.classes_, new_pred[0])})\nprint('예측 클래스 이름:', le.< blank14-7 >([new_class])[0])",
           "answer_code": "from sklearn.metrics import classification_report, confusion_matrix\n\n# 1) 테스트 데이터 성능 평가\ntest_loss, test_acc = model.evaluate(X_test_scaled, y_test, verbose=0)\nprint('test loss:', round(test_loss, 4), '/ test accuracy:', round(test_acc, 4))\n\npred = model.predict(X_test_scaled, verbose=0)\ny_pred = np.argmax(pred, axis=1)\nprint(classification_report(y_test, y_pred, target_names=le.classes_))\nprint(confusion_matrix(y_test, y_pred))\n\n# 2) 신규 센서 측정값 예측\nnew_data = {'temp': 84.0, 'vibration': 3.4, 'pressure': 4.3, 'rpm': 1490.0, 'current': 14.2,\n            'humidity': 47.0, 'line_id': 'L2', 'shift': 'B'}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['line_id', 'shift'], dtype=int)\nnew_df = new_df.reindex(columns=X.columns, fill_value=0)\nnew_scaled = scaler.transform(new_df)\n\nnew_pred = model.predict(new_scaled, verbose=0)\nnew_class = int(np.argmax(new_pred, axis=1)[0])\nprint('클래스별 확률:', {c: round(float(p), 3) for c, p in zip(le.classes_, new_pred[0])})\nprint('예측 클래스 이름:', le.inverse_transform([new_class])[0])",
           "validation_rules": [
             {
@@ -3221,7 +3221,7 @@
           "points": 4,
           "minutes": 4,
           "prompt": "공장 에너지 데이터 `factory_energy.csv` 를 불러와 구조를 확인하시오.\n\n- `pandas`, `matplotlib.pyplot`, `seaborn` 을 관례적인 별칭(`pd`, `plt`, `sns`)으로 임포트하시오.\n- CSV 파일을 읽어 데이터프레임 `df` 를 만드시오.\n- `df` 의 행·열 개수를 출력하고, `info()` 로 컬럼별 자료형과 결측 현황을 확인하시오.",
-          "skeleton_code": "import tensorflow as tf\nimport numpy as np\nimport pandas as ___\nimport matplotlib.pyplot as ___\nimport seaborn as ___\n\ndf = pd.read_csv(___)\nprint(df.___)\ndf.___()\n",
+          "skeleton_code": "import tensorflow as tf\nimport numpy as np\nimport pandas as < blank1-1 >\nimport matplotlib.pyplot as < blank1-2 >\nimport seaborn as < blank1-3 >\n\ndf = pd.read_csv(< blank1-4 >)\nprint(df.< blank1-5 >)\ndf.< blank1-6 >()\n",
           "answer_code": "import tensorflow as tf\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\ndf = pd.read_csv('factory_energy.csv')\nprint(df.shape)\ndf.info()\n",
           "validation_rules": [
             {
@@ -3285,7 +3285,7 @@
           "points": 4,
           "minutes": 3,
           "prompt": "타깃 `energy_kwh` 의 분포와 데이터의 결측 현황을 살펴보시오.\n\n- 타깃 `energy_kwh` 의 기초 통계량(`describe`)을 출력하시오.\n- 컬럼별 결측치 개수를 출력하시오.\n- `seaborn.histplot` 으로 `energy_kwh` 의 분포를 그리시오. 구간 수(`bins`)는 10~100 사이의 값을 쓰고 밀도 곡선(`kde`)을 함께 표시하시오.",
-          "skeleton_code": "print(df[___].describe())\nprint(df.___().sum())\n\nplt.figure(figsize=(8, 4))\nsns.histplot(data=df, x=___, bins=___, kde=___)\nplt.title('Distribution of energy_kwh')\nplt.___()\n",
+          "skeleton_code": "print(df[< blank2-1 >].describe())\nprint(df.< blank2-2 >().sum())\n\nplt.figure(figsize=(8, 4))\nsns.histplot(data=df, x=< blank2-3 >, bins=< blank2-4 >, kde=< blank2-5 >)\nplt.title('Distribution of energy_kwh')\nplt.< blank2-6 >()\n",
           "answer_code": "print(df['energy_kwh'].describe())\nprint(df.isnull().sum())\n\nplt.figure(figsize=(8, 4))\nsns.histplot(data=df, x='energy_kwh', bins=30, kde=True)\nplt.title('Distribution of energy_kwh')\nplt.show()\n",
           "validation_rules": [
             {
@@ -3360,7 +3360,7 @@
           "points": 6,
           "minutes": 5,
           "prompt": "수치형 변수 사이의 관계를 상관관계 heatmap 으로 살펴보시오.\n\n- `df` 에서 **수치형 컬럼만** 골라 컬럼 이름을 `num_cols` 에 저장하시오.\n- 수치형 컬럼들의 상관계수 행렬을 `corr` 에 저장하시오.\n- `seaborn.heatmap` 으로 `corr` 을 그리되 각 칸에 수치(소수 둘째 자리)를 표시하시오.\n- 타깃 `energy_kwh` 와의 상관계수를 큰 값부터 정렬해 출력하시오.",
-          "skeleton_code": "num_cols = df.select_dtypes(include=___).columns\ncorr = df[num_cols].___()\n\nplt.figure(figsize=(8, 6))\nsns.heatmap(___, annot=___, fmt='.2f', cmap='coolwarm')\nplt.title('Correlation Heatmap')\nplt.show()\n\nprint(corr[___].sort_values(ascending=False))\n",
+          "skeleton_code": "num_cols = df.select_dtypes(include=< blank3-1 >).columns\ncorr = df[num_cols].< blank3-2 >()\n\nplt.figure(figsize=(8, 6))\nsns.heatmap(< blank3-3 >, annot=< blank3-4 >, fmt='.2f', cmap='coolwarm')\nplt.title('Correlation Heatmap')\nplt.show()\n\nprint(corr[< blank3-5 >].sort_values(ascending=False))\n",
           "answer_code": "num_cols = df.select_dtypes(include='number').columns\ncorr = df[num_cols].corr()\n\nplt.figure(figsize=(8, 6))\nsns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm')\nplt.title('Correlation Heatmap')\nplt.show()\n\nprint(corr['energy_kwh'].sort_values(ascending=False))\n",
           "validation_rules": [
             {
@@ -3448,7 +3448,7 @@
           "points": 6,
           "minutes": 4,
           "prompt": "Q2 에서 확인한 결측치를 **행을 삭제하지 말고** 채우시오.\n\n- 수치형 `temperature` 는 **중앙값**으로 채우시오.\n- 범주형 `shift` 는 **최빈값**으로 채우시오.\n- 처리 후 컬럼별 결측치 개수를 다시 출력해 모두 0 인지 확인하시오.",
-          "skeleton_code": "df['temperature'] = df['temperature'].fillna(df['temperature'].___())\ndf['shift'] = df['shift'].fillna(df['shift'].___()[___])\n\nprint(df.___().sum())\n",
+          "skeleton_code": "df['temperature'] = df['temperature'].fillna(df['temperature'].< blank4-1 >())\ndf['shift'] = df['shift'].fillna(df['shift'].< blank4-2 >()[< blank4-3 >])\n\nprint(df.< blank4-4 >().sum())\n",
           "answer_code": "df['temperature'] = df['temperature'].fillna(df['temperature'].median())\ndf['shift'] = df['shift'].fillna(df['shift'].mode()[0])\n\nprint(df.isnull().sum())\n",
           "validation_rules": [
             {
@@ -3549,7 +3549,7 @@
           "points": 6,
           "minutes": 5,
           "prompt": "`production_units` 에 센서 오류로 보이는 극단값이 섞여 있다. IQR 방식으로 이상치 행을 제거하시오.\n\n- 1사분위수(25%)를 `q1`, 3사분위수(75%)를 `q3`, 그 차이를 `iqr` 로 저장하시오.\n- 하한 `lower = q1 - 1.5 * iqr`, 상한 `upper = q3 + 1.5 * iqr` 를 계산하시오.\n- 하한 이상, 상한 이하인 행만 남겨 `df` 를 갱신하시오.\n- 예측에 쓰이지 않는 식별자 컬럼 `record_id` 를 제거하고 인덱스를 새로 매기시오.",
-          "skeleton_code": "q1 = df['production_units'].quantile(___)\nq3 = df['production_units'].quantile(___)\niqr = q3 - q1\nlower = q1 - ___ * iqr\nupper = q3 + ___ * iqr\n\ndf = df[(df['production_units'] >= ___) & (df['production_units'] <= ___)]\ndf = df.drop(columns=[___])\ndf = df.reset_index(drop=True)\nprint(df.shape)\n",
+          "skeleton_code": "q1 = df['production_units'].quantile(< blank5-1 >)\nq3 = df['production_units'].quantile(< blank5-2 >)\niqr = q3 - q1\nlower = q1 - < blank5-3 > * iqr\nupper = q3 + < blank5-4 > * iqr\n\ndf = df[(df['production_units'] >= < blank5-5 >) & (df['production_units'] <= < blank5-6 >)]\ndf = df.drop(columns=[< blank5-7 >])\ndf = df.reset_index(drop=True)\nprint(df.shape)\n",
           "answer_code": "q1 = df['production_units'].quantile(0.25)\nq3 = df['production_units'].quantile(0.75)\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\n\ndf = df[(df['production_units'] >= lower) & (df['production_units'] <= upper)]\ndf = df.drop(columns=['record_id'])\ndf = df.reset_index(drop=True)\nprint(df.shape)\n",
           "validation_rules": [
             {
@@ -3689,7 +3689,7 @@
           "points": 7,
           "minutes": 5,
           "prompt": "문자열 범주형 컬럼 `line`(생산라인), `shift`(근무조)를 원-핫 인코딩하시오.\n\n- `pd.get_dummies` 를 사용하고 결과를 `df` 에 다시 저장하시오.\n- 인코딩 대상은 `line` 과 `shift` 두 컬럼이다.\n- 다중공선성을 피하기 위해 **각 범주의 첫 번째 더미 컬럼은 제거**하시오(`drop_first`). 더미 컬럼은 정수(`int`)로 만드시오.\n- 인코딩 후 컬럼 이름을 리스트로 출력하시오.",
-          "skeleton_code": "df = pd.get_dummies(___, columns=[___, ___], drop_first=___, dtype=int)\nprint(df.columns.tolist())\n",
+          "skeleton_code": "df = pd.get_dummies(< blank6-1 >, columns=[< blank6-2 >, < blank6-3 >], drop_first=< blank6-4 >, dtype=int)\nprint(df.columns.tolist())\n",
           "answer_code": "df = pd.get_dummies(df, columns=['line', 'shift'], drop_first=True, dtype=int)\nprint(df.columns.tolist())\n",
           "validation_rules": [
             {
@@ -3754,7 +3754,7 @@
           "points": 7,
           "minutes": 6,
           "prompt": "예측 모델에 넣을 데이터를 준비하시오.\n\n- 타깃 `energy_kwh` 를 `y`, 나머지 컬럼을 `X` 로 분리하시오.\n- 학습 80%, 테스트 20% 로 나누어 `X_train, X_test, y_train, y_test` 에 저장하시오(`random_state=42`). 회귀 문제이므로 `stratify` 는 사용하지 않는다.\n- `StandardScaler` 객체 `scaler` 를 만들어 **학습 데이터에만** `fit` 하고, 변환 결과를 `X_train_scaled`, `X_test_scaled` 에 저장하시오.",
-          "skeleton_code": "from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\nX = df.drop(columns=[___])\ny = df[___]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=___, random_state=___)\n\nscaler = ___()\nX_train_scaled = scaler.fit_transform(___)\nX_test_scaled = scaler.transform(___)\nprint(X_train_scaled.shape, X_test_scaled.shape)\n",
+          "skeleton_code": "from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\nX = df.drop(columns=[< blank7-1 >])\ny = df[< blank7-2 >]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=< blank7-3 >, random_state=< blank7-4 >)\n\nscaler = < blank7-5 >()\nX_train_scaled = scaler.fit_transform(< blank7-6 >)\nX_test_scaled = scaler.transform(< blank7-7 >)\nprint(X_train_scaled.shape, X_test_scaled.shape)\n",
           "answer_code": "from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\nX = df.drop(columns=['energy_kwh'])\ny = df['energy_kwh']\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42)\n\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\nprint(X_train_scaled.shape, X_test_scaled.shape)\n",
           "validation_rules": [
             {
@@ -3915,7 +3915,7 @@
           "points": 7,
           "minutes": 5,
           "prompt": "의사결정나무 회귀 모델로 기준 성능을 측정하시오.\n\n- `DecisionTreeRegressor` 를 `max_depth` 3~20 사이의 값, `random_state=42` 로 만들어 `dt_model` 에 저장하시오.\n- 학습 데이터(`X_train`, `y_train`)로 학습하시오. 트리는 스케일링이 필요 없다.\n- 테스트 데이터로 예측해 `dt_pred` 에 저장하고, MAE 를 `dt_mae`, R² 를 `dt_r2` 에 저장한 뒤 출력하시오.",
-          "skeleton_code": "from sklearn.tree import DecisionTreeRegressor\nfrom sklearn.metrics import mean_absolute_error, r2_score\n\ndt_model = DecisionTreeRegressor(max_depth=___, random_state=___)\ndt_model.fit(___, ___)\n\ndt_pred = dt_model.___(X_test)\ndt_mae = mean_absolute_error(___, dt_pred)\ndt_r2 = r2_score(y_test, ___)\nprint('DecisionTree MAE:', round(dt_mae, 2))\nprint('DecisionTree R2 :', round(dt_r2, 4))\n",
+          "skeleton_code": "from sklearn.tree import DecisionTreeRegressor\nfrom sklearn.metrics import mean_absolute_error, r2_score\n\ndt_model = DecisionTreeRegressor(max_depth=< blank8-1 >, random_state=< blank8-2 >)\ndt_model.fit(< blank8-3 >, < blank8-4 >)\n\ndt_pred = dt_model.< blank8-5 >(X_test)\ndt_mae = mean_absolute_error(< blank8-6 >, dt_pred)\ndt_r2 = r2_score(y_test, < blank8-7 >)\nprint('DecisionTree MAE:', round(dt_mae, 2))\nprint('DecisionTree R2 :', round(dt_r2, 4))\n",
           "answer_code": "from sklearn.tree import DecisionTreeRegressor\nfrom sklearn.metrics import mean_absolute_error, r2_score\n\ndt_model = DecisionTreeRegressor(max_depth=8, random_state=42)\ndt_model.fit(X_train, y_train)\n\ndt_pred = dt_model.predict(X_test)\ndt_mae = mean_absolute_error(y_test, dt_pred)\ndt_r2 = r2_score(y_test, dt_pred)\nprint('DecisionTree MAE:', round(dt_mae, 2))\nprint('DecisionTree R2 :', round(dt_r2, 4))\n",
           "validation_rules": [
             {
@@ -3993,7 +3993,7 @@
           "points": 7,
           "minutes": 5,
           "prompt": "랜덤포레스트 회귀 모델을 학습하고 평가하시오.\n\n- `RandomForestRegressor` 를 트리 개수 50~1000, `max_depth=10`, `random_state=42` 로 만들어 `rf_model` 에 저장하시오.\n- 학습 데이터 `X_train`, `y_train` 으로 학습한 후(Q8 과 같이 스케일링하지 않은 데이터 사용) 테스트 데이터 `X_test` 를 예측해 `rf_pred` 에 저장하고, MAE 를 `rf_mae`, R² 를 `rf_r2` 에 저장·출력하시오.\n- 모델이 학습한 **특성 중요도**를 `imp`(Series, 큰 값부터 정렬)에 저장하고 상위 5개를 출력하시오.",
-          "skeleton_code": "from sklearn.ensemble import RandomForestRegressor\n\nrf_model = RandomForestRegressor(n_estimators=___, max_depth=10, random_state=___)\nrf_model.fit(___, ___)\n\nrf_pred = rf_model.predict(___)\nrf_mae = mean_absolute_error(y_test, ___)\nrf_r2 = r2_score(___, rf_pred)\nprint('RandomForest MAE:', round(rf_mae, 2))\nprint('RandomForest R2 :', round(rf_r2, 4))\n\nimp = pd.Series(rf_model.___, index=X_train.columns).sort_values(ascending=False)\nprint(imp.head(5))\n",
+          "skeleton_code": "from sklearn.ensemble import RandomForestRegressor\n\nrf_model = RandomForestRegressor(n_estimators=< blank9-1 >, max_depth=10, random_state=< blank9-2 >)\nrf_model.fit(< blank9-3 >, < blank9-4 >)\n\nrf_pred = rf_model.predict(< blank9-5 >)\nrf_mae = mean_absolute_error(y_test, < blank9-6 >)\nrf_r2 = r2_score(< blank9-7 >, rf_pred)\nprint('RandomForest MAE:', round(rf_mae, 2))\nprint('RandomForest R2 :', round(rf_r2, 4))\n\nimp = pd.Series(rf_model.< blank9-8 >, index=X_train.columns).sort_values(ascending=False)\nprint(imp.head(5))\n",
           "answer_code": "from sklearn.ensemble import RandomForestRegressor\n\nrf_model = RandomForestRegressor(n_estimators=200, max_depth=10, random_state=42)\nrf_model.fit(X_train, y_train)\n\nrf_pred = rf_model.predict(X_test)\nrf_mae = mean_absolute_error(y_test, rf_pred)\nrf_r2 = r2_score(y_test, rf_pred)\nprint('RandomForest MAE:', round(rf_mae, 2))\nprint('RandomForest R2 :', round(rf_r2, 4))\n\nimp = pd.Series(rf_model.feature_importances_, index=X_train.columns).sort_values(ascending=False)\nprint(imp.head(5))\n",
           "validation_rules": [
             {
@@ -4086,7 +4086,7 @@
           "points": 8,
           "minutes": 6,
           "prompt": "XGBoost 회귀 모델을 학습하고 세 모델의 성능을 한 표로 비교하시오.\n\n- `XGBRegressor` 를 `n_estimators` 100~1000, `learning_rate` 0.01~0.3, `random_state=42` 로 만들어 `xgb_model` 에 저장하시오.\n- `X_train`, `y_train` 으로 학습한 후(스케일링 전 데이터) `X_test` 에 대한 예측 `xgb_pred`, MAE `xgb_mae`, R² `xgb_r2` 를 구하시오.\n- Q8~Q10 의 세 모델의 MAE 와 R² 를 담은 표 `result`(DataFrame)를 만들어 출력하시오.",
-          "skeleton_code": "from xgboost import XGBRegressor\n\nxgb_model = XGBRegressor(n_estimators=___, learning_rate=___, max_depth=4, random_state=42)\nxgb_model.fit(___, ___)\n\nxgb_pred = xgb_model.predict(___)\nxgb_mae = mean_absolute_error(y_test, ___)\nxgb_r2 = r2_score(y_test, xgb_pred)\n\nresult = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'MAE': [dt_mae, rf_mae, xgb_mae],\n    'R2': [dt_r2, rf_r2, ___]\n})\nprint(result.round(4))\n",
+          "skeleton_code": "from xgboost import XGBRegressor\n\nxgb_model = XGBRegressor(n_estimators=< blank10-1 >, learning_rate=< blank10-2 >, max_depth=4, random_state=42)\nxgb_model.fit(< blank10-3 >, < blank10-4 >)\n\nxgb_pred = xgb_model.predict(< blank10-5 >)\nxgb_mae = mean_absolute_error(y_test, < blank10-6 >)\nxgb_r2 = r2_score(y_test, xgb_pred)\n\nresult = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'MAE': [dt_mae, rf_mae, xgb_mae],\n    'R2': [dt_r2, rf_r2, < blank10-7 >]\n})\nprint(result.round(4))\n",
           "answer_code": "from xgboost import XGBRegressor\n\nxgb_model = XGBRegressor(n_estimators=300, learning_rate=0.05, max_depth=4, random_state=42)\nxgb_model.fit(X_train, y_train)\n\nxgb_pred = xgb_model.predict(X_test)\nxgb_mae = mean_absolute_error(y_test, xgb_pred)\nxgb_r2 = r2_score(y_test, xgb_pred)\n\nresult = pd.DataFrame({\n    'model': ['DecisionTree', 'RandomForest', 'XGBoost'],\n    'MAE': [dt_mae, rf_mae, xgb_mae],\n    'R2': [dt_r2, rf_r2, xgb_r2]\n})\nprint(result.round(4))\n",
           "validation_rules": [
             {
@@ -4191,7 +4191,7 @@
           "points": 9,
           "minutes": 8,
           "prompt": "에너지 소비량을 예측하는 딥러닝 회귀 모델을 **Functional API** 로 만드시오.\n\n- 입력층은 `X_train_scaled` 의 특성 개수에 맞춰 `inputs` 에 만드시오.\n- 은닉층 2개(`relu`)와 `BatchNormalization`, `Dropout`(비율 0.05~0.5)을 포함하시오.\n- 출력층은 연속값 하나를 내므로 **노드 1개, 활성화 함수 없음**으로 `outputs` 에 만들고, `Model(inputs=..., outputs=...)` 로 `model` 을 완성하시오.\n- 옵티마이저 `adam`, 손실 함수는 평균제곱오차(`mse`), 평가지표는 MAE(`metrics=['mae']`)로 컴파일하고 `model.summary()` 를 출력하시오.",
-          "skeleton_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(___,))\nx = Dense(128, activation=___)(inputs)\nx = BatchNormalization()(x)\nx = ___(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(___)(x)\n\nmodel = Model(inputs=___, outputs=___)\nmodel.compile(optimizer='adam', loss=___, metrics=[___])\nmodel.summary()\n",
+          "skeleton_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(< blank11-1 >,))\nx = Dense(128, activation=< blank11-2 >)(inputs)\nx = BatchNormalization()(x)\nx = < blank11-3 >(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(< blank11-4 >)(x)\n\nmodel = Model(inputs=< blank11-5 >, outputs=< blank11-6 >)\nmodel.compile(optimizer='adam', loss=< blank11-7 >, metrics=[< blank11-8 >])\nmodel.summary()\n",
           "answer_code": "from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization\nfrom tensorflow.keras.models import Model\n\ntf.keras.utils.set_random_seed(42)\n\ninputs = Input(shape=(X_train_scaled.shape[1],))\nx = Dense(128, activation='relu')(inputs)\nx = BatchNormalization()(x)\nx = Dropout(0.2)(x)\nx = Dense(64, activation='relu')(x)\noutputs = Dense(1)(x)\n\nmodel = Model(inputs=inputs, outputs=outputs)\nmodel.compile(optimizer='adam', loss='mse', metrics=['mae'])\nmodel.summary()\n",
           "validation_rules": [
             {
@@ -4370,7 +4370,7 @@
           "points": 9,
           "minutes": 7,
           "prompt": "Q11 의 `model` 을 콜백과 함께 학습시키시오.\n\n- `val_loss` 를 관찰해 3~30 epoch 동안 개선이 없으면 멈추고 **가장 좋았던 가중치로 복원**하는 `EarlyStopping` 을 `es` 에 저장하시오.\n- `val_loss` 가 가장 좋을 때만 `best_model.keras` 에 저장하는 `ModelCheckpoint` 를 `mc` 에 저장하시오.\n- 스케일링된 학습 데이터로 학습하되 학습의 20% 를 검증용으로 쓰고(`validation_split`), `epochs=100`, `batch_size=32`, 두 콜백을 모두 적용하고 결과를 `history` 에 저장하시오.",
-          "skeleton_code": "from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\nes = EarlyStopping(monitor=___, patience=___, restore_best_weights=___)\nmc = ModelCheckpoint(___, monitor='val_loss', save_best_only=___)\n\nhistory = model.fit(\n    ___, y_train,\n    validation_split=___,\n    epochs=100,\n    batch_size=32,\n    callbacks=[___, mc],\n    verbose=1\n)\nprint('실제 학습한 epoch 수:', len(history.history['loss']))\n",
+          "skeleton_code": "from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\nes = EarlyStopping(monitor=< blank12-1 >, patience=< blank12-2 >, restore_best_weights=< blank12-3 >)\nmc = ModelCheckpoint(< blank12-4 >, monitor='val_loss', save_best_only=< blank12-5 >)\n\nhistory = model.fit(\n    < blank12-6 >, y_train,\n    validation_split=< blank12-7 >,\n    epochs=100,\n    batch_size=32,\n    callbacks=[< blank12-8 >, mc],\n    verbose=1\n)\nprint('실제 학습한 epoch 수:', len(history.history['loss']))\n",
           "answer_code": "from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint\n\nes = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)\nmc = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)\n\nhistory = model.fit(\n    X_train_scaled, y_train,\n    validation_split=0.2,\n    epochs=100,\n    batch_size=32,\n    callbacks=[es, mc],\n    verbose=1\n)\nprint('실제 학습한 epoch 수:', len(history.history['loss']))\n",
           "validation_rules": [
             {
@@ -4493,7 +4493,7 @@
           "points": 8,
           "minutes": 5,
           "prompt": "`history` 에 기록된 학습 과정을 그래프로 시각화하시오.\n\n- 하나의 그림에 1행 2열의 서브플롯을 만드시오.\n- 왼쪽에는 `loss` 와 `val_loss`, 오른쪽에는 `mae` 와 `val_mae` 를 각각 같은 축에 그리고 범례를 표시하시오.\n- 그림을 출력하고 학습 곡선이 과적합/학습 부족 중 어느 쪽인지 주석으로 한 줄 해석하시오(채점 대상 아님).",
-          "skeleton_code": "fig, axes = plt.subplots(1, ___, figsize=(12, 4))\n\naxes[0].plot(history.history['loss'], label='loss')\naxes[0].plot(history.history[___], label='val_loss')\naxes[0].set_title('Loss (MSE)')\naxes[0].set_xlabel('epoch')\naxes[0].___()\n\naxes[1].plot(history.history[___], label='mae')\naxes[1].plot(history.history[___], label='val_mae')\naxes[1].set_title('MAE')\naxes[1].set_xlabel('epoch')\naxes[1].legend()\n\nplt.tight_layout()\nplt.___()\n",
+          "skeleton_code": "fig, axes = plt.subplots(1, < blank13-1 >, figsize=(12, 4))\n\naxes[0].plot(history.history['loss'], label='loss')\naxes[0].plot(history.history[< blank13-2 >], label='val_loss')\naxes[0].set_title('Loss (MSE)')\naxes[0].set_xlabel('epoch')\naxes[0].< blank13-3 >()\n\naxes[1].plot(history.history[< blank13-4 >], label='mae')\naxes[1].plot(history.history[< blank13-5 >], label='val_mae')\naxes[1].set_title('MAE')\naxes[1].set_xlabel('epoch')\naxes[1].legend()\n\nplt.tight_layout()\nplt.< blank13-6 >()\n",
           "answer_code": "fig, axes = plt.subplots(1, 2, figsize=(12, 4))\n\naxes[0].plot(history.history['loss'], label='loss')\naxes[0].plot(history.history['val_loss'], label='val_loss')\naxes[0].set_title('Loss (MSE)')\naxes[0].set_xlabel('epoch')\naxes[0].legend()\n\naxes[1].plot(history.history['mae'], label='mae')\naxes[1].plot(history.history['val_mae'], label='val_mae')\naxes[1].set_title('MAE')\naxes[1].set_xlabel('epoch')\naxes[1].legend()\n\nplt.tight_layout()\nplt.show()\n",
           "validation_rules": [
             {
@@ -4572,7 +4572,7 @@
           "points": 12,
           "minutes": 10,
           "prompt": "학습된 모델을 평가하고 새 운영 조건의 에너지 소비량을 예측하시오.\n\n**(1) 평가.** 스케일링된 테스트 데이터로 `model.evaluate` 를 실행해 손실과 MAE 를 출력하고, `pred = model.predict(X_test_scaled)` 의 결과를 1차원으로 펴서 `y_pred` 에 저장한 뒤 MAE(`mae`), RMSE(`rmse`, MSE 의 제곱근), R²(`r2`)를 출력하시오.\n\n**(2) 신규 예측.** 아래 새 운영 조건 `new_data` 의 에너지 소비량(kWh)을 예측하시오. 학습 때와 **같은 전처리**를 적용해야 한다.\n\n- `new_data` 를 한 행짜리 DataFrame `new_df` 로 만들고 `line`, `shift` 를 원-핫 인코딩하시오(한 행이라 `drop_first` 는 쓰지 않는다).\n- 컬럼을 학습 때의 `X.columns` 순서·구성에 맞추고(`reindex`, 없는 컬럼은 0), **이미 학습한 `scaler`** 로 변환해 `new_scaled` 를 만드시오. `fit_transform` 이 아님에 주의한다.\n- `model.predict` 로 `new_pred` 를 구하고 예측 kWh 를 출력하시오.\n\n```\nnew_data = {'production_units': 520, 'machine_load': 72.5, 'temperature': 27.0,\n            'humidity': 55.0, 'run_hours': 7.0, 'line': 'B', 'shift': 'night'}\n```",
-          "skeleton_code": "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\ntest_loss, test_mae = model.evaluate(___, y_test, verbose=0)\nprint(f'Test MSE: {test_loss:.2f}, Test MAE: {test_mae:.2f}')\n\npred = model.predict(X_test_scaled)\ny_pred = pred.___()\nmae = mean_absolute_error(y_test, y_pred)\nrmse = np.sqrt(___(y_test, y_pred))\nr2 = r2_score(y_test, y_pred)\nprint(f'MAE: {mae:.2f} / RMSE: {rmse:.2f} / R2: {r2:.4f}')\n\nnew_data = {\n    'production_units': 520, 'machine_load': 72.5, 'temperature': 27.0,\n    'humidity': 55.0, 'run_hours': 7.0, 'line': 'B', 'shift': 'night'\n}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['line', 'shift'], dtype=int)\nnew_df = new_df.reindex(columns=___, fill_value=___)\nnew_scaled = scaler.___(new_df)\nnew_pred = model.predict(___)\nprint(f'예측 에너지 소비량: {new_pred[0][0]:.1f} kWh')\n",
+          "skeleton_code": "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\ntest_loss, test_mae = model.evaluate(< blank14-1 >, y_test, verbose=0)\nprint(f'Test MSE: {test_loss:.2f}, Test MAE: {test_mae:.2f}')\n\npred = model.predict(X_test_scaled)\ny_pred = pred.< blank14-2 >()\nmae = mean_absolute_error(y_test, y_pred)\nrmse = np.sqrt(< blank14-3 >(y_test, y_pred))\nr2 = r2_score(y_test, y_pred)\nprint(f'MAE: {mae:.2f} / RMSE: {rmse:.2f} / R2: {r2:.4f}')\n\nnew_data = {\n    'production_units': 520, 'machine_load': 72.5, 'temperature': 27.0,\n    'humidity': 55.0, 'run_hours': 7.0, 'line': 'B', 'shift': 'night'\n}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['line', 'shift'], dtype=int)\nnew_df = new_df.reindex(columns=< blank14-4 >, fill_value=< blank14-5 >)\nnew_scaled = scaler.< blank14-6 >(new_df)\nnew_pred = model.predict(< blank14-7 >)\nprint(f'예측 에너지 소비량: {new_pred[0][0]:.1f} kWh')\n",
           "answer_code": "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\ntest_loss, test_mae = model.evaluate(X_test_scaled, y_test, verbose=0)\nprint(f'Test MSE: {test_loss:.2f}, Test MAE: {test_mae:.2f}')\n\npred = model.predict(X_test_scaled)\ny_pred = pred.flatten()\nmae = mean_absolute_error(y_test, y_pred)\nrmse = np.sqrt(mean_squared_error(y_test, y_pred))\nr2 = r2_score(y_test, y_pred)\nprint(f'MAE: {mae:.2f} / RMSE: {rmse:.2f} / R2: {r2:.4f}')\n\nnew_data = {\n    'production_units': 520, 'machine_load': 72.5, 'temperature': 27.0,\n    'humidity': 55.0, 'run_hours': 7.0, 'line': 'B', 'shift': 'night'\n}\nnew_df = pd.DataFrame([new_data])\nnew_df = pd.get_dummies(new_df, columns=['line', 'shift'], dtype=int)\nnew_df = new_df.reindex(columns=X.columns, fill_value=0)\nnew_scaled = scaler.transform(new_df)\nnew_pred = model.predict(new_scaled)\nprint(f'예측 에너지 소비량: {new_pred[0][0]:.1f} kWh')\n",
           "validation_rules": [
             {
@@ -5374,7 +5374,7 @@
           "minutes": 5,
           "style": "blank",
           "prompt": "`orders_na` 의 문자열 컬럼 `area`, `weather` 를 원-핫 인코딩하세요.\n\n- 빈칸 7-1 에는 원-핫 인코딩을 하는 pandas 함수 이름을, 빈칸 7-2 에는 각 컬럼의 첫 번째 더미 컬럼을 삭제하는 인자 이름을 넣으세요.\n- 결과는 `orders_preset` 변수에 저장하세요. 더미 컬럼은 정수(`dtype=int`)로 만듭니다.\n- 빈칸에 넣은 말을 `답안7_1`, `답안7_2` 에 각각 문자열로 저장하세요.\n\n이 셀을 올바르게 실행하면 다음과 같이 출력됩니다.\n\n```\n['distance_km', 'item_count', 'prep_minutes', 'order_hour', 'rider_load', 'delivery_min', 'area_residential', 'area_suburb', 'weather_rain', 'weather_snow']\n```",
-          "skeleton_code": "# [7번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\norders_preset = pd.___(orders_na, columns=['area', 'weather'], ___=True, dtype=int)  # blank7-1, blank7-2\nprint(orders_preset.columns.tolist())\n\n답안7_1 = ___  # blank7-1\n답안7_2 = ___  # blank7-2\n",
+          "skeleton_code": "# [7번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\norders_preset = pd.< blank7-1 >(orders_na, columns=['area', 'weather'], < blank7-2 >=True, dtype=int)\nprint(orders_preset.columns.tolist())\n\n답안7_1 = ''\n답안7_2 = ''\n",
           "answer_code": "orders_preset = pd.get_dummies(orders_na, columns=['area', 'weather'], drop_first=True, dtype=int)\nprint(orders_preset.columns.tolist())\n\n답안7_1 = 'get_dummies'\n답안7_2 = 'drop_first'\n",
           "validation_rules": [
             {
@@ -6156,7 +6156,7 @@
           "minutes": 5,
           "style": "blank",
           "prompt": "13번에서 학습한 `history` 로 학습 곡선을 그리세요. 아래 코드의 빈칸을 채우고 실행하세요.\n\n- 빈칸 14-1 은 학습 데이터의 손실을, 빈칸 14-2 는 검증 데이터의 손실을 담은 `history.history` 의 키입니다. 첫 줄의 `print` 가 출력하는 키 목록에서 고르세요.\n- 빈칸 14-3 은 x축 이름을 지정하는 `plt` 함수 이름입니다.\n- 빈칸 14-1, 14-2 에 넣은 키를 `답안14_1`, `답안14_2` 에 각각 문자열로 저장하세요.\n\n이 셀을 올바르게 실행했을 때 `print` 가 출력하는 첫 줄은 다음과 같습니다. 그래프는 학습 손실과 검증 손실 두 곡선이 하나의 그림에 그려집니다.\n\n```\n['loss', 'mae', 'val_loss', 'val_mae']\n```",
-          "skeleton_code": "# [14번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nprint(list(history.history.keys()))\n\nplt.figure(figsize=(8, 5))\nplt.plot(history.history['___'], label='train loss')  # blank14-1\nplt.plot(history.history['___'], label='validation loss')  # blank14-2\nplt.title('Learning Curve')\nplt.___('Epoch')  # blank14-3\nplt.ylabel('MSE')\nplt.legend()\nplt.show()\n\n답안14_1 = ___  # blank14-1\n답안14_2 = ___  # blank14-2\n",
+          "skeleton_code": "# [14번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nprint(list(history.history.keys()))\n\nplt.figure(figsize=(8, 5))\nplt.plot(history.history['< blank14-1 >'], label='train loss')\nplt.plot(history.history['< blank14-2 >'], label='validation loss')\nplt.title('Learning Curve')\nplt.< blank14-3 >('Epoch')\nplt.ylabel('MSE')\nplt.legend()\nplt.show()\n\n답안14_1 = ''\n답안14_2 = ''\n",
           "answer_code": "print(list(history.history.keys()))\n\nplt.figure(figsize=(8, 5))\nplt.plot(history.history['loss'], label='train loss')\nplt.plot(history.history['val_loss'], label='validation loss')\nplt.title('Learning Curve')\nplt.xlabel('Epoch')\nplt.ylabel('MSE')\nplt.legend()\nplt.show()\n\n답안14_1 = 'loss'\n답안14_2 = 'val_loss'\n",
           "check_code": "assert 답안14_1 in history.history and 답안14_2 in history.history",
           "validation_rules": [
@@ -6479,8 +6479,8 @@
           "points": 6,
           "minutes": 6,
           "style": "blank",
-          "prompt": "한 그림 안에 그래프 두 개를 나란히(1행 2열) 그립니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 왼쪽 그래프: `booking_status` 별 예약 건수를 막대로 나타내는 그래프\n- 오른쪽 그래프: `lead_days` 의 분포를 `booking_status` 별로 나누어 나타내는 히스토그램\n- 빈칸 `blank3-1` ~ `blank3-3` 에 넣은 함수 이름을 문자열로 `답안3_1` ~ `답안3_3` 에 각각 저장하세요. (예: 빈칸에 `head` 를 넣었다면 `답안3_1 = 'head'`)\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
-          "skeleton_code": "# [3번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nfig, axes = plt.___(nrows=1, ncols=2, figsize=(12, 4))  # blank3-1\nsns.___(data=data, x='booking_status', ax=axes[0])  # blank3-2\nsns.___(data=data, x='lead_days', hue='booking_status', ax=axes[1])  # blank3-3\nplt.show()\n답안3_1 = ___  # blank3-1\n답안3_2 = ___  # blank3-2\n답안3_3 = ___  # blank3-3\n",
+          "prompt": "한 그림 안에 그래프 두 개를 나란히(1행 2열) 그립니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 왼쪽 그래프: `booking_status` 별 예약 건수를 막대로 나타내는 그래프\n- 오른쪽 그래프: `lead_days` 의 분포를 `booking_status` 별로 나누어 나타내는 히스토그램\n- 빈칸 `< blank3-1 >` ~ `< blank3-3 >` 에 넣은 함수 이름을 문자열로 `답안3_1` ~ `답안3_3` 에 각각 저장하세요. (예: 빈칸에 `head` 를 넣었다면 `답안3_1 = 'head'`)\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
+          "skeleton_code": "# [3번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nfig, axes = plt.< blank3-1 >(nrows=1, ncols=2, figsize=(12, 4))\nsns.< blank3-2 >(data=data, x='booking_status', ax=axes[0])\nsns.< blank3-3 >(data=data, x='lead_days', hue='booking_status', ax=axes[1])\nplt.show()\n답안3_1 = ''\n답안3_2 = ''\n답안3_3 = ''\n",
           "answer_code": "fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))\nsns.countplot(data=data, x='booking_status', ax=axes[0])\nsns.histplot(data=data, x='lead_days', hue='booking_status', ax=axes[1])\nplt.show()\n답안3_1 = 'subplots'\n답안3_2 = 'countplot'\n답안3_3 = 'histplot'\n",
           "check_code": "assert (답안3_1, 답안3_2, 답안3_3) == ('subplots', 'countplot', 'histplot')",
           "validation_rules": [
@@ -6659,8 +6659,8 @@
           "points": 6,
           "minutes": 7,
           "style": "blank",
-          "prompt": "`lead_days`(예약일부터 투숙일까지의 일수) 열의 이상치를 IQR 기준으로 찾아 해당 행을 삭제하고, 예측에 쓰지 않는 열도 삭제합니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 1사분위수(`q1`)와 3사분위수(`q3`)로 `lower = q1 - 1.5 * iqr`, `upper = q3 + 1.5 * iqr` 를 구해, 이 범위를 벗어난 행의 인덱스를 `outlier_idx` 에 저장합니다.\n- `data` 에서 `outlier_idx` 의 행을 삭제하고, 식별자 열 `booking_id` 를 삭제한 뒤, 인덱스를 0부터 다시 매겨 `data_temp` 에 저장하세요.\n- `blank5-1`, `blank5-2` 에 넣은 메서드 이름을 문자열로 `답안5_1`, `답안5_2` 에 저장하세요.\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
-          "skeleton_code": "# [5번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nq1 = data['lead_days'].___(0.25)  # blank5-1\nq3 = data['lead_days'].___(0.75)  # blank5-1\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\noutlier_idx = data[(data['lead_days'] < lower) | (data['lead_days'] > upper)].index\ndata_temp = data.drop(outlier_idx).drop('booking_id', axis=1).___(drop=True)  # blank5-2\nprint(len(outlier_idx))\nprint(data_temp.shape)\n답안5_1 = ___  # blank5-1\n답안5_2 = ___  # blank5-2\n",
+          "prompt": "`lead_days`(예약일부터 투숙일까지의 일수) 열의 이상치를 IQR 기준으로 찾아 해당 행을 삭제하고, 예측에 쓰지 않는 열도 삭제합니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 1사분위수(`q1`)와 3사분위수(`q3`)로 `lower = q1 - 1.5 * iqr`, `upper = q3 + 1.5 * iqr` 를 구해, 이 범위를 벗어난 행의 인덱스를 `outlier_idx` 에 저장합니다.\n- `data` 에서 `outlier_idx` 의 행을 삭제하고, 식별자 열 `booking_id` 를 삭제한 뒤, 인덱스를 0부터 다시 매겨 `data_temp` 에 저장하세요.\n- `< blank5-1 >`, `< blank5-2 >` 에 넣은 메서드 이름을 문자열로 `답안5_1`, `답안5_2` 에 저장하세요.\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
+          "skeleton_code": "# [5번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nq1 = data['lead_days'].< blank5-1 >(0.25)\nq3 = data['lead_days'].< blank5-1 >(0.75)\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\noutlier_idx = data[(data['lead_days'] < lower) | (data['lead_days'] > upper)].index\ndata_temp = data.drop(outlier_idx).drop('booking_id', axis=1).< blank5-2 >(drop=True)\nprint(len(outlier_idx))\nprint(data_temp.shape)\n답안5_1 = ''\n답안5_2 = ''\n",
           "answer_code": "q1 = data['lead_days'].quantile(0.25)\nq3 = data['lead_days'].quantile(0.75)\niqr = q3 - q1\nlower = q1 - 1.5 * iqr\nupper = q3 + 1.5 * iqr\noutlier_idx = data[(data['lead_days'] < lower) | (data['lead_days'] > upper)].index\ndata_temp = data.drop(outlier_idx).drop('booking_id', axis=1).reset_index(drop=True)\nprint(len(outlier_idx))\nprint(data_temp.shape)\n답안5_1 = 'quantile'\n답안5_2 = 'reset_index'\n",
           "check_code": "assert (답안5_1, 답안5_2) == ('quantile', 'reset_index')\nassert data_temp.shape == (2894, 11) and 'booking_id' not in data_temp.columns and list(data_temp.index[:3]) == [0, 1, 2]",
           "validation_rules": [
@@ -6802,8 +6802,8 @@
           "points": 6,
           "minutes": 5,
           "style": "blank",
-          "prompt": "`data_temp` 의 결측치를 확인하고 처리합니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 열별 결측치 개수를 출력하세요.\n- 결측치가 있는 행을 모두 삭제한 결과를 `data_na` 에 저장하세요.\n- `data_na` 에 남은 결측치의 총개수와 `shape` 를 출력하세요.\n- `blank6-1`, `blank6-2` 에 넣은 메서드 이름을 문자열로 `답안6_1`, `답안6_2` 에 저장하세요. (결측 여부를 확인하는 메서드 이름은 `isnull` 로 통일하세요.)\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
-          "skeleton_code": "# [6번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nprint(data_temp.___().sum())  # blank6-1\ndata_na = data_temp.___()  # blank6-2\nprint(data_na.isnull().sum().sum())\nprint(data_na.shape)\n답안6_1 = ___  # blank6-1\n답안6_2 = ___  # blank6-2\n",
+          "prompt": "`data_temp` 의 결측치를 확인하고 처리합니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 열별 결측치 개수를 출력하세요.\n- 결측치가 있는 행을 모두 삭제한 결과를 `data_na` 에 저장하세요.\n- `data_na` 에 남은 결측치의 총개수와 `shape` 를 출력하세요.\n- `< blank6-1 >`, `< blank6-2 >` 에 넣은 메서드 이름을 문자열로 `답안6_1`, `답안6_2` 에 저장하세요. (결측 여부를 확인하는 메서드 이름은 `isnull` 로 통일하세요.)\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
+          "skeleton_code": "# [6번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nprint(data_temp.< blank6-1 >().sum())\ndata_na = data_temp.< blank6-2 >()\nprint(data_na.isnull().sum().sum())\nprint(data_na.shape)\n답안6_1 = ''\n답안6_2 = ''\n",
           "answer_code": "print(data_temp.isnull().sum())\ndata_na = data_temp.dropna()\nprint(data_na.isnull().sum().sum())\nprint(data_na.shape)\n답안6_1 = 'isnull'\n답안6_2 = 'dropna'\n",
           "check_code": "assert (답안6_1, 답안6_2) == ('isnull', 'dropna')\nassert data_na.isnull().sum().sum() == 0 and data_na.shape == (2722, 11)",
           "validation_rules": [
@@ -7610,7 +7610,7 @@
           "style": "blank",
           "given_code": "import tensorflow as tf\nfrom tensorflow.keras.models import Sequential\nfrom tensorflow.keras.layers import Input, Dense, Dropout\nfrom tensorflow.keras.callbacks import EarlyStopping\nfrom sklearn.preprocessing import LabelEncoder\n\ntf.keras.utils.set_random_seed(42)\n",
           "prompt": "다음 코드는 이미 실행되어 있습니다.\n\n```python\nimport tensorflow as tf\nfrom tensorflow.keras.models import Sequential\nfrom tensorflow.keras.layers import Input, Dense, Dropout\nfrom tensorflow.keras.callbacks import EarlyStopping\nfrom sklearn.preprocessing import LabelEncoder\n\ntf.keras.utils.set_random_seed(42)\n```\n\n스케일링한 데이터로 예약 취소 여부를 예측하는 딥러닝 모델을 만들고 학습합니다. 아래 코드의 빈칸을 채워 실행하세요. 안내한 내용 외의 인자는 넣지 마세요.\n\n- 타깃 `y_train`, `y_valid` 는 문자열(`'Canceled'`, `'Kept'`)이므로 `LabelEncoder` 객체 `le` 로 정수로 바꿔 `y_train_enc`, `y_valid_enc` 에 저장하세요. 학습용으로 `le` 를 학습시키면서 변환하고, 검증용은 변환만 합니다.\n- 모델 `model` 의 층 구성:\n\n```\n입력(특성 수) → Dense 32 (relu) → Dropout 0.2 → Dense 16 (relu) → 출력 Dense 1 (sigmoid)\n```\n\n- 컴파일: optimizer 는 `'adam'`, loss 는 이진분류에 맞는 손실 함수, metrics 는 `['accuracy']`\n- 콜백: `EarlyStopping` 을 `es` 에 만드세요. `monitor` 는 `'val_loss'`, `patience` 는 5\n- 학습: `epochs=30`, `batch_size=32`, `validation_data=(X_valid_scaled, y_valid_enc)`, 콜백 `es` 로 학습하고 기록을 `history` 에 저장하세요.\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
-          "skeleton_code": "# [13번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nle = LabelEncoder()\ny_train_enc = le.___(y_train)  # blank13-1\ny_valid_enc = le.___(y_valid)  # blank13-2\n\nmodel = Sequential([\n    Input(shape=(X_train_scaled.shape[1],)),\n    Dense(32, activation=___),  # blank13-3\n    Dropout(0.2),\n    Dense(16, activation=___),  # blank13-3\n    Dense(1, activation=___)  # blank13-4\n])\nmodel.compile(optimizer='adam', loss=___, metrics=['accuracy'])  # blank13-5\n\nes = EarlyStopping(monitor='val_loss', patience=___)  # blank13-6\nhistory = model.fit(X_train_scaled, y_train_enc, epochs=30, batch_size=32,\n                    validation_data=(X_valid_scaled, y_valid_enc), callbacks=[es])\n",
+          "skeleton_code": "# [13번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nle = LabelEncoder()\ny_train_enc = le.< blank13-1 >(y_train)\ny_valid_enc = le.< blank13-2 >(y_valid)\n\nmodel = Sequential([\n    Input(shape=(X_train_scaled.shape[1],)),\n    Dense(32, activation=< blank13-3 >),\n    Dropout(0.2),\n    Dense(16, activation=< blank13-3 >),\n    Dense(1, activation=< blank13-4 >)\n])\nmodel.compile(optimizer='adam', loss=< blank13-5 >, metrics=['accuracy'])\n\nes = EarlyStopping(monitor='val_loss', patience=< blank13-6 >)\nhistory = model.fit(X_train_scaled, y_train_enc, epochs=30, batch_size=32,\n                    validation_data=(X_valid_scaled, y_valid_enc), callbacks=[es])\n",
           "answer_code": "le = LabelEncoder()\ny_train_enc = le.fit_transform(y_train)\ny_valid_enc = le.transform(y_valid)\n\nmodel = Sequential([\n    Input(shape=(X_train_scaled.shape[1],)),\n    Dense(32, activation='relu'),\n    Dropout(0.2),\n    Dense(16, activation='relu'),\n    Dense(1, activation='sigmoid')\n])\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])\n\nes = EarlyStopping(monitor='val_loss', patience=5)\nhistory = model.fit(X_train_scaled, y_train_enc, epochs=30, batch_size=32,\n                    validation_data=(X_valid_scaled, y_valid_enc), callbacks=[es])\n",
           "check_code": "assert list(le.classes_) == ['Canceled', 'Kept'] and set(y_train_enc) == {0, 1}\nassert model.layers[-1].units == 1 and 'accuracy' in history.history and 'val_accuracy' in history.history",
           "validation_rules": [
@@ -7888,8 +7888,8 @@
           "points": 10,
           "minutes": 5,
           "style": "blank",
-          "prompt": "13번에서 저장한 `history` 로 에포크별 정확도 변화를 그래프로 그립니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 학습용 정확도 곡선(범례 `train`)과 검증용 정확도 곡선(범례 `validation`)을 한 그래프에 그리세요.\n- `history.history` 는 딕셔너리이며, 키는 문자열입니다. `blank14-1`, `blank14-2` 에 넣은 키를 문자열로 `답안14_1`, `답안14_2` 에 각각 저장하세요.\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
-          "skeleton_code": "# [14번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nplt.figure(figsize=(7, 4))\nplt.plot(history.history[___], label='train')  # blank14-1\nplt.plot(history.history[___], label='validation')  # blank14-2\nplt.title('Model accuracy')\nplt.xlabel('epoch')\nplt.ylabel('accuracy')\nplt.legend()\nplt.show()\n답안14_1 = ___  # blank14-1\n답안14_2 = ___  # blank14-2\n",
+          "prompt": "13번에서 저장한 `history` 로 에포크별 정확도 변화를 그래프로 그립니다. 아래 코드의 빈칸을 채워 실행하세요.\n\n- 학습용 정확도 곡선(범례 `train`)과 검증용 정확도 곡선(범례 `validation`)을 한 그래프에 그리세요.\n- `history.history` 는 딕셔너리이며, 키는 문자열입니다. `< blank14-1 >`, `< blank14-2 >` 에 넣은 키를 문자열로 `답안14_1`, `답안14_2` 에 각각 저장하세요.\n\n빈칸에 문자열을 넣을 때는 따옴표를 붙여 입력하세요.",
+          "skeleton_code": "# [14번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nplt.figure(figsize=(7, 4))\nplt.plot(history.history[< blank14-1 >], label='train')\nplt.plot(history.history[< blank14-2 >], label='validation')\nplt.title('Model accuracy')\nplt.xlabel('epoch')\nplt.ylabel('accuracy')\nplt.legend()\nplt.show()\n답안14_1 = ''\n답안14_2 = ''\n",
           "answer_code": "plt.figure(figsize=(7, 4))\nplt.plot(history.history['accuracy'], label='train')\nplt.plot(history.history['val_accuracy'], label='validation')\nplt.title('Model accuracy')\nplt.xlabel('epoch')\nplt.ylabel('accuracy')\nplt.legend()\nplt.show()\n답안14_1 = 'accuracy'\n답안14_2 = 'val_accuracy'\n",
           "check_code": "assert 답안14_1 in history.history and 답안14_2 in history.history\nassert (답안14_1, 답안14_2) == ('accuracy', 'val_accuracy')",
           "validation_rules": [
@@ -8561,8 +8561,8 @@
           "points": 6,
           "minutes": 5,
           "style": "blank",
-          "prompt": "문자열 특성 컬럼 `orchard_region`, `variety`, `storage_type` 을 원-핫 인코딩하여 `apple_preset` 에 저장합니다. 타깃 `quality_grade` 는 인코딩하지 않습니다. 코드의 빈칸을 채우세요.\n\n- `blank7-1`: 범주형 컬럼을 0/1 컬럼으로 바꾸는 `pandas` 함수 이름\n- `blank7-2`: 각 범주형 컬럼에서 첫 번째 범주의 컬럼을 제거하도록 `True` 를 지정하는 인자 이름\n\n그리고 빈칸에 채운 이름을 문자열로 `답안7_1`, `답안7_2` 에 저장하세요(예: 빈칸에 `abc` 를 넣었다면 `답안7_1 = 'abc'`).\n\n이 셀을 올바르게 실행하면 다음과 같이 출력됩니다.\n\n```\n(2970, 14)\n```",
-          "skeleton_code": "# [7번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\ncat_cols = ['orchard_region', 'variety', 'storage_type']\n\napple_preset = pd.___(        # blank7-1\n    apple_na,\n    columns=cat_cols,\n    ___=True,                 # blank7-2\n    dtype=int)\n\nprint(apple_preset.shape)\n\n답안7_1 = ___                 # blank7-1\n답안7_2 = ___                 # blank7-2\n",
+          "prompt": "문자열 특성 컬럼 `orchard_region`, `variety`, `storage_type` 을 원-핫 인코딩하여 `apple_preset` 에 저장합니다. 타깃 `quality_grade` 는 인코딩하지 않습니다. 코드의 빈칸을 채우세요.\n\n- `< blank7-1 >`: 범주형 컬럼을 0/1 컬럼으로 바꾸는 `pandas` 함수 이름\n- `< blank7-2 >`: 각 범주형 컬럼에서 첫 번째 범주의 컬럼을 제거하도록 `True` 를 지정하는 인자 이름\n\n그리고 빈칸에 채운 이름을 문자열로 `답안7_1`, `답안7_2` 에 저장하세요(예: 빈칸에 `abc` 를 넣었다면 `답안7_1 = 'abc'`).\n\n이 셀을 올바르게 실행하면 다음과 같이 출력됩니다.\n\n```\n(2970, 14)\n```",
+          "skeleton_code": "# [7번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\ncat_cols = ['orchard_region', 'variety', 'storage_type']\n\napple_preset = pd.< blank7-1 >(\n    apple_na,\n    columns=cat_cols,\n    < blank7-2 >=True,\n    dtype=int)\n\nprint(apple_preset.shape)\n\n답안7_1 = ''\n답안7_2 = ''\n",
           "answer_code": "cat_cols = ['orchard_region', 'variety', 'storage_type']\n\napple_preset = pd.get_dummies(\n    apple_na,\n    columns=cat_cols,\n    drop_first=True,\n    dtype=int)\n\nprint(apple_preset.shape)\n\n답안7_1 = 'get_dummies'\n답안7_2 = 'drop_first'\n",
           "check_code": "assert 답안7_1 == 'get_dummies' and 답안7_2 == 'drop_first'\nassert apple_preset.shape == (2970, 14), apple_preset.shape",
           "validation_rules": [
@@ -8617,7 +8617,7 @@
             }
           ],
           "expected_output": "(2970, 14)",
-          "explanation": "**왜 이렇게 푸는가**\n\n`pd.get_dummies(데이터, columns=[...])` 는 지정한 컬럼마다 범주 값별 0/1 컬럼을 만들고 원래 컬럼은 제거합니다. `columns` 에 특성 컬럼만 지정했으므로 타깃 `quality_grade` 는 문자열 그대로 남습니다. `drop_first=True` 는 범주가 k 개일 때 k-1 개의 컬럼만 만듭니다. 나머지 컬럼이 모두 0 이면 첫 번째 범주이므로 정보는 줄지 않고 컬럼 사이의 중복이 없어집니다. 결과는 14개 컬럼(특성 13개 + 타깃)입니다. `dtype=int` 는 결과를 불리언 대신 0/1 정수로 만듭니다.\n\n**자주 틀리는 지점**\n\n- `columns` 를 생략하면 문자열 컬럼 전부(타깃 포함)가 변환되어 이후 문항에서 `quality_grade` 를 찾을 수 없습니다.\n- `drop_first` 는 `True` 를 값으로 받는 인자 이름입니다. `답안7_2` 에 `True` 나 `'True'` 를 저장하지 않습니다.\n- 같은 빈칸 번호는 같은 내용을 넣습니다. `blank7-1` 이 두 곳에 있으면 모두 `get_dummies` 입니다."
+          "explanation": "**왜 이렇게 푸는가**\n\n`pd.get_dummies(데이터, columns=[...])` 는 지정한 컬럼마다 범주 값별 0/1 컬럼을 만들고 원래 컬럼은 제거합니다. `columns` 에 특성 컬럼만 지정했으므로 타깃 `quality_grade` 는 문자열 그대로 남습니다. `drop_first=True` 는 범주가 k 개일 때 k-1 개의 컬럼만 만듭니다. 나머지 컬럼이 모두 0 이면 첫 번째 범주이므로 정보는 줄지 않고 컬럼 사이의 중복이 없어집니다. 결과는 14개 컬럼(특성 13개 + 타깃)입니다. `dtype=int` 는 결과를 불리언 대신 0/1 정수로 만듭니다.\n\n**자주 틀리는 지점**\n\n- `columns` 를 생략하면 문자열 컬럼 전부(타깃 포함)가 변환되어 이후 문항에서 `quality_grade` 를 찾을 수 없습니다.\n- `drop_first` 는 `True` 를 값으로 받는 인자 이름입니다. `답안7_2` 에 `True` 나 `'True'` 를 저장하지 않습니다.\n- 같은 빈칸 번호는 같은 내용을 넣습니다. `< blank7-1 >` 이 두 곳에 있으면 모두 `get_dummies` 입니다."
         },
         {
           "no": 8,
@@ -9517,8 +9517,8 @@
           "points": 10,
           "minutes": 7,
           "style": "blank",
-          "prompt": "13번에서 학습한 `history` 로 에폭별 손실의 변화를 그래프로 그리세요. 코드의 빈칸을 채웁니다.\n\n- `blank14-1`: 학습 데이터의 손실이 저장된 `history.history` 의 키\n- `blank14-2`: 검증 데이터의 손실이 저장된 `history.history` 의 키\n- `blank14-3`: 선마다 지정한 `label` 을 범례로 나타내는 `plt` 함수 이름 (괄호 앞까지)\n\n그리고 `blank14-1`, `blank14-2` 에 채운 키를 `답안14_1`, `답안14_2` 에 저장하세요. 키는 문자열이므로 따옴표를 포함해 씁니다.",
-          "skeleton_code": "# [14번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nplt.figure(figsize=(8, 5))\nplt.plot(history.history[___], label='학습 손실')    # blank14-1\nplt.plot(history.history[___], label='검증 손실')    # blank14-2\nplt.title('에폭별 손실 변화')\nplt.xlabel('에폭')\nplt.ylabel('손실')\nplt.___()                                           # blank14-3\nplt.show()\n\n답안14_1 = ___    # blank14-1\n답안14_2 = ___    # blank14-2\n",
+          "prompt": "13번에서 학습한 `history` 로 에폭별 손실의 변화를 그래프로 그리세요. 코드의 빈칸을 채웁니다.\n\n- `< blank14-1 >`: 학습 데이터의 손실이 저장된 `history.history` 의 키\n- `< blank14-2 >`: 검증 데이터의 손실이 저장된 `history.history` 의 키\n- `< blank14-3 >`: 선마다 지정한 `label` 을 범례로 나타내는 `plt` 함수 이름 (괄호 앞까지)\n\n그리고 `< blank14-1 >`, `< blank14-2 >` 에 채운 키를 `답안14_1`, `답안14_2` 에 저장하세요. 키는 문자열이므로 따옴표를 포함해 씁니다.",
+          "skeleton_code": "# [14번 문항] 아래 코드의 빈칸을 채우고 실행하세요.\nplt.figure(figsize=(8, 5))\nplt.plot(history.history[< blank14-1 >], label='학습 손실')\nplt.plot(history.history[< blank14-2 >], label='검증 손실')\nplt.title('에폭별 손실 변화')\nplt.xlabel('에폭')\nplt.ylabel('손실')\nplt.< blank14-3 >()\nplt.show()\n\n답안14_1 = ''\n답안14_2 = ''\n",
           "answer_code": "plt.figure(figsize=(8, 5))\nplt.plot(history.history['loss'], label='학습 손실')\nplt.plot(history.history['val_loss'], label='검증 손실')\nplt.title('에폭별 손실 변화')\nplt.xlabel('에폭')\nplt.ylabel('손실')\nplt.legend()\nplt.show()\n\n답안14_1 = 'loss'\n답안14_2 = 'val_loss'\n",
           "check_code": "assert 답안14_1 in history.history and 답안14_2 in history.history",
           "validation_rules": [

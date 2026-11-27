@@ -330,14 +330,14 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <tr>
 <td>빈칸 채우기</td>
 <td>Q7, Q14</td>
-<td><code>___</code>가 있는 코드</td>
+<td><code>&lt; blank7-1 &gt;</code> 같은 빈칸 표시가 있는 코드</td>
 <td>빈칸을 채우고 채운 말을 <code>답안N</code>에 문자열로 저장</td>
 </tr>
 </tbody>
 </table>
 <ul>
 <li>오류 정정 문항의 코드는 그대로 실행하면 오답입니다. 고친 뒤에 출력이 지문의 결과와 같아야 합니다.</li>
-<li>빈칸 번호는 줄 끝 주석(<code># blank7-1</code>)으로 표시되고, 같은 번호의 빈칸이 여러 곳에 나올 수 있습니다.</li>
+<li>빈칸은 공식 샘플 문항처럼 <code>&lt; blank7-1 &gt;</code> 형태로 표시되고, 같은 번호의 빈칸이 여러 곳에 나올 수 있습니다.</li>
 </ul></div></section>
 <section class="slide" data-title="파트 1: 데이터 분석 (Q1–4, 20점)" aria-label="8 / 27"><div class="slide__inner"><h2>파트 1: 데이터 분석 (Q1–4, 20점)</h2>
 <table>
@@ -613,11 +613,11 @@ history = model.fit(X_train_scaled, y_train,
 </ul></div></section>
 <section class="slide" data-title="함께 풀기 1: Q7 빈칸 채우기 (3분)" aria-label="18 / 27"><div class="slide__inner"><h2>함께 풀기 1: Q7 빈칸 채우기 (3분)</h2>
 <p>발표자가 모의고사 4회 화면의 Q7을 열고, 참가자가 빈칸을 말로 채웁니다.</p>
-<pre><code class="language-python">orders_preset = pd.___(orders_na, columns=['area', 'weather'], ___=True, dtype=int)
+<pre><code class="language-python">orders_preset = pd.&lt; blank7-1 &gt;(orders_na, columns=['area', 'weather'], &lt; blank7-2 &gt;=True, dtype=int)
 print(orders_preset.columns.tolist())
 
-답안7_1 = ___
-답안7_2 = ___
+답안7_1 = ''
+답안7_2 = ''
 </code></pre>
 <ul>
 <li>빈칸 7-1: 원-핫 인코딩을 하는 pandas 함수 이름</li>
@@ -803,7 +803,7 @@ print('RandomForest MAE:', round(rf_mae, 3))
   var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
   var CONSTANTS = /^(?:True|False|None|self|cls)$/;
   var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
-  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,}|<\s*blank[\w-]*\s*>)|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
 
   function tok(cls, text) {
     return '<span class="v2-tok-' + cls + '">' + text + "</span>";

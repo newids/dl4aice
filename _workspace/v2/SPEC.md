@@ -152,7 +152,7 @@
 - Q11 의 API: mock01 = **Sequential**, mock02 = **Functional**(`Input`, `Dense`, `Model`), mock03 = **Functional**. 해설에는 다른 API 로 쓴 동치 코드를 함께 싣는다.
 - 14문항은 **앞 문항 변수를 이어받는 하나의 파이프라인**이다. 표준 변수명: `df`, `X`, `y`, `X_train`, `X_test`, `y_train`, `y_test`, `scaler`, `X_train_scaled`, `X_test_scaled`, `dt_model`, `rf_model`, `xgb_model`(또는 `lgbm_model`), `model`, `history`, `es`, `mc`, `pred`, `y_pred`, `new_data`, `new_scaled`, `new_pred`.
 - Q14 는 `model.evaluate` 등 평가 + 지문에 제시한 신규 샘플 1~2건(딕셔너리/DataFrame)을 **학습 때와 같은 전처리(인코딩 컬럼 정렬 `reindex(columns=X.columns, fill_value=0)` → `scaler.transform`)** 로 변환해 예측값(이진: 확률→0/1, 다중: `argmax`→클래스명, 회귀: 값)을 구하게 한다. `scaler.fit_transform` 을 새 샘플에 쓰는 오답을 `forbid`/negative_tests 로 잡는다.
-- 모의고사 skeleton 은 실기 시험처럼 빈칸이 넓어도 된다(문항당 빈칸 2~8개, 한 빈칸이 식 하나/인자 하나).
+- 모의고사 skeleton 은 실기 시험처럼 빈칸이 넓어도 된다(문항당 빈칸 2~8개, 한 빈칸이 식 하나/인자 하나). **모의고사의 빈칸은 `___` 가 아니라 공식 샘플 문항의 표기 `< blankN-M >` 로 쓴다**(N = 문항 번호, M = 그 문항 안의 빈칸 번호. 예: `y = df[< blank7-2 >]`). 채점기는 두 표기를 모두 빈칸으로 본다. 챕터 실습 셀은 `___` 를 그대로 쓴다.
 - **검증 필수**: `python3 scripts/v2/run_mock_answers.py <json 파일> <examId>` 가 `setup_code` + Q1~Q14 `answer_code` 를 이어 붙여 실제로 실행한다(epochs 는 자동으로 줄여 실행). 오류 0 이어야 한다. `expected_output` 은 지문의 원래 epochs 로 한 번 돌려 얻은 실제 출력(길면 핵심만 발췌, `...` 로 생략 표시).
 - 재현성: `setup_code`·분리·모델에 `random_state=42`, 학습 전 `tf.keras.utils.set_random_seed(42)`.
 - 기출 원문 복제 금지. 서두 고지 문구는 페이지가 붙인다.

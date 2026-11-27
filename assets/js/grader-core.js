@@ -103,6 +103,12 @@
         continue;
       }
 
+      /* 빈칸: 공식 샘플 문항 표기 `< blank7-1 >` (모의고사) */
+      if (ch === "<") {
+        var bm = /^<\s*blank[\w-]*\s*>/.exec(src.slice(i));
+        if (bm) { push("blank", "___"); i += bm[0].length; continue; }
+      }
+
       /* 이름 / 빈칸(___) */
       if (NAME_START.test(ch)) {
         var k = i + 1;

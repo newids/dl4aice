@@ -89,6 +89,13 @@ function testItem(entry) {
     errors.push("style=fix: 정정할 코드가 skeleton_code 에 없습니다");
   }
   if (/_{4,}/.test(item.skeleton_code)) errors.push("빈칸은 정확히 밑줄 3개(___)여야 합니다");
+  /* 모의고사의 빈칸은 공식 샘플 문항 표기 `< blankN-M >` 로 쓴다 (N = 문항 번호) */
+  if (kind === "mock" && /_{3,}/.test(item.skeleton_code)) errors.push("모의고사 빈칸은 `< blankN-M >` 표기여야 합니다(___ 가 남아 있음)");
+  if (kind === "mock") {
+    (item.skeleton_code.match(/<\s*blank[\w-]*\s*>/g) || []).forEach((b) => {
+      if (!new RegExp("^< blank" + item.no + "-\\d+ >$").test(b)) errors.push(`빈칸 표기가 형식과 다릅니다: ${b} (예: < blank${item.no}-1 >)`);
+    });
+  }
   if (grader.countBlanks(item.answer_code) > 0) errors.push("answer_code 에 빈칸이 남아 있습니다");
   if (/placeholder|TODO|생략|\.\.\.\s*\(중략\)/i.test(item.answer_code)) errors.push("answer_code 에 플레이스홀더 흔적");
 
@@ -102,11 +109,12 @@ function testItem(entry) {
   });
 
   /* 빈칸을 지워도(=아무것도 안 채워도) 통과하면 규칙이 빈칸을 검증하지 않는 것 */
-  const hollow = item.skeleton_code.replace(/_{3,}/g, "");
+  const BLANK_RE = /_{3,}|<\s*blank[\w-]*\s*>/g;
+  const hollow = item.skeleton_code.replace(BLANK_RE, "");
   if (style === "blank" && grader.grade(hollow, item.validation_rules).pass) {
     errors.push("빈칸을 비운 코드가 통과함 — 규칙이 빈칸 내용을 검증하지 않습니다");
   }
-  const dummy = item.skeleton_code.replace(/_{3,}/g, "zzz_wrong");
+  const dummy = item.skeleton_code.replace(BLANK_RE, "zzz_wrong");
   if (style === "blank" && grader.grade(dummy, item.validation_rules).pass) {
     errors.push("빈칸에 엉뚱한 값(zzz_wrong)을 넣어도 통과함 — 규칙을 강화하세요");
   }

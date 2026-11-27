@@ -311,9 +311,9 @@ kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border:
 <li>같은 이름이 두 번 들어가는 빈칸도 있습니다. Q5의 <code>blank5-1</code>이 그 예입니다.</li>
 </ol></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q3 그래프 두 개 (빈칸 3개)" aria-label="8 / 29"><div class="slide__inner"><h2>자세히 보는 문항: Q3 그래프 두 개 (빈칸 3개)</h2>
-<pre><code class="language-python">fig, axes = plt.___(nrows=1, ncols=2, figsize=(12, 4))  # blank3-1
-sns.___(data=data, x='booking_status', ax=axes[0])  # blank3-2
-sns.___(data=data, x='lead_days', hue='booking_status', ax=axes[1])  # blank3-3
+<pre><code class="language-python">fig, axes = plt.&lt; blank3-1 &gt;(nrows=1, ncols=2, figsize=(12, 4))
+sns.&lt; blank3-2 &gt;(data=data, x='booking_status', ax=axes[0])
+sns.&lt; blank3-3 &gt;(data=data, x='lead_days', hue='booking_status', ax=axes[1])
 plt.show()
 </code></pre>
 <p>모범 답안: <code>답안3_1 = 'subplots'</code>, <code>답안3_2 = 'countplot'</code>, <code>답안3_3 = 'histplot'</code></p>
@@ -324,13 +324,13 @@ plt.show()
 <li>빈칸에 따옴표 없이 <code>subplots</code>만 쓰면 변수 이름으로 해석되어 <code>NameError</code>가 납니다.</li>
 </ul></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q5 IQR 이상치 제거 (빈칸 2개)" aria-label="9 / 29"><div class="slide__inner"><h2>자세히 보는 문항: Q5 IQR 이상치 제거 (빈칸 2개)</h2>
-<pre><code class="language-python">q1 = data['lead_days'].___(0.25)  # blank5-1
-q3 = data['lead_days'].___(0.75)  # blank5-1
+<pre><code class="language-python">q1 = data['lead_days'].&lt; blank5-1 &gt;(0.25)
+q3 = data['lead_days'].&lt; blank5-1 &gt;(0.75)
 iqr = q3 - q1
 lower = q1 - 1.5 * iqr
 upper = q3 + 1.5 * iqr
 outlier_idx = data[(data['lead_days'] &lt; lower) | (data['lead_days'] &gt; upper)].index
-data_temp = data.drop(outlier_idx).drop('booking_id', axis=1).___(drop=True)  # blank5-2
+data_temp = data.drop(outlier_idx).drop('booking_id', axis=1).&lt; blank5-2 &gt;(drop=True)
 print(len(outlier_idx))
 print(data_temp.shape)
 </code></pre>
@@ -342,8 +342,8 @@ print(data_temp.shape)
 <li>결측치는 <code>quantile</code>이 제외하고 비교 결과가 False이므로 이 단계에서 삭제되지 않습니다.</li>
 </ul></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q6 결측치 확인과 삭제 (빈칸 2개)" aria-label="10 / 29"><div class="slide__inner"><h2>자세히 보는 문항: Q6 결측치 확인과 삭제 (빈칸 2개)</h2>
-<pre><code class="language-python">print(data_temp.___().sum())  # blank6-1
-data_na = data_temp.___()  # blank6-2
+<pre><code class="language-python">print(data_temp.&lt; blank6-1 &gt;().sum())
+data_na = data_temp.&lt; blank6-2 &gt;()
 print(data_na.isnull().sum().sum())
 print(data_na.shape)
 </code></pre>
@@ -502,8 +502,8 @@ history = model.fit(X_train_scaled, y_train_enc, epochs=30, batch_size=32,
 <li>이진분류의 출력층은 <code>Dense(1, activation='sigmoid')</code>, 손실 함수는 <code>binary_crossentropy</code>입니다. 노드 2개와 softmax는 다중분류 구성입니다.</li>
 </ul></div></section>
 <section class="slide" data-title="자세히 보는 문항: Q14 학습 곡선 (빈칸 2개, 10점)" aria-label="20 / 29"><div class="slide__inner"><h2>자세히 보는 문항: Q14 학습 곡선 (빈칸 2개, 10점)</h2>
-<pre><code class="language-python">plt.plot(history.history[___], label='train')       # blank14-1
-plt.plot(history.history[___], label='validation')  # blank14-2
+<pre><code class="language-python">plt.plot(history.history[&lt; blank14-1 &gt;], label='train')
+plt.plot(history.history[&lt; blank14-2 &gt;], label='validation')
 plt.legend()
 </code></pre>
 <p>모범 답안: <code>답안14_1 = 'accuracy'</code>, <code>답안14_2 = 'val_accuracy'</code></p>
@@ -517,19 +517,19 @@ plt.legend()
 <section class="slide" data-title="함께 풀기 1: Q13 이진분류 모델 (빈칸 채우기, 3분)" aria-label="21 / 29"><div class="slide__inner"><h2>함께 풀기 1: Q13 이진분류 모델 (빈칸 채우기, 3분)</h2>
 <p>발표자가 모의고사 5회 화면의 Q13을 열고, 참가자가 빈칸을 말로 채웁니다. 근거를 함께 말합니다.</p>
 <pre><code class="language-python">le = LabelEncoder()
-y_train_enc = le.___(y_train)   # blank13-1
-y_valid_enc = le.___(y_valid)   # blank13-2
+y_train_enc = le.&lt; blank13-1 &gt;(y_train)
+y_valid_enc = le.&lt; blank13-2 &gt;(y_valid)
 
 model = Sequential([
     Input(shape=(X_train_scaled.shape[1],)),
-    Dense(32, activation=___),  # blank13-3
+    Dense(32, activation=&lt; blank13-3 &gt;),
     Dropout(0.2),
-    Dense(16, activation=___),  # blank13-3
-    Dense(1, activation=___)    # blank13-4
+    Dense(16, activation=&lt; blank13-3 &gt;),
+    Dense(1, activation=&lt; blank13-4 &gt;)
 ])
-model.compile(optimizer='adam', loss=___, metrics=['accuracy'])  # blank13-5
+model.compile(optimizer='adam', loss=&lt; blank13-5 &gt;, metrics=['accuracy'])
 
-es = EarlyStopping(monitor='val_loss', patience=___)  # blank13-6
+es = EarlyStopping(monitor='val_loss', patience=&lt; blank13-6 &gt;)
 </code></pre></div></section>
 <section class="slide" data-title="함께 풀기 2: Q7 오류 정정 (3분)" aria-label="22 / 29"><div class="slide__inner"><h2>함께 풀기 2: Q7 오류 정정 (3분)</h2>
 <p>Q7 화면을 열고 오류가 있는 줄을 찾아 고칩니다. 어느 줄에서 어떤 오류 메시지가 나는지도 말합니다.</p>
@@ -710,7 +710,7 @@ print(data_preset.shape)
   var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
   var CONSTANTS = /^(?:True|False|None|self|cls)$/;
   var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
-  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,}|<\s*blank[\w-]*\s*>)|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
 
   function tok(cls, text) {
     return '<span class="v2-tok-' + cls + '">' + text + "</span>";

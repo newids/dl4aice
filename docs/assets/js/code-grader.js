@@ -38,7 +38,7 @@
 
   function countBlanks(code) {
     if (D.grader && D.grader.countBlanks) return D.grader.countBlanks(code);
-    return (String(code).match(/_{3,}/g) || []).length;
+    return (String(code).match(/_{3,}|<\s*blank[\w-]*\s*>/g) || []).length;
   }
 
   /* ======================================================================
@@ -144,7 +144,7 @@
 
     function selectBlank(from) {
       var text = ta.value;
-      var re = /_{3,}/g;
+      var re = /_{3,}|<\s*blank[\w-]*\s*>/g;
       var m;
       var first = null;
       var pick = null;
@@ -257,7 +257,7 @@
       if (result.empty) {
         feedbackBox.appendChild($("p", { class: "v2-cell__note", text: "셀이 비어 있습니다. 코드를 작성한 뒤 실행하세요." }));
       } else if (result.blanks > 0) {
-        feedbackBox.appendChild($("p", { class: "v2-cell__note", text: "빈칸이 " + result.blanks + "개 남아 있습니다. 모든 ___ 를 채워야 채점됩니다." }));
+        feedbackBox.appendChild($("p", { class: "v2-cell__note", text: "빈칸이 " + result.blanks + "개 남아 있습니다. 빈칸을 모두 채워야 채점됩니다." }));
       }
 
       var list = $("ul", { class: "v2-cell__checks" });

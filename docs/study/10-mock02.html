@@ -564,25 +564,25 @@ print('예측 클래스 이름:', le.inverse_transform([new_class])[0])
 <p>발표자가 모의고사 2회 화면의 Q10을 열고, 참가자가 빈칸을 말로 채웁니다.</p>
 <pre><code class="language-python">from lightgbm import LGBMClassifier
 
-lgbm_model = ___(n_estimators=100, random_state=42, verbose=___)
+lgbm_model = &lt; blank10-1 &gt;(n_estimators=100, random_state=42, verbose=&lt; blank10-2 &gt;)
 lgbm_model.fit(X_train_scaled, y_train)
-lgbm_pred = lgbm_model.predict(___)
+lgbm_pred = lgbm_model.predict(&lt; blank10-3 &gt;)
 ...
-    'macro_f1': [f1_score(y_test, dt_pred, average=___),
+    'macro_f1': [f1_score(y_test, dt_pred, average=&lt; blank10-4 &gt;),
                  f1_score(y_test, rf_pred, average='macro'),
-                 f1_score(y_test, lgbm_pred, average=___)]
+                 f1_score(y_test, lgbm_pred, average=&lt; blank10-5 &gt;)]
 </code></pre></div></section>
 <section class="slide" data-title="함께 풀기 2: Q14 평가와 신규 센서값 예측 (3분)" aria-label="19 / 26"><div class="slide__inner"><h2>함께 풀기 2: Q14 평가와 신규 센서값 예측 (3분)</h2>
 <p>Q14 화면을 열고 빈칸을 하나씩 채웁니다.</p>
-<pre><code class="language-python">test_loss, test_acc = model.evaluate(___, y_test, verbose=0)
+<pre><code class="language-python">test_loss, test_acc = model.evaluate(&lt; blank14-1 &gt;, y_test, verbose=0)
 pred = model.predict(X_test_scaled, verbose=0)
-y_pred = np.argmax(pred, axis=___)
+y_pred = np.argmax(pred, axis=&lt; blank14-2 &gt;)
 ...
-new_df = new_df.___(columns=X.columns, fill_value=___)
-new_scaled = scaler.___(new_df)
+new_df = new_df.&lt; blank14-3 &gt;(columns=X.columns, fill_value=&lt; blank14-4 &gt;)
+new_scaled = scaler.&lt; blank14-7 &gt;(new_df)
 new_pred = model.predict(new_scaled, verbose=0)
-new_class = int(np.argmax(new_pred, axis=___)[0])
-print('예측 클래스 이름:', le.___([new_class])[0])
+new_class = int(np.argmax(new_pred, axis=&lt; blank14-6 &gt;)[0])
+print('예측 클래스 이름:', le.&lt; blank14-7 &gt;([new_class])[0])
 </code></pre></div></section>
 <section class="slide" data-title="함께 풀기 — 답과 이유 (Q10)" aria-label="20 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (Q10)</h2>
 <ul>
@@ -739,7 +739,7 @@ print('예측 클래스 이름:', le.___([new_class])[0])
   var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
   var CONSTANTS = /^(?:True|False|None|self|cls)$/;
   var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
-  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,}|<\s*blank[\w-]*\s*>)|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
 
   function tok(cls, text) {
     return '<span class="v2-tok-' + cls + '">' + text + "</span>";
