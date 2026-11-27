@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>14회차 — 모의고사 6회 리뷰 (다중분류, 공식 샘플 형식) — 스터디 발표 자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef1f6; --paper: #ffffff; --ink: #1a2332; --soft: #475569; --muted: #64748b;
+  --line: #cbd5e1; --line-soft: #e2e8f0; --primary: #2563eb; --primary-soft: #dbeafe;
+  --chip-bg: #eef2f7; --chip-fg: #0f2a5e; --code-bg: #0d1424; --code-fg: #d6deeb;
+  --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "D2Coding", monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0f1a; --paper: #111827; --ink: #e6eaf2; --soft: #c3cddd; --muted: #9aa8bd;
+  --line: #334155; --line-soft: #243044; --primary: #6ea8fe; --primary-soft: #1b2f4f;
+  --chip-bg: #22304a; --chip-fg: #cfe0ff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+  word-break: keep-all; overflow-wrap: anywhere; overflow: hidden;
+}
+.deck { position: fixed; inset: 0 0 3.25rem 0; display: grid; place-items: center; padding: 1.2vmin; }
+.slide {
+  display: none; width: min(100%, calc((100vh - 3.25rem - 2.4vmin) * 16 / 9)); aspect-ratio: 16 / 9;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 14px;
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.45); overflow: hidden;
+}
+.slide.is-current { display: block; }
+.slide__inner {
+  --scale: 1; height: 100%; padding: 4.2% 5.4% 3.6%; overflow: auto;
+  font-size: calc(clamp(13px, 1.72vw, 30px) * var(--scale)); line-height: 1.55;
+}
+.slide h1, .slide h2 { margin: 0 0 0.7em; line-height: 1.28; letter-spacing: -0.02em; }
+.slide h1 { font-size: 2.1em; margin-top: 12%; }
+.slide h2 { font-size: 1.42em; padding-bottom: 0.35em; border-bottom: 1px solid var(--line-soft); }
+.slide h3 { font-size: 1.08em; margin: 0.9em 0 0.4em; }
+.slide p { margin: 0 0 0.6em; }
+.slide ul, .slide ol { margin: 0 0 0.6em; padding-left: 1.25em; }
+.slide li { margin-bottom: 0.3em; }
+.slide li > ul, .slide li > ol { margin-top: 0.3em; }
+.slide a { color: var(--primary); }
+.slide strong { font-weight: 700; }
+.slide code {
+  font-family: var(--mono); font-size: 0.86em; padding: 0.05em 0.32em; border-radius: 5px;
+  color: var(--chip-fg); background: var(--chip-bg); font-variant-ligatures: none;
+}
+.slide pre {
+  margin: 0 0 0.7em; padding: 0.75em 0.95em; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.slide pre code { padding: 0; background: none; color: inherit; font-size: 0.8em; line-height: 1.55; white-space: pre; }
+.slide table { width: 100%; margin: 0 0 0.7em; border-collapse: collapse; font-size: 0.88em; }
+.slide th, .slide td { padding: 0.42em 0.6em; text-align: left; vertical-align: top; border: 1px solid var(--line-soft); }
+.slide thead th { background: var(--chip-bg); color: var(--chip-fg); font-weight: 700; }
+.slide blockquote {
+  margin: 0 0 0.7em; padding: 0.6em 0.9em; color: var(--soft); background: var(--chip-bg);
+  border: 1px solid var(--line-soft); border-radius: 10px;
+}
+.slide blockquote > :last-child { margin-bottom: 0; }
+.figure { margin: 0 0 0.6em; padding: 0.5em; background: #ffffff; border: 1px solid var(--line-soft); border-radius: 10px; text-align: center; }
+.figure svg { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(44vh * var(--fig, 1)); margin: 0 auto; }
+.figure figcaption { margin-top: 0.3em; font-size: 0.72em; color: #64748b; }
+.slide--title .slide__inner { display: flex; flex-direction: column; justify-content: center; }
+.slide--title h1 { margin-top: 0; }
+.slide--title ul { list-style: none; padding: 0; color: var(--soft); }
+
+.tok-kw { color: #c792ea; } .tok-const { color: #82aaff; font-style: italic; } .tok-str { color: #c3e88d; }
+.tok-num { color: #f78c6c; } .tok-com { color: #7c8aa5; font-style: italic; } .tok-fn { color: #82d2ff; }
+.tok-builtin { color: #ffcb6b; } .tok-cls { color: #5eead4; } .tok-param { color: #f9a8d4; }
+.tok-mod { color: #d6deeb; } .tok-dec { color: #ffcb6b; font-style: italic; } .tok-op { color: #89ddff; }
+.tok-blank { color: #0f172a; background: #fbbf24; border-radius: 3px; padding: 0 0.15em; }
+
+.bar {
+  position: fixed; inset: auto 0 0 0; height: 3.25rem; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 0.8rem; background: var(--paper); border-top: 1px solid var(--line-soft); font-size: 0.86rem;
+}
+.bar__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); font-weight: 600; }
+.bar__count, .bar__time { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.bar__time strong { color: var(--ink); }
+.bar__time.is-over strong { color: #dc2626; }
+.btn {
+  min-width: 2.5rem; min-height: 2.5rem; padding: 0.3rem 0.7rem; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn:focus-visible, .ov__item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.meter { position: fixed; inset: auto 0 3.25rem 0; height: 3px; background: var(--line-soft); }
+.meter span { display: block; height: 100%; width: 0; background: var(--primary); transition: width 180ms ease-out; }
+
+.ov { position: fixed; inset: 0; z-index: 10; display: none; padding: 1.2rem; overflow: auto; background: var(--bg); }
+.ov.is-open { display: block; }
+.ov__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
+.ov__head h2 { margin: 0; font-size: 1.1rem; }
+.ov__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; }
+.ov__item {
+  display: flex; gap: 0.6rem; width: 100%; min-height: 3.2rem; padding: 0.6rem 0.8rem; font: inherit; text-align: left; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 10px; cursor: pointer;
+}
+.ov__item:hover { border-color: var(--primary); }
+.ov__item[aria-current="true"] { border-color: var(--primary); background: var(--primary-soft); }
+.ov__no { flex: none; width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.help { margin: 1rem 0 0; font-size: 0.82rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.9em; padding: 0.05em 0.4em; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+
+.index { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; overflow: auto; height: 100%; }
+.index h1 { font-size: 1.7rem; margin: 0 0 0.5rem; }
+.index p { color: var(--soft); line-height: 1.7; }
+.index ol { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.6rem; }
+.index li a {
+  display: flex; gap: 1rem; align-items: baseline; padding: 0.9rem 1.1rem; color: var(--ink); text-decoration: none;
+  background: var(--paper); border: 1px solid var(--line-soft); border-radius: 12px;
+}
+.index li a:hover { border-color: var(--primary); }
+.index .no { flex: none; width: 3.6rem; font-weight: 700; color: var(--primary); }
+.index .meta { margin-left: auto; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .bar__title { display: none; }
+  .slide { width: 100%; aspect-ratio: auto; height: 100%; }
+  .slide__inner { font-size: calc(15px * var(--scale)); }
+}
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .bar, .meter, .ov { display: none !important; }
+  .deck { position: static; display: block; padding: 0; }
+  .slide { display: block !important; width: 297mm; height: 167mm; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; break-after: page; }
+  .slide__inner { font-size: 15pt; overflow: hidden; }
+}
+</style>
+<script>try{if(JSON.parse(localStorage.getItem('dl4aice.v2.theme'))==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body data-minutes="38">
+<main class="deck" aria-live="polite">
+<section class="slide slide--title" data-title="14회차 — 모의고사 6회 리뷰 (다중분류, 공식 샘플 형식)" aria-label="1 / 26"><div class="slide__inner"><h1>14회차 — 모의고사 6회 리뷰 (다중분류, 공식 샘플 형식)</h1>
+<ul>
+<li>범위: <a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/mock06.html">모의고사 6회</a> (사과 품질 등급 예측, 14문항)</li>
+<li>발표 38분 안팎 + 질의응답 20분</li>
+<li>마지막 회차입니다. 이번 회차에서 남은 기간의 개인 계획까지 정합니다.</li>
+<li>사전 준비: 90분 타이머로 직접 풀고 점수와 틀린 문항을 기록해 옵니다</li>
+</ul></div></section>
+<section class="slide" data-title="오늘의 목표" aria-label="2 / 26"><div class="slide__inner"><h2>오늘의 목표</h2>
+<ol>
+<li>오류 정정 문항(Q3, Q5, Q9, Q11, Q12)을 푸는 순서를 정하고, 주어진 틀린 코드를 어떻게 고치는지 확인합니다.</li>
+<li>다중분류 딥러닝 모델(<code>LabelEncoder</code>, <code>to_categorical</code>, <code>Dense(3, softmax)</code>, <code>categorical_crossentropy</code>)을 모의고사 4, 5회의 출력층·손실·지표와 비교해 정리합니다.</li>
+<li>남은 기간에 무엇을 어떤 순서로 할지 본인의 계획을 세웁니다.</li>
+</ol></div></section>
+<section class="slide" data-title="진행 순서" aria-label="3 / 26"><div class="slide__inner"><h2>진행 순서</h2>
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>내용</th>
+<th>시간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>도입</td>
+<td>목표와 진행 순서</td>
+<td>1분</td>
+</tr>
+<tr>
+<td>시험 구성</td>
+<td>시나리오, 데이터, 파트별 배점</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>점수 공유</td>
+<td>점수와 약한 파트 공유</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>공식 샘플 형식 복습</td>
+<td>12, 13회차 내용 한 장 요약</td>
+<td>1분</td>
+</tr>
+<tr>
+<td>오류 정정 풀이 순서</td>
+<td>요구 목록, 이름, 인자, 데이터, 방향</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>문항 훑기</td>
+<td>14문항을 세 파트로 나누어 보기</td>
+<td>3분</td>
+</tr>
+<tr>
+<td>오류 정정 문항</td>
+<td>Q3, Q5</td>
+<td>4분</td>
+</tr>
+<tr>
+<td>결측치 처리</td>
+<td>Q6 중앙값 채우기</td>
+<td>2분</td>
+</tr>
+<tr>
+<td>MinMaxScaler</td>
+<td>Q9와 <code>답안9</code></td>
+<td>4분</td>
+</tr>
+<tr>
+<td>딥러닝 다중분류</td>
+<td>Q13 코드, 4·5·6회 비교</td>
+<td>6분</td>
+</tr>
+<tr>
+<td>함께 풀기</td>
+<td>Q11, Q12 오류 정정</td>
+<td>7분</td>
+</tr>
+<tr>
+<td>정리</td>
+<td>핵심 정리</td>
+<td>1분</td>
+</tr>
+<tr>
+<td>질의응답</td>
+<td>토론 질문과 질문 받기</td>
+<td>20분</td>
+</tr>
+</tbody>
+</table>
+<p>(발표 구간 합계 38분)</p></div></section>
+<section class="slide" data-title="시험 구성 (3분)" aria-label="4 / 26"><div class="slide__inner"><h2>시험 구성 (3분)</h2>
+<p>시나리오: 한 선별장이 사과 3,000개를 측정하고 등급을 매긴 기록(<code>apple_sorting.csv</code>)으로 품질 등급(A / B / C)을 예측하는 분류 모델을 만듭니다.</p>
+<p>데이터 특징:
+- 타깃 <code>quality_grade</code>는 문자열 3종이며 B 45%, A 30%, C 25%입니다.
+- <code>weight_g</code>에 이상치 30건, <code>sugar_brix</code>, <code>firmness_n</code>, <code>color_score</code>에 결측치가 있습니다.
+- <code>lot_id</code>는 묶음 번호라서 예측에 쓰지 않습니다.</p>
+<table>
+<thead>
+<tr>
+<th>파트</th>
+<th>문항</th>
+<th>배점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>데이터 분석</td>
+<td>Q1–4</td>
+<td>20점</td>
+</tr>
+<tr>
+<td>데이터 전처리</td>
+<td>Q5–9</td>
+<td>30점</td>
+</tr>
+<tr>
+<td>AI 모델링</td>
+<td>Q10–14</td>
+<td>50점</td>
+</tr>
+</tbody>
+</table>
+<p>문항 수, 배점, 오픈북 정책은 회차마다 다를 수 있으므로 응시 전에 KT AICE 공식 공지를 확인합니다.</p></div></section>
+<section class="slide" data-title="점수 공유 (3분)" aria-label="5 / 26"><div class="slide__inner"><h2>점수 공유 (3분)</h2>
+<p>CBT 결과 화면에는 파트별 분석이 나옵니다. 한 사람씩 짧게 말합니다.</p>
+<p>발표자가 던질 질문 3개:</p>
+<ol>
+<li>네 번째부터 여섯 번째 회차까지 점수가 어떻게 변했습니까?</li>
+<li>데이터 분석, 데이터 전처리, AI 모델링 가운데 가장 점수가 낮았던 파트는 어디입니까?</li>
+<li>오류 정정 문항(Q3, Q5, Q9, Q11, Q12)에서 몇 문항을 맞혔습니까? 틀린 문항은 어떤 오류를 놓쳤습니까?</li>
+</ol>
+<p>답을 듣고 오늘 자세히 볼 문항의 순서를 조정합니다.</p></div></section>
+<section class="slide" data-title="공식 샘플 형식 복습 (1분)" aria-label="6 / 26"><div class="slide__inner"><h2>공식 샘플 형식 복습 (1분)</h2>
+<p>12, 13회차에서 다룬 내용을 한 장으로 줄입니다.</p>
+<ul>
+<li>세 파트: 데이터 분석 20점 / 데이터 전처리 30점 / AI 모델링 50점</li>
+<li>문항 방식 세 가지: 코드 작성(write), 오류 정정(fix), 빈칸 채우기(blank)</li>
+<li>일부 문항은 출력을 읽어 <code>답안N</code> 변수에 저장합니다(예: <code>답안3</code>, <code>답안9</code>).</li>
+<li>이 사이트는 코드를 실행하지 않으므로 문항에 출력 예시가 적혀 있습니다. 풀 때는 직접 실행해 출력 예시와 같은지 확인합니다.</li>
+<li>이 모의고사의 문항과 데이터는 공식 샘플의 형식을 참고해 새로 만든 것이며, 기출 문제가 아닙니다.</li>
+</ul>
+<p>이 회차는 14문항 중 5문항(Q3, Q5, Q9, Q11, Q12)이 오류 정정입니다.</p></div></section>
+<section class="slide" data-title="오류 정정 풀이 순서 (3분)" aria-label="7 / 26"><div class="slide__inner"><h2>오류 정정 풀이 순서 (3분)</h2>
+<p>틀린 코드를 바로 고치기 전에 아래 순서로 읽습니다.</p>
+<ol>
+<li>요구 목록을 먼저 읽습니다. 무엇을 만들어 어느 변수에 저장하는지, 출력 예시는 무엇인지 확인합니다.</li>
+<li>이름을 확인합니다. 함수 이름, 변수 이름, 컬럼 이름이 맞는지 봅니다(<code>countplots</code>, <code>value_count</code>, <code>weight</code>).</li>
+<li>인자를 확인합니다. 인자 이름과 값이 맞는지 봅니다(<code>df=</code>, <code>axis=0</code>, 괄호 없는 <code>MinMaxScaler</code>).</li>
+<li>어느 데이터가 <code>fit</code>, <code>transform</code>, <code>predict</code>에 들어가는지 확인합니다(학습인지 검증인지, 어느 모델인지).</li>
+<li>비교 연산자와 정렬 방향을 확인합니다(<code>&gt;</code> 와 <code>&lt;=</code>, <code>nsmallest</code> 와 <code>nlargest</code>).</li>
+<li>고친 뒤 실행해 출력이 예시와 같은지 비교하고, 필요하면 <code>답안N</code>을 채웁니다.</li>
+</ol>
+<p>한 문항에 오류가 두세 곳 있으므로 하나를 고친 뒤 멈추지 않고 끝까지 읽습니다.</p></div></section>
+<section class="slide" data-title="문항 훑기 (3분): 데이터 분석과 전처리" aria-label="8 / 26"><div class="slide__inner"><h2>문항 훑기 (3분): 데이터 분석과 전처리</h2>
+<table>
+<thead>
+<tr>
+<th>문항</th>
+<th>방식</th>
+<th>점수</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1</td>
+<td>write</td>
+<td>3</td>
+<td><code>pandas</code>, <code>numpy</code> 임포트</td>
+</tr>
+<tr>
+<td>Q2</td>
+<td>write</td>
+<td>4</td>
+<td><code>read_csv</code>로 <code>apple</code> 만들고 <code>head(5)</code> 출력</td>
+</tr>
+<tr>
+<td>Q3</td>
+<td>fix</td>
+<td>6</td>
+<td>등급별 개수 막대 그래프, <code>답안3</code></td>
+</tr>
+<tr>
+<td>Q4</td>
+<td>write</td>
+<td>7</td>
+<td><code>corr(numeric_only=True)</code>, <code>heatmap</code></td>
+</tr>
+<tr>
+<td>Q5</td>
+<td>fix</td>
+<td>6</td>
+<td>이상치 행, <code>lot_id</code> 삭제</td>
+</tr>
+<tr>
+<td>Q6</td>
+<td>write</td>
+<td>6</td>
+<td>결측치 개수 확인, 중앙값 채우기, <code>답안6</code></td>
+</tr>
+<tr>
+<td>Q7</td>
+<td>blank</td>
+<td>6</td>
+<td><code>get_dummies</code>, <code>drop_first</code>, <code>답안7_1</code>, <code>답안7_2</code></td>
+</tr>
+<tr>
+<td>Q8</td>
+<td>write</td>
+<td>6</td>
+<td>층화 분할(<code>stratify=y</code>, <code>random_state=42</code>)</td>
+</tr>
+<tr>
+<td>Q9</td>
+<td>fix</td>
+<td>6</td>
+<td><code>MinMaxScaler</code>, <code>답안9</code></td>
+</tr>
+</tbody>
+</table>
+<p>Q7 결과 <code>(2970, 14)</code>, Q8 결과 학습 <code>(2376, 13)</code>, 검증 <code>(594, 13)</code>입니다.</p></div></section>
+<section class="slide" data-title="문항 훑기: AI 모델링" aria-label="9 / 26"><div class="slide__inner"><h2>문항 훑기: AI 모델링</h2>
+<table>
+<thead>
+<tr>
+<th>문항</th>
+<th>방식</th>
+<th>점수</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q10</td>
+<td>write</td>
+<td>10</td>
+<td><code>DecisionTreeClassifier</code>, <code>RandomForestClassifier</code> 학습</td>
+</tr>
+<tr>
+<td>Q11</td>
+<td>fix</td>
+<td>8</td>
+<td>랜덤포레스트 변수 중요도 상위 10개, <code>답안11</code></td>
+</tr>
+<tr>
+<td>Q12</td>
+<td>fix</td>
+<td>8</td>
+<td>검증 정확도 비교, <code>답안12</code></td>
+</tr>
+<tr>
+<td>Q13</td>
+<td>write</td>
+<td>14</td>
+<td>딥러닝 다중분류 모델 구성·컴파일·학습</td>
+</tr>
+<tr>
+<td>Q14</td>
+<td>blank</td>
+<td>10</td>
+<td>학습 곡선, <code>답안14_1</code>, <code>답안14_2</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Q10의 모델 설정: <code>DecisionTreeClassifier(max_depth=5, random_state=42)</code>, <code>RandomForestClassifier(n_estimators=200, max_depth=8, random_state=42)</code>. 스케일링하지 않은 <code>X_train</code>으로 학습합니다.</li>
+<li>Q13은 한 문항에 14점으로, 가장 배점이 큽니다.</li>
+<li>Q14는 <code>history.history</code>의 <code>'loss'</code>, <code>'val_loss'</code> 키와 <code>plt.legend()</code>를 묻습니다.</li>
+</ul></div></section>
+<section class="slide" data-title="오류 정정 Q3: 막대 그래프와 개수 출력 (2분)" aria-label="10 / 26"><div class="slide__inner"><h2>오류 정정 Q3: 막대 그래프와 개수 출력 (2분)</h2>
+<p>주어진 코드:</p>
+<pre><code class="language-python">sns.countplots(df=apple, x='quality_grade')
+print(apple['quality_grade'].value_count())
+</code></pre>
+<p>모범 답안:</p>
+<pre><code class="language-python">sns.countplot(data=apple, x='quality_grade')
+print(apple['quality_grade'].value_counts())
+plt.title('품질 등급별 개수')
+plt.show()
+
+답안3 = 'B'
+</code></pre>
+<p>고친 곳 세 가지: <code>countplots</code>가 아니라 <code>countplot</code>, 데이터 인자는 <code>df=</code>가 아니라 <code>data=</code>, <code>value_count</code>가 아니라 <code>value_counts</code>입니다.</p>
+<p>출력은 B 1350, A 900, C 750이므로 가장 많은 등급 <code>'B'</code>를 <code>답안3</code>에 문자열로 저장합니다.</p></div></section>
+<section class="slide" data-title="오류 정정 Q5: 이상치 행과 컬럼 삭제 (2분)" aria-label="11 / 26"><div class="slide__inner"><h2>오류 정정 Q5: 이상치 행과 컬럼 삭제 (2분)</h2>
+<p>주어진 코드:</p>
+<pre><code class="language-python">apple_temp = apple[apple['weight'] &gt; 600]
+apple_temp = apple_temp.drop('lot_id', axis=0)
+</code></pre>
+<p>모범 답안:</p>
+<pre><code class="language-python">apple_temp = apple[apple['weight_g'] &lt;= 600]
+apple_temp = apple_temp.drop('lot_id', axis=1)
+
+print(apple.shape, apple_temp.shape)   # (3000, 12) (2970, 11)
+</code></pre>
+<p>고친 곳:
+- 컬럼 이름은 <code>weight</code>가 아니라 <code>weight_g</code>입니다.
+- 600을 초과하는 행을 삭제하므로 남기는 조건은 <code>&lt;= 600</code>입니다. <code>&gt; 600</code>은 삭제할 행만 남깁니다.
+- 컬럼을 삭제하는 방향은 <code>axis=1</code>입니다. <code>axis=0</code>은 행 라벨로 해석됩니다.</p>
+<p>행이 3000개에서 2970개로 30개 줄어든 것이 이상치 30건과 맞는지 출력으로 확인합니다.</p></div></section>
+<section class="slide" data-title="결측치 처리 Q6: 중앙값으로 채우기 (2분)" aria-label="12 / 26"><div class="slide__inner"><h2>결측치 처리 Q6: 중앙값으로 채우기 (2분)</h2>
+<pre><code class="language-python">print(apple_temp.isnull().sum())      # sugar_brix 118, firmness_n 86, color_score 51
+
+답안6 = 118
+
+apple_na = apple_temp.fillna(apple_temp.median(numeric_only=True))
+print(apple_na.isnull().sum().sum())  # 0
+</code></pre>
+<ul>
+<li><code>isnull().sum()</code>은 결측이면 1로 세어 컬럼별로 더합니다. 가장 많은 컬럼은 <code>sugar_brix</code>이고 개수는 118입니다. <code>답안6</code>은 컬럼 이름이 아니라 이 개수입니다.</li>
+<li>평균 대신 중앙값을 쓰는 이유는 극단값의 영향을 덜 받기 때문입니다.</li>
+<li><code>median(numeric_only=True)</code>는 컬럼 이름을 인덱스로 하는 Series입니다. <code>fillna</code>에 넘기면 같은 이름의 컬럼마다 해당 값으로 채웁니다.</li>
+<li><code>sum().sum()</code>은 컬럼별 합을 다시 합한 총개수이며 0이 나와야 합니다.</li>
+</ul>
+<p>자주 틀리는 답: <code>numeric_only=True</code> 누락(문자열 컬럼 때문에 오류), 결과를 <code>apple_na</code>에 저장하지 않음, <code>답안6</code>에 총 결측 수 255를 저장.</p></div></section>
+<section class="slide" data-title="오류 정정 Q9: MinMaxScaler (4분)" aria-label="13 / 26"><div class="slide__inner"><h2>오류 정정 Q9: MinMaxScaler (4분)</h2>
+<p>주어진 코드:</p>
+<pre><code class="language-python">scaler = MinMaxScaler
+X_train_s = scaler.fit(X_train)
+X_valid_s = scaler.fit_transform(X_valid)
+</code></pre>
+<p>모범 답안:</p>
+<pre><code class="language-python">scaler = MinMaxScaler()
+X_train_s = scaler.fit_transform(X_train)
+X_valid_s = scaler.transform(X_valid)
+
+# 학습 데이터 최댓값: 1.0
+# 검증 데이터 최댓값: 1.02
+답안9 = 1.02
+</code></pre>
+<p>고친 곳 세 가지:
+1. <code>MinMaxScaler</code>에 괄호가 없으면 객체가 아니라 클래스 자체입니다. <code>MinMaxScaler()</code>로 만듭니다.
+2. <code>fit</code>은 기준만 계산하고 scaler를 반환합니다. 변환된 배열이 필요하므로 학습 데이터에는 <code>fit_transform</code>입니다.
+3. 검증 데이터에 <code>fit_transform</code>을 쓰면 검증 데이터로 기준을 새로 구합니다. 검증에는 <code>transform</code>만 씁니다.</p></div></section>
+<section class="slide" data-title="Q9와 답안9: 검증 최댓값이 1을 넘는 이유" aria-label="14 / 26"><div class="slide__inner"><h2>Q9와 답안9: 검증 최댓값이 1을 넘는 이유</h2>
+<ul>
+<li><code>MinMaxScaler</code>는 컬럼마다 <code>(값 - 최솟값) / (최댓값 - 최솟값)</code>을 계산해 0~1 범위로 만듭니다.</li>
+<li>최솟값과 최댓값은 학습 데이터에서만 구합니다. 그래서 학습 데이터의 변환 결과 최댓값은 항상 1.0입니다.</li>
+<li>검증 데이터에 학습 데이터에는 없던 큰 값이 있으면 같은 기준으로 변환해도 1을 넘을 수 있습니다. 이 데이터에서는 검증 최댓값이 1.02입니다.</li>
+<li>검증 데이터에 <code>fit_transform</code>을 쓰면 검증 최댓값이 정확히 1.0이 됩니다. 이때는 출력이 예시(1.02)와 달라지므로 오류를 알아챌 수 있습니다.</li>
+</ul>
+<p>자주 틀리는 답:
+- 세 곳 가운데 3번만 고치면 <code>X_train_s</code>가 배열이 아니라 scaler라서 <code>np.max</code>에서 오류가 납니다.
+- <code>답안9</code>에 학습 데이터의 최댓값 1.0을 적습니다. 저장할 값은 검증 데이터의 최댓값입니다.</p></div></section>
+<section class="slide" data-title="Q13: 딥러닝 다중분류 모델 (4분)" aria-label="15 / 26"><div class="slide__inner"><h2>Q13: 딥러닝 다중분류 모델 (4분)</h2>
+<pre><code class="language-python">le = LabelEncoder()
+y_train_enc = to_categorical(le.fit_transform(y_train))
+y_valid_enc = to_categorical(le.transform(y_valid))
+
+model = Sequential([
+    Input(shape=(X_train_s.shape[1],)),
+    Dense(64, activation='relu'),
+    Dropout(0.2),
+    Dense(32, activation='relu'),
+    Dense(3, activation='softmax')
+])
+model.compile(optimizer='adam', loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+es = EarlyStopping(monitor='val_loss', patience=5)
+history = model.fit(X_train_s, y_train_enc, epochs=30, batch_size=32,
+                    validation_data=(X_valid_s, y_valid_enc), callbacks=[es])
+</code></pre>
+<p>모범 답안 기준 마지막 epoch(30/30): accuracy 0.7942, val_accuracy 0.8148, val_loss 0.4535.</p></div></section>
+<section class="slide" data-title="Q13: 타깃 변환과 손실 함수의 짝" aria-label="16 / 26"><div class="slide__inner"><h2>Q13: 타깃 변환과 손실 함수의 짝</h2>
+<ul>
+<li><code>LabelEncoder</code>는 문자열 <code>'A'</code>, <code>'B'</code>, <code>'C'</code>를 알파벳 순서로 0, 1, 2로 바꿉니다.</li>
+<li><code>to_categorical</code>은 정수를 <code>[1, 0, 0]</code>, <code>[0, 1, 0]</code>, <code>[0, 0, 1]</code> 같은 원-핫 벡터로 바꿉니다.</li>
+<li>출력층은 클래스 수와 같은 3개 노드에 <code>softmax</code>를 써서 세 값을 합이 1인 확률로 만듭니다.</li>
+<li>원-핫 타깃에는 <code>categorical_crossentropy</code>를 씁니다.</li>
+</ul>
+<p>정수 라벨(<code>to_categorical</code>을 쓰지 않은 상태)을 그대로 쓰려면 손실을 <code>sparse_categorical_crossentropy</code>로 바꿉니다. 출력층은 같은 <code>Dense(3, softmax)</code>입니다. 두 방식을 섞으면 shape 오류가 납니다.</p>
+<p>이 문항의 채점 규칙은 <code>sparse_categorical_crossentropy</code>, <code>'binary_crossentropy'</code>, <code>'sigmoid'</code>, 안내하지 않은 <code>validation_split</code>, <code>restore_best_weights</code>를 금지합니다.</p>
+<p>검증 타깃에는 <code>fit_transform</code>이 아니라 <code>transform</code>을 씁니다. 인코더를 다시 만들지 않고 학습 데이터로 만든 규칙을 적용합니다.</p></div></section>
+<section class="slide" data-title="모의고사 4, 5, 6회 비교" aria-label="17 / 26"><div class="slide__inner"><h2>모의고사 4, 5, 6회 비교</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>4회 회귀</th>
+<th>5회 이진분류</th>
+<th>6회 다중분류</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>출력층</td>
+<td><code>Dense(1, 'linear')</code></td>
+<td><code>Dense(1, 'sigmoid')</code></td>
+<td><code>Dense(3, 'softmax')</code></td>
+</tr>
+<tr>
+<td>손실 함수</td>
+<td><code>mse</code></td>
+<td><code>binary_crossentropy</code></td>
+<td><code>categorical_crossentropy</code></td>
+</tr>
+<tr>
+<td>metrics</td>
+<td><code>mae</code></td>
+<td><code>accuracy</code></td>
+<td><code>accuracy</code></td>
+</tr>
+<tr>
+<td>타깃 인코딩</td>
+<td>없음(연속값)</td>
+<td><code>LabelEncoder</code> 정수 0/1</td>
+<td><code>LabelEncoder</code> 후 <code>to_categorical</code> 원-핫</td>
+</tr>
+<tr>
+<td>정수 라벨을 쓸 때</td>
+<td>해당 없음</td>
+<td><code>binary_crossentropy</code> 그대로</td>
+<td><code>sparse_categorical_crossentropy</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>4, 5, 6회 모두 <code>EarlyStopping(monitor='val_loss', patience=5)</code>와 <code>validation_data=</code> 형식입니다.</li>
+<li>출력층 노드 수가 1에서 3으로 바뀌는 것은 클래스가 둘에서 셋이 되었기 때문입니다.</li>
+<li>문제를 읽을 때 타깃이 연속값인지, 두 클래스인지, 세 클래스 이상인지부터 확인하면 이 표의 한 열이 정해집니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 1: Q11 변수 중요도 (3분)" aria-label="18 / 26"><div class="slide__inner"><h2>함께 풀기 1: Q11 변수 중요도 (3분)</h2>
+<p>발표자가 모의고사 6회 화면의 Q11을 열고, 참가자가 오류를 찾아 말합니다.</p>
+<pre><code class="language-python">importances = pd.Series(dt_model.feature_importance_, index=X_train.columns)
+top10 = importances.nsmallest(10)
+print(top10.round(3))
+
+plt.figure(figsize=(8, 5))
+sns.barplot(x=top10.values, y=top10.index)
+plt.title('변수 중요도 상위 10개')
+plt.show()
+
+답안11 = ''
+</code></pre>
+<p>요구 목록: 학습한 랜덤포레스트 모델의 변수 중요도 상위 10개를 막대 그래프로 그립니다. 중요도가 가장 큰 변수의 이름을 <code>답안11</code>에 문자열로 저장합니다.</p>
+<p>오류가 몇 곳인지 먼저 세어 본 뒤 하나씩 말합니다.</p></div></section>
+<section class="slide" data-title="함께 풀기 2: Q12 두 모델의 검증 정확도 (4분)" aria-label="19 / 26"><div class="slide__inner"><h2>함께 풀기 2: Q12 두 모델의 검증 정확도 (4분)</h2>
+<pre><code class="language-python">from sklearn.metrics import accuracy
+
+dt_pred = dt_model.predict(X_train)
+rf_pred = rf_model.predict(X_valid)
+
+dt_acc = accuracy_score(y_valid, dt_pred)
+rf_acc = accuracy_score(y_train, rf_pred)
+
+print('DecisionTree 정확도:', round(dt_acc, 4))
+print('RandomForest 정확도:', round(rf_acc, 4))
+
+답안12 = ''
+</code></pre>
+<p>요구 목록: 두 모델이 검증 데이터(<code>X_valid</code>, <code>y_valid</code>)에서 내는 정확도를 계산해 비교합니다. 정확도가 더 높은 모델 이름을 <code>답안12</code>에 저장합니다.</p>
+<p>출력 예시: DecisionTree 0.6751, RandomForest 0.7609</p></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유 (Q11)" aria-label="20 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (Q11)</h2>
+<pre><code class="language-python">importances = pd.Series(rf_model.feature_importances_, index=X_train.columns)
+top10 = importances.nlargest(10)
+...
+답안11 = 'sugar_brix'
+</code></pre>
+<ul>
+<li><code>dt_model</code>을 <code>rf_model</code>로 바꿉니다. 요구 목록이 랜덤포레스트 모델이라고 지정합니다.</li>
+<li>속성 이름은 <code>feature_importance_</code>가 아니라 <code>feature_importances_</code>입니다(복수형).</li>
+<li>중요도가 큰 10개를 고르므로 <code>nsmallest</code>가 아니라 <code>nlargest</code>입니다. <code>nsmallest</code>를 쓰면 가장 작은 10개가 나와 출력 예시와 달라집니다.</li>
+<li>출력 첫 줄이 <code>sugar_brix 0.377</code>이고, 다음은 <code>firmness_n 0.159</code>, <code>color_score 0.107</code>입니다.</li>
+<li>이 문항은 이름(속성), 어느 모델인지, 정렬 방향이 한 번에 나옵니다.</li>
+</ul></div></section>
+<section class="slide" data-title="함께 풀기 — 답과 이유 (Q12)" aria-label="21 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (Q12)</h2>
+<pre><code class="language-python">from sklearn.metrics import accuracy_score
+
+dt_pred = dt_model.predict(X_valid)
+rf_pred = rf_model.predict(X_valid)
+
+dt_acc = accuracy_score(y_valid, dt_pred)
+rf_acc = accuracy_score(y_valid, rf_pred)
+
+답안12 = 'RandomForest'
+</code></pre>
+<ul>
+<li>임포트할 이름은 <code>accuracy</code>가 아니라 <code>accuracy_score</code>입니다. 임포트 줄과 아래 호출 이름이 일치합니다.</li>
+<li>검증 정확도를 비교하므로 두 모델 모두 <code>X_valid</code>로 예측합니다. <code>dt_model.predict(X_train)</code>은 학습 데이터에 대한 예측입니다.</li>
+<li>정답과 비교하는 쪽도 <code>y_valid</code>입니다. <code>rf_acc</code>에 <code>y_train</code>을 넣으면 <code>rf_pred</code>(검증 데이터 예측)와 길이가 맞지 않습니다.</li>
+<li>정확도는 DecisionTree 0.6751, RandomForest 0.7609이므로 <code>답안12</code>는 <code>'RandomForest'</code>입니다.</li>
+</ul></div></section>
+<section class="slide" data-title="정리" aria-label="22 / 26"><div class="slide__inner"><h2>정리</h2>
+<ul>
+<li>오류 정정은 요구 목록을 읽은 뒤 이름, 인자, 데이터, 방향 순으로 확인하고, 고친 뒤 출력 예시와 비교합니다.</li>
+<li>수치형 결측치는 <code>fillna(apple_temp.median(numeric_only=True))</code>로 컬럼별 중앙값을 채웁니다. <code>답안6</code>은 가장 많은 결측 개수 118입니다.</li>
+<li><code>MinMaxScaler</code>는 학습 데이터로 <code>fit_transform</code>, 검증 데이터는 <code>transform</code>입니다. 검증 최댓값이 1을 넘을 수 있어 <code>답안9</code>는 1.02입니다.</li>
+<li>다중분류 딥러닝은 <code>LabelEncoder</code>, <code>to_categorical</code>, <code>Dense(3, softmax)</code>, <code>categorical_crossentropy</code>가 한 묶음입니다. 정수 라벨이면 <code>sparse_categorical_crossentropy</code>입니다.</li>
+<li>4, 5, 6회의 출력층·손실·지표·타깃 인코딩 차이를 표로 기억합니다.</li>
+</ul></div></section>
+<section class="slide" data-title="다음 회차 준비" aria-label="23 / 26"><div class="slide__inner"><h2>다음 회차 준비</h2>
+<p>이번이 마지막 회차입니다. 남은 기간에 각자 할 일은 다음과 같습니다.</p>
+<ul>
+<li>점수가 가장 낮았던 모의고사를 90분 타이머로 다시 풉니다. 다시 틀린 문항은 오류 유형(이름, 인자, 데이터, 방향)을 기록합니다.</li>
+<li><a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/appendix.html">부록 A 외워야 하는 코드</a>의 기억 연습을 복습 일정(1, 3, 7, 14, 30일 간격)에 따라 진행합니다.</li>
+<li>치트시트로 문제 유형별 코드의 뼈대를 점검합니다.</li>
+<li>응시 전에 KT AICE 공식 공지에서 일정, 문항 구성, 허용 자료를 확인합니다.</li>
+</ul>
+<p>본인의 시작 날짜와 복습 날짜를 오늘 세션에서 한 번 적어 둡니다.</p></div></section>
+<section class="slide" data-title="토론 질문" aria-label="24 / 26"><div class="slide__inner"><h2>토론 질문</h2>
+<ol>
+<li>오류 정정 문항 5개(Q3, Q5, Q9, Q11, Q12)에서 본인이 가장 놓치기 쉬운 오류 유형은 무엇이고, 그것을 어떻게 확인하겠습니까?</li>
+<li>정수 라벨과 원-핫 라벨 가운데 어느 쪽을 쓰겠습니까? 그에 따라 손실 함수와 코드는 어떻게 달라집니까?</li>
+<li>남은 기간의 시간을 모의고사 재풀이와 부록 A 기억 연습에 어떤 비율로 나누겠습니까?</li>
+</ol></div></section>
+<section class="slide" data-title="예상 질문과 답 (1)" aria-label="25 / 26"><div class="slide__inner"><h2>예상 질문과 답 (1)</h2>
+<p><strong>Q1.</strong> Q5에서 왜 <code>&lt;= 600</code>으로 쓰고 <code>&gt; 600</code>으로 쓰지 않습니까?
+답: 600을 초과하는 행을 삭제하는 작업이므로 남길 행은 600 이하입니다. <code>&gt; 600</code>은 삭제할 행만 남겨 <code>apple_temp</code>가 30행이 됩니다. 정상 코드는 3000행에서 2970행이 됩니다.</p>
+<p><strong>Q2.</strong> Q9에서 검증 데이터의 최댓값이 1.02인 것은 잘못된 결과가 아닙니까?
+답: 학습 데이터의 최솟값·최댓값 기준으로 변환했을 때 검증 데이터에 학습 데이터에 없던 큰 값이 있으면 1을 넘을 수 있습니다. 이 출력(1.02)이 <code>답안9</code>입니다. 검증에 <code>fit_transform</code>을 쓰면 1.0이 나오므로 그 경우가 오류입니다.</p>
+<p><strong>Q3.</strong> Q13에서 <code>to_categorical</code> 대신 정수 라벨을 쓰고 손실만 바꿔도 됩니까?
+답: 코드로는 가능합니다. 정수 라벨이면 <code>sparse_categorical_crossentropy</code>를 씁니다. 다만 이 문항의 채점 규칙은 <code>to_categorical</code>과 <code>categorical_crossentropy</code>를 기대하고 <code>sparse_categorical_crossentropy</code>를 금지합니다.</p></div></section>
+<section class="slide" data-title="예상 질문과 답 (2)" aria-label="26 / 26"><div class="slide__inner"><h2>예상 질문과 답 (2)</h2>
+<p><strong>Q4.</strong> 이진분류인 5회에서는 <code>Dense(1, sigmoid)</code>인데 6회는 왜 <code>Dense(3, softmax)</code>입니까?
+답: 5회는 클래스가 둘이라 한 개의 확률로 충분합니다. 6회는 세 등급이라 노드를 3개 두고 <code>softmax</code>로 합이 1인 확률 세 개를 냅니다. 이진분류용 <code>sigmoid</code>와 <code>binary_crossentropy</code>를 세 등급에 쓰지 않습니다.</p>
+<p><strong>Q5.</strong> Q6에서 <code>답안6</code>에 255를 적으면 왜 틀립니까?
+답: 요구 사항은 결측치가 가장 많은 컬럼의 개수입니다. 컬럼별 개수는 <code>sugar_brix</code> 118, <code>firmness_n</code> 86, <code>color_score</code> 51이고 255는 세 컬럼의 합입니다.</p>
+<p><strong>Q6.</strong> Q13의 <code>EarlyStopping</code>에 <code>restore_best_weights</code>를 넣으면 안 됩니까?
+답: 이 문항은 <code>monitor='val_loss'</code>, <code>patience=5</code>만 지정하고 "안내된 내용 외의 인자는 넣지 않습니다"라고 적었습니다. 채점 규칙도 <code>restore_best_weights</code>를 금지합니다. 문항이 지정한 인자만 씁니다.</p></div></section>
+</main>
+<div class="meter" aria-hidden="true"><span></span></div>
+<nav class="bar" aria-label="슬라이드 이동">
+<a class="btn" href="index.html" title="회차 목록">회차</a>
+<button class="btn" type="button" data-overview title="슬라이드 목록 (O)">목록</button>
+<span class="bar__title"></span>
+<span class="bar__time" title="발표 타이머 — 두 번 누르면 0으로 (R)"></span>
+<button class="btn" type="button" data-theme-toggle title="밝게/어둡게 (T)">명암</button>
+<button class="btn" type="button" data-full title="전체 화면 (F)">전체</button>
+<button class="btn" type="button" data-prev aria-label="이전 슬라이드">&#8592;</button>
+<span class="bar__count"></span>
+<button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
+</nav>
+<div class="ov" role="dialog" aria-label="슬라이드 목록">
+<div class="ov__head"><h2>14회차 — 모의고사 6회 리뷰 (다중분류, 공식 샘플 형식)</h2><span><a class="btn" href="13-mock05.html" title="이전 회차">이전 회차</a>  <button class="btn" type="button" data-close>닫기</button></span></div>
+<ol class="ov__grid">
+<li><button class="ov__item" type="button"><span class="ov__no">1</span><span>14회차 — 모의고사 6회 리뷰 (다중분류, 공식 샘플 형식)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">3</span><span>진행 순서</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">4</span><span>시험 구성 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">5</span><span>점수 공유 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">6</span><span>공식 샘플 형식 복습 (1분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">7</span><span>오류 정정 풀이 순서 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">8</span><span>문항 훑기 (3분): 데이터 분석과 전처리</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">9</span><span>문항 훑기: AI 모델링</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">10</span><span>오류 정정 Q3: 막대 그래프와 개수 출력 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">11</span><span>오류 정정 Q5: 이상치 행과 컬럼 삭제 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">12</span><span>결측치 처리 Q6: 중앙값으로 채우기 (2분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">13</span><span>오류 정정 Q9: MinMaxScaler (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">14</span><span>Q9와 답안9: 검증 최댓값이 1을 넘는 이유</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">15</span><span>Q13: 딥러닝 다중분류 모델 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">16</span><span>Q13: 타깃 변환과 손실 함수의 짝</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">17</span><span>모의고사 4, 5, 6회 비교</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">18</span><span>함께 풀기 1: Q11 변수 중요도 (3분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">19</span><span>함께 풀기 2: Q12 두 모델의 검증 정확도 (4분)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">20</span><span>함께 풀기 — 답과 이유 (Q11)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">21</span><span>함께 풀기 — 답과 이유 (Q12)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">22</span><span>정리</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">23</span><span>다음 회차 준비</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">24</span><span>토론 질문</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">25</span><span>예상 질문과 답 (1)</span></button></li>
+<li><button class="ov__item" type="button"><span class="ov__no">26</span><span>예상 질문과 답 (2)</span></button></li>
+</ol>
+<p class="help"><kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>Home</kbd> <kbd>End</kbd> 처음/끝 · <kbd>O</kbd> 목록 · <kbd>F</kbd> 전체 화면 · <kbd>T</kbd> 명암 · <kbd>R</kbd> 타이머 초기화 · 인쇄하면 한 장에 한 슬라이드씩 PDF로 저장됩니다.</p>
+</div>
+<script>/* dl4aice v2 — dl4aice-core.js
+ * 모든 v2 위젯이 공유하는 최소 런타임: 데이터 로더, localStorage 저장소, 진도 기록,
+ * 토스트, 파이썬 코드 하이라이터, 클립보드, 라이트/다크 테마.
+ * 외부 의존성 없음. file:// 로 열어도 동작하도록 데이터는 assets/data/*.js 래퍼
+ * (window.DL4AICE_DATA)에서 먼저 찾고, 없을 때만 fetch 로 JSON 을 읽는다.
+ */
+(function () {
+  "use strict";
+
+  var NS = "dl4aice.v2.";
+  var D = (window.DL4AICE = window.DL4AICE || {});
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /* 문제 지문용 미니 마크업: `code`, **굵게**, 빈 줄 = 문단, 줄바꿈 = <br>, "- " 목록 */
+  function richText(text) {
+    var source = String(text == null ? "" : text).replace(/\r\n?/g, "\n");
+    /* ```코드 펜스``` 는 먼저 떼어 내어 코드 블록으로 렌더링한다 */
+    var fences = [];
+    source = source.replace(/```[a-zA-Z]*\n([\s\S]*?)\n?```/g, function (_, code) {
+      fences.push(code);
+      return "\n\n\u0000FENCE" + (fences.length - 1) + "\u0000\n\n";
+    });
+    var blocks = source.split(/\n{2,}/).filter(function (b) { return b.trim() !== ""; });
+    return blocks
+      .map(function (block) {
+        var fence = /^\u0000FENCE(\d+)\u0000$/.exec(block.trim());
+        if (fence) {
+          return '<pre class="v2-code"><code>' + highlight(fences[Number(fence[1])]) + "</code></pre>";
+        }
+        var lines = block.split("\n");
+        var inline = function (line) {
+          return escapeHtml(line)
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        };
+        if (lines.every(function (l) { return /^\s*[-•]\s+/.test(l); })) {
+          return "<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*[-•]\s+/, "")) + "</li>"; }).join("") + "</ul>";
+        }
+        if (lines.every(function (l) { return /^\s*\d+[.)]\s+/.test(l); })) {
+          return "<ol>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>"; }).join("") + "</ol>";
+        }
+        return "<p>" + lines.map(inline).join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
+  var CONSTANTS = /^(?:True|False|None|self|cls)$/;
+  var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+
+  function tok(cls, text) {
+    return '<span class="v2-tok-' + cls + '">' + text + "</span>";
+  }
+
+  /* 파이썬 코드 -> 에디터식으로 색을 입힌 HTML (이스케이프 포함).
+     주석·문자열·숫자·키워드·상수·내장 함수·함수 호출·클래스·키워드 인자·데코레이터·연산자를 구분한다. */
+  function highlight(code) {
+    var src = String(code == null ? "" : code);
+    var out = "";
+    var last = 0;
+    var depth = 0;
+    var prevWord = "";
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(src))) {
+      var gap = src.slice(last, m.index);
+      for (var i = 0; i < gap.length; i++) {
+        if (gap[i] === "(" || gap[i] === "[" || gap[i] === "{") depth++;
+        else if (gap[i] === ")" || gap[i] === "]" || gap[i] === "}") depth = Math.max(0, depth - 1);
+      }
+      out += escapeHtml(gap);
+      var text = escapeHtml(m[0]);
+      var end = TOKEN_RE.lastIndex;
+      if (m[1]) out += tok("com", text);
+      else if (m[2]) out += tok("str", text);
+      else if (m[3]) out += tok("num", text);
+      else if (m[4]) out += tok("blank", text);
+      else if (m[5]) out += tok("dec", text);
+      else if (m[6]) {
+        var word = m[6];
+        var next = src[end];
+        var rest = src.slice(end, end + 3);
+        if (KEYWORDS.test(word)) out += tok("kw", text);
+        else if (CONSTANTS.test(word)) out += tok("const", text);
+        else if (prevWord === "def") out += tok("fn", text);
+        else if (prevWord === "class") out += tok("cls", text);
+        else if (next === "(") {
+          if (BUILTINS.test(word)) out += tok("builtin", text);
+          else if (/^[A-Z]/.test(word)) out += tok("cls", text);
+          else out += tok("fn", text);
+        } else if (depth > 0 && /^\s*=(?!=)/.test(rest)) out += tok("param", text);
+        else if (prevWord === "import" || prevWord === "from" || prevWord === "as") out += tok("mod", text);
+        else out += text;
+        prevWord = word;
+      } else out += tok("op", text);
+      if (!m[6] && !m[7]) prevWord = "";
+      last = end;
+    }
+    return out + escapeHtml(src.slice(last));
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === false || value == null) return;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key === "html") node.innerHTML = value;
+      else if (key.slice(0, 2) === "on" && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    });
+    (Array.isArray(children) ? children : children == null ? [] : [children]).forEach(function (child) {
+      if (child == null || child === false) return;
+      node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+    });
+    return node;
+  }
+
+  /* ---------- 저장소 ---------- */
+  var memory = {};
+  var store = {
+    get: function (key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(NS + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : fallback;
+      }
+    },
+    set: function (key, value) {
+      memory[key] = value;
+      try {
+        window.localStorage.setItem(NS + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      delete memory[key];
+      try { window.localStorage.removeItem(NS + key); } catch (e) { /* 저장소 사용 불가 */ }
+    }
+  };
+
+  /* ---------- 진도 ---------- */
+  function readProgress() {
+    var p = store.get("progress", null) || {};
+    p.drills = p.drills || {};
+    p.mocks = p.mocks || {};
+    return p;
+  }
+
+  function announce() {
+    try {
+      document.dispatchEvent(new CustomEvent("dl4aice:progress", { detail: readProgress() }));
+    } catch (e) { /* 구형 브라우저 */ }
+  }
+
+  var progress = {
+    read: readProgress,
+    /* 챕터 실습 문항 통과 기록. questionId 예: "ch04-q3" */
+    markDrill: function (questionId, passed) {
+      var p = readProgress();
+      var prev = p.drills[questionId] || { attempts: 0, ok: false };
+      p.drills[questionId] = {
+        ok: prev.ok || !!passed,
+        attempts: (prev.attempts || 0) + 1,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.drills[questionId];
+    },
+    isDrillDone: function (questionId) {
+      var rec = readProgress().drills[questionId];
+      return !!(rec && rec.ok);
+    },
+    /* chapterKey 예: "ch04". questionIds 는 그 챕터 문항 id 배열 */
+    chapterStats: function (questionIds) {
+      var p = readProgress();
+      var done = (questionIds || []).filter(function (id) { return p.drills[id] && p.drills[id].ok; }).length;
+      var total = (questionIds || []).length;
+      return { done: done, total: total, percent: total ? Math.round((done / total) * 100) : 0 };
+    },
+    /* 모의고사 채점 결과 기록. detail = { parts: {preprocess:{earned,max},...}, elapsedSec } */
+    recordMock: function (mockId, score, detail) {
+      var p = readProgress();
+      var prev = p.mocks[mockId] || { best: 0, attempts: 0 };
+      p.mocks[mockId] = {
+        best: Math.max(prev.best || 0, score),
+        last: score,
+        attempts: (prev.attempts || 0) + 1,
+        detail: detail || null,
+        ts: Date.now()
+      };
+      store.set("progress", p);
+      announce();
+      return p.mocks[mockId];
+    },
+    mock: function (mockId) {
+      return readProgress().mocks[mockId] || null;
+    },
+    reset: function () {
+      store.remove("progress");
+      announce();
+    }
+  };
+
+  /* ---------- 데이터 로더 ---------- */
+  var pending = {};
+  function data(name) {
+    var bag = window.DL4AICE_DATA || {};
+    if (bag[name]) return Promise.resolve(bag[name]);
+    if (!pending[name]) {
+      pending[name] = fetch("assets/data/" + name + ".json")
+        .then(function (res) {
+          if (!res.ok) throw new Error(name + ".json " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          (window.DL4AICE_DATA = window.DL4AICE_DATA || {})[name] = json;
+          return json;
+        });
+    }
+    return pending[name];
+  }
+
+  /* ---------- 토스트 ---------- */
+  function toastHost() {
+    var host = document.querySelector(".v2-toasts");
+    if (!host) {
+      host = el("div", { class: "v2-toasts", role: "status", "aria-live": "polite" });
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  /* toast("메시지", { type: "ok" | "err" | "info", title, timeout(ms), html }) */
+  function toast(message, opts) {
+    opts = opts || {};
+    var type = opts.type || "info";
+    var node = el("div", { class: "v2-toast v2-toast--" + type }, [
+      opts.title ? el("strong", { class: "v2-toast__title", text: opts.title }) : null,
+      opts.html ? el("div", { class: "v2-toast__body", html: message }) : el("div", { class: "v2-toast__body", text: message }),
+      el("button", { class: "v2-toast__close", type: "button", "aria-label": "닫기", text: "×", onclick: function () { dismiss(); } })
+    ]);
+    var timer = null;
+    function dismiss() {
+      if (timer) clearTimeout(timer);
+      if (node.parentNode) node.parentNode.removeChild(node);
+    }
+    var host = toastHost();
+    while (host.children.length >= 3) host.removeChild(host.firstChild);
+    host.appendChild(node);
+    var timeout = opts.timeout === undefined ? (type === "err" ? 9000 : 4500) : opts.timeout;
+    if (timeout > 0) timer = setTimeout(dismiss, timeout);
+    return dismiss;
+  }
+
+  /* ---------- 클립보드 ---------- */
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var area = el("textarea", { class: "v2-sr-only", "aria-hidden": "true" });
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  /* ---------- 테마 ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+    var btn = document.querySelector(".v2-theme-toggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+  }
+
+  var theme = {
+    get: function () { return store.get("theme", "light"); },
+    set: function (value) { store.set("theme", value); applyTheme(value); },
+    toggle: function () { theme.set(theme.get() === "dark" ? "light" : "dark"); }
+  };
+
+  /* 깜빡임 방지: 스크립트 로드 즉시 적용 */
+  applyTheme(theme.get());
+
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  ready(function () {
+    var masthead = document.querySelector(".masthead");
+    if (masthead && !masthead.querySelector(".v2-theme-toggle")) {
+      var tools = masthead.querySelector(".masthead__tools");
+      if (!tools) {
+        tools = el("span", { class: "masthead__tools" });
+        var toc = masthead.querySelector(".masthead__toc");
+        masthead.appendChild(tools);
+        if (toc) tools.appendChild(toc);
+      }
+      tools.insertBefore(
+        el("button", { class: "v2-theme-toggle", type: "button", onclick: function () { theme.toggle(); } }),
+        tools.firstChild
+      );
+    }
+    applyTheme(theme.get());
+  });
+
+  /* 읽던 위치를 따로 기억하지 않으므로, 페이지를 열거나 새로 고치면 맨 위에서 시작한다.
+   * 브라우저의 자동 위치 복원은 위젯이 늦게 그려지면서 엉뚱한 자리에 멈추므로 끈다.
+   * 주소에 #앵커가 있으면 그 자리로 가는 기본 동작을 그대로 둔다. */
+  try { if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual"; } catch (e) { /* 무시 */ }
+  function startAtTop() { if (!window.location.hash) window.scrollTo(0, 0); }
+  startAtTop();
+  window.addEventListener("pageshow", function (ev) { if (ev.persisted) startAtTop(); });
+
+  /* 접힌 <details>(v1 지면판·해설) 안의 앵커로 이동하면 자동으로 펼친다 */
+  function revealHashTarget() {
+    var id = decodeURIComponent((window.location.hash || "").slice(1));
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    var opened = false;
+    for (var node = target.parentElement; node; node = node.parentElement) {
+      if (node.tagName === "DETAILS" && !node.open) { node.open = true; opened = true; }
+    }
+    if (opened) target.scrollIntoView();
+  }
+  ready(revealHashTarget);
+  window.addEventListener("hashchange", revealHashTarget);
+
+  D.escapeHtml = escapeHtml;
+  D.richText = richText;
+  D.highlight = highlight;
+  D.el = el;
+  D.store = store;
+  D.progress = progress;
+  D.data = data;
+  D.toast = toast;
+  D.copy = copy;
+  D.theme = theme;
+  D.ready = ready;
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DL4AICE || {};
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = slides.length;
+  var current = 0;
+  var bar = document.querySelector(".bar");
+  var countEl = bar.querySelector(".bar__count");
+  var titleEl = bar.querySelector(".bar__title");
+  var timeEl = bar.querySelector(".bar__time");
+  var meter = document.querySelector(".meter span");
+  var prev = bar.querySelector("[data-prev]");
+  var next = bar.querySelector("[data-next]");
+  var overview = document.querySelector(".ov");
+  var planned = Number(document.body.getAttribute("data-minutes")) || 35;
+
+  /* 파이썬 코드 색 입히기 (교재와 같은 배색) */
+  if (D.highlight) {
+    Array.prototype.forEach.call(document.querySelectorAll("pre > code.language-python"), function (code) {
+      code.innerHTML = D.highlight(code.textContent).replace(/class="v2-tok-/g, 'class="tok-');
+    });
+  }
+
+  /* 내용이 넘치면 글자를 조금 줄여 한 장에 맞춘다 */
+  function fit(slide) {
+    var inner = slide.querySelector(".slide__inner");
+    var scale = 1;
+    var fig = 1;
+    inner.style.setProperty("--scale", "1");
+    inner.style.setProperty("--fig", "1");
+    /* 먼저 도해를 줄이고(글자는 읽기 좋은 크기로 유지), 그래도 넘치면 글자를 줄인다 */
+    while (inner.scrollHeight > inner.clientHeight + 2 && (fig > 0.5 || scale > 0.56)) {
+      if (fig > 0.5 && (fig > scale - 0.1 || scale <= 0.56)) fig -= 0.05;
+      else scale -= 0.03;
+      inner.style.setProperty("--fig", fig.toFixed(2));
+      inner.style.setProperty("--scale", scale.toFixed(2));
+    }
+  }
+
+  function show(index, replace) {
+    current = Math.max(0, Math.min(count - 1, index));
+    slides.forEach(function (s, i) { s.classList.toggle("is-current", i === current); });
+    fit(slides[current]);
+    countEl.textContent = current + 1 + " / " + count;
+    titleEl.textContent = slides[current].getAttribute("data-title");
+    meter.style.width = ((current + 1) / count) * 100 + "%";
+    prev.disabled = current === 0;
+    next.disabled = current === count - 1;
+    Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+      item.setAttribute("aria-current", i === current ? "true" : "false");
+    });
+    var hash = "#" + (current + 1);
+    if (replace) history.replaceState(null, "", hash); else if (location.hash !== hash) history.pushState(null, "", hash);
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isFinite(n) ? n - 1 : 0;
+  }
+
+  /* 발표 타이머: 처음 넘길 때 시작, 계획 시간을 넘기면 색으로 알린다 */
+  var startedAt = null;
+  var timer = null;
+  function tick() {
+    var sec = Math.floor((Date.now() - startedAt) / 1000);
+    var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+    var ss = String(sec % 60).padStart(2, "0");
+    timeEl.innerHTML = "<strong>" + mm + ":" + ss + "</strong> / " + planned + "분";
+    timeEl.classList.toggle("is-over", sec > planned * 60);
+  }
+  function startTimer() {
+    if (startedAt) return;
+    startedAt = Date.now();
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+  function resetTimer() {
+    clearInterval(timer);
+    startedAt = null;
+    timeEl.innerHTML = "<strong>00:00</strong> / " + planned + "분";
+    timeEl.classList.remove("is-over");
+  }
+
+  function go(delta) { startTimer(); show(current + delta); }
+  function toggleOverview(open) {
+    var willOpen = open === undefined ? !overview.classList.contains("is-open") : open;
+    overview.classList.toggle("is-open", willOpen);
+    if (willOpen) { var cur = overview.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
+  }
+  function toggleTheme() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("dl4aice.v2.theme", JSON.stringify(dark ? "light" : "dark")); } catch (e) { /* 저장 불가 */ }
+  }
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  }
+
+  prev.addEventListener("click", function () { go(-1); });
+  next.addEventListener("click", function () { go(1); });
+  bar.querySelector("[data-overview]").addEventListener("click", function () { toggleOverview(); });
+  bar.querySelector("[data-theme-toggle]").addEventListener("click", toggleTheme);
+  bar.querySelector("[data-full]").addEventListener("click", toggleFullscreen);
+  timeEl.addEventListener("dblclick", resetTimer);
+  overview.querySelector("[data-close]").addEventListener("click", function () { toggleOverview(false); });
+  Array.prototype.forEach.call(overview.querySelectorAll(".ov__item"), function (item, i) {
+    item.addEventListener("click", function () { show(i); toggleOverview(false); });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var key = event.key;
+    if (overview.classList.contains("is-open")) {
+      if (key === "Escape" || key === "o" || key === "O") { toggleOverview(false); event.preventDefault(); }
+      return;
+    }
+    if (key === "ArrowRight" || key === "PageDown" || key === " " || key === "Enter") { go(1); event.preventDefault(); }
+    else if (key === "ArrowLeft" || key === "PageUp" || key === "Backspace") { go(-1); event.preventDefault(); }
+    else if (key === "Home") { show(0); event.preventDefault(); }
+    else if (key === "End") { show(count - 1); event.preventDefault(); }
+    else if (key === "o" || key === "O") { toggleOverview(true); }
+    else if (key === "f" || key === "F") { toggleFullscreen(); }
+    else if (key === "t" || key === "T") { toggleTheme(); }
+    else if (key === "r" || key === "R") { resetTimer(); }
+  });
+
+  /* 터치: 좌우로 밀어 넘기기 */
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  window.addEventListener("resize", function () { fit(slides[current]); });
+  resetTimer();
+  show(fromHash(), true);
+})();
+</script>
+</body>
+</html>
