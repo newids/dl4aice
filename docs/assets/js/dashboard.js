@@ -49,31 +49,30 @@
 
     var best = 0;
     var passed = 0;
-    var mocks = config.mocks.map(function (mock) {
+    /* 모의고사도 챕터와 같은 한 줄 행(이름 · 막대 · 점수)으로 그려 두 칸의 높이를 맞춘다. 형식별로 소제목을 둔다. */
+    var mocks = [];
+    var lastGroup = null;
+    config.mocks.forEach(function (mock) {
       var rec = progress.mocks[mock.id];
-      var badge;
-      if (!rec) badge = el("span", { class: "v2-badge", text: "미응시" });
-      else if (rec.best >= pass) badge = el("span", { class: "v2-badge v2-badge--ok", text: "합격권" });
-      else badge = el("span", { class: "v2-badge v2-badge--warn", text: "재도전" });
       if (rec) {
         best = Math.max(best, rec.best);
         if (rec.best >= pass) passed++;
       }
-      return el("li", { class: "v2-dash-mock" }, [
-        el("a", { class: "v2-dash-mock__link", href: mock.href }, [
-          el("span", { class: "v2-dash-mock__label", text: mock.label }),
-          el("span", { class: "v2-dash-mock__title", text: mock.title.replace(/^실전 모의고사 \d회\s*—\s*/, "") })
-        ]),
-        el("div", { class: "v2-dash-mock__score" }, [
-          el("strong", { text: rec ? String(rec.best) : "–" }),
-          el("span", { text: " / 100 최고점" })
+      if (mock.group && mock.group !== lastGroup) {
+        mocks.push(el("li", { class: "v2-dash-group", text: mock.group }));
+        lastGroup = mock.group;
+      }
+      var short = mock.title.replace(/^실전 모의고사 \d회\s*—\s*/, "").replace(/\s*\(공식 샘플 형식\)\s*$/, "");
+      var state = !rec ? "미응시" : rec.best >= pass ? "합격권" : "재도전";
+      var detail = rec ? "최고 " + rec.best + "점 · " + state + " · 응시 " + rec.attempts + "회 · 최근 " + rec.last + "점 · " + formatDate(rec.ts) : "미응시 · 합격 기준 " + pass + "점";
+      mocks.push(el("li", { class: "v2-dash-row v2-dash-row--mock", title: mock.label + " " + short + " — " + detail }, [
+        el("a", { class: "v2-dash-row__name", href: mock.href }, [
+          el("span", { class: "v2-dash-row__label", text: mock.label.replace(/^모의고사\s*/, "") }),
+          el("span", { class: "v2-dash-row__title", text: short })
         ]),
         bar(rec ? rec.best : 0, rec && rec.best >= pass ? "ok" : "warn"),
-        el("div", { class: "v2-dash-mock__meta" }, [
-          badge,
-          el("span", { text: rec ? "응시 " + rec.attempts + "회 · 최근 " + rec.last + "점 · " + formatDate(rec.ts) : "합격 기준 " + pass + "점" })
-        ])
-      ]);
+        el("span", { class: "v2-dash-row__count" + (rec ? (rec.best >= pass ? " is-ok" : " is-warn") : ""), text: rec ? rec.best + "점" : "미응시" })
+      ]));
     });
 
     var started = totalDone > 0 || Object.keys(progress.mocks).length > 0;
@@ -121,8 +120,8 @@
           el("ul", { class: "v2-dash-rows" }, rows)
         ]),
         el("div", { class: "v2-dash-panel" }, [
-          el("h3", { class: "v2-dash-panel__title", text: "CBT 모의고사" }),
-          el("ul", { class: "v2-dash-mocks" }, mocks)
+          el("h3", { class: "v2-dash-panel__title", text: "CBT 모의고사 최고 점수 (합격 " + pass + "점)" }),
+          el("ul", { class: "v2-dash-rows" }, mocks)
         ])
       ])
     );

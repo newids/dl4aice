@@ -20,6 +20,9 @@
 | 9 | [09-mock01.md](09-mock01.md) | 모의고사 1회 리뷰 (이진분류) | [모의고사 1회](https://newids.github.io/dl4aice/mock01.html) |
 | 10 | [10-mock02.md](10-mock02.md) | 모의고사 2회 리뷰 (다중분류) | [모의고사 2회](https://newids.github.io/dl4aice/mock02.html) |
 | 11 | [11-mock03.md](11-mock03.md) | 모의고사 3회 리뷰 (회귀) | [모의고사 3회](https://newids.github.io/dl4aice/mock03.html) |
+| 12 | [12-mock04.md](12-mock04.md) | 모의고사 4회 리뷰 (회귀, 공식 샘플 형식) | [모의고사 4회](https://newids.github.io/dl4aice/mock04.html) |
+| 13 | [13-mock05.md](13-mock05.md) | 모의고사 5회 리뷰 (이진분류, 공식 샘플 형식) | [모의고사 5회](https://newids.github.io/dl4aice/mock05.html) |
+| 14 | [14-mock06.md](14-mock06.md) | 모의고사 6회 리뷰 (다중분류, 공식 샘플 형식) | [모의고사 6회](https://newids.github.io/dl4aice/mock06.html) |
 
 ## 발표 진행 방법
 

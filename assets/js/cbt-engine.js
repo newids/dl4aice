@@ -998,7 +998,7 @@
           failedTotal++;
         });
       });
-      var labels = { blank: "빈칸(___) 미작성 문항", etc: "기타 요구사항 미충족" };
+      var labels = { blank: "빈칸 미작성 문항", etc: "기타 요구사항 미충족" };
       KIND_RULES.forEach(function (k) { labels[k.id] = k.label; });
       var kinds = Object.keys(tally).sort(function (a, b) { return tally[b] - tally[a]; });
       if (kinds.length) {
@@ -1040,7 +1040,7 @@
         if (!r.pass) {
           body.appendChild(h("h4", { class: "v2-cbt__h4", text: "충족하지 못한 요구사항" }));
           var fl = h("ul", { class: "v2-cbt__failed" });
-          if (r.blanks > 0) fl.appendChild(h("li", {}, [h("strong", { text: "빈칸(___) " + r.blanks + "곳이 남아 있습니다. " }), "빈칸이 남아 있으면 자동으로 오답 처리됩니다."]));
+          if (r.blanks > 0) fl.appendChild(h("li", {}, [h("strong", { text: "빈칸 " + r.blanks + "곳이 남아 있습니다. " }), "빈칸이 남아 있으면 자동으로 오답 처리됩니다."]));
           r.failed.forEach(function (f) {
             fl.appendChild(h("li", {}, [h("strong", { text: (f.label || "요구사항") + " " }), f.detail ? h("span", { html: D.richText(f.detail).replace(/^<p>|<\/p>$/g, "") }) : null, f.hint ? h("span", { class: "v2-cbt__fhint", text: " 힌트: " + f.hint }) : null]));
           });

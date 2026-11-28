@@ -570,29 +570,29 @@ print(f'예측 에너지 소비량: {new_pred[0][0]:.1f} kWh')
 <p>그런 경우를 만난 분은 해당 문항과 본인이 쓴 코드를 세션에 가져옵니다. 질의응답 시간에 함께 확인합니다.</p></div></section>
 <section class="slide" data-title="함께 풀기 1: Q13 학습 곡선 시각화 (2분)" aria-label="18 / 26"><div class="slide__inner"><h2>함께 풀기 1: Q13 학습 곡선 시각화 (2분)</h2>
 <p>발표자가 모의고사 3회 화면의 Q13을 열고, 참가자가 빈칸을 말로 채웁니다.</p>
-<pre><code class="language-python">fig, axes = plt.subplots(1, ___, figsize=(12, 4))
+<pre><code class="language-python">fig, axes = plt.subplots(1, &lt; blank13-1 &gt;, figsize=(12, 4))
 
 axes[0].plot(history.history['loss'], label='loss')
-axes[0].plot(history.history[___], label='val_loss')
-axes[0].___()
+axes[0].plot(history.history[&lt; blank13-2 &gt;], label='val_loss')
+axes[0].&lt; blank13-3 &gt;()
 
-axes[1].plot(history.history[___], label='mae')
-axes[1].plot(history.history[___], label='val_mae')
+axes[1].plot(history.history[&lt; blank13-4 &gt;], label='mae')
+axes[1].plot(history.history[&lt; blank13-5 &gt;], label='val_mae')
 axes[1].legend()
 
 plt.tight_layout()
-plt.___()
+plt.&lt; blank2-6 &gt;()
 </code></pre></div></section>
 <section class="slide" data-title="함께 풀기 2: Q14 평가와 신규 운영 조건 예측 (4분)" aria-label="19 / 26"><div class="slide__inner"><h2>함께 풀기 2: Q14 평가와 신규 운영 조건 예측 (4분)</h2>
 <p>Q14 화면을 열고 빈칸을 하나씩 채웁니다.</p>
-<pre><code class="language-python">test_loss, test_mae = model.evaluate(___, y_test, verbose=0)
+<pre><code class="language-python">test_loss, test_mae = model.evaluate(&lt; blank14-1 &gt;, y_test, verbose=0)
 pred = model.predict(X_test_scaled)
-y_pred = pred.___()
-rmse = np.sqrt(___(y_test, y_pred))
+y_pred = pred.&lt; blank14-2 &gt;()
+rmse = np.sqrt(&lt; blank14-3 &gt;(y_test, y_pred))
 ...
-new_df = new_df.reindex(columns=___, fill_value=___)
-new_scaled = scaler.___(new_df)
-new_pred = model.predict(___)
+new_df = new_df.reindex(columns=&lt; blank14-5 &gt;, fill_value=&lt; blank14-6 &gt;)
+new_scaled = scaler.&lt; blank14-7 &gt;(new_df)
+new_pred = model.predict(&lt; blank14-7 &gt;)
 </code></pre></div></section>
 <section class="slide" data-title="함께 풀기 — 답과 이유 (Q13)" aria-label="20 / 26"><div class="slide__inner"><h2>함께 풀기 — 답과 이유 (Q13)</h2>
 <ul>
@@ -621,9 +621,14 @@ new_pred = model.predict(___)
 <li>세 회차에서 반복된 실수 유형(재대입 누락, <code>fit</code> 위치, 신규 샘플 전처리)을 본인 기록에서 찾습니다.</li>
 </ul></div></section>
 <section class="slide" data-title="다음 회차 준비" aria-label="23 / 26"><div class="slide__inner"><h2>다음 회차 준비</h2>
-<p>마지막 회차이므로 남은 기간의 개인 계획을 세웁니다.</p>
+<p>다음 회차부터는 공식 샘플 문항 형식의 모의고사(4~6회)를 리뷰합니다. 다음은 12회차, 모의고사 4회(회귀)입니다.</p>
 <ul>
-<li>점수가 가장 낮았던 모의고사를 90분 타이머로 다시 풉니다.</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/mock04.html">모의고사 4회</a>를 90분 타이머로 풀고 점수와 틀린 문항을 기록해 옵니다.</p>
+</li>
+<li>
+<p>점수가 가장 낮았던 모의고사를 90분 타이머로 다시 풉니다.</p>
+</li>
 <li><a target="_blank" rel="noopener" href="https://newids.github.io/dl4aice/appendix.html">부록 A 외워야 하는 코드</a>의 기억 연습을 복습 일정(1, 3, 7, 14, 30일 간격)에 따라 진행합니다.</li>
 <li>치트시트로 문제 유형별 코드의 뼈대를 점검합니다.</li>
 <li>응시 전에 KT AICE 공식 공지에서 일정, 문항 구성, 허용 자료를 확인합니다.</li>
@@ -662,7 +667,7 @@ new_pred = model.predict(___)
 <button class="btn" type="button" data-next aria-label="다음 슬라이드">&#8594;</button>
 </nav>
 <div class="ov" role="dialog" aria-label="슬라이드 목록">
-<div class="ov__head"><h2>11회차 — 모의고사 3회 리뷰 (회귀)</h2><span><a class="btn" href="10-mock02.html" title="이전 회차">이전 회차</a>  <button class="btn" type="button" data-close>닫기</button></span></div>
+<div class="ov__head"><h2>11회차 — 모의고사 3회 리뷰 (회귀)</h2><span><a class="btn" href="10-mock02.html" title="이전 회차">이전 회차</a> <a class="btn" href="12-mock04.html" title="다음 회차">다음 회차</a> <button class="btn" type="button" data-close>닫기</button></span></div>
 <ol class="ov__grid">
 <li><button class="ov__item" type="button"><span class="ov__no">1</span><span>11회차 — 모의고사 3회 리뷰 (회귀)</span></button></li>
 <li><button class="ov__item" type="button"><span class="ov__no">2</span><span>오늘의 목표</span></button></li>
@@ -750,7 +755,7 @@ new_pred = model.predict(___)
   var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
   var CONSTANTS = /^(?:True|False|None|self|cls)$/;
   var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
-  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,}|<\s*blank[\w-]*\s*>)|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
 
   function tok(cls, text) {
     return '<span class="v2-tok-' + cls + '">' + text + "</span>";

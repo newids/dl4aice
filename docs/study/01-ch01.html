@@ -766,7 +766,7 @@ print(X_train.shape, X_test.shape)
   var KEYWORDS = /^(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/;
   var CONSTANTS = /^(?:True|False|None|self|cls)$/;
   var BUILTINS = /^(?:abs|all|any|bool|dict|enumerate|float|format|input|int|isinstance|len|list|map|max|min|open|print|range|repr|reversed|round|set|sorted|str|sum|tuple|type|zip)$/;
-  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,})|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
+  var TOKEN_RE = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:\'\'\'[\s\S]*?\'\'\'|"""[\s\S]*?"""|'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"))|(\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b|\B\.\d+\b)|(_{3,}|<\s*blank[\w-]*\s*>)|(@[A-Za-z_][\w.]*)|([A-Za-z_][A-Za-z0-9_]*)|(==|!=|<=|>=|->|\*\*|\/\/|[-+*\/%=<>&|^~])/g;
 
   function tok(cls, text) {
     return '<span class="v2-tok-' + cls + '">' + text + "</span>";
